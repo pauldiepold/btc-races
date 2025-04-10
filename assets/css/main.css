@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import './fonts.css';
 
 :root {
   --color-primary: #ffb700;
@@ -13,8 +14,18 @@
   --color-warning: #ff9500;
 }
 
+@layer base {
+  html {
+    font-family: 'Raleway', system-ui, sans-serif;
+  }
+}
+
+@theme {
+  --color-primary: var(--color-primary);
+}
+
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Raleway', sans-serif;
   color: var(--color-text);
   background-color: var(--color-background);
 }

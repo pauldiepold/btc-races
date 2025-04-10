@@ -66,7 +66,7 @@ async function submitRegistration() {
   <div>
     <div class="py-8 bg-gray-100 mb-8">
       <div class="container mx-auto px-4">
-        <NuxtLink to="/competitions/1" class="text-[#ffb700] hover:underline mb-2 inline-block">
+        <NuxtLink to="/competitions/1" class="text-primary hover:underline mb-2 inline-block">
           &larr; Zurück zum Wettkampf
         </NuxtLink>
         <h1 class="text-3xl font-bold">
@@ -143,7 +143,7 @@ async function submitRegistration() {
                   id="terms"
                   v-model="termsAccepted"
                   type="checkbox"
-                  class="h-4 w-4 text-[#ffb700] focus:ring-[#ffb700] border-gray-300 rounded"
+                  class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
                   required
                 >
               </div>
@@ -164,7 +164,7 @@ async function submitRegistration() {
             </p>
             <button
               type="submit"
-              class="bg-[#ffb700] text-black px-6 py-2 rounded-lg hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="bg-primary text-black px-6 py-2 rounded-lg hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
               :disabled="!isFormValid"
             >
               Anmeldung absenden

@@ -19,7 +19,7 @@ onMounted(async () => {
 <template>
   <div class="min-h-screen flex items-center justify-center">
     <div class="text-center">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ffb700] mx-auto" />
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
       <p class="mt-4 text-gray-600">
         Wird eingeloggt...
       </p>

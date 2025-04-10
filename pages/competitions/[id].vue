@@ -13,14 +13,14 @@ const competitionId = route.params.id
       <div class="container mx-auto px-4">
         <div class="flex justify-between items-center">
           <div>
-            <NuxtLink to="/competitions" class="text-[#ffb700] hover:underline mb-2 inline-block">
+            <NuxtLink to="/competitions" class="text-primary hover:underline mb-2 inline-block">
               &larr; Zurück zur Übersicht
             </NuxtLink>
             <h1 class="text-3xl font-bold">
               Berliner Triathlon Cup
             </h1>
           </div>
-          <NuxtLink to="/register/1" class="bg-[#ffb700] text-black px-6 py-2 rounded-lg hover:bg-yellow-600">
+          <NuxtLink to="/register/1" class="bg-primary text-black px-6 py-2 rounded-lg hover:bg-primary">
             Anmelden
           </NuxtLink>
         </div>
@@ -131,7 +131,7 @@ const competitionId = route.params.id
                 <p class="font-medium">
                   Peter Schmidt
                 </p>
-                <p class="text-sm text-yellow-600">
+                <p class="text-sm text-primary">
                   Ausstehend
                 </p>
               </div>
@@ -149,7 +149,7 @@ const competitionId = route.params.id
             <p class="mb-4">
               Bei Fragen zum Wettkampf kontaktiere bitte die Wettkampfleitung.
             </p>
-            <a href="mailto:wettkampf@btc.de" class="text-[#ffb700] hover:underline">wettkampf@btc.de</a>
+            <a href="mailto:wettkampf@btc.de" class="text-primary hover:underline">wettkampf@btc.de</a>
           </div>
         </div>
       </div>

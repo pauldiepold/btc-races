@@ -21,8 +21,8 @@ const emit = defineEmits(['closeMenu'])
   <li>
     <NuxtLink
       :to="to"
-      class="block px-4 py-2 hover:text-[#ffb700] transition-colors rounded-lg hover:bg-gray-800 tracking-wider font-medium"
-      :class="{ 'text-[#ffb700] bg-gray-800': $route.path === to }"
+      class="block px-4 py-2 hover:text-primary transition-colors rounded-lg hover:bg-gray-800 tracking-wider font-medium"
+      :class="{ 'text-primary bg-gray-800': $route.path === to }"
       @click="emit('closeMenu')"
     >
       {{ label }}

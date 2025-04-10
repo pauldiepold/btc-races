@@ -1,7 +1,7 @@
 <template>
   <div class="">
     <div class="relative">
-      <div class="relative overflow-hidden bg-[#ffb700] py-12 mb-8 rounded-2xl mx-4 shadow-2xl">
+      <div class="relative overflow-hidden bg-primary py-12 mb-8 rounded-2xl mx-4 shadow-2xl">
         <!-- Hintergrund-Effekte -->
 
         <div class="container mx-auto px-4 relative">
@@ -28,7 +28,7 @@
               <h3 class="text-xl font-bold">
                 Beispiel-Wettkampf
               </h3>
-              <p class="text-[#ffb700]">
+              <p class="text-primary">
                 15. Dezember 2024
               </p>
             </div>
@@ -42,7 +42,7 @@
               <div class="flex space-x-2">
                 <NuxtLink
                   to="/competitions/1"
-                  class="bg-[#ffb700] text-black px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors duration-300"
+                  class="bg-primary text-black px-4 py-2 rounded-lg hover:bg-primary transition-colors duration-300"
                 >
                   Details
                 </NuxtLink>

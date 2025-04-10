@@ -40,7 +40,7 @@ async function handleLogin() {
 
       <button
         :disabled="loading"
-        class="w-full bg-[#ffb700] text-black py-2 px-4 rounded-md hover:bg-yellow-600 transition-colors duration-300 disabled:opacity-50"
+        class="w-full bg-primary text-black py-2 px-4 rounded-md hover:bg-primary transition-colors duration-300 disabled:opacity-50"
         @click="handleLogin"
       >
         {{ loading ? 'Wird eingeloggt...' : 'Mit Microsoft anmelden' }}

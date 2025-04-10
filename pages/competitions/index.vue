@@ -55,7 +55,7 @@
             <h3 class="text-xl font-bold">
               Berliner Triathlon Cup
             </h3>
-            <p class="text-[#ffb700]">
+            <p class="text-primary">
               15. Dezember 2024
             </p>
           </div>
@@ -83,7 +83,7 @@
               </div>
             </div>
             <div class="flex space-x-2">
-              <NuxtLink to="/competitions/1" class="bg-[#ffb700] text-black px-4 py-2 rounded hover:bg-yellow-600">
+              <NuxtLink to="/competitions/1" class="bg-primary text-black px-4 py-2 rounded hover:bg-primary">
                 Details
               </NuxtLink>
               <NuxtLink to="/register/1" class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">
@@ -99,7 +99,7 @@
             <h3 class="text-xl font-bold">
               Hamburg Triathlon
             </h3>
-            <p class="text-[#ffb700]">
+            <p class="text-primary">
               28. Januar 2025
             </p>
           </div>
@@ -127,7 +127,7 @@
               </div>
             </div>
             <div class="flex space-x-2">
-              <NuxtLink to="/competitions/2" class="bg-[#ffb700] text-black px-4 py-2 rounded hover:bg-yellow-600">
+              <NuxtLink to="/competitions/2" class="bg-primary text-black px-4 py-2 rounded hover:bg-primary">
                 Details
               </NuxtLink>
               <NuxtLink to="/register/2" class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">

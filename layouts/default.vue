@@ -49,12 +49,12 @@ async function handleLogout() {
           </nav>
 
           <!-- User Info und Logout (Desktop) -->
-          <div v-if="user" class="hidden md:flex items-center space-x-4">
+          <div v-if="user" class="hidden md:flex items-center space-x-6">
             <span class="text-sm">
-              {{ user.email }}
+              {{ user.user_metadata.full_name }}
             </span>
             <button
-              class="bg-[#ffb700] text-black px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors duration-300"
+              class="bg-primary text-black px-4 py-2 rounded-lg hover:bg-primary transition-colors duration-300"
               @click="handleLogout"
             >
               Ausloggen
@@ -63,7 +63,7 @@ async function handleLogout() {
 
           <!-- Mobile Menu Button -->
           <button
-            class="md:hidden text-white hover:text-[#ffb700] transition-colors"
+            class="md:hidden text-white hover:text-primary transition-colors"
             aria-label="Menü öffnen"
             @click="toggleMenu"
           >
@@ -105,7 +105,7 @@ async function handleLogout() {
                   Eingeloggt als: {{ user.email }}
                 </span>
                 <button
-                  class="bg-[#ffb700] text-black px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors duration-300"
+                  class="bg-primary text-black px-4 py-2 rounded-lg hover:bg-primary transition-colors duration-300"
                   @click="handleLogout"
                 >
                   Ausloggen
@@ -140,14 +140,14 @@ async function handleLogout() {
             href="https://berlin-track-club.de"
             target="_blank"
             rel="noopener noreferrer"
-            class="hover:text-[#ffb700] transition-colors"
+            class="hover:text-primary transition-colors"
           >
             https://berlin-track-club.de
           </a>
           <NuxtLink
             v-if="!user"
             to="/login"
-            class="px-4 py-2 bg-[#ffb700] text-black font-medium rounded-lg hover:bg-[#ffc940] transition-colors"
+            class="px-4 py-2 bg-primary text-black font-medium rounded-lg hover:bg-[#ffc940] transition-colors"
           >
             Admin-Bereich
           </NuxtLink>

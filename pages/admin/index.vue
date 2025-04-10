@@ -15,7 +15,7 @@ definePageMeta({
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <!-- Dashboard-Karten -->
-      <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-[#ffb700]">
+      <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-primary">
         <h2 class="text-xl font-bold mb-2">
           Wettkämpfe
         </h2>
@@ -27,7 +27,7 @@ definePageMeta({
         </p>
       </div>
 
-      <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-[#ffb700]">
+      <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-primary">
         <h2 class="text-xl font-bold mb-2">
           Mitglieder
         </h2>
@@ -39,7 +39,7 @@ definePageMeta({
         </p>
       </div>
 
-      <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-[#ffb700]">
+      <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-primary">
         <h2 class="text-xl font-bold mb-2">
           Anmeldungen
         </h2>
@@ -51,7 +51,7 @@ definePageMeta({
         </p>
       </div>
 
-      <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-[#ffb700]">
+      <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-primary">
         <h2 class="text-xl font-bold mb-2">
           Ausstehend
         </h2>
@@ -71,7 +71,7 @@ definePageMeta({
           <h2 class="text-xl font-bold">
             Aktuelle Wettkämpfe
           </h2>
-          <NuxtLink to="/admin/competitions" class="text-[#ffb700] hover:underline text-sm">
+          <NuxtLink to="/admin/competitions" class="text-primary hover:underline text-sm">
             Alle anzeigen
           </NuxtLink>
         </div>
@@ -91,7 +91,7 @@ definePageMeta({
               <p class="text-sm">
                 12 Anmeldungen
               </p>
-              <NuxtLink to="/admin/competitions/1" class="text-[#ffb700] hover:underline text-sm">
+              <NuxtLink to="/admin/competitions/1" class="text-primary hover:underline text-sm">
                 Details
               </NuxtLink>
             </div>
@@ -111,7 +111,7 @@ definePageMeta({
               <p class="text-sm">
                 8 Anmeldungen
               </p>
-              <NuxtLink to="/admin/competitions/2" class="text-[#ffb700] hover:underline text-sm">
+              <NuxtLink to="/admin/competitions/2" class="text-primary hover:underline text-sm">
                 Details
               </NuxtLink>
             </div>
@@ -131,7 +131,7 @@ definePageMeta({
               <p class="text-sm">
                 Noch keine Anmeldungen
               </p>
-              <NuxtLink to="/admin/competitions/3" class="text-[#ffb700] hover:underline text-sm">
+              <NuxtLink to="/admin/competitions/3" class="text-primary hover:underline text-sm">
                 Details
               </NuxtLink>
             </div>
@@ -145,7 +145,7 @@ definePageMeta({
           <h2 class="text-xl font-bold">
             Neueste Anmeldungen
           </h2>
-          <NuxtLink to="/admin/registrations" class="text-[#ffb700] hover:underline text-sm">
+          <NuxtLink to="/admin/registrations" class="text-primary hover:underline text-sm">
             Alle anzeigen
           </NuxtLink>
         </div>

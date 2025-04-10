@@ -19,7 +19,7 @@ const { user } = useAuth()
         </a>
         <NuxtLink
           v-if="!user"
-          to="/login"
+          to="/admin"
           class="px-4 py-2 bg-primary text-black font-medium rounded-lg hover:bg-[#ffc940] transition-colors"
         >
           Admin-Bereich

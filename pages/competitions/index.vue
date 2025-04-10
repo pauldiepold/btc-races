@@ -1,144 +1,161 @@
+<script setup lang="ts">
+import type { Database } from '~/types/supabase'
+import { useSupabaseClient } from '#imports'
+
+const supabase = useSupabaseClient<Database>()
+
+const competitions = ref<Database['public']['Tables']['competitions']['Row'][]>([])
+const loading = ref(true)
+const error = ref('')
+
+// Filter-Status
+const showArchived = ref(false)
+const searchQuery = ref('')
+const selectedCategory = ref('')
+
+// Kategorien aus den Veranstaltungen extrahieren
+const categories = computed(() => {
+  const allCategories = competitions.value
+    .flatMap(c => c.categories?.split(',').map(cat => cat.trim()) || [])
+    .filter(Boolean)
+  return [...new Set(allCategories)]
+})
+
+// Veranstaltungen laden
+async function loadCompetitions() {
+  try {
+    loading.value = true
+    const { data, error: supabaseError } = await supabase
+      .from('competitions')
+      .select('*')
+      .order('date', { ascending: true })
+
+    if (supabaseError)
+      throw supabaseError
+    competitions.value = data
+  }
+  catch (e) {
+    console.error('Fehler beim Laden der Veranstaltungen:', e)
+    error.value = 'Es ist ein Fehler beim Laden der Veranstaltungen aufgetreten.'
+  }
+  finally {
+    loading.value = false
+  }
+}
+
+// Gefilterte Veranstaltungen
+const filteredCompetitions = computed(() => {
+  return competitions.value.filter((competition) => {
+    // Archivierte Veranstaltungen filtern
+    if (!showArchived.value && competition.is_archived)
+      return false
+
+    // Suchanfrage filtern
+    if (searchQuery.value) {
+      const searchLower = searchQuery.value.toLowerCase()
+      const matchesSearch
+        = competition.name.toLowerCase().includes(searchLower)
+          || competition.description?.toLowerCase().includes(searchLower)
+          || competition.location.toLowerCase().includes(searchLower)
+      if (!matchesSearch)
+        return false
+    }
+
+    // Kategorie filtern
+    if (selectedCategory.value) {
+      const competitionCategories = competition.categories?.split(',').map(c => c.trim()) || []
+      if (!competitionCategories.includes(selectedCategory.value))
+        return false
+    }
+
+    return true
+  })
+})
+
+onMounted(() => {
+  loadCompetitions()
+})
+</script>
+
 <template>
-  <div>
-    <div class="py-8 bg-gray-100 mb-8">
-      <div class="container mx-auto px-4">
-        <h1 class="text-3xl font-bold mb-2">
-          Wettkämpfe
-        </h1>
-        <p class="text-gray-600">
-          Hier findest du alle aktuellen Wettkämpfe des BTC
-        </p>
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-2xl font-bold">
+        Veranstaltungen
+      </h1>
+      <NuxtLink
+        to="/admin/competitions/new"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        Neue Veranstaltung
+      </NuxtLink>
+    </div>
+
+    <!-- Filter-Bereich -->
+    <div class="mb-8 space-y-4">
+      <!-- Suchfeld -->
+      <div class="relative">
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Veranstaltung suchen..."
+          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        >
+      </div>
+
+      <!-- Filter-Optionen -->
+      <div class="flex flex-wrap gap-4">
+        <!-- Kategorie-Filter -->
+        <select
+          v-model="selectedCategory"
+          class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        >
+          <option value="">
+            Alle Kategorien
+          </option>
+          <option
+            v-for="category in categories"
+            :key="category"
+            :value="category"
+          >
+            {{ category }}
+          </option>
+        </select>
+
+        <!-- Archiv-Filter -->
+        <label class="inline-flex items-center">
+          <input
+            v-model="showArchived"
+            type="checkbox"
+            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          >
+          <span class="ml-2 text-sm text-gray-700">Archivierte anzeigen</span>
+        </label>
       </div>
     </div>
 
-    <div class="container mx-auto px-4">
-      <!-- Filteroptionen -->
-      <div class="mb-8 p-4 bg-white border rounded-lg shadow-sm">
-        <h2 class="text-lg font-semibold mb-4">
-          Filter
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Zeitraum</label>
-            <select class="w-full border-gray-300 rounded-md shadow-sm">
-              <option>Alle Zeiträume</option>
-              <option>Nächste 30 Tage</option>
-              <option>Nächste 90 Tage</option>
-              <option>Dieses Jahr</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Ort</label>
-            <select class="w-full border-gray-300 rounded-md shadow-sm">
-              <option>Alle Orte</option>
-              <option>Berlin</option>
-              <option>Hamburg</option>
-              <option>München</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select class="w-full border-gray-300 rounded-md shadow-sm">
-              <option>Alle</option>
-              <option>Anmeldung möglich</option>
-              <option>Meldefrist abgelaufen</option>
-            </select>
-          </div>
-        </div>
-      </div>
+    <!-- Lade-Status -->
+    <div v-if="loading" class="text-center py-8">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto" />
+    </div>
 
-      <!-- Wettkampfliste -->
-      <div class="space-y-6">
-        <!-- Beispiel für einen Wettkampf (wird später dynamisch) -->
-        <div class="border rounded-lg overflow-hidden shadow-md">
-          <div class="bg-black text-white p-4">
-            <h3 class="text-xl font-bold">
-              Berliner Triathlon Cup
-            </h3>
-            <p class="text-primary">
-              15. Dezember 2024
-            </p>
-          </div>
-          <div class="p-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div>
-                <p class="text-sm text-gray-500">
-                  Ort
-                </p>
-                <p>Berlin, Wannsee</p>
-              </div>
-              <div>
-                <p class="text-sm text-gray-500">
-                  Meldefrist
-                </p>
-                <p>1. Dezember 2024</p>
-              </div>
-              <div>
-                <p class="text-sm text-gray-500">
-                  Status
-                </p>
-                <p class="text-green-600">
-                  Anmeldung möglich
-                </p>
-              </div>
-            </div>
-            <div class="flex space-x-2">
-              <NuxtLink to="/competitions/1">
-                <BaseButton>
-                  Details
-                </BaseButton>
-              </NuxtLink>
-              <NuxtLink to="/register/1" class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">
-                Anmelden
-              </NuxtLink>
-            </div>
-          </div>
-        </div>
+    <!-- Fehlermeldung -->
+    <div v-else-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+      {{ error }}
+    </div>
 
-        <!-- Beispiel für einen weiteren Wettkampf -->
-        <div class="border rounded-lg overflow-hidden shadow-md">
-          <div class="bg-black text-white p-4">
-            <h3 class="text-xl font-bold">
-              Hamburg Triathlon
-            </h3>
-            <p class="text-primary">
-              28. Januar 2025
-            </p>
-          </div>
-          <div class="p-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div>
-                <p class="text-sm text-gray-500">
-                  Ort
-                </p>
-                <p>Hamburg, Alster</p>
-              </div>
-              <div>
-                <p class="text-sm text-gray-500">
-                  Meldefrist
-                </p>
-                <p>15. Januar 2025</p>
-              </div>
-              <div>
-                <p class="text-sm text-gray-500">
-                  Status
-                </p>
-                <p class="text-green-600">
-                  Anmeldung möglich
-                </p>
-              </div>
-            </div>
-            <div class="flex space-x-2">
-              <NuxtLink to="/competitions/2" class="bg-primary text-black px-4 py-2 rounded hover:bg-primary">
-                Details
-              </NuxtLink>
-              <NuxtLink to="/register/2" class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">
-                Anmelden
-              </NuxtLink>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Keine Ergebnisse -->
+    <div v-else-if="filteredCompetitions.length === 0" class="text-center py-8 text-gray-500">
+      Keine Veranstaltungen gefunden
+    </div>
+
+    <!-- Veranstaltungsliste -->
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <CompetitionCard
+        v-for="competition in filteredCompetitions"
+        :key="competition.id"
+        :competition="competition"
+      />
     </div>
   </div>
 </template>

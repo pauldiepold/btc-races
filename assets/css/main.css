@@ -25,19 +25,6 @@
   --color-primary: var(--primary-color);
 }
 
-
-.primary-color {
-  color: var(--primary-color);
-}
-
-.secondary-color {
-  color: var(--secondary-color);
-}
-
-.primary-bg {
-  background-color: var(--primary-color);
-}
-
-.secondary-bg {
-  background-color: var(--secondary-color);
+textarea, input {
+  @apply mt-2 px-4 py-2 block w-full bg-white text-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500
 }

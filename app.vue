@@ -1,6 +1,11 @@
+<script setup>
+// App-weite Logik kann hier hinzugefügt werden
+</script>
+
 <template>
   <div>
-    <NuxtRouteAnnouncer />
-    <NuxtWelcome />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
   </div>
 </template>

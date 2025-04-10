@@ -1,75 +1,98 @@
-# Nuxt Minimal Starter
+# BTC Wettkampfanmeldung
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für Vereinsmitglieder.
 
-## Setup
+## Funktionen
 
-Make sure to install dependencies:
+- **Authentifizierung**: Microsoft Entra ID Integration für Admins
+- **Mitgliederverwaltung**: Excel-Import und Mitgliederverwaltung
+- **Wettkampfverwaltung**: Erstellen, Bearbeiten und Löschen von Wettkämpfen
+- **Anmeldungsprozess**: Einfacher Anmeldeprozess mit E-Mail-Bestätigung
+- **Benachrichtigungssystem**: Automatisierte E-Mail-Benachrichtigungen
 
-```bash
-# npm
-npm install
+## Technologie-Stack
 
-# pnpm
-pnpm install
+- **Frontend**: Nuxt 3 mit Vue 3
+- **UI-Framework**: Nuxt UI mit Vereinsfarben (Schwarz und #ffb700)
+- **Backend-Datenbank**: Supabase (PostgreSQL)
+- **Hosting**: Vercel (kostenloser Tier)
 
-# yarn
-yarn install
+## Einrichtung
 
-# bun
-bun install
-```
+### Voraussetzungen
 
-## Development Server
+- Node.js 18 oder höher
+- PNPM
+- Supabase-Konto (kostenloser Tier ausreichend)
 
-Start the development server on `http://localhost:3000`:
+### Installation
 
-```bash
-# npm
-npm run dev
+1. Repository klonen
+   ```bash
+   git clone <repository-url>
+   cd btc-races
+   ```
 
-# pnpm
-pnpm dev
+2. Abhängigkeiten installieren
+   ```bash
+   pnpm install
+   ```
 
-# yarn
-yarn dev
+3. Umgebungsvariablen konfigurieren
+   ```bash
+   cp .env.example .env
+   ```
 
-# bun
-bun run dev
-```
+   Bearbeite die `.env`-Datei und füge deine Supabase-Zugangsdaten ein.
 
-## Production
+4. Supabase-Projekt einrichten
+   - Erstelle ein neues Projekt auf [Supabase](https://supabase.com)
+   - Führe das Schema aus `server/db/schema.sql` in der SQL-Konsole von Supabase aus
+   - Kopiere die URL und den API-Key in deine `.env`-Datei
 
-Build the application for production:
+5. Entwicklungsserver starten
+   ```bash
+   pnpm run dev
+   ```
 
-```bash
-# npm
-npm run build
+## Projektstruktur
 
-# pnpm
-pnpm build
+- `assets/`: Statische Assets wie CSS und Bilder
+- `components/`: Wiederverwendbare Vue-Komponenten
+- `composables/`: Kompositionsfunktionen (z.B. Supabase-Integration)
+- `layouts/`: Seitenlayouts (Admin vs. Öffentlich)
+- `pages/`: Seitenkomponenten (Routing basiert auf Dateistruktur)
+- `public/`: Öffentliche Dateien
+- `server/`: Serverseitige Dateien und Datenbankschema
 
-# yarn
-yarn build
+## Nächste Schritte für die Entwicklung
 
-# bun
-bun run build
-```
+1. **Supabase einrichten**
+   - Erstelle ein Supabase-Projekt
+   - Führe das Datenbankschema aus
+   - Konfiguriere die Umgebungsvariablen
 
-Locally preview production build:
+2. **Authentifizierung implementieren**
+   - Microsoft Entra ID Integration für Admin-Bereich
+   - Geschützte Routen im Admin-Bereich
 
-```bash
-# npm
-npm run preview
+3. **Datenbankanbindung**
+   - Mitgliederdaten-Import
+   - CRUD-Operationen für Wettkämpfe
 
-# pnpm
-pnpm preview
+4. **E-Mail-System**
+   - Bestätigungsmails
+   - Erinnerungsmails
+   - E-Mail-Vorlagen
 
-# yarn
-yarn preview
+5. **Filterfunktionen**
+   - Filter für Wettkämpfe implementieren
+   - Sortierung und Suche hinzufügen
 
-# bun
-bun run preview
-```
+6. **Deployment**
+   - CI/CD-Pipeline auf Vercel einrichten
+   - Produktions-Deployment
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Lizenz
+
+Dieses Projekt ist intern für den BTC (Berliner Triathlon Club) entwickelt und nicht öffentlich lizenziert.

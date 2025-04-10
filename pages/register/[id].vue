@@ -162,13 +162,12 @@ async function submitRegistration() {
             <p class="text-sm text-gray-500">
               * Pflichtfelder
             </p>
-            <button
+            <BaseButton
               type="submit"
-              class="bg-primary text-black px-6 py-2 rounded-lg hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
               :disabled="!isFormValid"
             >
               Anmeldung absenden
-            </button>
+            </BaseButton>
           </div>
         </form>
       </div>

@@ -83,8 +83,10 @@
               </div>
             </div>
             <div class="flex space-x-2">
-              <NuxtLink to="/competitions/1" class="bg-primary text-black px-4 py-2 rounded hover:bg-primary">
-                Details
+              <NuxtLink to="/competitions/1">
+                <BaseButton>
+                  Details
+                </BaseButton>
               </NuxtLink>
               <NuxtLink to="/register/1" class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">
                 Anmelden

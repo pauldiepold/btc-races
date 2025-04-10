@@ -71,9 +71,9 @@ definePageMeta({
           <h2 class="text-xl font-bold">
             Aktuelle Wettkämpfe
           </h2>
-          <NuxtLink to="/admin/competitions" class="text-primary hover:underline text-sm">
+          <BaseLink to="/admin/competitions">
             Alle anzeigen
-          </NuxtLink>
+          </BaseLink>
         </div>
 
         <div class="space-y-4">
@@ -91,9 +91,9 @@ definePageMeta({
               <p class="text-sm">
                 12 Anmeldungen
               </p>
-              <NuxtLink to="/admin/competitions/1" class="text-primary hover:underline text-sm">
+              <BaseLink to="/admin/competitions/1">
                 Details
-              </NuxtLink>
+              </BaseLink>
             </div>
           </div>
 
@@ -111,9 +111,9 @@ definePageMeta({
               <p class="text-sm">
                 8 Anmeldungen
               </p>
-              <NuxtLink to="/admin/competitions/2" class="text-primary hover:underline text-sm">
+              <BaseLink to="/admin/competitions/2">
                 Details
-              </NuxtLink>
+              </BaseLink>
             </div>
           </div>
 
@@ -131,9 +131,9 @@ definePageMeta({
               <p class="text-sm">
                 Noch keine Anmeldungen
               </p>
-              <NuxtLink to="/admin/competitions/3" class="text-primary hover:underline text-sm">
+              <BaseLink to="/admin/competitions/3">
                 Details
-              </NuxtLink>
+              </BaseLink>
             </div>
           </div>
         </div>
@@ -145,9 +145,9 @@ definePageMeta({
           <h2 class="text-xl font-bold">
             Neueste Anmeldungen
           </h2>
-          <NuxtLink to="/admin/registrations" class="text-primary hover:underline text-sm">
+          <BaseLink to="/admin/registrations">
             Alle anzeigen
-          </NuxtLink>
+          </BaseLink>
         </div>
 
         <div class="space-y-4">
@@ -166,12 +166,12 @@ definePageMeta({
                 Vor 2 Stunden
               </p>
               <div>
-                <button class="text-green-600 hover:underline text-sm mr-2">
+                <BaseButton variant="text" color="green-600" class="mr-2">
                   Bestätigen
-                </button>
-                <button class="text-red-600 hover:underline text-sm">
+                </BaseButton>
+                <BaseButton variant="text" color="red-600">
                   Ablehnen
-                </button>
+                </BaseButton>
               </div>
             </div>
           </div>

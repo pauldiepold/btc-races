@@ -7,13 +7,11 @@ defineProps({
   },
 })
 
-const supabase = useSupabaseClient()
-const user = ref<any>(null)
+const { user, logout, checkSession } = useAuth()
 const isMenuOpen = ref(false)
 
 onMounted(async () => {
-  const { data: { session } } = await supabase.auth.getSession()
-  user.value = session?.user
+  await checkSession()
 })
 
 function toggleMenu() {
@@ -21,8 +19,8 @@ function toggleMenu() {
 }
 
 async function handleLogout() {
-  await supabase.auth.signOut()
-  navigateTo('/login')
+  await logout()
+  navigateTo('/')
 }
 </script>
 
@@ -49,16 +47,17 @@ async function handleLogout() {
           </nav>
 
           <!-- User Info und Logout (Desktop) -->
-          <div v-if="user" class="hidden md:flex items-center space-x-6">
-            <span class="text-sm">
-              {{ user.user_metadata.full_name }}
-            </span>
-            <button
-              class="bg-primary text-black px-4 py-2 rounded-lg hover:bg-primary transition-colors duration-300"
-              @click="handleLogout"
-            >
-              Ausloggen
-            </button>
+          <div class="hidden md:flex items-center space-x-6">
+            <template v-if="user">
+              <span class="text-sm">
+                {{ user.user_metadata.full_name }}
+              </span>
+              <BaseButton
+                @click="handleLogout"
+              >
+                Ausloggen
+              </BaseButton>
+            </template>
           </div>
 
           <!-- Mobile Menu Button -->
@@ -104,12 +103,11 @@ async function handleLogout() {
                 <span class="text-sm text-gray-400">
                   Eingeloggt als: {{ user.email }}
                 </span>
-                <button
-                  class="bg-primary text-black px-4 py-2 rounded-lg hover:bg-primary transition-colors duration-300"
+                <BaseButton
                   @click="handleLogout"
                 >
                   Ausloggen
-                </button>
+                </BaseButton>
               </div>
             </li>
           </ul>
@@ -134,7 +132,7 @@ async function handleLogout() {
       <div class="container mx-auto px-4">
         <div class="flex flex-col justify-center items-center space-y-4">
           <div class="text-center">
-            <p>© {{ new Date().getFullYear() }} Berlin Track Club e.V.</p>
+            <p>© {{ new Date().getFullYear() }} - Berlin Track Club e.V.</p>
           </div>
           <a
             href="https://berlin-track-club.de"

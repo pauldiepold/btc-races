@@ -20,12 +20,12 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     // Server-seitige Umgebungsvariablen
-    emailSender: process.env.EMAIL_SENDER || 'noreply@example.com',
+    emailSender: 'noreply@example.com',
 
     // Client-seitige Umgebungsvariablen
     public: {
-      supabaseUrl: process.env.SUPABASE_URL || '',
-      supabaseKey: process.env.SUPABASE_KEY || '',
+      supabaseUrl: '',
+      supabaseKey: '',
       appTitle: 'BTC Wettkampfanmeldung',
       appDescription: 'Anmeldesystem für Wettkämpfe des BTC',
       primaryColor: '#ffb700',
@@ -35,7 +35,12 @@ export default defineNuxtConfig({
 
   // Supabase-Konfiguration
   supabase: {
-    redirect: false,
+    redirect: true,
+    redirectOptions: {
+      login: '/login',
+      callback: '/auth/callback',
+      exclude: ['/'],
+    },
   },
 
   // CSS-Dateien

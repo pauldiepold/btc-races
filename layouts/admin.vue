@@ -1,74 +1,46 @@
-<script setup>
-// Admin-Layout-spezifische Logik kann hier hinzugefügt werden
+<script setup lang="ts">
+const supabase = useSupabaseClient()
+const user = ref<any>(null)
+
+onMounted(async () => {
+  const { data: { session } } = await supabase.auth.getSession()
+  user.value = session?.user
+})
+
+async function handleLogout() {
+  await supabase.auth.signOut()
+  navigateTo('/login')
+}
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col">
-    <header class="bg-black text-white p-4">
-      <div class="container mx-auto flex justify-between items-center">
-        <h1 class="text-xl font-bold">
-          <NuxtLink to="/admin" class="flex items-center">
-            <span class="text-[#ffb700] mr-2">BTC</span> Admin-Bereich
+  <div class="min-h-screen bg-gray-50">
+    <header class="bg-black text-white">
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex justify-between items-center">
+          <NuxtLink to="/admin" class="flex items-center space-x-2">
+            <img src="~/assets/images/BTC_Logo_yellow.png" alt="BTC Logo" class="h-8 w-auto">
+            <span class="text-xl font-bold">Admin Bereich</span>
           </NuxtLink>
-        </h1>
-        <div class="flex items-center">
-          <p class="mr-4">
-            Willkommen, Admin
-          </p>
-          <button class="text-[#ffb700] hover:underline">
-            Abmelden
-          </button>
+
+          <div class="flex items-center space-x-4">
+            <span v-if="user" class="text-sm">
+              Eingeloggt als: {{ user.email }}
+            </span>
+            <button
+              class="bg-[#ffb700] text-black px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors duration-300"
+              @click="handleLogout"
+            >
+              Ausloggen
+            </button>
+          </div>
         </div>
       </div>
     </header>
 
-    <div class="flex-1 flex">
-      <aside class="w-64 bg-gray-100 p-4 border-r">
-        <nav>
-          <ul class="space-y-2">
-            <li>
-              <NuxtLink to="/admin" class="block p-2 rounded hover:bg-[#ffb700] hover:text-black">
-                Dashboard
-              </NuxtLink>
-            </li>
-            <li>
-              <NuxtLink to="/admin/members" class="block p-2 rounded hover:bg-[#ffb700] hover:text-black">
-                Mitglieder
-              </NuxtLink>
-            </li>
-            <li>
-              <NuxtLink to="/admin/competitions" class="block p-2 rounded hover:bg-[#ffb700] hover:text-black">
-                Wettkämpfe
-              </NuxtLink>
-            </li>
-            <li>
-              <NuxtLink to="/admin/registrations" class="block p-2 rounded hover:bg-[#ffb700] hover:text-black">
-                Anmeldungen
-              </NuxtLink>
-            </li>
-            <li>
-              <NuxtLink to="/admin/emails" class="block p-2 rounded hover:bg-[#ffb700] hover:text-black">
-                E-Mail-Verwaltung
-              </NuxtLink>
-            </li>
-          </ul>
-        </nav>
-      </aside>
-
-      <main class="flex-1 p-6">
-        <slot />
-      </main>
-    </div>
-
-    <footer class="bg-black text-white p-4">
-      <div class="container mx-auto">
-        <div class="flex justify-between items-center">
-          <div>
-            <p>© {{ new Date().getFullYear() }} BTC Admin-Bereich</p>
-          </div>
-        </div>
-      </div>
-    </footer>
+    <main class="container mx-auto px-4 py-8">
+      <slot />
+    </main>
   </div>
 </template>
 

@@ -1,7 +1,4 @@
 <script setup>
-import MobileNavLink from '~/components/navigation/MobileNavLink.vue'
-import NavLink from '~/components/navigation/NavLink.vue'
-
 const isMenuOpen = ref(false)
 
 function toggleMenu() {
@@ -20,7 +17,7 @@ function toggleMenu() {
               alt="BTC Logo"
               class="h-12 w-auto transform transition-transform duration-300 group-hover:scale-110"
             >
-            <span class="ml-8 text-xl font-bold tracking-wider relative">
+            <span class="hidden md:block ml-8 text-xl font-bold tracking-wider relative">
               Wettkampfanmeldung
               <span class="absolute -bottom-1 left-0 w-full h-0.5 bg-[#ffb700] transform scale-x-0 transition-transform duration-300 group-hover:scale-x-100" />
             </span>
@@ -29,8 +26,8 @@ function toggleMenu() {
           <!-- Desktop Navigation -->
           <nav class="hidden md:block">
             <ul class="flex space-x-6">
-              <NavLink to="/" label="Startseite" />
-              <NavLink to="/competitions" label="Wettkämpfe" />
+              <NavHeaderLink to="/" label="Startseite" />
+              <NavHeaderLink to="/competitions" label="Wettkämpfe" />
             </ul>
           </nav>
 
@@ -40,27 +37,10 @@ function toggleMenu() {
             aria-label="Menü öffnen"
             @click="toggleMenu"
           >
-            <svg
-              class="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                v-if="!isMenuOpen"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-              <path
-                v-else
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <Icon
+              :name="isMenuOpen ? 'heroicons:x-mark' : 'heroicons:bars-3'"
+              class="w-8 h-8"
+            />
           </button>
         </div>
 
@@ -70,13 +50,13 @@ function toggleMenu() {
           class="md:hidden absolute left-0 right-0 bg-black z-50"
         >
           <ul class="py-4 px-4 space-y-4">
-            <MobileNavLink
+            <NavHeaderLinkMobile
               to="/"
               label="Startseite"
               :is-menu-open="isMenuOpen"
               @close-menu="isMenuOpen = false"
             />
-            <MobileNavLink
+            <NavHeaderLinkMobile
               to="/competitions"
               label="Wettkämpfe"
               :is-menu-open="isMenuOpen"

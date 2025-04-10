@@ -2,9 +2,9 @@
 @import './fonts.css';
 
 :root {
-  --color-primary: #ffb700;
-  --color-secondary: #000000;
-  --color-background: #ffffff;
+  --primary-color: #ffb700;
+  --secondary-color: #000000;
+  --color-background: #f8f9fa;
   --color-text: #333333;
   --color-light-gray: #f5f5f5;
   --color-gray: #dddddd;
@@ -17,31 +17,41 @@
 @layer base {
   html {
     font-family: 'Raleway', system-ui, sans-serif;
+    background-color: var(--color-background);
   }
 }
 
 @theme {
-  --color-primary: var(--color-primary);
+  --color-primary: var(--primary-color);
 }
 
 body {
   font-family: 'Raleway', sans-serif;
   color: var(--color-text);
   background-color: var(--color-background);
+  min-height: 100vh;
 }
 
 .primary-color {
-  color: var(--color-primary);
+  color: var(--primary-color);
 }
 
 .secondary-color {
-  color: var(--color-secondary);
+  color: var(--secondary-color);
 }
 
 .primary-bg {
-  background-color: var(--color-primary);
+  background-color: var(--primary-color);
 }
 
 .secondary-bg {
-  background-color: var(--color-secondary);
+  background-color: var(--secondary-color);
+}
+
+/* Container für weiße Boxen */
+.container-box {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
 } 

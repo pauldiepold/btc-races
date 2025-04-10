@@ -1,11 +1,5 @@
-<script setup>
-definePageMeta({
-  layout: 'default',
-})
-</script>
-
 <template>
-  <div class="min-h-screen">
+  <div class="">
     <div class="relative">
       <div class="relative overflow-hidden bg-[#ffb700] py-12 mb-8 rounded-2xl mx-4 shadow-2xl">
         <!-- Hintergrund-Effekte -->

@@ -1,10 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
 
-definePageMeta({
-  layout: 'default',
-})
-
 // Die Wettkampf-ID aus der Route
 const route = useRoute()
 const competitionId = route.params.id

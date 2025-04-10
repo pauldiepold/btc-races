@@ -1,8 +1,4 @@
 <script setup>
-definePageMeta({
-  layout: 'default',
-})
-
 // Die tatsächliche Wettkampf-ID wird aus der Route extrahiert
 const route = useRoute()
 const competitionId = route.params.id

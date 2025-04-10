@@ -1,9 +1,3 @@
-<script setup>
-definePageMeta({
-  layout: 'default',
-})
-</script>
-
 <template>
   <div>
     <div class="py-8 bg-gray-100 mb-8">

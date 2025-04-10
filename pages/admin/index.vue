@@ -1,9 +1,10 @@
 <script setup>
 definePageMeta({
-  layout: 'admin',
+  layoutProps: {
+    pageTitle: 'Admin-Dashboard',
+    pageSubTitle: 'Admin-Dashboard asdf',
+  },
 })
-
-// Später werden diese Daten aus Supabase geladen
 </script>
 
 <template>

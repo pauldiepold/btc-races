@@ -1,21 +1,6 @@
 <template>
   <div class="">
     <div class="relative">
-      <div class="relative overflow-hidden bg-primary py-12 mb-8 rounded-2xl mx-4 shadow-2xl">
-        <!-- Hintergrund-Effekte -->
-
-        <div class="container mx-auto px-4 relative">
-          <div class="text-center">
-            <h1 class="text-3xl md:text-4xl font-bold text-black mb-4 transform ">
-              Wettkampf Anmeldung
-            </h1>
-            <p class="text-lg md:text-xl text-black opacity-90">
-              Einfache Anmeldung zu Vereinswettkämpfen
-            </p>
-          </div>
-        </div>
-      </div>
-
       <div class="container mx-auto px-4 relative">
         <h2 class="text-2xl font-bold mb-6">
           Aktuelle Wettkämpfe

@@ -89,7 +89,7 @@ async function handleLogout() {
             :is-menu-open="isMenuOpen"
             @close-menu="isMenuOpen = false"
           />
-          <li v-if="user" class="pt-4 border-t border-gray-700">
+          <li v-if="user" class="pt-4 border-t border-gray-700 text-center">
             <div class="flex flex-col space-y-4">
               <span class="text-sm text-gray-400">
                 Eingeloggt als: {{ user.email }}

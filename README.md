@@ -4,7 +4,6 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für Vereinsmitgl
 
 ## Funktionen
 
-
 - **Authentifizierung**: Microsoft Entra ID Integration für Admins
 - **Mitgliederverwaltung**: Excel-Import und Mitgliederverwaltung
 - **Wettkampfverwaltung**: Erstellen, Bearbeiten und Löschen von Wettkämpfen

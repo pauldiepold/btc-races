@@ -19,8 +19,6 @@ CREATE TABLE competitions (
   registration_deadline DATE NOT NULL,
   announcement_link TEXT NOT NULL,
   description TEXT,
-  max_participants INTEGER,
-  categories TEXT,
   is_archived BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

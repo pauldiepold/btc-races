@@ -18,8 +18,6 @@ export interface Competition {
   registration_deadline: string
   announcement_link: string
   description?: string
-  max_participants?: number
-  categories?: string
   is_archived: boolean
   created_at: string
   updated_at: string

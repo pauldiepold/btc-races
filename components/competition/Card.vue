@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import type { Competition } from '~/types/supabase'
+import type { Database } from '~/types/supabase'
+
+type Competition = Database['public']['Tables']['competitions']['Row']
 
 defineProps<{
   competition: Competition
@@ -37,15 +39,9 @@ defineProps<{
             {{ new Date(competition.registration_deadline).toLocaleDateString('de-DE') }}
           </span>
         </div>
-        <div>
-          <span class="text-gray-500">Max. Teilnehmer:</span>
-          <span class="ml-2 text-gray-900">
-            {{ competition.max_participants || 'Keine Begrenzung' }}
-          </span>
-        </div>
       </div>
 
-      <div class="mt-4">
+      <div v-if="competition.announcement_link" class="mt-4">
         <a
           :href="competition.announcement_link"
           target="_blank"

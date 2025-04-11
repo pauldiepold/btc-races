@@ -26,5 +26,5 @@
 }
 
 textarea, input {
-  @apply mt-2 px-4 py-2 block w-full bg-white text-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500
+  @apply mt-1 px-4 py-2 block w-full bg-white rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500
 }

@@ -13,6 +13,10 @@ export function useAuth() {
 
       const { error: signInError } = await supabase.auth.signInWithOAuth({
         provider: 'azure',
+         options: {
+           redirectTo: window.location.origin,
+           scopes: 'email profile',
+         },
       })
 
       if (signInError) throw signInError

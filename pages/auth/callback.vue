@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const supabase = useSupabaseClient()
+const route = useRoute()
 
 onMounted(async () => {
   const {
@@ -14,7 +15,13 @@ onMounted(async () => {
   }
 
   if (session) {
-    navigateTo('/admin')
+    // Prüfe, ob ein Redirect-Parameter vorhanden ist
+    const redirectTo = route.query.redirect as string
+    if (redirectTo) {
+      navigateTo(redirectTo)
+    } else {
+      navigateTo('/admin')
+    }
   }
 })
 </script>

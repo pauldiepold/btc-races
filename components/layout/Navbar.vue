@@ -25,7 +25,7 @@ async function handleLogout() {
             src="~/assets/images/BTC_Logo_yellow.png"
             alt="BTC Logo"
             class="h-12 w-auto transform transition-transform duration-300 group-hover:scale-110"
-          >
+          />
         </NuxtLink>
 
         <!-- Desktop Navigation -->
@@ -54,8 +54,8 @@ async function handleLogout() {
           @click="toggleMenu"
         >
           <Icon
-            :name="isMenuOpen ? 'heroicons:x-mark' : 'heroicons:bars-3'"
-            class="h-8 w-8"
+            :name="isMenuOpen ? 'mdi:close-thick' : 'mdi:menu'"
+            size="26px"
           />
         </button>
       </div>

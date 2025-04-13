@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
       console.error('Supabase Fehler:', error)
       return {
         error: {
-          message: 'Fehler beim Erstellen der Veranstaltung',
+          message: 'Fehler beim Erstellen des Wettkampfes',
           code: 'DATABASE_ERROR',
           details: error.message,
         },
@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
       statusCode: 201,
     } as ApiResponse<typeof data>
   } catch (error: any) {
-    console.error('Fehler beim Erstellen der Veranstaltung:', error)
+    console.error('Fehler beim Erstellen des Wettkampfes:', error)
     return {
       error: {
         message: 'Ein unerwarteter Fehler ist aufgetreten',

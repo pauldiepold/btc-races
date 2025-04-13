@@ -71,15 +71,15 @@ async function handleSubmit() {
       throw new Error(response.error.message)
     }
 
-    successMessage.value = 'Veranstaltung erfolgreich erstellt!'
+    successMessage.value = 'Wettkampf erfolgreich erstellt!'
     errorMessage.value = ''
 
     // Kurze Verzögerung vor der Weiterleitung
     setTimeout(async () => {
       await navigateTo('/competitions')
     }, 1500)
-  } catch (error) {
-    console.error('Fehler beim Erstellen der Veranstaltung:', error)
+  } catch (error: any) {
+    console.error('Fehler beim Erstellen der Wettkampf:', error)
     errorMessage.value =
       error.message ||
       'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.'
@@ -90,7 +90,7 @@ async function handleSubmit() {
 
 <template>
   <div class="container mx-auto max-w-xl px-4 py-8">
-    <h1 class="mb-6 text-2xl font-bold">Neue Veranstaltung erstellen</h1>
+    <h1 class="mb-6 text-2xl font-bold">Neuen Wettkampf erstellen</h1>
 
     <div v-if="errorMessage" class="mb-4 rounded bg-red-100 p-4 text-red-700">
       {{ errorMessage }}
@@ -107,7 +107,7 @@ async function handleSubmit() {
       <div class="flex flex-col gap-6">
         <BaseInput
           v-model="form.name"
-          label="Name der Veranstaltung"
+          label="Name des Wettkampfes"
           required
           :error="validationErrors.name"
         />
@@ -151,7 +151,7 @@ async function handleSubmit() {
       </div>
 
       <div class="flex justify-end">
-        <BaseButton type="submit"> Veranstaltung erstellen </BaseButton>
+        <BaseButton type="submit">Wettkampf erstellen</BaseButton>
       </div>
     </form>
   </div>

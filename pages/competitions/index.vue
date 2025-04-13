@@ -145,13 +145,13 @@ watch(searchQuery, (newValue) => {
 <template>
   <div class="container mx-auto px-4 py-8">
     <div class="mb-8 flex items-center justify-between">
-      <h1 class="text-2xl font-bold">Veranstaltungen</h1>
+      <h1 class="text-2xl font-bold">Wettkämpfe</h1>
       <NuxtLink
         v-if="user"
         to="/admin/competitions/new"
         class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
       >
-        Neue Veranstaltung
+        Neuer Wettkampf
       </NuxtLink>
     </div>
 
@@ -164,9 +164,9 @@ watch(searchQuery, (newValue) => {
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Veranstaltung suchen..."
+              placeholder="Wettkampf suchen..."
               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            >
+            />
           </div>
         </div>
 
@@ -182,7 +182,7 @@ watch(searchQuery, (newValue) => {
           v-else-if="error"
           class="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700"
         >
-          Ein Fehler ist aufgetreten beim Laden der Veranstaltungen.
+          Ein Fehler ist aufgetreten beim Laden der Wettkämpfe.
         </div>
 
         <!-- Keine Ergebnisse -->
@@ -190,21 +190,21 @@ watch(searchQuery, (newValue) => {
           v-else-if="visibleEvents.length === 0"
           class="py-8 text-center text-gray-500"
         >
-          Keine Veranstaltungen gefunden
+          Keine Wettkämpfe gefunden
         </div>
 
         <template v-else>
           <!-- "Ältere anzeigen" Button -->
           <div v-if="hasMorePastEvents" class="mb-6">
             <button
-              class="w-full rounded-md border border-gray-200 bg-gray-50 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 hover:bg-gray-100"
+              class="w-full cursor-pointer rounded-md border border-gray-200 bg-gray-50 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 hover:bg-gray-100"
               @click="loadMorePastEvents"
             >
-              Ältere Veranstaltungen anzeigen
+              Ältere Wettkämpfe anzeigen
             </button>
           </div>
 
-          <!-- Veranstaltungsliste -->
+          <!-- Wettkampfliste -->
           <TransitionGroup name="list" tag="div" class="space-y-4">
             <div v-for="competition in visibleEvents" :key="competition.id">
               <CompetitionCard
@@ -217,14 +217,17 @@ watch(searchQuery, (newValue) => {
           <!-- "Weitere anzeigen" Button -->
           <div v-if="hasMoreFutureEvents" class="mt-6">
             <button
-              class="w-full rounded-md border border-gray-200 bg-gray-50 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 hover:bg-gray-100"
+              class="w-full cursor-pointer rounded-md border border-gray-200 bg-gray-50 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 hover:bg-gray-100"
               @click="loadMoreFutureEvents"
             >
-              Weitere Veranstaltungen anzeigen
+              Weitere Wettkämpfe anzeigen
             </button>
           </div>
         </template>
       </div>
+
+      <!-- Trennlinie für mobile Ansicht -->
+      <hr class="my-2 border-gray-200 lg:hidden" />
 
       <!-- Seitenleiste -->
       <div class="space-y-6 lg:w-1/3">

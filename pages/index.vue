@@ -1,20 +1,17 @@
-<script setup>
-import { onMounted, ref } from 'vue'
-import { formatDate } from '~/utils/date'
+<script setup lang="ts">
+import type { Database } from '~/types/database.types'
 
-const competitions = ref([])
+const client = useSupabaseClient<Database>()
 
-onMounted(async () => {
-  try {
-    const response = await fetch('/api/competitions/upcoming')
-    if (!response.ok)
-      throw new Error('Fehler beim Laden der Wettkämpfe')
-    competitions.value = await response.json()
-  }
-  catch (error) {
-    console.error('Fehler:', error)
-    competitions.value = []
-  }
+const { data: competitions } = await useAsyncData('competitions', async () => {
+  const { data } = await client
+    .from('competitions')
+    .select('id, name, date, location, registration_deadline')
+    .gte('date', new Date().toISOString())
+    .order('date', { ascending: true })
+    .limit(3)
+
+  return data
 })
 </script>
 

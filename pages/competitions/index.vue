@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Database } from '~/types/database.types'
-import { useSupabaseClient } from '#imports'
+
+const client = useSupabaseClient<Database>()
+const user = useSupabaseUser()
 
 // Filter-Status
 const searchQuery = ref('')
@@ -28,12 +30,10 @@ const additionalPastEvents = ref(0)
 const additionalFutureEvents = ref(0)
 const eventsPerLoad = 2
 
-// Serverseitiges Laden der Daten
 const { data: competitions, pending: loading, error } = await useAsyncData(
   'competitions',
   async () => {
-    const supabase = useSupabaseClient<Database>()
-    const { data, error: supabaseError } = await supabase
+    const { data, error: supabaseError } = await client
       .from('competitions')
       .select('*')
       .order('date', { ascending: true })
@@ -51,19 +51,29 @@ const filteredEvents = computed(() => {
     return []
 
   return competitions.value.filter((event) => {
-    if (searchQuery.value) {
-      const searchTerms = searchQuery.value.toLowerCase().split(' ')
-      const searchableFields = [
-        event.name,
-        event.description,
-        event.location,
-      ].filter(Boolean).map(field => field?.toLowerCase())
+    // Wenn keine Suche aktiv ist, alle Events zurückgeben
+    if (!searchQuery.value)
+      return true
 
-      return searchTerms.every(term =>
-        searchableFields.some(field => field?.includes(term)),
-      )
-    }
-    return true
+    // Suchbegriffe in Kleinbuchstaben aufteilen
+    const suchbegriffe = searchQuery.value.toLowerCase().split(' ')
+
+    // Zu durchsuchende Felder vorbereiten
+    const eventFelder = [
+      event.name,
+      event.description,
+      event.location,
+    ]
+
+    // Leere Felder entfernen und in Kleinbuchstaben umwandeln
+    const durchsuchbareFelder = eventFelder
+      .filter(feld => feld) // Leere Felder entfernen
+      .map(feld => feld.toLowerCase())
+
+    // Prüfen ob ALLE Suchbegriffe in MINDESTENS EINEM Feld vorkommen
+    return suchbegriffe.every((begriff) => {
+      return durchsuchbareFelder.some(feld => feld.includes(begriff))
+    })
   })
 })
 
@@ -142,6 +152,7 @@ watch(searchQuery, (newValue) => {
         Veranstaltungen
       </h1>
       <NuxtLink
+        v-if="user"
         to="/admin/competitions/new"
         class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
       >
@@ -149,78 +160,88 @@ watch(searchQuery, (newValue) => {
       </NuxtLink>
     </div>
 
-    <!-- Suchfeld -->
-    <div class="mb-8">
-      <div class="relative">
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Veranstaltung suchen..."
-          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-        >
-      </div>
-    </div>
-
-    <!-- Lade-Status -->
-    <div v-if="loading" class="text-center py-8">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto" />
-    </div>
-
-    <!-- Fehlermeldung -->
-    <div v-else-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-      Ein Fehler ist aufgetreten beim Laden der Veranstaltungen.
-    </div>
-
-    <!-- Keine Ergebnisse -->
-    <div v-else-if="visibleEvents.length === 0" class="text-center py-8 text-gray-500">
-      Keine Veranstaltungen gefunden
-    </div>
-
-    <template v-else>
-      <!-- "Ältere anzeigen" Button -->
-      <div v-if="hasMorePastEvents" class="mb-6">
-        <button
-          class="w-full py-2 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
-          @click="loadMorePastEvents"
-        >
-          Ältere Veranstaltungen anzeigen
-        </button>
-      </div>
-
-      <!-- Veranstaltungsliste -->
-      <TransitionGroup
-        name="list"
-        tag="div"
-        class="space-y-4"
-      >
-        <div
-          v-for="competition in visibleEvents"
-          :key="competition.id"
-          class="relative"
-        >
-          <!-- Past Event Marker -->
-          <div
-            v-if="isEventInPast(competition.date)"
-            class="absolute -left-2 top-0 bottom-0 w-1 bg-yellow-200 rounded-full"
-          />
-          <CompetitionCard
-            :competition="competition"
-            class="block w-full transition-all duration-300"
-            :class="{ 'pl-2': isEventInPast(competition.date) }"
-          />
+    <div class="flex flex-col lg:flex-row gap-8">
+      <!-- Hauptinhalt -->
+      <div class="flex-1">
+        <!-- Suchfeld -->
+        <div class="mb-8">
+          <div class="relative">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Veranstaltung suchen..."
+              class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            >
+          </div>
         </div>
-      </TransitionGroup>
 
-      <!-- "Weitere anzeigen" Button -->
-      <div v-if="hasMoreFutureEvents" class="mt-6">
-        <button
-          class="w-full py-2 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
-          @click="loadMoreFutureEvents"
-        >
-          Weitere Veranstaltungen anzeigen
-        </button>
+        <!-- Lade-Status -->
+        <div v-if="loading" class="text-center py-8">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto" />
+        </div>
+
+        <!-- Fehlermeldung -->
+        <div v-else-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          Ein Fehler ist aufgetreten beim Laden der Veranstaltungen.
+        </div>
+
+        <!-- Keine Ergebnisse -->
+        <div v-else-if="visibleEvents.length === 0" class="text-center py-8 text-gray-500">
+          Keine Veranstaltungen gefunden
+        </div>
+
+        <template v-else>
+          <!-- "Ältere anzeigen" Button -->
+          <div v-if="hasMorePastEvents" class="mb-6">
+            <button
+              class="w-full py-2 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
+              @click="loadMorePastEvents"
+            >
+              Ältere Veranstaltungen anzeigen
+            </button>
+          </div>
+
+          <!-- Veranstaltungsliste -->
+          <TransitionGroup
+            name="list"
+            tag="div"
+            class="space-y-4"
+          >
+            <div
+              v-for="competition in visibleEvents"
+              :key="competition.id"
+            >
+              <CompetitionCard
+                :competition="competition"
+                class="block w-full transition-all duration-300"
+              />
+            </div>
+          </TransitionGroup>
+
+          <!-- "Weitere anzeigen" Button -->
+          <div v-if="hasMoreFutureEvents" class="mt-6">
+            <button
+              class="w-full py-2 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
+              @click="loadMoreFutureEvents"
+            >
+              Weitere Veranstaltungen anzeigen
+            </button>
+          </div>
+        </template>
       </div>
-    </template>
+
+      <!-- Seitenleiste -->
+      <div class="lg:w-1/3 space-y-6">
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-lg font-semibold mb-4">
+            Seitenleiste
+          </h2>
+          <p class="text-gray-600">
+            Hier kommt später weiterer Inhalt hin.
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

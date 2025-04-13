@@ -11,12 +11,7 @@ export default defineNuxtConfig({
     ],
   },
 
-  modules: [
-    '@nuxt/fonts',
-    '@nuxt/icon',
-    '@nuxt/ui',
-    '@nuxtjs/supabase',
-  ],
+  modules: ['@nuxt/fonts', '@nuxt/icon', '@nuxt/ui', '@nuxtjs/supabase', '@nuxt/eslint'],
 
   runtimeConfig: {
     // Server-seitige Umgebungsvariablen
@@ -39,7 +34,7 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: '/login',
       callback: '/auth/callback',
-      exclude: ['/'],
+      exclude: ['/', '/competitions'],
     },
   },
 

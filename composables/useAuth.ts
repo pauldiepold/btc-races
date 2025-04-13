@@ -18,7 +18,7 @@ export function useAuth() {
       error.value = ''
 
       const { error: signInError } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider: 'azure',
       })
 
       if (signInError)

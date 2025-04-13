@@ -1,69 +1,105 @@
+<script setup lang="ts">
+import type { Database } from '~/types/database.types'
+
+const route = useRoute()
+const competitionId = route.params.id as string
+
+const client = useSupabaseClient<Database>()
+
+const { data: competition } = await useAsyncData(
+  `competition-${competitionId}`,
+  async () => {
+    const { data } = await client
+      .from('competitions')
+      .select('*')
+      .eq('id', competitionId)
+      .single()
+
+    return data
+  }
+)
+
+// Umleitung zur Übersichtsseite, wenn der Wettkampf nicht gefunden wurde
+if (!competition.value) {
+  navigateTo('/competitions')
+}
+</script>
+
 <template>
-  <div>
-    <div class="mb-8 bg-gray-100 py-8">
-      <div class="container mx-auto px-4">
-        <div class="flex items-center justify-between">
-          <div>
+  <div v-if="competition">
+    <NuxtLink
+      to="/competitions"
+      class="text-primary inline-block hover:underline"
+    >
+      &larr; Zurück zur Übersicht
+    </NuxtLink>
+    <div class="mt-6 mb-8">
+      <div class="container mx-auto">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <h1 class="text-3xl font-bold">{{ competition.name }}</h1>
+          <div class="flex justify-start md:justify-end">
             <NuxtLink
-              to="/competitions"
-              class="text-primary mb-2 inline-block hover:underline"
+              :to="`/register/${competition.id}`"
+              class="bg-primary hover:bg-primary rounded-lg px-6 py-2 text-black"
             >
-              &larr; Zurück zur Übersicht
+              Anmelden
             </NuxtLink>
-            <h1 class="text-3xl font-bold">Berliner Triathlon Cup</h1>
           </div>
-          <NuxtLink
-            to="/register/1"
-            class="bg-primary hover:bg-primary rounded-lg px-6 py-2 text-black"
-          >
-            Anmelden
-          </NuxtLink>
         </div>
       </div>
     </div>
 
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto">
       <div class="mb-8 grid grid-cols-1 gap-8 md:grid-cols-3">
         <div class="col-span-2">
           <div class="mb-8 rounded-lg bg-white p-6 shadow-md">
             <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <h3 class="mb-1 text-sm font-medium text-gray-500">Datum</h3>
-                <p class="text-lg">15. Dezember 2024</p>
+                <p class="text-lg">
+                  {{ new Date(competition.date).toLocaleDateString('de-DE') }}
+                </p>
               </div>
               <div>
                 <h3 class="mb-1 text-sm font-medium text-gray-500">Ort</h3>
-                <p class="text-lg">Berlin, Wannsee</p>
+                <p class="text-lg">{{ competition.location }}</p>
               </div>
               <div>
                 <h3 class="mb-1 text-sm font-medium text-gray-500">
                   Meldefrist
                 </h3>
-                <p class="text-lg">1. Dezember 2024</p>
+                <p class="text-lg">
+                  {{
+                    new Date(
+                      competition.registration_deadline
+                    ).toLocaleDateString('de-DE')
+                  }}
+                </p>
               </div>
               <div>
                 <h3 class="mb-1 text-sm font-medium text-gray-500">Status</h3>
-                <p class="text-lg text-green-600">Anmeldung möglich</p>
+                <p
+                  class="text-lg"
+                  :class="
+                    new Date(competition.registration_deadline) >= new Date()
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  "
+                >
+                  {{
+                    new Date(competition.registration_deadline) >= new Date()
+                      ? 'Anmeldung möglich'
+                      : 'Anmeldung geschlossen'
+                  }}
+                </p>
               </div>
             </div>
 
             <h2 class="mb-4 text-xl font-bold">Beschreibung</h2>
-            <div class="prose max-w-none">
-              <p>
-                Der Berliner Triathlon Cup ist ein jährlich stattfindender
-                Wettkampf für alle Triathleten des BTC. In diesem Jahr findet er
-                am Wannsee statt und beinhaltet folgende Disziplinen:
-              </p>
-              <ul class="mt-2 list-disc pl-5">
-                <li>Schwimmen: 1500m im Wannsee</li>
-                <li>Radfahren: 40km durch den Grunewald</li>
-                <li>Laufen: 10km entlang des Seeufers</li>
-              </ul>
-              <p class="mt-4">
-                Dieser Wettkampf eignet sich sowohl für Anfänger als auch für
-                erfahrene Triathleten.
-              </p>
-            </div>
+            <div
+              class="prose max-w-none"
+              v-html="competition.description"
+            ></div>
           </div>
 
           <div class="rounded-lg bg-white p-6 shadow-md">
@@ -72,7 +108,7 @@
               Weitere Details findest du in der offiziellen Ausschreibung:
             </p>
             <a
-              href="#"
+              :href="competition.announcement_url || '#'"
               class="inline-flex items-center rounded bg-black px-4 py-2 text-white"
             >
               <span class="mr-2">Ausschreibung öffnen</span>

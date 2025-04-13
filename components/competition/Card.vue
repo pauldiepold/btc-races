@@ -3,7 +3,7 @@ import type { Database } from '~/types/database.types'
 
 type Competition = Database['public']['Tables']['competitions']['Row']
 
-defineProps<{
+const props = defineProps<{
   competition: Competition
 }>()
 
@@ -16,6 +16,8 @@ function isEventInPast(date: string) {
   today.setHours(0, 0, 0, 0)
   return eventDate < today
 }
+
+const status = computed(() => getCompetitionStatus(props.competition))
 </script>
 
 <template>
@@ -28,10 +30,10 @@ function isEventInPast(date: string) {
           {{ competition.name }}
         </h3>
         <span
-          v-if="isEventInPast(competition.date)"
-          class="rounded-full bg-yellow-100 px-4 py-1 text-xs font-medium text-gray-600"
+          class="100 rounded-full px-4 py-1 text-xs font-medium"
+          :class="status.color"
         >
-          Vergangen
+          {{ status.text }}
         </span>
       </div>
       <div class="mt-3 grid grid-cols-2 gap-4">
@@ -74,6 +76,14 @@ function isEventInPast(date: string) {
               <Icon name="mdi:external-link" class="ml-1 h-4 w-4" />
             </a>
           </div>
+        </div>
+        <div class="col-span-2 mt-2 flex justify-start gap-4">
+          <BaseLink :to="`/competitions/${competition.id}`" variant="outline">
+            Anmelden
+          </BaseLink>
+          <BaseLink :to="`/competitions/${competition.id}`">
+            Details ansehen
+          </BaseLink>
         </div>
       </div>
     </div>

@@ -2,7 +2,9 @@
 
 :root {
   --primary-color: #ffb700;
-  --secondary-color: #000000;
+  --primary-hover-color: #d89d09;
+  --secondary-color: #5c009e;
+  --secondary-hover-color: #3b0062;
   --color-background: #f8f9fa;
   --color-text: #333333;
   --color-light-gray: #f5f5f5;
@@ -22,6 +24,9 @@
 
 @theme {
   --color-primary: var(--primary-color);
+  --color-primary-hover: var(--primary-hover-color);
+  --color-secondary: var(--secondary-color);
+  --color-secondary-hover: var(--secondary-hover-color);
 }
 
 textarea,

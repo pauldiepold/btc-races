@@ -28,7 +28,7 @@ const sortByDate = (a: any, b: any) =>
 // Status für die Anzahl der zusätzlich angezeigten Events
 const additionalPastEvents = ref(0)
 const additionalFutureEvents = ref(0)
-const eventsPerLoad = 2
+const eventsPerLoad = 6
 
 const {
   data: competitions,
@@ -146,13 +146,9 @@ watch(searchQuery, (newValue) => {
   <div class="container mx-auto px-4 py-8">
     <div class="mb-8 flex items-center justify-between">
       <h1 class="text-2xl font-bold">Wettkämpfe</h1>
-      <NuxtLink
-        v-if="user"
-        to="/admin/competitions/new"
-        class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-      >
+      <BaseLink v-if="user" to="/admin/competitions/new">
         Neuer Wettkampf
-      </NuxtLink>
+      </BaseLink>
     </div>
 
     <div class="flex flex-col gap-8 lg:flex-row">

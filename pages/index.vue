@@ -39,6 +39,16 @@ const { data: competitions } = await useAsyncData('competitions', async () => {
             </p>
           </div>
         </div>
+
+        <div class="mt-8">
+          <NuxtLink to="/competitions">
+            <button
+              class="w-full cursor-pointer rounded-md border border-gray-200 bg-gray-50 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 hover:bg-gray-100"
+            >
+              Alle Wettkämpfe anzeigen
+            </button>
+          </NuxtLink>
+        </div>
       </div>
 
       <!-- Trennlinie für mobile Ansicht -->

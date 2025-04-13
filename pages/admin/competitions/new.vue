@@ -4,37 +4,40 @@ import type { Database } from '~/types/database.types'
 import { ref } from 'vue'
 
 interface ValidationError {
-  field: string
-  message: string
+    field: string
+    message: string
 }
 
 interface ApiErrorResponse {
-  message: string
-  details?: ValidationError[]
+    message: string
+    details?: ValidationError[]
 }
 
-type CompetitionApiResponse = Omit<ApiResponse<Database['public']['Tables']['competitions']['Row']>, 'error'> & {
-  error: ApiErrorResponse | null
+type CompetitionApiResponse = Omit<
+    ApiResponse<Database['public']['Tables']['competitions']['Row']>,
+    'error'
+> & {
+    error: ApiErrorResponse | null
 }
 
 interface CompetitionForm {
-  name: string
-  date: string
-  location: string
-  registration_deadline: string
-  announcement_link: string
-  description: string
-  is_archived: boolean
+    name: string
+    date: string
+    location: string
+    registration_deadline: string
+    announcement_link: string
+    description: string
+    is_archived: boolean
 }
 
 const form = ref<CompetitionForm>({
-  name: '',
-  date: '',
-  location: '',
-  registration_deadline: '',
-  announcement_link: '',
-  description: '',
-  is_archived: false,
+    name: '',
+    date: '',
+    location: '',
+    registration_deadline: '',
+    announcement_link: '',
+    description: '',
+    is_archived: false,
 })
 
 const errorMessage = ref('')
@@ -42,116 +45,120 @@ const validationErrors = ref<Record<string, string>>({})
 const successMessage = ref('')
 
 async function handleSubmit() {
-  try {
-    validationErrors.value = {}
-    const response = await $fetch<CompetitionApiResponse>('/api/competitions', {
-      method: 'POST',
-      body: {
-        name: form.value.name,
-        date: form.value.date,
-        location: form.value.location,
-        registration_deadline: form.value.registration_deadline,
-        announcement_link: form.value.announcement_link,
-        description: form.value.description,
-      },
-    })
+    try {
+        validationErrors.value = {}
+        const response = await $fetch<CompetitionApiResponse>(
+            '/api/competitions',
+            {
+                method: 'POST',
+                body: {
+                    name: form.value.name,
+                    date: form.value.date,
+                    location: form.value.location,
+                    registration_deadline: form.value.registration_deadline,
+                    announcement_link: form.value.announcement_link,
+                    description: form.value.description,
+                },
+            }
+        )
 
-    if (response.error) {
-      if (response.error.details) {
-        response.error.details.forEach((detail) => {
-          if (!validationErrors.value[detail.field]) {
-            validationErrors.value[detail.field] = detail.message
-          }
-        })
-        throw new Error('Bitte korrigieren Sie die markierten Felder')
-      }
-      throw new Error(response.error.message)
+        if (response.error) {
+            if (response.error.details) {
+                response.error.details.forEach((detail) => {
+                    if (!validationErrors.value[detail.field]) {
+                        validationErrors.value[detail.field] = detail.message
+                    }
+                })
+                throw new Error('Bitte korrigieren Sie die markierten Felder')
+            }
+            throw new Error(response.error.message)
+        }
+
+        successMessage.value = 'Veranstaltung erfolgreich erstellt!'
+        errorMessage.value = ''
+
+        // Kurze Verzögerung vor der Weiterleitung
+        setTimeout(async () => {
+            await navigateTo('/competitions')
+        }, 1500)
+    } catch (error) {
+        console.error('Fehler beim Erstellen der Veranstaltung:', error)
+        errorMessage.value =
+            error.message ||
+            'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.'
+        successMessage.value = ''
     }
-
-    successMessage.value = 'Veranstaltung erfolgreich erstellt!'
-    errorMessage.value = ''
-
-    // Kurze Verzögerung vor der Weiterleitung
-    setTimeout(async () => {
-      await navigateTo('/competitions')
-    }, 1500)
-  }
-  catch (error: any) {
-    console.error('Fehler beim Erstellen der Veranstaltung:', error)
-    errorMessage.value = error.message || 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.'
-    successMessage.value = ''
-  }
 }
 </script>
 
 <template>
-  <div class="container max-w-xl mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold mb-6">
-      Neue Veranstaltung erstellen
-    </h1>
+    <div class="container mx-auto max-w-xl px-4 py-8">
+        <h1 class="mb-6 text-2xl font-bold">Neue Veranstaltung erstellen</h1>
 
-    <div v-if="errorMessage" class="mb-4 p-4 bg-red-100 text-red-700 rounded">
-      {{ errorMessage }}
-    </div>
-
-    <div v-if="successMessage" class="mb-4 p-4 bg-green-100 text-green-700 rounded">
-      {{ successMessage }}
-    </div>
-
-    <form class="space-y-6 mx-auto" @submit.prevent="handleSubmit">
-      <div class="flex flex-col gap-6">
-        <BaseInput
-          v-model="form.name"
-          label="Name der Veranstaltung"
-          required
-          :error="validationErrors.name"
-        />
-
-        <BaseInput
-          v-model="form.location"
-          label="Ort"
-          :error="validationErrors.location"
-        />
-
-        <BaseInput
-          v-model="form.registration_deadline"
-          label="Meldeschluss"
-          type="date"
-          required
-          :error="validationErrors.registration_deadline"
-        />
-
-        <BaseInput
-          v-model="form.date"
-          label="Veranstaltungsdatum"
-          type="date"
-          required
-          :error="validationErrors.date"
-        />
-
-        <BaseInput
-          v-model="form.announcement_link"
-          label="Link zur Ausschreibung"
-          type="url"
-          :error="validationErrors.announcement_link"
-        />
-
-        <div class="md:col-span-2">
-          <BaseTextarea
-            v-model="form.description"
-            label="Beschreibung"
-            :error="validationErrors.description"
-          />
-        </div>
-      </div>
-
-      <div class="flex justify-end">
-        <BaseButton
-          type="submit"
+        <div
+            v-if="errorMessage"
+            class="mb-4 rounded bg-red-100 p-4 text-red-700"
         >
-          Veranstaltung erstellen
-        </BaseButton>
-      </div>
-    </form>
-  </div>
+            {{ errorMessage }}
+        </div>
+
+        <div
+            v-if="successMessage"
+            class="mb-4 rounded bg-green-100 p-4 text-green-700"
+        >
+            {{ successMessage }}
+        </div>
+
+        <form class="mx-auto space-y-6" @submit.prevent="handleSubmit">
+            <div class="flex flex-col gap-6">
+                <BaseInput
+                    v-model="form.name"
+                    label="Name der Veranstaltung"
+                    required
+                    :error="validationErrors.name"
+                />
+
+                <BaseInput
+                    v-model="form.location"
+                    label="Ort"
+                    :error="validationErrors.location"
+                />
+
+                <BaseInput
+                    v-model="form.registration_deadline"
+                    label="Meldeschluss"
+                    type="date"
+                    required
+                    :error="validationErrors.registration_deadline"
+                />
+
+                <BaseInput
+                    v-model="form.date"
+                    label="Veranstaltungsdatum"
+                    type="date"
+                    required
+                    :error="validationErrors.date"
+                />
+
+                <BaseInput
+                    v-model="form.announcement_link"
+                    label="Link zur Ausschreibung"
+                    type="url"
+                    :error="validationErrors.announcement_link"
+                />
+
+                <div class="md:col-span-2">
+                    <BaseTextarea
+                        v-model="form.description"
+                        label="Beschreibung"
+                        :error="validationErrors.description"
+                    />
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <BaseButton type="submit"> Veranstaltung erstellen </BaseButton>
+            </div>
+        </form>
+    </div>
 </template>

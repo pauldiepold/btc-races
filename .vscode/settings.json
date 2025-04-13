@@ -1,106 +1,104 @@
 {
-  "[typescript]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
-  },
-  "deno.enablePaths": [
-    "supabase/functions"
-  ],
-  "deno.lint": true,
-  "deno.unstable": [
-    "bare-node-builtins",
-    "byonm",
-    "sloppy-imports",
-    "unsafe-proto",
-    "webgpu",
-    "broadcast-channel",
-    "worker-options",
-    "cron",
-    "kv",
-    "ffi",
-    "fs",
-    "http",
-    "net"
-  ],
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
-    "source.organizeImports": "never"
-  },
-  "editor.formatOnSave": false,
-  "eslint.rules.customizations": [
-    {
-      "fixable": true,
-      "rule": "style/*",
-      "severity": "off"
+    "[typescript]": {
+        "editor.defaultFormatter": "denoland.vscode-deno"
     },
-    {
-      "fixable": true,
-      "rule": "format/*",
-      "severity": "off"
+    "deno.enablePaths": ["supabase/functions"],
+    "deno.lint": true,
+    "deno.unstable": [
+        "bare-node-builtins",
+        "byonm",
+        "sloppy-imports",
+        "unsafe-proto",
+        "webgpu",
+        "broadcast-channel",
+        "worker-options",
+        "cron",
+        "kv",
+        "ffi",
+        "fs",
+        "http",
+        "net"
+    ],
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+        "source.organizeImports": "never"
     },
-    {
-      "fixable": true,
-      "rule": "*-indent",
-      "severity": "off"
-    },
-    {
-      "fixable": true,
-      "rule": "*-spacing",
-      "severity": "off"
-    },
-    {
-      "fixable": true,
-      "rule": "*-spaces",
-      "severity": "off"
-    },
-    {
-      "fixable": true,
-      "rule": "*-order",
-      "severity": "off"
-    },
-    {
-      "fixable": true,
-      "rule": "*-dangle",
-      "severity": "off"
-    },
-    {
-      "fixable": true,
-      "rule": "*-newline",
-      "severity": "off"
-    },
-    {
-      "fixable": true,
-      "rule": "*quotes",
-      "severity": "off"
-    },
-    {
-      "fixable": true,
-      "rule": "*semi",
-      "severity": "off"
-    }
-  ],
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact",
-    "vue",
-    "html",
-    "markdown",
-    "json",
-    "json5",
-    "jsonc",
-    "yaml",
-    "toml",
-    "xml",
-    "gql",
-    "graphql",
-    "astro",
-    "svelte",
-    "css",
-    "less",
-    "scss",
-    "pcss",
-    "postcss"
-  ],
-  "prettier.enable": false
+    "editor.formatOnSave": false,
+    "eslint.rules.customizations": [
+        {
+            "fixable": true,
+            "rule": "style/*",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "format/*",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "*-indent",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "*-spacing",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "*-spaces",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "*-order",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "*-dangle",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "*-newline",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "*quotes",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "*semi",
+            "severity": "off"
+        }
+    ],
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact",
+        "vue",
+        "html",
+        "markdown",
+        "json",
+        "json5",
+        "jsonc",
+        "yaml",
+        "toml",
+        "xml",
+        "gql",
+        "graphql",
+        "astro",
+        "svelte",
+        "css",
+        "less",
+        "scss",
+        "pcss",
+        "postcss"
+    ],
+    "prettier.enable": false
 }

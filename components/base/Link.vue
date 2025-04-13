@@ -1,20 +1,20 @@
 <script setup>
 defineProps({
-  to: {
-    type: String,
-    required: true,
-  },
-  color: {
-    type: String,
-    default: 'primary',
-  },
+    to: {
+        type: String,
+        required: true,
+    },
+    color: {
+        type: String,
+        default: 'primary',
+    },
 })
 </script>
 
 <template>
-  <NuxtLink :to="to">
-    <BaseButton :color="color">
-      <slot />
-    </BaseButton>
-  </NuxtLink>
+    <NuxtLink :to="to">
+        <BaseButton :color="color">
+            <slot />
+        </BaseButton>
+    </NuxtLink>
 </template>

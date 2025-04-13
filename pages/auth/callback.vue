@@ -2,27 +2,30 @@
 const supabase = useSupabaseClient()
 
 onMounted(async () => {
-  const { data: { session }, error } = await supabase.auth.getSession()
+    const {
+        data: { session },
+        error,
+    } = await supabase.auth.getSession()
 
-  if (error) {
-    console.error('Error getting session:', error)
-    navigateTo('/login')
-    return
-  }
+    if (error) {
+        console.error('Error getting session:', error)
+        navigateTo('/login')
+        return
+    }
 
-  if (session) {
-    navigateTo('/admin')
-  }
+    if (session) {
+        navigateTo('/admin')
+    }
 })
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center">
-    <div class="text-center">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
-      <p class="mt-4 text-gray-600">
-        Wird eingeloggt...
-      </p>
+    <div class="flex min-h-screen items-center justify-center">
+        <div class="text-center">
+            <div
+                class="border-primary mx-auto h-12 w-12 animate-spin rounded-full border-b-2"
+            />
+            <p class="mt-4 text-gray-600">Wird eingeloggt...</p>
+        </div>
     </div>
-  </div>
 </template>

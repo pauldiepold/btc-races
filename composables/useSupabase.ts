@@ -2,192 +2,192 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { createClient } from '@supabase/supabase-js'
 
 export interface Member {
-    id: string
-    first_name: string
-    last_name: string
-    email: string
-    created_at: string
-    updated_at: string
+  id: string
+  first_name: string
+  last_name: string
+  email: string
+  created_at: string
+  updated_at: string
 }
 
 export interface Competition {
-    id: string
-    name: string
-    date: string
-    location: string
-    registration_deadline: string
-    announcement_link: string
-    description?: string
-    is_archived: boolean
-    created_at: string
-    updated_at: string
+  id: string
+  name: string
+  date: string
+  location: string
+  registration_deadline: string
+  announcement_link: string
+  description?: string
+  is_archived: boolean
+  created_at: string
+  updated_at: string
 }
 
 export interface Registration {
-    id: string
-    member_id: string
-    competition_id: string
-    status: 'pending' | 'confirmed' | 'cancelled'
-    notes?: string
-    verification_token: string
-    is_verified: boolean
-    created_at: string
-    updated_at: string
-    member?: Member
-    competition?: Competition
+  id: string
+  member_id: string
+  competition_id: string
+  status: 'pending' | 'confirmed' | 'cancelled'
+  notes?: string
+  verification_token: string
+  is_verified: boolean
+  created_at: string
+  updated_at: string
+  member?: Member
+  competition?: Competition
 }
 
 export function useSupabase() {
-    const config = useRuntimeConfig()
+  const config = useRuntimeConfig()
 
-    // Supabase Client wird nur einmal erstellt und dann wiederverwendet
-    const supabase = ref<SupabaseClient | null>(null)
+  // Supabase Client wird nur einmal erstellt und dann wiederverwendet
+  const supabase = ref<SupabaseClient | null>(null)
 
-    // Initialisiere den Supabase-Client, falls noch nicht geschehen
-    const initSupabase = () => {
-        if (!supabase.value) {
-            const supabaseUrl = config.public.supabaseUrl
-            const supabaseKey = config.public.supabaseKey
+  // Initialisiere den Supabase-Client, falls noch nicht geschehen
+  const initSupabase = () => {
+    if (!supabase.value) {
+      const supabaseUrl = config.public.supabaseUrl
+      const supabaseKey = config.public.supabaseKey
 
-            if (!supabaseUrl || !supabaseKey) {
-                throw new Error(
-                    'Supabase URL und Key müssen in der Umgebungskonfiguration definiert sein'
-                )
-            }
+      if (!supabaseUrl || !supabaseKey) {
+        throw new Error(
+          'Supabase URL und Key müssen in der Umgebungskonfiguration definiert sein'
+        )
+      }
 
-            supabase.value = createClient(supabaseUrl, supabaseKey)
-        }
-
-        return supabase.value
+      supabase.value = createClient(supabaseUrl, supabaseKey)
     }
 
-    // Wettkampf-Funktionen
-    const getCompetitions = async (archived = false) => {
-        const client = initSupabase()
+    return supabase.value
+  }
 
-        const query = client.from('competitions').select('*')
+  // Wettkampf-Funktionen
+  const getCompetitions = async (archived = false) => {
+    const client = initSupabase()
 
-        if (!archived) {
-            query.eq('is_archived', false)
-        }
+    const query = client.from('competitions').select('*')
 
-        query.order('date', { ascending: true })
-
-        const { data, error } = await query
-
-        if (error) {
-            console.error('Fehler beim Abrufen der Wettkämpfe:', error)
-            throw error
-        }
-
-        return data as Competition[]
+    if (!archived) {
+      query.eq('is_archived', false)
     }
 
-    const getCompetition = async (id: string) => {
-        const client = initSupabase()
+    query.order('date', { ascending: true })
 
-        const { data, error } = await client
-            .from('competitions')
-            .select('*')
-            .eq('id', id)
-            .single()
+    const { data, error } = await query
 
-        if (error) {
-            console.error(`Fehler beim Abrufen des Wettkampfs ${id}:`, error)
-            throw error
-        }
-
-        return data as Competition
+    if (error) {
+      console.error('Fehler beim Abrufen der Wettkämpfe:', error)
+      throw error
     }
 
-    // Mitglieder-Funktionen
-    const getMembers = async () => {
-        const client = initSupabase()
+    return data as Competition[]
+  }
 
-        const { data, error } = await client
-            .from('members')
-            .select('*')
-            .order('last_name', { ascending: true })
+  const getCompetition = async (id: string) => {
+    const client = initSupabase()
 
-        if (error) {
-            console.error('Fehler beim Abrufen der Mitglieder:', error)
-            throw error
-        }
+    const { data, error } = await client
+      .from('competitions')
+      .select('*')
+      .eq('id', id)
+      .single()
 
-        return data as Member[]
+    if (error) {
+      console.error(`Fehler beim Abrufen des Wettkampfs ${id}:`, error)
+      throw error
     }
 
-    // Anmeldungs-Funktionen
-    const createRegistration = async (registration: Partial<Registration>) => {
-        const client = initSupabase()
+    return data as Competition
+  }
 
-        const { data, error } = await client
-            .from('registrations')
-            .insert(registration)
-            .select()
-            .single()
+  // Mitglieder-Funktionen
+  const getMembers = async () => {
+    const client = initSupabase()
 
-        if (error) {
-            console.error('Fehler beim Erstellen der Anmeldung:', error)
-            throw error
-        }
+    const { data, error } = await client
+      .from('members')
+      .select('*')
+      .order('last_name', { ascending: true })
 
-        return data as Registration
+    if (error) {
+      console.error('Fehler beim Abrufen der Mitglieder:', error)
+      throw error
     }
 
-    const getRegistrationsForCompetition = async (competitionId: string) => {
-        const client = initSupabase()
+    return data as Member[]
+  }
 
-        const { data, error } = await client
-            .from('registrations')
-            .select(
-                `
+  // Anmeldungs-Funktionen
+  const createRegistration = async (registration: Partial<Registration>) => {
+    const client = initSupabase()
+
+    const { data, error } = await client
+      .from('registrations')
+      .insert(registration)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Fehler beim Erstellen der Anmeldung:', error)
+      throw error
+    }
+
+    return data as Registration
+  }
+
+  const getRegistrationsForCompetition = async (competitionId: string) => {
+    const client = initSupabase()
+
+    const { data, error } = await client
+      .from('registrations')
+      .select(
+        `
         *,
         member:member_id (*)
       `
-            )
-            .eq('competition_id', competitionId)
-            .order('created_at', { ascending: false })
+      )
+      .eq('competition_id', competitionId)
+      .order('created_at', { ascending: false })
 
-        if (error) {
-            console.error(
-                `Fehler beim Abrufen der Anmeldungen für Wettkampf ${competitionId}:`,
-                error
-            )
-            throw error
-        }
-
-        return data as Registration[]
+    if (error) {
+      console.error(
+        `Fehler beim Abrufen der Anmeldungen für Wettkampf ${competitionId}:`,
+        error
+      )
+      throw error
     }
 
-    const verifyRegistration = async (verificationToken: string) => {
-        const client = initSupabase()
+    return data as Registration[]
+  }
 
-        const { data, error } = await client
-            .from('registrations')
-            .update({
-                is_verified: true,
-                status: 'confirmed',
-            })
-            .eq('verification_token', verificationToken)
-            .select()
-            .single()
+  const verifyRegistration = async (verificationToken: string) => {
+    const client = initSupabase()
 
-        if (error) {
-            console.error('Fehler bei der Verifizierung der Anmeldung:', error)
-            throw error
-        }
+    const { data, error } = await client
+      .from('registrations')
+      .update({
+        is_verified: true,
+        status: 'confirmed',
+      })
+      .eq('verification_token', verificationToken)
+      .select()
+      .single()
 
-        return data as Registration
+    if (error) {
+      console.error('Fehler bei der Verifizierung der Anmeldung:', error)
+      throw error
     }
 
-    return {
-        initSupabase,
-        getCompetitions,
-        getCompetition,
-        getMembers,
-        createRegistration,
-        getRegistrationsForCompetition,
-        verifyRegistration,
-    }
+    return data as Registration
+  }
+
+  return {
+    initSupabase,
+    getCompetitions,
+    getCompetition,
+    getMembers,
+    createRegistration,
+    getRegistrationsForCompetition,
+    verifyRegistration,
+  }
 }

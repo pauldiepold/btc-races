@@ -22,7 +22,7 @@ function isEventInPast(date: string) {
 }
 
 // Hilfsfunktion für Datumssortierung
-const sortByDate = (a, b) =>
+const sortByDate = (a: any, b: any) =>
   new Date(a.date).getTime() - new Date(b.date).getTime()
 
 // Status für die Anzahl der zusätzlich angezeigten Events
@@ -62,11 +62,11 @@ const filteredEvents = computed(() => {
     // Leere Felder entfernen und in Kleinbuchstaben umwandeln
     const durchsuchbareFelder = eventFelder
       .filter((feld) => feld) // Leere Felder entfernen
-      .map((feld) => feld.toLowerCase())
+      .map((feld) => feld?.toLowerCase())
 
     // Prüfen ob ALLE Suchbegriffe in MINDESTENS EINEM Feld vorkommen
     return suchbegriffe.every((begriff) => {
-      return durchsuchbareFelder.some((feld) => feld.includes(begriff))
+      return durchsuchbareFelder.some((feld) => feld?.includes(begriff))
     })
   })
 })
@@ -166,7 +166,7 @@ watch(searchQuery, (newValue) => {
               type="text"
               placeholder="Veranstaltung suchen..."
               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            />
+            >
           </div>
         </div>
 

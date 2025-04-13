@@ -2,7 +2,7 @@ import { ref } from 'vue'
 
 export function useAuth() {
   const supabase = useSupabaseClient()
-  const user = ref(null)
+  const user = ref()
   const loading = ref(false)
   const error = ref('')
 
@@ -16,7 +16,7 @@ export function useAuth() {
       })
 
       if (signInError) throw signInError
-    } catch (err) {
+    } catch (err: any) {
       error.value = err.message || 'Ein Fehler ist aufgetreten'
     } finally {
       loading.value = false
@@ -32,7 +32,7 @@ export function useAuth() {
     const {
       data: { session },
     } = await supabase.auth.getSession()
-    user.value = session?.user
+    user.value = session?.user || null
   }
 
   return {

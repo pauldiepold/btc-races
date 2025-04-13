@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
       data,
       statusCode: 201,
     } as ApiResponse<typeof data>
-  } catch (error) {
+  } catch (error: any) {
     console.error('Fehler beim Erstellen der Veranstaltung:', error)
     return {
       error: {

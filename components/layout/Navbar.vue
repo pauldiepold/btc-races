@@ -25,7 +25,7 @@ async function handleLogout() {
             src="~/assets/images/BTC_Logo_yellow.png"
             alt="BTC Logo"
             class="h-12 w-auto transform transition-transform duration-300 group-hover:scale-110"
-          />
+          >
         </NuxtLink>
 
         <!-- Desktop Navigation -->

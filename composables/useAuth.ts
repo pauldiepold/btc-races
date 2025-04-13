@@ -1,6 +1,11 @@
 import type { Provider } from '@supabase/supabase-js'
 import { ref } from 'vue'
 
+const AUTH_PROVIDER: Record<'development' | 'production', Provider> = {
+  development: 'google',
+  production: 'azure',
+} as const
+
 export function useAuth() {
   const supabase = useSupabaseClient()
   const user = ref<any>(null)
@@ -13,11 +18,7 @@ export function useAuth() {
       error.value = ''
 
       const { error: signInError } = await supabase.auth.signInWithOAuth({
-        provider: process.dev ? 'google' : 'azure' as Provider,
-        options: {
-          redirectTo: window.location.origin,
-          scopes: 'email profile',
-        },
+        provider: 'google',
       })
 
       if (signInError)

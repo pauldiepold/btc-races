@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import type { ApiResponse } from '~/types/api'
-import type { Database } from '~/types/supabase'
-import { useSupabaseClient } from '#imports'
+import type { Database } from '~/types/database.types'
 import { ref } from 'vue'
-
-const supabase = useSupabaseClient<Database>()
 
 interface ValidationError {
   field: string

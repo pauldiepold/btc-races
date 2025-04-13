@@ -1,12 +1,11 @@
 CREATE TABLE competitions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
-  date DATE NOT NULL,
   location TEXT,
+  description TEXT,
+  date DATE NOT NULL,
   registration_deadline DATE NOT NULL,
   announcement_link TEXT,
-  description TEXT,
-  is_archived BOOLEAN DEFAULT FALSE,
   created_by UUID REFERENCES auth.users(id),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

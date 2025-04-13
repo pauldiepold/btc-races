@@ -99,13 +99,3 @@ export async function validateSchema<T>(schema: z.ZodSchema, data: unknown): Pro
     }
   }
 }
-
-export const CompetitionSchema = z.object({
-  name: baseSchemas.string('Name').required(),
-  date: baseSchemas.date('Veranstaltungsdatum').required(),
-  registration_deadline: baseSchemas.date('Meldeschluss').required(),
-  location: baseSchemas.string('Standort').optional(),
-  announcement_link: baseSchemas.url('Link zur Ausschreibung').optional(),
-  description: baseSchemas.string('Beschreibung').optional(),
-  is_archived: baseSchemas.boolean(),
-})

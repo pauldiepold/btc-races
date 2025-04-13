@@ -1,5 +1,5 @@
 import type { ApiResponse } from '~/types/api'
-import type { Database } from '~/types/supabase'
+import type { Database } from '~/types/database.types'
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 import { validateCompetition } from '../validations/competition.schema'
 

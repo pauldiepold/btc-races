@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Database } from '~/types/supabase'
+import type { Database } from '~/types/database.types'
 
 type Competition = Database['public']['Tables']['competitions']['Row']
 
@@ -20,12 +20,6 @@ defineProps<{
             {{ new Date(competition.date).toLocaleDateString('de-DE') }} in {{ competition.location }}
           </p>
         </div>
-        <span
-          v-if="competition.is_archived"
-          class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
-        >
-          Archiviert
-        </span>
       </div>
 
       <p class="mt-2 text-sm text-gray-600">

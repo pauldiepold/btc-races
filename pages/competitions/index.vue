@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Database } from '~/types/supabase'
+import type { Database } from '~/types/database.types'
 import { useSupabaseClient } from '#imports'
 
 // Filter-Status

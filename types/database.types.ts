@@ -38,10 +38,10 @@ export interface Database {
         Row: {
           announcement_link: string | null
           created_at: string | null
+          created_by: string | null
           date: string
           description: string | null
           id: string
-          is_archived: boolean | null
           location: string | null
           name: string
           registration_deadline: string
@@ -50,10 +50,10 @@ export interface Database {
         Insert: {
           announcement_link?: string | null
           created_at?: string | null
+          created_by?: string | null
           date: string
           description?: string | null
           id?: string
-          is_archived?: boolean | null
           location?: string | null
           name: string
           registration_deadline: string
@@ -62,10 +62,10 @@ export interface Database {
         Update: {
           announcement_link?: string | null
           created_at?: string | null
+          created_by?: string | null
           date?: string
           description?: string | null
           id?: string
-          is_archived?: boolean | null
           location?: string | null
           name?: string
           registration_deadline?: string

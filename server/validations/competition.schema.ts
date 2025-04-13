@@ -9,7 +9,6 @@ export const CompetitionSchema = z.object({
   location: baseSchemas.string('Standort').optional(),
   announcement_link: baseSchemas.url('Link zur Ausschreibung').optional(),
   description: baseSchemas.string('Beschreibung').optional(),
-  is_archived: baseSchemas.boolean(),
 }).superRefine((data, ctx) => {
   if (data.registration_deadline && data.date) {
     const deadlineDate = new Date(`${data.registration_deadline}T00:00:00Z`)

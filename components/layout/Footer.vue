@@ -3,27 +3,22 @@ const { user } = useAuth()
 </script>
 
 <template>
-  <footer class="bg-black py-8 text-white">
+  <footer class="bg-(--ui-bg-muted) py-8">
     <div class="container mx-auto px-4">
       <div class="flex flex-col items-center justify-center space-y-4">
-        <div class="text-center">
-          <p>© {{ new Date().getFullYear() }} - Berlin Track Club e.V.</p>
-        </div>
-        <a
+        <p class="text-center">
+          © {{ new Date().getFullYear() }} - Berlin Track Club e.V.
+        </p>
+        <ULink
           href="https://berlin-track-club.de"
           target="_blank"
           rel="noopener noreferrer"
-          class="hover:text-primary transition-colors"
         >
           https://berlin-track-club.de
-        </a>
-        <NuxtLink
-          v-if="!user"
-          to="/admin"
-          class="bg-primary rounded-lg px-4 py-2 font-medium text-black transition-colors hover:bg-[#ffc940]"
-        >
+        </ULink>
+        <UButton v-if="!user" to="/admin" variant="solid" color="neutral">
           Admin-Bereich
-        </NuxtLink>
+        </UButton>
       </div>
     </div>
   </footer>

@@ -17,7 +17,7 @@ async function handleLogout() {
 </script>
 
 <template>
-  <header class="bg-black text-white">
+  <header class="bg-(--ui-bg-muted)">
     <div class="container mx-auto px-4 py-3">
       <div class="flex items-center justify-between">
         <NuxtLink to="/" class="group flex items-center">
@@ -31,8 +31,7 @@ async function handleLogout() {
         <!-- Desktop Navigation -->
         <nav class="hidden md:block">
           <ul class="flex space-x-6">
-            <LayoutHeaderLink to="/" label="Startseite" />
-            <LayoutHeaderLink to="/competitions" label="Wettkämpfe" />
+            <LayoutHeaderLink to="/" label="Wettkämpfe" />
             <LayoutHeaderLink v-if="user" to="/admin" label="Admin" />
           </ul>
         </nav>
@@ -43,7 +42,7 @@ async function handleLogout() {
             <span class="text-sm">
               {{ user.user_metadata.full_name }}
             </span>
-            <BaseButton @click="handleLogout"> Ausloggen </BaseButton>
+            <UButton variant="soft" @click="handleLogout"> Ausloggen </UButton>
           </template>
         </div>
 
@@ -53,27 +52,18 @@ async function handleLogout() {
           aria-label="Menü öffnen"
           @click="toggleMenu"
         >
-          <Icon
-            :name="isMenuOpen ? 'mdi:close-thick' : 'mdi:menu'"
-            size="26px"
-          />
+          <Icon :name="isMenuOpen ? 'lucide:x' : 'lucide:menu'" size="26px" />
         </button>
       </div>
 
       <!-- Mobile Navigation -->
       <div
         v-show="isMenuOpen"
-        class="absolute right-0 left-0 z-50 bg-black md:hidden"
+        class="absolute right-0 left-0 z-50 bg-(--ui-bg-muted) md:hidden"
       >
         <ul class="space-y-4 px-4 py-4">
           <LayoutHeaderLinkMobile
             to="/"
-            label="Startseite"
-            :is-menu-open="isMenuOpen"
-            @close-menu="isMenuOpen = false"
-          />
-          <LayoutHeaderLinkMobile
-            to="/competitions"
             label="Wettkämpfe"
             :is-menu-open="isMenuOpen"
             @close-menu="isMenuOpen = false"
@@ -90,7 +80,13 @@ async function handleLogout() {
               <span class="text-sm text-gray-400">
                 Eingeloggt als: {{ user.email }}
               </span>
-              <BaseButton @click="handleLogout"> Ausloggen </BaseButton>
+              <UButton
+                variant="outline"
+                class="w-full justify-center"
+                @click="handleLogout"
+              >
+                Ausloggen
+              </UButton>
             </div>
           </li>
         </ul>

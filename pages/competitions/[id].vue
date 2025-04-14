@@ -96,10 +96,7 @@ if (!competition.value) {
             </div>
 
             <h2 class="mb-4 text-xl font-bold">Beschreibung</h2>
-            <div
-              class="prose max-w-none"
-              v-html="competition.description"
-            ></div>
+            <div class="prose max-w-none" v-html="competition.description" />
           </div>
 
           <div class="rounded-lg bg-white p-6 shadow-md">
@@ -108,7 +105,7 @@ if (!competition.value) {
               Weitere Details findest du in der offiziellen Ausschreibung:
             </p>
             <a
-              :href="competition.announcement_url || '#'"
+              :href="competition.announcement_link || '#'"
               class="inline-flex items-center rounded bg-black px-4 py-2 text-white"
             >
               <span class="mr-2">Ausschreibung öffnen</span>

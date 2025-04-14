@@ -10,7 +10,7 @@ const status = computed(() => getCompetitionStatus(props.competition))
 <template>
   <div>
     <span
-      class="100 rounded-full px-4 py-1 text-xs font-medium"
+      class="rounded-full px-4 py-1 text-xs font-medium"
       :class="status.color"
     >
       {{ status.text }}

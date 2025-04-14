@@ -1,35 +1,34 @@
 @import 'tailwindcss';
+@import '@nuxt/ui';
+
+@theme static {
+  --font-sans: 'Raleway', sans-serif;
+}
 
 :root {
-  --primary-color: #ffb700;
-  --primary-hover-color: #d89d09;
-  --secondary-color: #5c009e;
-  --secondary-hover-color: #3b0062;
-  --color-background: #f8f9fa;
-  --color-text: #333333;
-  --color-light-gray: #f5f5f5;
-  --color-gray: #dddddd;
-  --color-dark-gray: #666666;
-  --color-error: #ff3b30;
-  --color-success: #34c759;
-  --color-warning: #ff9500;
+  /* Main background color */
+  --ui-bg: var(--ui-color-neutral-50);
+  /* Subtle background */
+  --ui-bg-muted: var(--ui-color-neutral-100);
+  /* Slightly elevated background */
+  --ui-bg-elevated: var(--ui-color-neutral-100);
+  /* More prominent background */
+  --ui-bg-accented: var(--ui-color-neutral-200);
+  /* Inverted background color */
+  --ui-bg-inverted: var(--ui-color-neutral-900);
+  --ui-text-dimmed: var(--ui-color-neutral-800);
 }
 
-@layer base {
-  html {
-    font-family: 'Raleway', system-ui, sans-serif;
-    background-color: var(--color-background);
-  }
-}
-
-@theme {
-  --color-primary: var(--primary-color);
-  --color-primary-hover: var(--primary-hover-color);
-  --color-secondary: var(--secondary-color);
-  --color-secondary-hover: var(--secondary-hover-color);
-}
-
-textarea,
-input {
-  @apply mt-1 block w-full rounded-md border-gray-300 bg-white px-4 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500;
+.dark {
+  /* Main background color */
+  --ui-bg: var(--ui-color-neutral-900);
+  /* Subtle background */
+  --ui-bg-muted: var(--ui-color-neutral-800);
+  /* Slightly elevated background */
+  --ui-bg-elevated: var(--ui-color-neutral-800);
+  /* More prominent background */
+  --ui-bg-accented: var(--ui-color-neutral-700);
+  /* Inverted background color */
+  --ui-bg-inverted: var(--color-white);
+  --ui-text-dimmed: var(--ui-color-neutral-200);
 }

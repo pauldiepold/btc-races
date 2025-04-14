@@ -3,7 +3,7 @@ const { login, loading, error } = useAuth()
 </script>
 
 <template>
-  <div class="mx-auto max-w-lg rounded-lg bg-white p-6 shadow-sm">
+  <div class="mx-auto max-w-lg rounded-lg bg-(--ui-bg-accented) p-6 shadow-sm">
     <h2 class="mb-6 text-center text-2xl font-bold">Admin Login</h2>
 
     <div class="space-y-4">
@@ -11,10 +11,15 @@ const { login, loading, error } = useAuth()
         {{ error }}
       </div>
 
-      <BaseButton :disabled="loading" class="w-full" @click="login">
-        {{ loading ? 'Wird eingeloggt...' : 'Mit Microsoft anmelden' }}
-      </BaseButton>
-      <p class="text-center text-sm text-gray-500">
+      <UButton
+        :disabled="loading"
+        variant="outline"
+        class="w-full justify-center"
+        size="lg"
+        :label="loading ? 'Wird eingeloggt...' : 'Mit Microsoft anmelden'"
+        @click="login"
+      />
+      <p class="text-center text-sm text-(--ui-text-dimmed)">
         Zugriff ist nur mit einem BTC-Microsoft Account möglich.
       </p>
     </div>

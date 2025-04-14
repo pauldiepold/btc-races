@@ -89,70 +89,70 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="container mx-auto max-w-xl px-4 py-8">
-    <h1 class="mb-6 text-2xl font-bold">Neuen Wettkampf erstellen</h1>
+  <NuxtLayout name="base" heading="Neuen Wettkampf erstellen">
+    <BaseLayer class="max-w-2xl">
+      <div v-if="errorMessage" class="mb-4 rounded bg-red-100 p-4 text-red-700">
+        {{ errorMessage }}
+      </div>
 
-    <div v-if="errorMessage" class="mb-4 rounded bg-red-100 p-4 text-red-700">
-      {{ errorMessage }}
-    </div>
+      <div
+        v-if="successMessage"
+        class="mb-4 rounded bg-green-100 p-4 text-green-700"
+      >
+        {{ successMessage }}
+      </div>
 
-    <div
-      v-if="successMessage"
-      class="mb-4 rounded bg-green-100 p-4 text-green-700"
-    >
-      {{ successMessage }}
-    </div>
-
-    <form class="mx-auto space-y-6" @submit.prevent="handleSubmit">
-      <div class="flex flex-col gap-6">
-        <BaseInput
-          v-model="form.name"
-          label="Name des Wettkampfes"
-          required
-          :error="validationErrors.name"
-        />
-
-        <BaseInput
-          v-model="form.location"
-          label="Ort"
-          :error="validationErrors.location"
-        />
-
-        <BaseInput
-          v-model="form.registration_deadline"
-          label="Meldeschluss"
-          type="date"
-          required
-          :error="validationErrors.registration_deadline"
-        />
-
-        <BaseInput
-          v-model="form.date"
-          label="Veranstaltungsdatum"
-          type="date"
-          required
-          :error="validationErrors.date"
-        />
-
-        <BaseInput
-          v-model="form.announcement_link"
-          label="Link zur Ausschreibung"
-          type="url"
-          :error="validationErrors.announcement_link"
-        />
-
-        <div class="md:col-span-2">
-          <BaseTextarea
-            v-model="form.description"
-            label="Beschreibung"
-            :error="validationErrors.description"
+      <form class="mx-auto space-y-6" @submit.prevent="handleSubmit">
+        <div class="flex flex-col gap-6">
+          <BaseInput
+            v-model="form.name"
+            label="Name des Wettkampfes"
+            required
+            :error="validationErrors.name"
           />
-        </div>
-      </div>
 
-      <div class="flex justify-end">
-        <BaseButton type="submit">Wettkampf erstellen</BaseButton>
-      </div>
-    </form>
-  </div>
+          <BaseInput
+            v-model="form.location"
+            label="Ort"
+            :error="validationErrors.location"
+          />
+
+          <BaseInput
+            v-model="form.registration_deadline"
+            label="Meldeschluss"
+            type="date"
+            required
+            :error="validationErrors.registration_deadline"
+          />
+
+          <BaseInput
+            v-model="form.date"
+            label="Veranstaltungsdatum"
+            type="date"
+            required
+            :error="validationErrors.date"
+          />
+
+          <BaseInput
+            v-model="form.announcement_link"
+            label="Link zur Ausschreibung"
+            type="url"
+            :error="validationErrors.announcement_link"
+          />
+
+          <div class="md:col-span-2">
+            <BaseTextarea
+              v-model="form.description"
+              label="Beschreibung"
+              :error="validationErrors.description"
+            />
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <BaseButton type="submit">Wettkampf erstellen</BaseButton>
+        </div>
+      </form>
+    </BaseLayer>
+  </NuxtLayout>
 </template>

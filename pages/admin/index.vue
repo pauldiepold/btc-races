@@ -173,7 +173,7 @@ const {
             <div class="flex items-center justify-between">
               <h2 class="text-xl font-bold">Aktuelle Wettkämpfe</h2>
               <UButton
-                to="/admin/competitions"
+                to="/"
                 variant="ghost"
                 color="primary"
                 trailing-icon="lucide:arrow-right"

@@ -3,7 +3,12 @@ const { login, loading, error } = useAuth()
 </script>
 
 <template>
-  <NuxtLayout name="base" heading="">
+  <NuxtLayout
+    name="base"
+    heading=""
+    back-link="/"
+    back-link-text="Zurück zur Startseite"
+  >
     <div
       class="mx-auto max-w-lg space-y-4 rounded-lg bg-(--ui-bg-accented) p-6 shadow-sm"
     >

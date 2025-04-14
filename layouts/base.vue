@@ -28,6 +28,7 @@ withDefaults(
         {{ backLinkText }}
       </UButton>
       <div
+        v-if="heading"
         class="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center"
       >
         <h1 class="text-2xl font-bold">

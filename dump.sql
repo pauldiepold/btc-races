@@ -7,7 +7,7 @@ CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 
 -- Types
-CREATE TYPE "public"."registration_status" AS ENUM (
+CREATE OR REPLACE TYPE "public"."registration_status" AS ENUM (
     'pending',
     'confirmed',
     'canceled'

@@ -4,4 +4,4 @@ export interface Member {
   has_left: boolean
   created_at: string
   updated_at: string
-} 
+}

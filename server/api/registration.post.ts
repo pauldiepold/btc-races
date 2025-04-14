@@ -40,6 +40,25 @@ export default defineEventHandler(async (event) => {
 
     if (error) {
       console.error('Supabase Fehler:', error)
+
+      // Prüfe auf doppelte Registrierung
+      if (error.code === '23505') {
+        // Unique violation
+        const { data: member } = await client
+          .from('members')
+          .select('name')
+          .eq('id', validationResult.data.member_id)
+          .single()
+
+        return {
+          error: {
+            message: `${member?.name || 'Ein Mitglied'} ist für diesen Wettkampf bereits angemeldet.`,
+            code: 'DUPLICATE_REGISTRATION',
+          },
+          statusCode: 400,
+        } as ApiResponse<null>
+      }
+
       return {
         error: {
           message: 'Fehler beim Erstellen der Anmeldung.',
@@ -67,4 +86,4 @@ export default defineEventHandler(async (event) => {
       statusCode: 500,
     } as ApiResponse<null>
   }
-}) 
+})

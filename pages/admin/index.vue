@@ -1,3 +1,112 @@
+<script setup lang="ts">
+import type { Database } from '~/types/database.types'
+
+const client = useSupabaseClient<Database>()
+
+const {
+  data: activeCompetitionsCount,
+  pending: _loading,
+  error: _error,
+} = await useAsyncData('activeCompetitionsCount', async () => {
+  const { count, error: supabaseError } = await client
+    .from('competitions')
+    .select('*', { count: 'exact', head: true })
+    .gte('date', new Date().toISOString().split('T')[0])
+
+  if (supabaseError) throw supabaseError
+
+  return count || 0
+})
+
+const {
+  data: membersCount,
+  pending: _loadingMembers,
+  error: _errorMembers,
+} = await useAsyncData('membersCount', async () => {
+  const { count, error: supabaseError } = await client
+    .from('members')
+    .select('*', { count: 'exact', head: true })
+
+  if (supabaseError) throw supabaseError
+
+  return count || 0
+})
+
+const {
+  data: confirmedRegistrationsCount,
+  pending: _loadingConfirmed,
+  error: _errorConfirmed,
+} = await useAsyncData('confirmedRegistrationsCount', async () => {
+  const { count, error: supabaseError } = await client
+    .from('registrations')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'confirmed')
+
+  if (supabaseError) throw supabaseError
+
+  return count || 0
+})
+
+const {
+  data: pendingRegistrationsCount,
+  pending: _loadingPending,
+  error: _errorPending,
+} = await useAsyncData('pendingRegistrationsCount', async () => {
+  const { count, error: supabaseError } = await client
+    .from('registrations')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'pending')
+
+  if (supabaseError) throw supabaseError
+
+  return count || 0
+})
+
+const {
+  data: activeCompetitions,
+  pending: _loadingActive,
+  error: _errorActive,
+} = await useAsyncData('activeCompetitions', async () => {
+  const { data, error: supabaseError } = await client
+    .from('competitions')
+    .select(
+      `
+      *,
+      registrations:registrations(count)
+    `
+    )
+    .gte('date', new Date().toISOString().split('T')[0])
+    .order('date', { ascending: true })
+    .limit(5)
+
+  if (supabaseError) throw supabaseError
+
+  return data
+})
+
+const {
+  data: newestRegistrations,
+  pending: _loadingNewest,
+  error: _errorNewest,
+} = await useAsyncData('newestRegistrations', async () => {
+  const { data, error: supabaseError } = await client
+    .from('registrations')
+    .select(
+      `
+      *,
+      member:members(name),
+      competition:competitions(name)
+    `
+    )
+    .order('created_at', { ascending: false })
+    .limit(5)
+
+  if (supabaseError) throw supabaseError
+
+  return data
+})
+</script>
+
 <template>
   <NuxtLayout
     name="base"
@@ -18,11 +127,11 @@
     <div class="space-y-8">
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <!-- Dashboard-Karten -->
-        <UCard class="bg-(--ui-bg-elevated)">
+        <UCard>
           <template #header>
             <h2 class="text-xl font-bold">Wettkämpfe</h2>
           </template>
-          <p class="text-3xl font-bold">5</p>
+          <p class="text-3xl font-bold">{{ activeCompetitionsCount }}</p>
           <p class="mt-2 text-sm text-(--ui-text-dimmed)">Aktive Wettkämpfe</p>
         </UCard>
 
@@ -30,7 +139,7 @@
           <template #header>
             <h2 class="text-xl font-bold">Mitglieder</h2>
           </template>
-          <p class="text-3xl font-bold">128</p>
+          <p class="text-3xl font-bold">{{ membersCount }}</p>
           <p class="mt-2 text-sm text-(--ui-text-dimmed)">
             Registrierte Mitglieder
           </p>
@@ -40,7 +149,7 @@
           <template #header>
             <h2 class="text-xl font-bold">Anmeldungen</h2>
           </template>
-          <p class="text-3xl font-bold">42</p>
+          <p class="text-3xl font-bold">{{ confirmedRegistrationsCount }}</p>
           <p class="mt-2 text-sm text-(--ui-text-dimmed)">
             Bestätigte Anmeldungen
           </p>
@@ -50,7 +159,7 @@
           <template #header>
             <h2 class="text-xl font-bold">Ausstehend</h2>
           </template>
-          <p class="text-3xl font-bold">8</p>
+          <p class="text-3xl font-bold">{{ pendingRegistrationsCount }}</p>
           <p class="mt-2 text-sm text-(--ui-text-dimmed)">
             Unbestätigte Anmeldungen
           </p>
@@ -75,54 +184,24 @@
           </template>
 
           <div class="space-y-4">
-            <div class="border-b pb-4">
+            <div
+              v-for="competition in activeCompetitions"
+              :key="competition.id"
+              class="border-b pb-4"
+            >
               <div class="flex justify-between">
-                <h3 class="font-medium">Berliner Triathlon Cup</h3>
+                <h3 class="font-medium">{{ competition.name }}</h3>
                 <UBadge color="success" variant="soft">Aktiv</UBadge>
               </div>
-              <p class="text-sm text-(--ui-text-dimmed)">15. Dezember 2024</p>
+              <p class="text-sm text-(--ui-text-dimmed)">
+                {{ new Date(competition.date).toLocaleDateString() }}
+              </p>
               <div class="mt-2 flex justify-between">
-                <p class="text-sm">12 Anmeldungen</p>
+                <p class="text-sm">
+                  {{ competition.registrations[0]?.count || 0 }} Anmeldungen
+                </p>
                 <UButton
-                  to="/admin/competitions/1"
-                  variant="ghost"
-                  color="primary"
-                  trailing-icon="lucide:arrow-right"
-                >
-                  Details
-                </UButton>
-              </div>
-            </div>
-
-            <div class="border-b pb-4">
-              <div class="flex justify-between">
-                <h3 class="font-medium">Hamburg Triathlon</h3>
-                <UBadge color="success" variant="soft">Aktiv</UBadge>
-              </div>
-              <p class="text-sm text-(--ui-text-dimmed)">28. Januar 2025</p>
-              <div class="mt-2 flex justify-between">
-                <p class="text-sm">8 Anmeldungen</p>
-                <UButton
-                  to="/admin/competitions/2"
-                  variant="ghost"
-                  color="primary"
-                  trailing-icon="lucide:arrow-right"
-                >
-                  Details
-                </UButton>
-              </div>
-            </div>
-
-            <div class="border-b pb-4">
-              <div class="flex justify-between">
-                <h3 class="font-medium">München Marathon</h3>
-                <UBadge color="warning" variant="soft">Bald</UBadge>
-              </div>
-              <p class="text-sm text-(--ui-text-dimmed)">10. März 2025</p>
-              <div class="mt-2 flex justify-between">
-                <p class="text-sm">Noch keine Anmeldungen</p>
-                <UButton
-                  to="/admin/competitions/3"
+                  :to="`/admin/competitions/${competition.id}`"
                   variant="ghost"
                   color="primary"
                   trailing-icon="lucide:arrow-right"
@@ -137,66 +216,36 @@
         <!-- Neueste Anmeldungen -->
         <UCard>
           <template #header>
-            <div class="flex items-center justify-between">
-              <h2 class="text-xl font-bold">Neueste Anmeldungen</h2>
-              <UButton
-                to="/admin/registrations"
-                variant="ghost"
-                color="primary"
-                trailing-icon="lucide:arrow-right"
-              >
-                Alle anzeigen
-              </UButton>
-            </div>
+            <h2 class="text-xl font-bold">Neueste Anmeldungen</h2>
           </template>
 
           <div class="space-y-4">
-            <div class="border-b pb-4">
+            <div
+              v-for="registration in newestRegistrations"
+              :key="registration.id"
+              class="border-b pb-4"
+            >
               <div class="flex justify-between">
-                <h3 class="font-medium">Peter Schmidt</h3>
-                <UBadge color="warning" variant="soft">Ausstehend</UBadge>
+                <h3 class="font-medium">{{ registration.member?.name }}</h3>
+                <UBadge
+                  :color="
+                    registration.status === 'confirmed' ? 'success' : 'warning'
+                  "
+                  variant="soft"
+                >
+                  {{
+                    registration.status === 'confirmed'
+                      ? 'Bestätigt'
+                      : 'Ausstehend'
+                  }}
+                </UBadge>
               </div>
               <p class="text-sm text-(--ui-text-dimmed)">
-                Berliner Triathlon Cup
+                {{ registration.competition?.name }}
               </p>
-              <div class="mt-2 flex justify-between">
-                <p class="text-sm text-(--ui-text-dimmed)">Vor 2 Stunden</p>
-                <div>
-                  <UButton variant="ghost" color="success" class="mr-2">
-                    Bestätigen
-                  </UButton>
-                  <UButton variant="ghost" color="error"> Ablehnen </UButton>
-                </div>
-              </div>
-            </div>
-
-            <div class="border-b pb-4">
-              <div class="flex justify-between">
-                <h3 class="font-medium">Maria Musterfrau</h3>
-                <UBadge color="success" variant="soft">Bestätigt</UBadge>
-              </div>
-              <p class="text-sm text-(--ui-text-dimmed)">Hamburg Triathlon</p>
-              <p class="mt-2 text-sm text-(--ui-text-dimmed)">Vor 5 Stunden</p>
-            </div>
-
-            <div class="border-b pb-4">
-              <div class="flex justify-between">
-                <h3 class="font-medium">Max Mustermann</h3>
-                <UBadge color="success" variant="soft">Bestätigt</UBadge>
-              </div>
-              <p class="text-sm text-(--ui-text-dimmed)">
-                Berliner Triathlon Cup
+              <p class="mt-2 text-sm text-(--ui-text-dimmed)">
+                {{ new Date(registration.created_at).toLocaleString() }}
               </p>
-              <p class="mt-2 text-sm text-(--ui-text-dimmed)">Vor 1 Tag</p>
-            </div>
-
-            <div class="border-b pb-4">
-              <div class="flex justify-between">
-                <h3 class="font-medium">Anna Müller</h3>
-                <UBadge color="success" variant="soft">Bestätigt</UBadge>
-              </div>
-              <p class="text-sm text-(--ui-text-dimmed)">Hamburg Triathlon</p>
-              <p class="mt-2 text-sm text-(--ui-text-dimmed)">Vor 2 Tagen</p>
             </div>
           </div>
         </UCard>

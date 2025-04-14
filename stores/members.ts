@@ -9,7 +9,8 @@ export const useMemberStore = defineStore('memberStore', () => {
   const isReady = ref(false)
   const error = ref<Error | null>(null)
 
-  const getMemberById = (id: number) => members.value.find(member => member.id === id)
+  const getMemberById = (id: number) =>
+    members.value.find((member) => member.id === id)
 
   async function fetchMembers() {
     if (members.value.length > 0) return
@@ -61,4 +62,4 @@ export const useMemberStore = defineStore('memberStore', () => {
     memberOptions,
     isReady,
   }
-}) 
+})

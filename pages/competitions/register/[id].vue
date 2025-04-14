@@ -68,6 +68,7 @@ async function onSubmit(event: FormSubmitEvent<RegistrationSchema>) {
       title: 'Fehler',
       description: error.message || 'Ein Fehler ist aufgetreten.',
       color: 'error',
+      duration: 5000,
     })
   } finally {
     isSubmitting.value = false
@@ -114,7 +115,7 @@ async function onError(error: any) {
           <UTextarea
             v-model="state.notes"
             class="w-full"
-            placeholder="Hast du besondere Anmerkungen zur Anmeldung? (z.B. Startgruppe, Besonderheiten)"
+            placeholder="Hast du Anmerkungen zur Anmeldung? (Disziplin, Startblock, etc.)"
           />
         </UFormField>
 
@@ -128,8 +129,9 @@ async function onError(error: any) {
             }"
           />
           <template #help>
-            Nach Absenden des Formulars erhältst du eine Bestätigungsmail mit
-            weiteren Informationen.
+            Nach Absenden des Formulars erhältst du eine E-Mail mit einem
+            Bestätigungslink. Klicke diesen an, um deine Teilnahme zu
+            bestätigen.
           </template>
         </UFormField>
 

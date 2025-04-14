@@ -71,38 +71,49 @@ if (!competition.value) {
       <div class="space-y-6">
         <BaseLayer>
           <h2 class="mb-4 text-xl font-bold">Teilnehmer</h2>
-          <p v-if="registrations" class="mb-4 text-sm">
+          <p v-if="registrations" class="text-sm">
             Bereits {{ registrations.length }} Mitglieder angemeldet
           </p>
 
-          <div class="space-y-3">
+          <div class="mt-4 space-y-3">
             <div
               v-for="registration in registrations"
               :key="registration.id"
               class="rounded bg-(--ui-bg) p-3"
             >
-              <p class="font-medium">{{ registration.member.name }}</p>
-              <p
-                class="text-sm"
-                :class="{
-                  'text-green-600': registration.status === 'confirmed',
-                  'text-yellow-600': registration.status === 'pending',
-                  'text-red-600': registration.status === 'canceled',
-                }"
-              >
-                {{
-                  registration.status === 'confirmed'
-                    ? 'Bestätigt'
-                    : registration.status === 'pending'
-                      ? 'Ausstehend'
-                      : 'Abgesagt'
-                }}
-              </p>
-              <div class="mt-2 flex items-center gap-2 text-sm text-gray-500">
-                <UIcon name="lucide:calendar" class="h-4 w-4" />
-                <span>{{
-                  new Date(registration.created_at).toLocaleDateString('de-DE')
-                }}</span>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <p class="font-medium">{{ registration.member.name }}</p>
+                  <p
+                    class="text-sm"
+                    :class="{
+                      'text-green-600': registration.status === 'confirmed',
+                      'text-yellow-600': registration.status === 'pending',
+                      'text-red-600': registration.status === 'canceled',
+                    }"
+                  >
+                    {{
+                      registration.status === 'confirmed'
+                        ? 'Bestätigt'
+                        : registration.status === 'pending'
+                          ? 'Ausstehend'
+                          : 'Abgesagt'
+                    }}
+                  </p>
+                </div>
+                <!-- TODO: Button um neue E-Mail anzufordern -->
+                <div class="text-right">
+                  <div
+                    class="flex items-center justify-end gap-2 text-sm text-gray-500"
+                  >
+                    <span>{{
+                      new Date(registration.created_at).toLocaleDateString(
+                        'de-DE'
+                      )
+                    }}</span>
+                    <UIcon name="lucide:calendar" class="h-4 w-4" />
+                  </div>
+                </div>
               </div>
               <p v-if="registration.notes" class="mt-2 text-sm text-gray-600">
                 {{ registration.notes }}
@@ -134,7 +145,7 @@ if (!competition.value) {
     <div v-if="competition" class="space-y-6">
       <!-- Wettkampfdetails -->
       <BaseLayer>
-        <div class="grid grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <UFormField label="Status" size="lg">
             <CompetitionStatus class="mt-2" :competition="competition" />
           </UFormField>

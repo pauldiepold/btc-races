@@ -1,7 +1,7 @@
 import type { ApiResponse } from '~/types/api'
 import type { Database } from '~/types/database.types'
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
-import { validateCompetition } from '../validations/competition.schema'
+import { competitionSchema } from '~/composables/useCompetitionSchema'
 
 export default defineEventHandler(async (event) => {
   // Authentifizierung prüfen
@@ -19,12 +19,15 @@ export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient<Database>(event)
   const body = await readBody(event)
 
-  // Validierung mit Zod Schema
-  const { data: validatedData, error: validationError } =
-    await validateCompetition(body)
-  if (validationError) {
+  // Validierung mit dem gleichen Schema wie im Frontend
+  const validationResult = competitionSchema.safeParse(body)
+  if (!validationResult.success) {
     return {
-      error: validationError,
+      error: {
+        message: 'Validierungsfehler',
+        code: 'VALIDATION_ERROR',
+        details: validationResult.error.errors,
+      },
       statusCode: 400,
     } as ApiResponse<null>
   }
@@ -32,9 +35,7 @@ export default defineEventHandler(async (event) => {
   try {
     const { data, error } = await client
       .from('competitions')
-      .insert({
-        ...validatedData,
-      } as Database['public']['Tables']['competitions']['Insert'])
+      .insert(validationResult.data)
       .select()
       .single()
 
@@ -42,7 +43,7 @@ export default defineEventHandler(async (event) => {
       console.error('Supabase Fehler:', error)
       return {
         error: {
-          message: 'Fehler beim Erstellen des Wettkampfes',
+          message: 'Fehler beim Erstellen des Wettkampfes.',
           code: 'DATABASE_ERROR',
           details: error.message,
         },
@@ -58,7 +59,7 @@ export default defineEventHandler(async (event) => {
     console.error('Fehler beim Erstellen des Wettkampfes:', error)
     return {
       error: {
-        message: 'Ein unerwarteter Fehler ist aufgetreten',
+        message: 'Ein unerwarteter Fehler ist aufgetreten.',
         code: 'INTERNAL_ERROR',
         details: error.message,
       },

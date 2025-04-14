@@ -27,14 +27,16 @@ withDefaults(
       >
         {{ backLinkText }}
       </UButton>
-      <div class="mb-6 flex items-center justify-between">
+      <div
+        class="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center"
+      >
         <h1 class="text-2xl font-bold">
           {{ heading }}
         </h1>
         <slot name="actions" />
       </div>
 
-      <div class="flex flex-col gap-8 lg:flex-row">
+      <div class="flex flex-col gap-6 lg:flex-row">
         <!-- Hauptinhalt -->
         <div class="flex-1">
           <slot name="default" />
@@ -42,7 +44,7 @@ withDefaults(
           <!-- Trennlinie für mobile Ansicht -->
           <hr
             v-if="$slots.sidebar"
-            class="mt-8 border-(--ui-border-inverted) lg:hidden"
+            class="mt-6 border-(--ui-border-inverted) lg:hidden"
           />
         </div>
 

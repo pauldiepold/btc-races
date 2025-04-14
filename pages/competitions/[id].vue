@@ -26,147 +26,135 @@ if (!competition.value) {
 </script>
 
 <template>
-  <div v-if="competition">
-    <NuxtLink
-      to="/competitions"
-      class="text-primary inline-block hover:underline"
-    >
-      &larr; Zurück zur Übersicht
-    </NuxtLink>
-    <div class="mt-6 mb-8">
-      <div class="container mx-auto">
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <h1 class="text-3xl font-bold">{{ competition.name }}</h1>
-          <div class="flex justify-start md:justify-end">
-            <NuxtLink
-              :to="`/register/${competition.id}`"
-              class="bg-primary hover:bg-primary rounded-lg px-6 py-2 text-black"
-            >
-              Anmelden
-            </NuxtLink>
-          </div>
-        </div>
-      </div>
-    </div>
+  <NuxtLayout
+    name="base"
+    :heading="competition?.name"
+    back-link="/"
+    back-link-text="Zurück zur Übersicht"
+  >
+    <template #sidebar>
+      <div class="space-y-6">
+        <UButton
+          v-if="competition"
+          :to="`/register/${competition.id}`"
+          color="primary"
+          size="lg"
+          class="w-full justify-center"
+        >
+          Zu diesem Wettkampf anmelden
+        </UButton>
+        <BaseLayer>
+          <h2 class="mb-4 text-xl font-bold">Teilnehmer</h2>
+          <p class="mb-4 text-sm">Bereits 12 Mitglieder angemeldet</p>
 
-    <div class="container mx-auto">
-      <div class="mb-8 grid grid-cols-1 gap-8 md:grid-cols-3">
-        <div class="col-span-2">
-          <div class="mb-8 rounded-lg bg-white p-6 shadow-md">
-            <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div>
-                <h3 class="mb-1 text-sm font-medium text-gray-500">Datum</h3>
-                <p class="text-lg">
-                  {{ new Date(competition.date).toLocaleDateString('de-DE') }}
-                </p>
-              </div>
-              <div>
-                <h3 class="mb-1 text-sm font-medium text-gray-500">Ort</h3>
-                <p class="text-lg">{{ competition.location }}</p>
-              </div>
-              <div>
-                <h3 class="mb-1 text-sm font-medium text-gray-500">
-                  Meldefrist
-                </h3>
-                <p class="text-lg">
-                  {{
-                    new Date(
-                      competition.registration_deadline
-                    ).toLocaleDateString('de-DE')
-                  }}
-                </p>
-              </div>
-              <div>
-                <h3 class="mb-1 text-sm font-medium text-gray-500">Status</h3>
-                <p
-                  class="text-lg"
-                  :class="
-                    new Date(competition.registration_deadline) >= new Date()
-                      ? 'text-green-600'
-                      : 'text-red-600'
-                  "
-                >
-                  {{
-                    new Date(competition.registration_deadline) >= new Date()
-                      ? 'Anmeldung möglich'
-                      : 'Anmeldung geschlossen'
-                  }}
-                </p>
-              </div>
+          <div class="space-y-3">
+            <div class="rounded bg-(--ui-bg) p-3">
+              <p class="font-medium">Max Mustermann</p>
+              <p class="text-sm text-green-600">Bestätigt</p>
             </div>
-
-            <h2 class="mb-4 text-xl font-bold">Beschreibung</h2>
-            <div class="prose max-w-none" v-html="competition.description" />
-          </div>
-
-          <div class="rounded-lg bg-white p-6 shadow-md">
-            <h2 class="mb-4 text-xl font-bold">Ausschreibung</h2>
-            <p class="mb-4">
-              Weitere Details findest du in der offiziellen Ausschreibung:
-            </p>
-            <a
-              :href="competition.announcement_link || '#'"
-              class="inline-flex items-center rounded bg-black px-4 py-2 text-white"
-            >
-              <span class="mr-2">Ausschreibung öffnen</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                />
-              </svg>
-            </a>
-          </div>
-        </div>
-
-        <div>
-          <div class="mb-6 rounded-lg bg-white p-6 shadow-md">
-            <h2 class="mb-4 text-xl font-bold">Teilnehmer</h2>
-            <p class="mb-4 text-sm text-gray-500">
-              Bereits 12 Mitglieder angemeldet
-            </p>
-
-            <div class="space-y-3">
-              <div class="rounded bg-gray-50 p-3">
-                <p class="font-medium">Max Mustermann</p>
-                <p class="text-sm text-green-600">Bestätigt</p>
-              </div>
-              <div class="rounded bg-gray-50 p-3">
-                <p class="font-medium">Maria Musterfrau</p>
-                <p class="text-sm text-green-600">Bestätigt</p>
-              </div>
-              <div class="rounded bg-gray-50 p-3">
-                <p class="font-medium">Peter Schmidt</p>
-                <p class="text-primary text-sm">Ausstehend</p>
-              </div>
+            <div class="rounded bg-(--ui-bg) p-3">
+              <p class="font-medium">Maria Musterfrau</p>
+              <p class="text-sm text-green-600">Bestätigt</p>
             </div>
-
-            <p class="mt-4 text-center text-sm text-gray-500">
-              und 9 weitere...
-            </p>
+            <div class="rounded bg-(--ui-bg) p-3">
+              <p class="font-medium">Peter Schmidt</p>
+              <p class="text-sm">Ausstehend</p>
+            </div>
           </div>
 
-          <div class="rounded-lg bg-white p-6 shadow-md">
-            <h2 class="mb-4 text-xl font-bold">Fragen?</h2>
-            <p class="mb-4">
-              Bei Fragen zum Wettkampf kontaktiere bitte die Wettkampfleitung.
-            </p>
-            <a
-              href="mailto:wettkampf@btc.de"
-              class="text-primary hover:underline"
-              >wettkampf@btc.de</a
-            >
-          </div>
-        </div>
+          <p class="mt-4 text-center text-sm">und 9 weitere...</p>
+        </BaseLayer>
+
+        <!-- Kontakt -->
+        <BaseLayer>
+          <h2 class="mb-4 text-xl font-bold">Fragen?</h2>
+          <p class="mb-4">
+            Bei Fragen zum Wettkampf kontaktiere bitte unsere Coaches über Final
+            Surge.
+          </p>
+          <UButton
+            to="https://www.finalsurge.com/"
+            color="neutral"
+            variant="outline"
+            target="_blank"
+            trailing-icon="lucide:external-link"
+          >
+            Final Surge öffnen
+          </UButton>
+        </BaseLayer>
       </div>
+    </template>
+
+    <div v-if="competition" class="space-y-6">
+      <!-- Wettkampfdetails -->
+      <BaseLayer>
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <UFormField label="Status" size="lg">
+            <CompetitionStatus class="mt-2" :competition="competition" />
+          </UFormField>
+
+          <UFormField label="Meldefrist" size="lg">
+            <UInput
+              :model-value="
+                new Date(competition.registration_deadline).toLocaleDateString(
+                  'de-DE'
+                )
+              "
+              icon="lucide:clock"
+              class="w-full"
+              disabled
+            />
+          </UFormField>
+
+          <UFormField label="Datum" size="lg">
+            <UInput
+              :model-value="
+                new Date(competition.date).toLocaleDateString('de-DE')
+              "
+              icon="lucide:calendar"
+              class="w-full"
+              disabled
+            />
+          </UFormField>
+
+          <UFormField label="Ort" size="lg">
+            <UInput
+              :model-value="competition.location"
+              icon="lucide:map-pin"
+              class="w-full"
+              disabled
+            />
+          </UFormField>
+        </div>
+      </BaseLayer>
+
+      <!-- Beschreibung -->
+      <BaseLayer>
+        <h2 class="mb-4 text-xl font-bold">Beschreibung</h2>
+        <div
+          v-if="competition.description"
+          class="prose max-w-none"
+          v-html="competition.description"
+        />
+        <div v-else>Keine Beschreibung verfügbar.</div>
+      </BaseLayer>
+
+      <!-- Ausschreibung -->
+      <BaseLayer v-if="competition.announcement_link">
+        <h2 class="mb-4 text-xl font-bold">Ausschreibung</h2>
+        <p class="mb-4">
+          Weitere Details findest du in der offiziellen Ausschreibung:
+        </p>
+        <UButton
+          :to="competition.announcement_link"
+          target="_blank"
+          color="neutral"
+          variant="soft"
+          trailing-icon="lucide:external-link"
+        >
+          Ausschreibung öffnen
+        </UButton>
+      </BaseLayer>
     </div>
-  </div>
+  </NuxtLayout>
 </template>

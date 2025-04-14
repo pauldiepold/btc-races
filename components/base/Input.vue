@@ -30,7 +30,7 @@ defineEmits<{
       @input="
         $emit('update:modelValue', ($event.target as HTMLInputElement).value)
       "
-    >
+    />
 
     <p v-if="error" class="mt-1.5 text-sm text-red-600">
       {{ error }}

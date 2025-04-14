@@ -145,7 +145,12 @@ watch(searchQuery, (newValue) => {
 <template>
   <NuxtLayout name="base" heading="Wettkämpfe">
     <template #actions>
-      <UButton v-if="user" to="/admin/competitions/add" color="primary">
+      <UButton
+        v-if="user"
+        to="/admin/competitions/add"
+        color="primary"
+        class="w-full justify-center md:w-auto md:justify-start"
+      >
         Wettkampf hinzufügen
       </UButton>
     </template>
@@ -202,14 +207,14 @@ watch(searchQuery, (newValue) => {
           Keine Wettkämpfe gefunden
         </div>
 
-        <template v-else>
+        <div v-else>
           <!-- "Ältere anzeigen" Button -->
           <UButton
             v-if="hasMorePastEvents"
-            class="w-full cursor-pointer justify-center"
+            class="mb-2 w-full cursor-pointer justify-center"
             variant="outline"
             color="neutral"
-            size="lg"
+            size="sm"
             @click="loadMorePastEvents"
           >
             Ältere Wettkämpfe anzeigen
@@ -227,15 +232,15 @@ watch(searchQuery, (newValue) => {
           <!-- "Weitere anzeigen" Button -->
           <UButton
             v-if="hasMoreFutureEvents"
-            class="w-full cursor-pointer justify-center"
+            class="mt-2 w-full cursor-pointer justify-center"
             variant="outline"
             color="neutral"
-            size="lg"
+            size="sm"
             @click="loadMoreFutureEvents"
           >
             Weitere Wettkämpfe anzeigen
           </UButton>
-        </template>
+        </div>
       </div>
     </template>
   </NuxtLayout>

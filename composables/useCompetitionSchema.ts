@@ -17,12 +17,12 @@ export const competitionSchema = baseSchema.superRefine((data, ctx) => {
   if (data.registration_deadline && data.date) {
     const deadline = new Date(data.registration_deadline)
     const eventDate = new Date(data.date)
-    
+
     if (deadline > eventDate) {
       ctx.addIssue({
         path: ['registration_deadline'],
         code: z.ZodIssueCode.custom,
-        message: 'Die Meldefrist muss vor dem Veranstaltungsdatum liegen'
+        message: 'Die Meldefrist muss vor dem Veranstaltungsdatum liegen',
       })
     }
   }
@@ -42,4 +42,4 @@ export function useCompetitionSchema() {
     schema: competitionSchema,
     createFormState,
   }
-} 
+}

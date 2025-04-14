@@ -1,20 +1,47 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
+import type { ApiResponse } from '~/types/api'
+import type { Database } from '~/types/database.types'
 
 const { schema, createFormState } = useCompetitionSchema()
-
-const state = ref<Partial<CompetitionSchema>>(createFormState())
-
 const toast = useToast()
 
+const state = ref<Partial<CompetitionSchema>>(createFormState())
+const isSubmitting = ref(false)
+
 async function onSubmit(event: FormSubmitEvent<CompetitionSchema>) {
-  toast.add({
-    title: 'Erfolg',
-    description: 'Der Wettkampf wurde erfolgreich erstellt.',
-    color: 'success',
-  })
-  console.log(event.data)
-  state.value = createFormState()
+  isSubmitting.value = true
+  try {
+    const { data, error } = await $fetch<
+      ApiResponse<Database['public']['Tables']['competitions']['Row']>
+    >('/api/competitions', {
+      method: 'POST',
+      body: event.data,
+    })
+
+    if (error) {
+      throw new Error(error.message)
+    }
+
+    toast.add({
+      title: 'Erfolg',
+      description: 'Der Wettkampf wurde erfolgreich erstellt.',
+      color: 'success',
+    })
+
+    // Weiterleitung zur Detailseite
+    setTimeout(async () => {
+      await navigateTo(`/competitions/${data?.id}`)
+    }, 1500)
+  } catch (error: any) {
+    toast.add({
+      title: 'Fehler',
+      description: error.message || 'Ein Fehler ist aufgetreten.',
+      color: 'error',
+    })
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 async function onError() {
@@ -88,7 +115,14 @@ async function onError() {
         </UFormField>
 
         <div class="flex justify-end">
-          <UButton type="submit" size="lg">Wettkampf erstellen</UButton>
+          <UButton
+            type="submit"
+            size="lg"
+            :loading="isSubmitting"
+            :disabled="isSubmitting"
+          >
+            Wettkampf erstellen
+          </UButton>
         </div>
       </UForm>
     </BaseLayer>

@@ -142,7 +142,7 @@ async function submitRegistration() {
                   type="checkbox"
                   class="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300"
                   required
-                >
+                />
               </div>
               <div class="ml-3 text-sm">
                 <label for="terms" class="font-medium text-gray-700">

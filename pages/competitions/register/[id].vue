@@ -3,6 +3,10 @@ import { ref } from 'vue'
 import type { Database } from '~/types/database.types'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
+definePageMeta({
+  colorMode: 'dark',
+})
+
 // Die Wettkampf-ID aus der Route
 const route = useRoute()
 const competitionId = route.params.id as string

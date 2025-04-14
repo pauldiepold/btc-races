@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { Database } from '~/types/database.types'
 
+definePageMeta({
+  colorMode: 'dark',
+})
+
 const route = useRoute()
 const competitionId = route.params.id as string
 

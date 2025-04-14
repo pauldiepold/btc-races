@@ -3,6 +3,10 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 import type { ApiResponse } from '~/types/api'
 import type { Database } from '~/types/database.types'
 
+definePageMeta({
+  colorMode: 'dark',
+})
+
 const { schema, createFormState } = useCompetitionSchema()
 const toast = useToast()
 

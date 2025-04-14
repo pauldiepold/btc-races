@@ -1,5 +1,9 @@
 <script setup lang="ts">
 const { login, loading, error } = useAuth()
+
+definePageMeta({
+  colorMode: 'dark',
+})
 </script>
 
 <template>

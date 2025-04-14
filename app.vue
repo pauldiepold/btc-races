@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { de } from '@nuxt/ui/locale'
+definePageMeta({
+  colorMode: 'dark',
+})
 </script>
 
 <template>

@@ -15,6 +15,7 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxtjs/supabase',
     '@nuxt/eslint',
+    '@pinia/nuxt',
   ],
 
   runtimeConfig: {

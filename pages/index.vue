@@ -159,13 +159,30 @@ watch(searchQuery, (newValue) => {
       <BaseLayer class="space-y-4">
         <h2 class="text-lg font-semibold">Über das Anmeldesystem</h2>
         <p>
-          Das BTC-Wettkampfanmeldesystem ermöglicht Vereinsmitgliedern eine
-          einfache Anmeldung zu aktuellen Wettkämpfen.
+          Mit diesem System kannst du dich für aktuelle Wettkämpfe anmelden, die
+          per LADV durch unsere Coaches gemeldet werden müssen.
         </p>
+        <hr />
+        <p>So meldest du dich an:</p>
+        <ul class="list-disc space-y-2 pl-4">
+          <li>
+            Wähle einen Wettkampf aus der Liste aus und klicke auf der
+            Detailseite auf "Anmelden".
+          </li>
+          <li>
+            Wähle im Formular deinen eigenen Namen aus und bestätige die
+            Anmeldung.
+          </li>
+          <li>
+            In der Bestätigungs-E-Mail findest du einen Link zur Anmeldung, über
+            den du deine Teilnahme bestätigen musst.
+          </li>
+        </ul>
+        <hr />
         <p>
-          Um dich anzumelden, wähle einen Wettkampf aus der Liste aus und klicke
-          auf "Anmelden". Nach Auswahl deines Namens aus der Mitgliederliste
-          erhältst du eine Bestätigungs-E-Mail.
+          Kurz vor Ende der Meldefrist hast du noch einmal die Möglichkeit dich
+          abzumelden. Ansonsten wirst du durch unsere Coaches bei dem Wettkampf
+          angemeldet.
         </p>
       </BaseLayer>
     </template>
@@ -211,7 +228,7 @@ watch(searchQuery, (newValue) => {
           <!-- "Ältere anzeigen" Button -->
           <UButton
             v-if="hasMorePastEvents"
-            class="mb-2 w-full cursor-pointer justify-center"
+            class="mb-4 w-full cursor-pointer justify-center"
             variant="outline"
             color="neutral"
             size="sm"
@@ -232,7 +249,7 @@ watch(searchQuery, (newValue) => {
           <!-- "Weitere anzeigen" Button -->
           <UButton
             v-if="hasMoreFutureEvents"
-            class="mt-2 w-full cursor-pointer justify-center"
+            class="mt-4 w-full cursor-pointer justify-center"
             variant="outline"
             color="neutral"
             size="sm"

@@ -32,17 +32,19 @@ if (!competition.value) {
     back-link="/"
     back-link-text="Zurück zur Übersicht"
   >
+    <template #actions>
+      <UButton
+        v-if="competition"
+        :to="`/competitions/register/${competition.id}`"
+        color="primary"
+        size="lg"
+        class="w-full justify-center md:w-auto md:justify-start"
+      >
+        Zu diesem Wettkampf anmelden
+      </UButton>
+    </template>
     <template #sidebar>
       <div class="space-y-6">
-        <UButton
-          v-if="competition"
-          :to="`/register/${competition.id}`"
-          color="primary"
-          size="lg"
-          class="w-full justify-center"
-        >
-          Zu diesem Wettkampf anmelden
-        </UButton>
         <BaseLayer>
           <h2 class="mb-4 text-xl font-bold">Teilnehmer</h2>
           <p class="mb-4 text-sm">Bereits 12 Mitglieder angemeldet</p>
@@ -88,12 +90,25 @@ if (!competition.value) {
     <div v-if="competition" class="space-y-6">
       <!-- Wettkampfdetails -->
       <BaseLayer>
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div class="grid grid-cols-2 gap-6">
           <UFormField label="Status" size="lg">
             <CompetitionStatus class="mt-2" :competition="competition" />
           </UFormField>
 
-          <UFormField label="Meldefrist" size="lg">
+          <UFormField label="Ort" size="lg">
+            <UInput
+              :model-value="competition.location"
+              icon="lucide:map-pin"
+              class="w-full !cursor-pointer"
+              disabled
+            />
+          </UFormField>
+
+          <UFormField
+            label="Meldefrist"
+            size="lg"
+            class="w-full !cursor-pointer"
+          >
             <UInput
               :model-value="
                 new Date(competition.registration_deadline).toLocaleDateString(
@@ -101,7 +116,7 @@ if (!competition.value) {
                 )
               "
               icon="lucide:clock"
-              class="w-full"
+              class="w-full !cursor-pointer"
               disabled
             />
           </UFormField>
@@ -112,16 +127,7 @@ if (!competition.value) {
                 new Date(competition.date).toLocaleDateString('de-DE')
               "
               icon="lucide:calendar"
-              class="w-full"
-              disabled
-            />
-          </UFormField>
-
-          <UFormField label="Ort" size="lg">
-            <UInput
-              :model-value="competition.location"
-              icon="lucide:map-pin"
-              class="w-full"
+              class="w-full !cursor-pointer"
               disabled
             />
           </UFormField>

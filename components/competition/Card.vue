@@ -24,18 +24,20 @@ defineProps<{ competition: Competition }>()
       <UButton
         v-if="competition.date"
         icon="lucide:calendar"
-        class="pl-0"
         variant="ghost"
         color="neutral"
+        disabled
+        class="!cursor-pointer"
         :label="new Date(competition.date).toLocaleDateString('de-DE')"
       />
 
       <UButton
         v-if="competition.registration_deadline"
         icon="lucide:clock"
-        class="pl-0"
         variant="ghost"
         color="neutral"
+        disabled
+        class="!cursor-pointer"
         :label="`Meldefrist: ${new Date(
           competition.registration_deadline
         ).toLocaleDateString('de-DE')}`"
@@ -44,9 +46,10 @@ defineProps<{ competition: Competition }>()
       <UButton
         v-if="competition.location"
         icon="lucide:map-pin"
-        class="pl-0"
         variant="ghost"
         color="neutral"
+        disabled
+        class="!cursor-pointer"
         :label="competition.location"
       />
 
@@ -57,7 +60,7 @@ defineProps<{ competition: Competition }>()
           target="_blank"
           :to="competition.announcement_link"
           class="w-full justify-center md:w-auto md:justify-start"
-          trailing-icon="lucide:external-link"
+          icon="lucide:external-link"
         >
           Ausschreibung
         </UButton>

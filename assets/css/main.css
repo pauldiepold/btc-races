@@ -17,6 +17,7 @@
   /* Inverted background color */
   --ui-bg-inverted: var(--ui-color-neutral-900);
   --ui-text-dimmed: var(--ui-color-neutral-800);
+  --ui-border-accented: var(--ui-color-neutral-300);
 }
 
 .dark {
@@ -31,4 +32,5 @@
   /* Inverted background color */
   --ui-bg-inverted: var(--color-white);
   --ui-text-dimmed: var(--ui-color-neutral-200);
+  --ui-border-accented: var(--ui-color-neutral-600);
 }

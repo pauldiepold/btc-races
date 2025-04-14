@@ -37,7 +37,9 @@ const {
 } = await useAsyncData('competitions', async () => {
   const { data, error: supabaseError } = await client
     .from('competitions')
-    .select('*')
+    .select(
+      'id, name, date, location, description, registration_deadline, announcement_link, created_by, created_at, updated_at'
+    )
     .order('date', { ascending: true })
 
   if (supabaseError) throw supabaseError

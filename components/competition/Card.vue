@@ -9,61 +9,42 @@ defineProps<{ competition: Competition }>()
 <template>
   <NuxtLink
     :to="`/competitions/${competition.id}`"
-    class="transition-all duration-300 hover:shadow-lg"
+    class="block transition-all duration-300 hover:shadow-lg"
   >
-    <BaseLayer class="grid grid-cols-2 gap-4">
+    <BaseLayer class="flex flex-col gap-3 py-4">
+      <!-- Header mit Name und Status -->
       <div
-        class="col-span-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4"
+        class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
       >
-        <h3 class="text-lg font-semibold">
+        <h3 class="line-clamp-1 text-lg font-semibold">
           {{ competition.name }}
         </h3>
         <CompetitionStatus :competition="competition" />
       </div>
 
-      <UButton
-        v-if="competition.date"
-        icon="lucide:calendar"
-        variant="ghost"
-        color="neutral"
-        disabled
-        class="!cursor-pointer"
-        :label="new Date(competition.date).toLocaleDateString('de-DE')"
-      />
+      <!-- Beschreibung wenn vorhanden -->
+      <p
+        v-if="competition.description"
+        class="text-muted line-clamp-2 hidden text-sm md:block"
+      >
+        {{ competition.description }}
+      </p>
 
-      <UButton
-        v-if="competition.registration_deadline"
-        icon="lucide:clock"
-        variant="ghost"
-        color="neutral"
-        disabled
-        class="!cursor-pointer"
-        :label="`Meldefrist: ${new Date(
-          competition.registration_deadline
-        ).toLocaleDateString('de-DE')}`"
-      />
+      <!-- Details -->
+      <div class="flex flex-wrap items-center gap-4 text-sm">
+        <!-- Datum -->
+        <div v-if="competition.date" class="flex w-20 items-center gap-2">
+          <Icon name="lucide:calendar" class="h-4 w-4 text-gray-500" />
+          <span>{{
+            new Date(competition.date).toLocaleDateString('de-DE')
+          }}</span>
+        </div>
 
-      <UButton
-        v-if="competition.location"
-        icon="lucide:map-pin"
-        variant="ghost"
-        color="neutral"
-        disabled
-        class="!cursor-pointer"
-        :label="competition.location"
-      />
-
-      <div v-if="competition.announcement_link">
-        <UButton
-          variant="soft"
-          color="neutral"
-          target="_blank"
-          :to="competition.announcement_link"
-          class="w-full justify-center md:w-auto md:justify-start"
-          icon="lucide:external-link"
-        >
-          Ausschreibung
-        </UButton>
+        <!-- Ort -->
+        <div v-if="competition.location" class="flex items-center gap-2">
+          <Icon name="lucide:map-pin" class="h-4 w-4 text-gray-500" />
+          <span>{{ competition.location }}</span>
+        </div>
       </div>
     </BaseLayer>
   </NuxtLink>

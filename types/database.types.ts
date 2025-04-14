@@ -113,7 +113,7 @@ export type Database = {
         Insert: {
           created_at?: string
           has_left?: boolean
-          id: number
+          id?: number
           name: string
           updated_at?: string
         }

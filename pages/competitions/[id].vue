@@ -19,6 +19,30 @@ const { data: competition } = await useAsyncData(
   }
 )
 
+const { data: registrations } = await useAsyncData(
+  `registrations-${competitionId}`,
+  async () => {
+    const { data } = await client
+      .from('registrations')
+      .select(
+        `
+        id,
+        status,
+        notes,
+        created_at,
+        member:members (
+          id,
+          name
+        )
+      `
+      )
+      .eq('competition_id', parseInt(competitionId))
+      .order('created_at', { ascending: false })
+
+    return data
+  }
+)
+
 // Umleitung zur Übersichtsseite, wenn der Wettkampf nicht gefunden wurde
 if (!competition.value) {
   navigateTo('/')
@@ -47,24 +71,44 @@ if (!competition.value) {
       <div class="space-y-6">
         <BaseLayer>
           <h2 class="mb-4 text-xl font-bold">Teilnehmer</h2>
-          <p class="mb-4 text-sm">Bereits 12 Mitglieder angemeldet</p>
+          <p v-if="registrations" class="mb-4 text-sm">
+            Bereits {{ registrations.length }} Mitglieder angemeldet
+          </p>
 
           <div class="space-y-3">
-            <div class="rounded bg-(--ui-bg) p-3">
-              <p class="font-medium">Max Mustermann</p>
-              <p class="text-sm text-green-600">Bestätigt</p>
-            </div>
-            <div class="rounded bg-(--ui-bg) p-3">
-              <p class="font-medium">Maria Musterfrau</p>
-              <p class="text-sm text-green-600">Bestätigt</p>
-            </div>
-            <div class="rounded bg-(--ui-bg) p-3">
-              <p class="font-medium">Peter Schmidt</p>
-              <p class="text-sm">Ausstehend</p>
+            <div
+              v-for="registration in registrations"
+              :key="registration.id"
+              class="rounded bg-(--ui-bg) p-3"
+            >
+              <p class="font-medium">{{ registration.member.name }}</p>
+              <p
+                class="text-sm"
+                :class="{
+                  'text-green-600': registration.status === 'confirmed',
+                  'text-yellow-600': registration.status === 'pending',
+                  'text-red-600': registration.status === 'canceled',
+                }"
+              >
+                {{
+                  registration.status === 'confirmed'
+                    ? 'Bestätigt'
+                    : registration.status === 'pending'
+                      ? 'Ausstehend'
+                      : 'Abgesagt'
+                }}
+              </p>
+              <div class="mt-2 flex items-center gap-2 text-sm text-gray-500">
+                <UIcon name="lucide:calendar" class="h-4 w-4" />
+                <span>{{
+                  new Date(registration.created_at).toLocaleDateString('de-DE')
+                }}</span>
+              </div>
+              <p v-if="registration.notes" class="mt-2 text-sm text-gray-600">
+                {{ registration.notes }}
+              </p>
             </div>
           </div>
-
-          <p class="mt-4 text-center text-sm">und 9 weitere...</p>
         </BaseLayer>
 
         <!-- Kontakt -->

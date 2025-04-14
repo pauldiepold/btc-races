@@ -16,7 +16,7 @@ const { data: competitions } = await useAsyncData('competitions', async () => {
 </script>
 
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto">
     <div class="flex flex-col gap-8 lg:flex-row">
       <!-- Hauptinhalt -->
       <div class="flex-1">

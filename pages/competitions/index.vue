@@ -143,7 +143,7 @@ watch(searchQuery, (newValue) => {
 </script>
 
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto py-8">
     <div class="mb-8 flex items-center justify-between">
       <h1 class="text-2xl font-bold">Wettkämpfe</h1>
       <BaseLink v-if="user" to="/admin/competitions/new">

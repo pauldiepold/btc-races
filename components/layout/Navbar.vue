@@ -81,7 +81,7 @@ async function handleLogout() {
           <LayoutHeaderLinkMobile
             v-if="user"
             to="/admin"
-            label="Admin"
+            label="Admin-Dashboard"
             :is-menu-open="isMenuOpen"
             @close-menu="isMenuOpen = false"
           />

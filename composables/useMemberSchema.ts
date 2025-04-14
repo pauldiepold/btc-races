@@ -7,11 +7,13 @@ useZodLocalization()
 const baseSchema = z.object({
   Vorname: z.string().min(1, 'Vorname ist erforderlich'),
   Nachname: z.string().min(1, 'Nachname ist erforderlich'),
-  Mitgliedsnummer: z.string().min(1, 'Mitgliedsnummer ist erforderlich')
-    .transform(val => parseInt(val))
-    .refine(val => !isNaN(val), 'Mitgliedsnummer muss eine Zahl sein')
-    .refine(val => val > 0, 'Mitgliedsnummer muss positiv sein'),
-  'E-Mail': z.string().email('Ungültige E-Mail-Adresse')
+  Mitgliedsnummer: z
+    .string()
+    .min(1, 'Mitgliedsnummer ist erforderlich')
+    .transform((val) => parseInt(val))
+    .refine((val) => !isNaN(val), 'Mitgliedsnummer muss eine Zahl sein')
+    .refine((val) => val > 0, 'Mitgliedsnummer muss positiv sein'),
+  'E-Mail': z.string().email('Ungültige E-Mail-Adresse'),
 })
 
 export const memberSchema = baseSchema
@@ -30,4 +32,4 @@ export function useMemberSchema() {
     schema: memberSchema,
     createFormState,
   }
-} 
+}

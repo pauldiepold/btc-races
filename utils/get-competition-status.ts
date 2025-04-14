@@ -15,19 +15,21 @@ export default function (
   if (now < deadline) {
     return {
       text: 'Anmeldung möglich',
-      color: 'text-green-900 bg-green-100',
+      color:
+        'text-(--ui-color-neutral-100) dark:text-(--ui-color-neutral-800) bg-(--ui-success)',
     }
   }
 
   if (now < date) {
     return {
       text: 'Meldefrist verstrichen',
-      color: 'text-yellow-800 bg-yellow-100',
+      color: 'bg-(--ui-color-error-400) text-(--ui-color-neutral-900)',
     }
   }
 
   return {
     text: 'Vergangen',
-    color: 'text-yellow-900 bg-yellow-100',
+    color:
+      'text-(--ui-color-neutral-700) dark:text-(--ui-color-neutral-800) bg-(--ui-warning)',
   }
 }

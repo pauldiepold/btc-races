@@ -12,7 +12,7 @@ const { data: competition } = await useAsyncData(
     const { data } = await client
       .from('competitions')
       .select('*')
-      .eq('id', competitionId)
+      .eq('id', parseInt(competitionId))
       .single()
 
     return data
@@ -21,7 +21,7 @@ const { data: competition } = await useAsyncData(
 
 // Umleitung zur Übersichtsseite, wenn der Wettkampf nicht gefunden wurde
 if (!competition.value) {
-  navigateTo('/competitions')
+  navigateTo('/')
 }
 </script>
 

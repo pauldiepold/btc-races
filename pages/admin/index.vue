@@ -5,6 +5,16 @@
     back-link="/"
     back-link-text="Zurück zur Startseite"
   >
+    <template #actions>
+      <UButton
+        to="/admin/members/import"
+        color="primary"
+        class="w-full justify-center md:w-auto md:justify-start"
+      >
+        Mitglieder importieren
+      </UButton>
+    </template>
+
     <div class="space-y-8">
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <!-- Dashboard-Karten -->

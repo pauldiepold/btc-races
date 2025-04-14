@@ -4,4 +4,4 @@ export type ImportResponse = {
   imported?: number
   skipped?: string[]
   warnings?: string[]
-} 
+}

@@ -1,36 +1,36 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+@theme static {
+  --font-sans: 'Raleway', sans-serif;
+}
 
 :root {
-  --color-primary: #ffb700;
-  --color-secondary: #000000;
-  --color-background: #ffffff;
-  --color-text: #333333;
-  --color-light-gray: #f5f5f5;
-  --color-gray: #dddddd;
-  --color-dark-gray: #666666;
-  --color-error: #ff3b30;
-  --color-success: #34c759;
-  --color-warning: #ff9500;
+  /* Main background color */
+  --ui-bg: var(--ui-color-neutral-50);
+  /* Subtle background */
+  --ui-bg-muted: var(--ui-color-neutral-100);
+  /* Slightly elevated background */
+  --ui-bg-elevated: var(--ui-color-neutral-100);
+  /* More prominent background */
+  --ui-bg-accented: var(--ui-color-neutral-200);
+  /* Inverted background color */
+  --ui-bg-inverted: var(--ui-color-neutral-900);
+  --ui-text-dimmed: var(--ui-color-neutral-800);
+  --ui-border-accented: var(--ui-color-neutral-300);
 }
 
-body {
-  font-family: 'Inter', sans-serif;
-  color: var(--color-text);
-  background-color: var(--color-background);
+.dark {
+  /* Main background color */
+  --ui-bg: var(--ui-color-neutral-900);
+  /* Subtle background */
+  --ui-bg-muted: var(--ui-color-neutral-800);
+  /* Slightly elevated background */
+  --ui-bg-elevated: var(--ui-color-neutral-800);
+  /* More prominent background */
+  --ui-bg-accented: var(--ui-color-neutral-700);
+  /* Inverted background color */
+  --ui-bg-inverted: var(--color-white);
+  --ui-text-dimmed: var(--ui-color-neutral-200);
+  --ui-border-accented: var(--ui-color-neutral-600);
 }
-
-.primary-color {
-  color: var(--color-primary);
-}
-
-.secondary-color {
-  color: var(--color-secondary);
-}
-
-.primary-bg {
-  background-color: var(--color-primary);
-}
-
-.secondary-bg {
-  background-color: var(--color-secondary);
-} 

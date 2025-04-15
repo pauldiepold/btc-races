@@ -1,226 +1,259 @@
-<script setup>
+<script setup lang="ts">
+import type { Database } from '~/types/database.types'
+
 definePageMeta({
-  layout: 'admin',
+  colorMode: 'dark',
 })
 
-// Später werden diese Daten aus Supabase geladen
+const client = useSupabaseClient<Database>()
+
+const {
+  data: activeCompetitionsCount,
+  pending: _loading,
+  error: _error,
+} = await useAsyncData('activeCompetitionsCount', async () => {
+  const { count, error: supabaseError } = await client
+    .from('competitions')
+    .select('*', { count: 'exact', head: true })
+    .gte('date', new Date().toISOString().split('T')[0])
+
+  if (supabaseError) throw supabaseError
+
+  return count || 0
+})
+
+const {
+  data: membersCount,
+  pending: _loadingMembers,
+  error: _errorMembers,
+} = await useAsyncData('membersCount', async () => {
+  const { count, error: supabaseError } = await client
+    .from('members')
+    .select('*', { count: 'exact', head: true })
+
+  if (supabaseError) throw supabaseError
+
+  return count || 0
+})
+
+const {
+  data: confirmedRegistrationsCount,
+  pending: _loadingConfirmed,
+  error: _errorConfirmed,
+} = await useAsyncData('confirmedRegistrationsCount', async () => {
+  const { count, error: supabaseError } = await client
+    .from('registrations')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'confirmed')
+
+  if (supabaseError) throw supabaseError
+
+  return count || 0
+})
+
+const {
+  data: pendingRegistrationsCount,
+  pending: _loadingPending,
+  error: _errorPending,
+} = await useAsyncData('pendingRegistrationsCount', async () => {
+  const { count, error: supabaseError } = await client
+    .from('registrations')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'pending')
+
+  if (supabaseError) throw supabaseError
+
+  return count || 0
+})
+
+const {
+  data: activeCompetitions,
+  pending: _loadingActive,
+  error: _errorActive,
+} = await useAsyncData('activeCompetitions', async () => {
+  const { data, error: supabaseError } = await client
+    .from('competitions')
+    .select(
+      `
+      *,
+      registrations:registrations(count)
+    `
+    )
+    .gte('date', new Date().toISOString().split('T')[0])
+    .order('date', { ascending: true })
+    .limit(5)
+
+  if (supabaseError) throw supabaseError
+
+  return data
+})
+
+const {
+  data: newestRegistrations,
+  pending: _loadingNewest,
+  error: _errorNewest,
+} = await useAsyncData('newestRegistrations', async () => {
+  const { data, error: supabaseError } = await client
+    .from('registrations')
+    .select(
+      `
+      *,
+      member:members(name),
+      competition:competitions(name)
+    `
+    )
+    .order('created_at', { ascending: false })
+    .limit(5)
+
+  if (supabaseError) throw supabaseError
+
+  return data
+})
 </script>
 
 <template>
-  <div>
-    <h1 class="text-2xl font-bold mb-6">
-      Admin-Dashboard
-    </h1>
+  <NuxtLayout
+    name="base"
+    heading="Admin Dashboard"
+    back-link="/"
+    back-link-text="Zurück zur Startseite"
+  >
+    <template #actions>
+      <UButton
+        to="/admin/members/import"
+        color="primary"
+        class="w-full justify-center md:w-auto md:justify-start"
+      >
+        Mitglieder importieren
+      </UButton>
+    </template>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <!-- Dashboard-Karten -->
-      <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-[#ffb700]">
-        <h2 class="text-xl font-bold mb-2">
-          Wettkämpfe
-        </h2>
-        <p class="text-3xl font-bold">
-          5
-        </p>
-        <p class="text-sm text-gray-500 mt-2">
-          Aktive Wettkämpfe
-        </p>
+    <div class="space-y-8">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <!-- Dashboard-Karten -->
+        <UCard>
+          <template #header>
+            <h2 class="text-xl font-bold">Wettkämpfe</h2>
+          </template>
+          <p class="text-3xl font-bold">{{ activeCompetitionsCount }}</p>
+          <p class="mt-2 text-sm text-(--ui-text-dimmed)">Aktive Wettkämpfe</p>
+        </UCard>
+
+        <UCard>
+          <template #header>
+            <h2 class="text-xl font-bold">Mitglieder</h2>
+          </template>
+          <p class="text-3xl font-bold">{{ membersCount }}</p>
+          <p class="mt-2 text-sm text-(--ui-text-dimmed)">
+            Registrierte Mitglieder
+          </p>
+        </UCard>
+
+        <UCard>
+          <template #header>
+            <h2 class="text-xl font-bold">Anmeldungen</h2>
+          </template>
+          <p class="text-3xl font-bold">{{ confirmedRegistrationsCount }}</p>
+          <p class="mt-2 text-sm text-(--ui-text-dimmed)">
+            Bestätigte Anmeldungen
+          </p>
+        </UCard>
+
+        <UCard>
+          <template #header>
+            <h2 class="text-xl font-bold">Ausstehend</h2>
+          </template>
+          <p class="text-3xl font-bold">{{ pendingRegistrationsCount }}</p>
+          <p class="mt-2 text-sm text-(--ui-text-dimmed)">
+            Unbestätigte Anmeldungen
+          </p>
+        </UCard>
       </div>
 
-      <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-[#ffb700]">
-        <h2 class="text-xl font-bold mb-2">
-          Mitglieder
-        </h2>
-        <p class="text-3xl font-bold">
-          128
-        </p>
-        <p class="text-sm text-gray-500 mt-2">
-          Registrierte Mitglieder
-        </p>
-      </div>
-
-      <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-[#ffb700]">
-        <h2 class="text-xl font-bold mb-2">
-          Anmeldungen
-        </h2>
-        <p class="text-3xl font-bold">
-          42
-        </p>
-        <p class="text-sm text-gray-500 mt-2">
-          Bestätigte Anmeldungen
-        </p>
-      </div>
-
-      <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-[#ffb700]">
-        <h2 class="text-xl font-bold mb-2">
-          Ausstehend
-        </h2>
-        <p class="text-3xl font-bold">
-          8
-        </p>
-        <p class="text-sm text-gray-500 mt-2">
-          Unbestätigte Anmeldungen
-        </p>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <!-- Aktuelle Wettkämpfe -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold">
-            Aktuelle Wettkämpfe
-          </h2>
-          <NuxtLink to="/admin/competitions" class="text-[#ffb700] hover:underline text-sm">
-            Alle anzeigen
-          </NuxtLink>
-        </div>
-
-        <div class="space-y-4">
-          <div class="border-b pb-4">
-            <div class="flex justify-between">
-              <h3 class="font-medium">
-                Berliner Triathlon Cup
-              </h3>
-              <span class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">Aktiv</span>
+      <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <!-- Aktuelle Wettkämpfe -->
+        <UCard>
+          <template #header>
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl font-bold">Aktuelle Wettkämpfe</h2>
+              <UButton
+                to="/"
+                variant="ghost"
+                color="primary"
+                trailing-icon="lucide:arrow-right"
+              >
+                Alle anzeigen
+              </UButton>
             </div>
-            <p class="text-sm text-gray-500">
-              15. Dezember 2024
-            </p>
-            <div class="flex justify-between mt-2">
-              <p class="text-sm">
-                12 Anmeldungen
+          </template>
+
+          <div class="space-y-4">
+            <div
+              v-for="competition in activeCompetitions"
+              :key="competition.id"
+              class="border-b pb-4"
+            >
+              <div class="flex justify-between">
+                <h3 class="font-medium">{{ competition.name }}</h3>
+                <UBadge color="success" variant="soft">Aktiv</UBadge>
+              </div>
+              <p class="text-sm text-(--ui-text-dimmed)">
+                {{ new Date(competition.date).toLocaleDateString() }}
               </p>
-              <NuxtLink to="/admin/competitions/1" class="text-[#ffb700] hover:underline text-sm">
-                Details
-              </NuxtLink>
-            </div>
-          </div>
-
-          <div class="border-b pb-4">
-            <div class="flex justify-between">
-              <h3 class="font-medium">
-                Hamburg Triathlon
-              </h3>
-              <span class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">Aktiv</span>
-            </div>
-            <p class="text-sm text-gray-500">
-              28. Januar 2025
-            </p>
-            <div class="flex justify-between mt-2">
-              <p class="text-sm">
-                8 Anmeldungen
-              </p>
-              <NuxtLink to="/admin/competitions/2" class="text-[#ffb700] hover:underline text-sm">
-                Details
-              </NuxtLink>
-            </div>
-          </div>
-
-          <div class="border-b pb-4">
-            <div class="flex justify-between">
-              <h3 class="font-medium">
-                München Marathon
-              </h3>
-              <span class="text-sm bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Bald</span>
-            </div>
-            <p class="text-sm text-gray-500">
-              10. März 2025
-            </p>
-            <div class="flex justify-between mt-2">
-              <p class="text-sm">
-                Noch keine Anmeldungen
-              </p>
-              <NuxtLink to="/admin/competitions/3" class="text-[#ffb700] hover:underline text-sm">
-                Details
-              </NuxtLink>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Neueste Anmeldungen -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold">
-            Neueste Anmeldungen
-          </h2>
-          <NuxtLink to="/admin/registrations" class="text-[#ffb700] hover:underline text-sm">
-            Alle anzeigen
-          </NuxtLink>
-        </div>
-
-        <div class="space-y-4">
-          <div class="border-b pb-4">
-            <div class="flex justify-between">
-              <h3 class="font-medium">
-                Peter Schmidt
-              </h3>
-              <span class="text-sm bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Ausstehend</span>
-            </div>
-            <p class="text-sm text-gray-500">
-              Berliner Triathlon Cup
-            </p>
-            <div class="flex justify-between mt-2">
-              <p class="text-sm text-gray-500">
-                Vor 2 Stunden
-              </p>
-              <div>
-                <button class="text-green-600 hover:underline text-sm mr-2">
-                  Bestätigen
-                </button>
-                <button class="text-red-600 hover:underline text-sm">
-                  Ablehnen
-                </button>
+              <div class="mt-2 flex justify-between">
+                <p class="text-sm">
+                  {{ competition.registrations[0]?.count || 0 }} Anmeldungen
+                </p>
+                <UButton
+                  :to="`/admin/competitions/${competition.id}`"
+                  variant="ghost"
+                  color="primary"
+                  trailing-icon="lucide:arrow-right"
+                >
+                  Details
+                </UButton>
               </div>
             </div>
           </div>
+        </UCard>
 
-          <div class="border-b pb-4">
-            <div class="flex justify-between">
-              <h3 class="font-medium">
-                Maria Musterfrau
-              </h3>
-              <span class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">Bestätigt</span>
-            </div>
-            <p class="text-sm text-gray-500">
-              Hamburg Triathlon
-            </p>
-            <p class="text-sm text-gray-500 mt-2">
-              Vor 5 Stunden
-            </p>
-          </div>
+        <!-- Neueste Anmeldungen -->
+        <UCard>
+          <template #header>
+            <h2 class="text-xl font-bold">Neueste Anmeldungen</h2>
+          </template>
 
-          <div class="border-b pb-4">
-            <div class="flex justify-between">
-              <h3 class="font-medium">
-                Max Mustermann
-              </h3>
-              <span class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">Bestätigt</span>
+          <div class="space-y-4">
+            <div
+              v-for="registration in newestRegistrations"
+              :key="registration.id"
+              class="border-b pb-4"
+            >
+              <div class="flex justify-between">
+                <h3 class="font-medium">{{ registration.member?.name }}</h3>
+                <UBadge
+                  :color="
+                    registration.status === 'confirmed' ? 'success' : 'warning'
+                  "
+                  variant="soft"
+                >
+                  {{
+                    registration.status === 'confirmed'
+                      ? 'Bestätigt'
+                      : 'Ausstehend'
+                  }}
+                </UBadge>
+              </div>
+              <p class="text-sm text-(--ui-text-dimmed)">
+                {{ registration.competition?.name }}
+              </p>
+              <p class="mt-2 text-sm text-(--ui-text-dimmed)">
+                {{ new Date(registration.created_at).toLocaleString() }}
+              </p>
             </div>
-            <p class="text-sm text-gray-500">
-              Berliner Triathlon Cup
-            </p>
-            <p class="text-sm text-gray-500 mt-2">
-              Vor 1 Tag
-            </p>
           </div>
-
-          <div class="border-b pb-4">
-            <div class="flex justify-between">
-              <h3 class="font-medium">
-                Anna Müller
-              </h3>
-              <span class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">Bestätigt</span>
-            </div>
-            <p class="text-sm text-gray-500">
-              Hamburg Triathlon
-            </p>
-            <p class="text-sm text-gray-500 mt-2">
-              Vor 2 Tagen
-            </p>
-          </div>
-        </div>
+        </UCard>
       </div>
     </div>
-  </div>
+  </NuxtLayout>
 </template>

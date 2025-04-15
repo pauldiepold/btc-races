@@ -70,25 +70,32 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
 
 ### Notwendig:
 
-- TODO: Competitions bearbeiten können
-- TODO: Neue Felder auf Competitions + Filter auf Übersicht:
+- Competitions bearbeiten können
+- Neue Felder auf Competitions + Filter auf Übersicht:
   - meldepflichtig
   - Distanzen (enum in der Datenbank?)
   - Track / Road
   - Datum für Erinnerungs-Mails einstellen können?
-- TODO: E-Mails:
+- E-Mails:
   - Bestätigungsmail nach Anmeldung mit Verifizierungslink
   - Erinnerungsmail an Mitglieder 5 Tage vor Meldefrist mit Abmeldelink
   - Erinnerungsmail an Admins 3 Tage vor Meldefrist
   - Erinnerungsmail an teilnehmende Mitglieder 3 Tage vor dem Wettkampf
   - Nachfrage-E-Mail nach 3 Tagen bei nicht bestätigten Anmeldungen
-  - TODO: Cronjobs für Erinerungsmails
-  - TODO: E-Mail mit Token für Bestätigung senden bei Registrierung
-- TODO: nicht bei Events anmelden können, bei denen die Anmeldefrist vergangen ist
-- TODO: Hat Startpass importieren aus Campai + Anmeldung bei meldepflichtigen Events sperren
-- TODO: Abmeldung ermöglichen
+  - Cronjobs für Erinerungsmails
+  - E-Mail mit Token für Bestätigung senden bei Registrierung
+- nicht bei Events anmelden können, bei denen die Anmeldefrist vergangen ist
+- Startpass importieren aus Campai + Anmeldung bei meldepflichtigen Events sperren
+- Abmeldung ermöglichen
 
 ### Bonus:
 
-- TODO: Typen sortieren, gerade bei den Requests ist etwas Chaos
-- TODO: Admin: Nachrichten an alle Teilnehmer senden können
+- User können selbst Wettkämpfe einstellen --> Freischaltung durch Admins notwendig?
+- Light-Mode wieder aktivieren und Design etwas verbessern
+- Nach Anmeldung sofort ohne Timeout weiterleiten und zur neuen Anmeldung scrollen + grün aufblinken lassen (bzw. sowieso die neusten oben anzeigen)
+- Admin: Nachrichten an alle Teilnehmer senden können
+
+### Code-Qualität:
+
+- Typen sortieren, gerade bei den Requests ist etwas Chaos
+- Alle Supabase Abfragen in einen Service auslagern, Client + Serverseitig trennen?

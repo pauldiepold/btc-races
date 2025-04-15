@@ -9,7 +9,8 @@
     "format": "prettier --write .",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "prepare": "husky"
   },
   "dependencies": {
     "@azure/communication-email": "^1.0.0",
@@ -36,6 +37,7 @@
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.36",
     "@types/node": "^22.14.0",
+    "husky": "^9.1.7",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "supabase": "^2.20.12",

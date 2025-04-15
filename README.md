@@ -1,14 +1,14 @@
 # BTC Wettkampfanmeldung
 
-Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für Vereinsmitglieder.
+Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vereinsmitglieder.
 
 ## Funktionen
 
 - **Wettkampfverwaltung**: Erstellen, Bearbeiten und Löschen von Wettkämpfen
 - **Anmeldungsprozess**: Einfacher Anmeldeprozess mit E-Mail-Bestätigung
+- **Mitgliederverwaltung**: Excel-Import und Mitgliederverwaltung
 - **Benachrichtigungssystem**: Automatisierte E-Mail-Benachrichtigungen
 - **Authentifizierung**: Microsoft Entra ID Integration für Admins
-- **Mitgliederverwaltung**: Excel-Import und Mitgliederverwaltung
 
 ## Technologie-Stack
 
@@ -53,7 +53,7 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für Vereinsmitgl
 
 5. Entwicklungsserver starten
    ```bash
-   pnpm run dev
+   npm run dev
    ```
 
 ## Projektstruktur

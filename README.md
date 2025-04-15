@@ -4,40 +4,37 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für Vereinsmitgl
 
 ## Funktionen
 
-- **Authentifizierung**: Microsoft Entra ID Integration für Admins
-- **Mitgliederverwaltung**: Excel-Import und Mitgliederverwaltung
 - **Wettkampfverwaltung**: Erstellen, Bearbeiten und Löschen von Wettkämpfen
 - **Anmeldungsprozess**: Einfacher Anmeldeprozess mit E-Mail-Bestätigung
 - **Benachrichtigungssystem**: Automatisierte E-Mail-Benachrichtigungen
+- **Authentifizierung**: Microsoft Entra ID Integration für Admins
+- **Mitgliederverwaltung**: Excel-Import und Mitgliederverwaltung
 
 ## Technologie-Stack
 
 - **Frontend**: Nuxt 3 mit Vue 3
-- **UI-Framework**: Nuxt UI mit Vereinsfarben (Schwarz und #ffb700)
+- **UI-Framework**: Nuxt UI
 - **Backend-Datenbank**: Supabase (PostgreSQL)
-- **Hosting**: Vercel (kostenloser Tier)
+- **Hosting**: Vercel
+- **Auth**: Microsoft-Entra
+- **E-Mail-Provider**: Microsoft Azure
 
 ## Einrichtung
 
 ### Voraussetzungen
 
 - Node.js 18 oder höher
-- PNPM
+- npm
 - Supabase-Konto (kostenloser Tier ausreichend)
 
 ### Installation
 
 1. Repository klonen
 
-   ```bash
-   git clone <repository-url>
-   cd btc-races
-   ```
-
 2. Abhängigkeiten installieren
 
    ```bash
-   pnpm install
+   npm install
    ```
 
 3. Umgebungsvariablen konfigurieren
@@ -71,37 +68,27 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für Vereinsmitgl
 
 ## Nächste Schritte für die Entwicklung
 
-1. **Supabase einrichten**
+### Notwendig:
 
-   - Erstelle ein Supabase-Projekt
-   - Führe das Datenbankschema aus
-   - Konfiguriere die Umgebungsvariablen
+- TODO: Competitions bearbeiten können
+- TODO: Neue Felder auf Competitions + Filter auf Übersicht:
+  - meldepflichtig
+  - Distanzen (enum in der Datenbank?)
+  - Track / Road
+  - Datum für Erinnerungs-Mails einstellen können?
+- TODO: E-Mails:
+  - Bestätigungsmail nach Anmeldung mit Verifizierungslink
+  - Erinnerungsmail an Mitglieder 5 Tage vor Meldefrist mit Abmeldelink
+  - Erinnerungsmail an Admins 3 Tage vor Meldefrist
+  - Erinnerungsmail an teilnehmende Mitglieder 3 Tage vor dem Wettkampf
+  - Nachfrage-E-Mail nach 3 Tagen bei nicht bestätigten Anmeldungen
+  - TODO: Cronjobs für Erinerungsmails
+  - TODO: E-Mail mit Token für Bestätigung senden bei Registrierung
+- TODO: nicht bei Events anmelden können, bei denen die Anmeldefrist vergangen ist
+- TODO: Hat Startpass importieren aus Campai + Anmeldung bei meldepflichtigen Events sperren
+- TODO: Abmeldung ermöglichen
 
-2. **Authentifizierung implementieren**
+### Bonus:
 
-   - Microsoft Entra ID Integration für Admin-Bereich
-   - Geschützte Routen im Admin-Bereich
-
-3. **Datenbankanbindung**
-
-   - Mitgliederdaten-Import
-   - CRUD-Operationen für Wettkämpfe
-
-4. **E-Mail-System**
-
-   - Bestätigungsmails
-   - Erinnerungsmails
-   - E-Mail-Vorlagen
-
-5. **Filterfunktionen**
-
-   - Filter für Wettkämpfe implementieren
-   - Sortierung und Suche hinzufügen
-
-6. **Deployment**
-   - CI/CD-Pipeline auf Vercel einrichten
-   - Produktions-Deployment
-
-## Lizenz
-
-Dieses Projekt ist intern für den BTC (Berliner Triathlon Club) entwickelt und nicht öffentlich lizenziert.
+- TODO: Typen sortieren, gerade bei den Requests ist etwas Chaos
+- TODO: Admin: Nachrichten an alle Teilnehmer senden können

@@ -19,17 +19,12 @@ export default defineNuxtConfig({
   ],
 
   runtimeConfig: {
-    // Server-seitige Umgebungsvariablen
-    emailSender: 'noreply@example.com',
-
     // Client-seitige Umgebungsvariablen
     public: {
       supabaseUrl: '',
       supabaseKey: '',
       appTitle: 'BTC Wettkampfanmeldung',
       appDescription: 'Anmeldesystem für Wettkämpfe des BTC',
-      primaryColor: '#ffb700',
-      secondaryColor: '#000000',
     },
   },
 

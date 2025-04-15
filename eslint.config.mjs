@@ -8,4 +8,3 @@ export default withNuxt({
     'vue/no-v-html': 'off',
   },
 })
-// Your custom configs here

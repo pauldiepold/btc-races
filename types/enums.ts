@@ -13,10 +13,10 @@ export const CHAMPIONSHIP_TYPES = [
   'DM',
 ] as const
 export const RACE_TYPES = ['TRACK', 'ROAD'] as const
-export const REGISTRATION_TYPES = ['PUBLIC', 'LADV'] as const
+export const REGISTRATION_TYPES = ['INDEPENDENT', 'LADV', 'CLUB'] as const
 
 // Optionen für Dropdowns
-export const championshipTypeOptions = [
+export const championshipTypeItems = [
   {
     label: 'keine Meisterschaft',
     value: 'NO_CHAMPIONSHIP' as ChampionshipType,
@@ -29,12 +29,43 @@ export const championshipTypeOptions = [
   { label: 'Deutsche Meisterschaft', value: 'DM' as ChampionshipType },
 ]
 
-export const raceTypeOptions = [
+export const raceTypeItems = [
   { label: 'Bahn', value: 'TRACK' as RaceType },
   { label: 'Straße', value: 'ROAD' as RaceType },
 ]
 
-export const registrationTypeOptions = [
-  { label: 'Öffentlich', value: 'PUBLIC' as RegistrationType },
-  { label: 'LADV', value: 'LADV' as RegistrationType },
+export const registrationTypeItems = [
+  {
+    label: 'Eigenständige Anmeldung',
+    value: 'INDEPENDENT' as RegistrationType,
+  },
+  {
+    label: 'LADV-Meldung durch die Coaches',
+    value: 'LADV' as RegistrationType,
+  },
+  { label: 'Anmeldung durch den Verein', value: 'CLUB' as RegistrationType },
 ]
+
+export const raceTypeMap = {
+  TRACK: 'Bahn',
+  ROAD: 'Straße',
+}
+
+export const registrationTypeMapShort = {
+  INDEPENDENT: 'Eigenständig',
+  LADV: 'LADV',
+  CLUB: 'Verein',
+}
+
+export const registrationTypeMapLong = {
+  INDEPENDENT: 'Eigenständige Anmeldung',
+  LADV: 'LADV-Meldung durch die Coaches',
+  CLUB: 'Anmeldung durch den Verein',
+}
+
+export const championshipTypeMap = {
+  NO_CHAMPIONSHIP: 'keine Meisterschaft',
+  BBM: 'Berlin-Brandenburgische Meisterschaft',
+  NDM: 'Norddeutsche Meisterschaft',
+  DM: 'Deutsche Meisterschaft',
+}

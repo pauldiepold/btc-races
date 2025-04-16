@@ -3,9 +3,9 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 import type { ApiResponse } from '~/types/api'
 import type { Database } from '~/types/database.types'
 import {
-  championshipTypeOptions,
-  raceTypeOptions,
-  registrationTypeOptions,
+  championshipTypeItems,
+  raceTypeItems,
+  registrationTypeItems,
   CHAMPIONSHIP_TYPES,
   RACE_TYPES,
   REGISTRATION_TYPES,
@@ -113,7 +113,7 @@ async function onError() {
             >
               <URadioGroup
                 v-model="state.race_type"
-                :items="raceTypeOptions"
+                :items="raceTypeItems"
                 :ui="{
                   fieldset: 'gap-2',
                 }"
@@ -127,7 +127,7 @@ async function onError() {
             >
               <URadioGroup
                 v-model="state.registration_type"
-                :items="registrationTypeOptions"
+                :items="registrationTypeItems"
                 :ui="{
                   fieldset: 'gap-2',
                 }"
@@ -142,7 +142,7 @@ async function onError() {
           >
             <URadioGroup
               v-model="state.championship_type"
-              :items="championshipTypeOptions"
+              :items="championshipTypeItems"
               :ui="{
                 fieldset: 'gap-2',
               }"

@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import type { Database } from '~/types/database.types'
-
+import type {
+  RaceType,
+  RegistrationType,
+  ChampionshipType,
+} from '~/types/enums'
+import {
+  raceTypeItems,
+  registrationTypeItems,
+  championshipTypeItems,
+} from '~/types/enums'
 definePageMeta({
   colorMode: 'dark',
 })
@@ -10,30 +19,9 @@ const user = useSupabaseUser()
 
 // Filter-Status
 const searchString = ref('')
-const selectedRegistrationType = ref<string | undefined>(undefined)
-const selectedRaceType = ref<string | undefined>(undefined)
-const selectedChampionshipType = ref<string | undefined>(undefined)
-
-// Filter-Optionen
-const registrationTypes = [
-  { label: 'Alle', value: undefined },
-  { label: 'Öffentlich', value: 'PUBLIC' },
-  { label: 'LADV', value: 'LADV' },
-]
-
-const raceTypes = [
-  { label: 'Alle', value: undefined },
-  { label: 'Bahn', value: 'TRACK' },
-  { label: 'Straße', value: 'ROAD' },
-]
-
-const championshipTypes = [
-  { label: 'Alle', value: undefined },
-  { label: 'Keine Meisterschaft', value: 'NO_CHAMPIONSHIP' },
-  { label: 'BBM', value: 'BBM' },
-  { label: 'NDM', value: 'NDM' },
-  { label: 'DM', value: 'DM' },
-]
+const selectedRegistrationType = ref<RegistrationType | undefined>(undefined)
+const selectedRaceType = ref<RaceType | undefined>(undefined)
+const selectedChampionshipType = ref<ChampionshipType | undefined>(undefined)
 
 // Hilfsfunktionen für Datumsprüfung
 const today = computed(() => {
@@ -200,14 +188,16 @@ watch(
 <template>
   <NuxtLayout name="base" heading="Wettkämpfe">
     <template #actions>
-      <UButton
-        v-if="user"
-        to="/admin/competitions/add"
-        color="primary"
-        class="w-full justify-center md:w-auto md:justify-start"
-      >
-        Wettkampf hinzufügen
-      </UButton>
+      <ClientOnly>
+        <UButton
+          v-if="user"
+          to="/admin/competitions/add"
+          color="primary"
+          class="w-full justify-center md:w-auto md:justify-start"
+        >
+          Wettkampf hinzufügen
+        </UButton>
+      </ClientOnly>
     </template>
 
     <template #sidebar>
@@ -260,19 +250,25 @@ watch(
         <div class="grid gap-4 md:grid-cols-3">
           <USelect
             v-model="selectedRegistrationType"
-            :items="registrationTypes"
+            :items="[
+              { label: 'Alle', value: undefined },
+              ...registrationTypeItems,
+            ]"
             placeholder="Anmeldetyp"
             class="w-full"
           />
           <USelect
             v-model="selectedRaceType"
-            :items="raceTypes"
+            :items="[{ label: 'Alle', value: undefined }, ...raceTypeItems]"
             placeholder="Rennart"
             class="w-full"
           />
           <USelect
             v-model="selectedChampionshipType"
-            :items="championshipTypes"
+            :items="[
+              { label: 'Alle', value: undefined },
+              ...championshipTypeItems,
+            ]"
             placeholder="Meisterschaft"
             class="w-full"
           />

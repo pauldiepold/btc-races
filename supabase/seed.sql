@@ -9,7 +9,7 @@ VALUES
     '2025-05-01',
     'https://example.com/fruehjahrscup2025',
     'Der traditionelle Frühjahrs-Cup mit spannenden Rennen für alle Altersklassen.',
-    'PUBLIC',
+    'INDEPENDENT',
     'TRACK',
     'DM'
   ),
@@ -33,7 +33,7 @@ VALUES
     '2024-11-25',
     'https://example.com/winter2024',
     'Die letzte große Herausforderung des Jahres 2024.',
-    'PUBLIC',
+    'CLUB',
     'TRACK',
     'NDM'
   ),
@@ -57,7 +57,7 @@ VALUES
     '2024-09-10',
     'https://example.com/herbst2024',
     'Traditionelles Herbstrennen in der malerischen Dresdner Altstadt.',
-    'PUBLIC',
+    'INDEPENDENT',
     'TRACK',
     'DM'
   ),
@@ -69,7 +69,7 @@ VALUES
     '2026-08-15',
     'https://example.com/rhein2026',
     'Spektakuläres Rennen entlang des Rheins.',
-    'LADV',
+    'CLUB',
     'ROAD',
     'BBM'
   ),
@@ -81,7 +81,7 @@ VALUES
     '2025-06-30',
     'https://example.com/alpen2025',
     'Anspruchsvolles Bergrennen in den bayerischen Alpen.',
-    'PUBLIC',
+    'INDEPENDENT',
     'ROAD',
     'NDM'
   ),
@@ -105,7 +105,7 @@ VALUES
     '2024-08-05',
     'https://example.com/urban2024',
     'Urbanes Rennspektakel im Herzen Stuttgarts.',
-    'PUBLIC',
+    'CLUB',
     'ROAD',
     'DM'
   ),
@@ -129,7 +129,7 @@ VALUES
     '2026-09-23',
     'https://example.com/ruhr2026',
     'Historisches Rennen im Ruhrgebiet.',
-    'PUBLIC',
+    'INDEPENDENT',
     'ROAD',
     'NDM'
   ),
@@ -141,7 +141,7 @@ VALUES
     '2026-02-24',
     'https://example.com/leipzig2026',
     'Saisonauftakt in der Messestadt.',
-    'LADV',
+    'CLUB',
     'TRACK',
     'NO_CHAMPIONSHIP'
   ),
@@ -153,7 +153,7 @@ VALUES
     '2024-06-03',
     'https://example.com/harz2024',
     'Abenteuerliches Rennen durch den Harz.',
-    'PUBLIC',
+    'INDEPENDENT',
     'ROAD',
     'DM'
   ),
@@ -177,7 +177,7 @@ VALUES
     '2026-10-05',
     'https://example.com/blackforest2026',
     'Herbstliches Rennen durch den Schwarzwald.',
-    'PUBLIC',
+    'CLUB',
     'ROAD',
     'NDM'
   );

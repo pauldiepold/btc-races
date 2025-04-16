@@ -5,20 +5,21 @@ CREATE TYPE "public"."race_type" AS ENUM (
 );
 
 CREATE TYPE "public"."championship_type" AS ENUM (
-    'DM',
+    'NO_CHAMPIONSHIP',
     'BBM',
     'NDM',
-    'NO_CHAMPIONSHIP'
+    'DM'
 );
 
 CREATE TYPE "public"."registration_type" AS ENUM (
-    'PUBLIC',
-    'LADV'
+    'INDEPENDENT',
+    'LADV',
+    'CLUB'
 );
 
 -- Neue Felder zur competitions Tabelle hinzufügen
 ALTER TABLE "public"."competitions"
-ADD COLUMN "registration_type" "public"."registration_type" DEFAULT 'PUBLIC' NOT NULL,
+ADD COLUMN "registration_type" "public"."registration_type" DEFAULT 'INDEPENDENT' NOT NULL,
 ADD COLUMN "race_type" "public"."race_type" DEFAULT 'TRACK' NOT NULL,
 ADD COLUMN "championship_type" "public"."championship_type" DEFAULT 'NO_CHAMPIONSHIP' NOT NULL;
 

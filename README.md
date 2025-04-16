@@ -99,3 +99,7 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
 
 - Typen sortieren, gerade bei den Requests ist etwas Chaos
 - Alle Supabase Abfragen in einen Service auslagern, Client + Serverseitig trennen?
+
+## Mit der Datenbank arbeiten
+
+### Neue Datenfelder hinzufügen:

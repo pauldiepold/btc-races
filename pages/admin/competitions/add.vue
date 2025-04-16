@@ -2,15 +2,34 @@
 import type { FormSubmitEvent } from '@nuxt/ui'
 import type { ApiResponse } from '~/types/api'
 import type { Database } from '~/types/database.types'
+import {
+  championshipTypeOptions,
+  raceTypeOptions,
+  registrationTypeOptions,
+  CHAMPIONSHIP_TYPES,
+  RACE_TYPES,
+  REGISTRATION_TYPES,
+} from '~/types/enums'
 
 definePageMeta({
   colorMode: 'dark',
 })
 
-const { schema, createFormState } = useCompetitionSchema()
+const { schema } = useCompetitionSchema()
 const toast = useToast()
 
-const state = ref<Partial<CompetitionSchema>>(createFormState())
+const state = ref<Partial<CompetitionSchema>>({
+  name: undefined,
+  location: undefined,
+  registration_deadline: undefined,
+  date: undefined,
+  announcement_link: undefined,
+  description: undefined,
+  championship_type: CHAMPIONSHIP_TYPES[0],
+  race_type: RACE_TYPES[0],
+  registration_type: REGISTRATION_TYPES[0],
+})
+
 const isSubmitting = ref(false)
 
 async function onSubmit(event: FormSubmitEvent<CompetitionSchema>) {
@@ -84,23 +103,76 @@ async function onError() {
           />
         </UFormField>
 
-        <UFormField
-          label="Meldeschluss"
-          name="registration_deadline"
-          size="lg"
-          required
-        >
-          <UInput
-            v-model="state.registration_deadline"
-            type="date"
-            class="w-full"
-          />
-        </UFormField>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div class="flex flex-col gap-4">
+            <UFormField
+              label="Wettkampftyp"
+              name="race_type"
+              size="lg"
+              required
+            >
+              <URadioGroup
+                v-model="state.race_type"
+                :items="raceTypeOptions"
+                :ui="{
+                  fieldset: 'gap-2',
+                }"
+              />
+            </UFormField>
+            <UFormField
+              name="registration_type"
+              label="Anmeldung"
+              size="lg"
+              required
+            >
+              <URadioGroup
+                v-model="state.registration_type"
+                :items="registrationTypeOptions"
+                :ui="{
+                  fieldset: 'gap-2',
+                }"
+              />
+            </UFormField>
+          </div>
+          <UFormField
+            label="Meisterschaft"
+            name="championship_type"
+            size="lg"
+            required
+          >
+            <URadioGroup
+              v-model="state.championship_type"
+              :items="championshipTypeOptions"
+              :ui="{
+                fieldset: 'gap-2',
+              }"
+            />
+          </UFormField>
+        </div>
 
-        <UFormField label="Veranstaltungsdatum" name="date" size="lg" required>
-          <UInput v-model="state.date" type="date" class="w-full" />
-        </UFormField>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <UFormField
+            label="Meldeschluss"
+            name="registration_deadline"
+            size="lg"
+            required
+          >
+            <UInput
+              v-model="state.registration_deadline"
+              type="date"
+              class="w-full"
+            />
+          </UFormField>
 
+          <UFormField
+            label="Veranstaltungsdatum"
+            name="date"
+            size="lg"
+            required
+          >
+            <UInput v-model="state.date" type="date" class="w-full" />
+          </UFormField>
+        </div>
         <UFormField
           label="Link zur Ausschreibung"
           size="lg"

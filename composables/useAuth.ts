@@ -12,7 +12,7 @@ export function useAuth() {
       error.value = ''
 
       const { error: signInError } = await supabase.auth.signInWithOAuth({
-        provider: 'azure',
+        provider: 'google',
         options: {
           redirectTo: window.location.origin,
           scopes: 'email profile',

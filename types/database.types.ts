@@ -91,53 +91,47 @@ export type Database = {
       competitions: {
         Row: {
           announcement_link: string | null
-          championship_type:
-            | Database['public']['Enums']['championship_type']
-            | null
+          championship_type: Database['public']['Enums']['championship_type']
           created_at: string | null
           created_by: string | null
           date: string
           description: string | null
           id: number
-          is_ladv_registration_required: boolean | null
           location: string | null
           name: string
-          race_type: Database['public']['Enums']['race_type'] | null
+          race_type: Database['public']['Enums']['race_type']
           registration_deadline: string
+          registration_type: Database['public']['Enums']['registration_type']
           updated_at: string | null
         }
         Insert: {
           announcement_link?: string | null
-          championship_type?:
-            | Database['public']['Enums']['championship_type']
-            | null
+          championship_type?: Database['public']['Enums']['championship_type']
           created_at?: string | null
           created_by?: string | null
           date: string
           description?: string | null
           id?: number
-          is_ladv_registration_required?: boolean | null
           location?: string | null
           name: string
-          race_type?: Database['public']['Enums']['race_type'] | null
+          race_type?: Database['public']['Enums']['race_type']
           registration_deadline: string
+          registration_type?: Database['public']['Enums']['registration_type']
           updated_at?: string | null
         }
         Update: {
           announcement_link?: string | null
-          championship_type?:
-            | Database['public']['Enums']['championship_type']
-            | null
+          championship_type?: Database['public']['Enums']['championship_type']
           created_at?: string | null
           created_by?: string | null
           date?: string
           description?: string | null
           id?: number
-          is_ladv_registration_required?: boolean | null
           location?: string | null
           name?: string
-          race_type?: Database['public']['Enums']['race_type'] | null
+          race_type?: Database['public']['Enums']['race_type']
           registration_deadline?: string
+          registration_type?: Database['public']['Enums']['registration_type']
           updated_at?: string | null
         }
         Relationships: []
@@ -251,9 +245,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      championship_type: 'DM' | 'BBM' | 'NDM'
-      race_type: 'track' | 'road'
+      championship_type: 'DM' | 'BBM' | 'NDM' | 'NO_CHAMPIONSHIP'
+      race_type: 'TRACK' | 'ROAD'
       registration_status: 'pending' | 'confirmed' | 'canceled'
+      registration_type: 'PUBLIC' | 'LADV'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -786,9 +781,10 @@ export const Constants = {
   },
   public: {
     Enums: {
-      championship_type: ['DM', 'BBM', 'NDM'],
-      race_type: ['track', 'road'],
+      championship_type: ['DM', 'BBM', 'NDM', 'NO_CHAMPIONSHIP'],
+      race_type: ['TRACK', 'ROAD'],
       registration_status: ['pending', 'confirmed', 'canceled'],
+      registration_type: ['PUBLIC', 'LADV'],
     },
   },
   storage: {

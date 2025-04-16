@@ -1,20 +1,26 @@
 -- Neue Enums für Wettkampftypen und Meisterschaften
 CREATE TYPE "public"."race_type" AS ENUM (
-    'track',
-    'road'
+    'TRACK',
+    'ROAD'
 );
 
 CREATE TYPE "public"."championship_type" AS ENUM (
     'DM',
     'BBM',
-    'NDM'
+    'NDM',
+    'NO_CHAMPIONSHIP'
+);
+
+CREATE TYPE "public"."registration_type" AS ENUM (
+    'PUBLIC',
+    'LADV'
 );
 
 -- Neue Felder zur competitions Tabelle hinzufügen
 ALTER TABLE "public"."competitions"
-ADD COLUMN "is_ladv_registration_required" boolean DEFAULT false,
-ADD COLUMN "race_type" "public"."race_type",
-ADD COLUMN "championship_type" "public"."championship_type";
+ADD COLUMN "registration_type" "public"."registration_type" DEFAULT 'PUBLIC' NOT NULL,
+ADD COLUMN "race_type" "public"."race_type" DEFAULT 'TRACK' NOT NULL,
+ADD COLUMN "championship_type" "public"."championship_type" DEFAULT 'NO_CHAMPIONSHIP' NOT NULL;
 
 -- Neue Tabelle für Wettkampfdistanzen
 CREATE TABLE IF NOT EXISTS "public"."competition_distances" (

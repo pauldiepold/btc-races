@@ -4,5 +4,10 @@ export default defineAppConfig({
       primary: 'yellow',
       secondary: 'purple',
     },
+    radioGroup: {
+      slots: {
+        fieldset: 'gap-2',
+      },
+    },
   },
 })

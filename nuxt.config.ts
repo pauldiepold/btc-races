@@ -25,6 +25,7 @@ export default defineNuxtConfig({
       supabaseKey: '',
       appTitle: 'BTC Wettkampfanmeldung',
       appDescription: 'Anmeldesystem für Wettkämpfe des BTC',
+      authProvider: 'azure',
     },
   },
 

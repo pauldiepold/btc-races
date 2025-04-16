@@ -167,7 +167,7 @@ function loadMoreFutureEvents() {
   additionalFutureEvents.value += eventsPerLoad
 }
 
-// Reset der Filter wenn die Text-Suche beendet wird
+// Reset der Anzahl angezeigter Events, wenn die Text-Suche beendet wird
 watch(searchString, (newValue) => {
   if (!newValue) {
     additionalPastEvents.value = 0

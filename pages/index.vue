@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import type { Database } from '~/types/database.types'
-
+import type {
+  RaceType,
+  RegistrationType,
+  ChampionshipType,
+} from '~/types/enums'
+import {
+  raceTypeItems,
+  registrationTypeItems,
+  championshipTypeItems,
+} from '~/types/enums'
 definePageMeta({
   colorMode: 'dark',
 })
@@ -9,7 +18,10 @@ const client = useSupabaseClient<Database>()
 const user = useSupabaseUser()
 
 // Filter-Status
-const searchQuery = ref('')
+const searchString = ref('')
+const selectedRegistrationType = ref<RegistrationType | undefined>(undefined)
+const selectedRaceType = ref<RaceType | undefined>(undefined)
+const selectedChampionshipType = ref<ChampionshipType | undefined>(undefined)
 
 // Hilfsfunktionen für Datumsprüfung
 const today = computed(() => {
@@ -41,9 +53,7 @@ const {
 } = await useAsyncData('competitions', async () => {
   const { data, error: supabaseError } = await client
     .from('competitions')
-    .select(
-      'id, name, date, location, description, registration_deadline, announcement_link, created_by, created_at, updated_at'
-    )
+    .select()
     .order('date', { ascending: true })
 
   if (supabaseError) throw supabaseError
@@ -56,24 +66,42 @@ const filteredEvents = computed(() => {
   if (!competitions.value) return []
 
   return competitions.value.filter((event) => {
-    // Wenn keine Suche aktiv ist, alle Events zurückgeben
-    if (!searchQuery.value) return true
+    // Textsuche
+    if (searchString.value) {
+      const suchbegriffe = searchString.value.toLowerCase().split(' ')
+      const eventFelder = [event.name, event.description, event.location]
+      const durchsuchbareFelder = eventFelder
+        .filter((feld) => feld)
+        .map((feld) => feld?.toLowerCase())
 
-    // Suchbegriffe in Kleinbuchstaben aufteilen
-    const suchbegriffe = searchQuery.value.toLowerCase().split(' ')
+      const textMatch = suchbegriffe.every((begriff) => {
+        return durchsuchbareFelder.some((feld) => feld?.includes(begriff))
+      })
+      if (!textMatch) return false
+    }
 
-    // Zu durchsuchende Felder vorbereiten
-    const eventFelder = [event.name, event.description, event.location]
+    // Filter für registration_type
+    if (
+      selectedRegistrationType.value &&
+      event.registration_type !== selectedRegistrationType.value
+    ) {
+      return false
+    }
 
-    // Leere Felder entfernen und in Kleinbuchstaben umwandeln
-    const durchsuchbareFelder = eventFelder
-      .filter((feld) => feld) // Leere Felder entfernen
-      .map((feld) => feld?.toLowerCase())
+    // Filter für race_type
+    if (selectedRaceType.value && event.race_type !== selectedRaceType.value) {
+      return false
+    }
 
-    // Prüfen ob ALLE Suchbegriffe in MINDESTENS EINEM Feld vorkommen
-    return suchbegriffe.every((begriff) => {
-      return durchsuchbareFelder.some((feld) => feld?.includes(begriff))
-    })
+    // Filter für championship_type
+    if (
+      selectedChampionshipType.value &&
+      event.championship_type !== selectedChampionshipType.value
+    ) {
+      return false
+    }
+
+    return true
   })
 })
 
@@ -93,7 +121,7 @@ const futureEvents = computed(() => {
 // Sichtbare Events
 const visibleEvents = computed(() => {
   // Wenn eine Suche aktiv ist, zeige alle gefundenen Events
-  if (searchQuery.value) {
+  if (searchString.value) {
     return [...pastEvents.value, ...futureEvents.value].sort((a, b) => {
       const dateA = new Date(a.date).getTime()
       const dateB = new Date(b.date).getTime()
@@ -118,13 +146,13 @@ const visibleEvents = computed(() => {
 // Prüfen, ob es mehr Events gibt
 const hasMorePastEvents = computed(() => {
   // Keine "Mehr laden" Buttons während der Suche
-  if (searchQuery.value) return false
+  if (searchString.value) return false
   return additionalPastEvents.value < pastEvents.value.length
 })
 
 const hasMoreFutureEvents = computed(() => {
   // Keine "Mehr laden" Buttons während der Suche
-  if (searchQuery.value) return false
+  if (searchString.value) return false
   return (
     eventsPerLoad + additionalFutureEvents.value < futureEvents.value.length
   )
@@ -139,26 +167,37 @@ function loadMoreFutureEvents() {
   additionalFutureEvents.value += eventsPerLoad
 }
 
-// Reset der Anzahl angezeigter Events wenn die Suche beendet wird
-watch(searchQuery, (newValue) => {
+// Reset der Anzahl angezeigter Events, wenn die Text-Suche beendet wird
+watch(searchString, (newValue) => {
   if (!newValue) {
     additionalPastEvents.value = 0
     additionalFutureEvents.value = 0
   }
 })
+
+// Reset der Filter wenn ein Filter geändert wird
+watch(
+  [selectedRegistrationType, selectedRaceType, selectedChampionshipType],
+  () => {
+    additionalPastEvents.value = 0
+    additionalFutureEvents.value = 0
+  }
+)
 </script>
 
 <template>
   <NuxtLayout name="base" heading="Wettkämpfe">
     <template #actions>
-      <UButton
-        v-if="user"
-        to="/admin/competitions/add"
-        color="primary"
-        class="w-full justify-center md:w-auto md:justify-start"
-      >
-        Wettkampf hinzufügen
-      </UButton>
+      <ClientOnly>
+        <UButton
+          v-if="user"
+          to="/admin/competitions/add"
+          color="primary"
+          class="w-full justify-center md:w-auto md:justify-start"
+        >
+          Wettkampf hinzufügen
+        </UButton>
+      </ClientOnly>
     </template>
 
     <template #sidebar>
@@ -197,7 +236,7 @@ watch(searchQuery, (newValue) => {
       <div class="space-y-6">
         <!-- Suchfeld -->
         <UInput
-          v-model="searchQuery"
+          v-model="searchString"
           type="text"
           placeholder="Wettkampf suchen..."
           highlight
@@ -206,6 +245,34 @@ watch(searchQuery, (newValue) => {
           icon="i-lucide-search"
           class="w-full"
         />
+
+        <!-- Filter -->
+        <div class="grid gap-4 md:grid-cols-3">
+          <USelect
+            v-model="selectedRegistrationType"
+            :items="[
+              { label: 'Alle', value: undefined },
+              ...registrationTypeItems,
+            ]"
+            placeholder="Anmeldetyp"
+            class="w-full"
+          />
+          <USelect
+            v-model="selectedRaceType"
+            :items="[{ label: 'Alle', value: undefined }, ...raceTypeItems]"
+            placeholder="Rennart"
+            class="w-full"
+          />
+          <USelect
+            v-model="selectedChampionshipType"
+            :items="[
+              { label: 'Alle', value: undefined },
+              ...championshipTypeItems,
+            ]"
+            placeholder="Meisterschaft"
+            class="w-full"
+          />
+        </div>
 
         <!-- Lade-Status -->
         <div v-if="loading" class="py-8 text-center">

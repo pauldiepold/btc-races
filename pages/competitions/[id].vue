@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import type { Database } from '~/types/database.types'
+import {
+  registrationTypeMapLong,
+  raceTypeMap,
+  championshipTypeMap,
+} from '~/types/enums'
 
 definePageMeta({
   colorMode: 'dark',
@@ -186,6 +191,35 @@ if (!competition.value) {
                 new Date(competition.date).toLocaleDateString('de-DE')
               "
               icon="lucide:calendar"
+              class="w-full !cursor-pointer"
+              disabled
+            />
+          </UFormField>
+
+          <UFormField label="Anmeldung" size="lg">
+            <UInput
+              :model-value="
+                registrationTypeMapLong[competition.registration_type]
+              "
+              icon="lucide:tag"
+              class="w-full !cursor-pointer"
+              disabled
+            />
+          </UFormField>
+
+          <UFormField label="Rennart" size="lg">
+            <UInput
+              :model-value="raceTypeMap[competition.race_type]"
+              icon="lucide:ruler"
+              class="w-full !cursor-pointer"
+              disabled
+            />
+          </UFormField>
+
+          <UFormField label="Meisterschaft" size="lg">
+            <UInput
+              :model-value="championshipTypeMap[competition.championship_type]"
+              icon="lucide:clock"
               class="w-full !cursor-pointer"
               disabled
             />

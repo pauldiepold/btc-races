@@ -1,5 +1,5 @@
 -- Seed data für competitions
-INSERT INTO competitions (id, name, date, location, registration_deadline, announcement_link, description)
+INSERT INTO competitions (id, name, date, location, registration_deadline, announcement_link, description, registration_type, race_type, championship_type)
 VALUES
   (
     1,
@@ -8,7 +8,10 @@ VALUES
     'Berlin Tempelhof',
     '2025-05-01',
     'https://example.com/fruehjahrscup2025',
-    'Der traditionelle Frühjahrs-Cup mit spannenden Rennen für alle Altersklassen.'
+    'Der traditionelle Frühjahrs-Cup mit spannenden Rennen für alle Altersklassen.',
+    'INDEPENDENT',
+    'TRACK',
+    'DM'
   ),
   (
     2,
@@ -17,7 +20,10 @@ VALUES
     'München Olympiapark',
     '2025-07-05',
     'https://example.com/sommergp2025',
-    'Großes Sommerrennen mit internationaler Beteiligung.'
+    'Großes Sommerrennen mit internationaler Beteiligung.',
+    'LADV',
+    'ROAD',
+    'BBM'
   ),
   (
     3,
@@ -26,7 +32,10 @@ VALUES
     'Hamburg Stadtpark',
     '2024-11-25',
     'https://example.com/winter2024',
-    'Die letzte große Herausforderung des Jahres 2024.'
+    'Die letzte große Herausforderung des Jahres 2024.',
+    'CLUB',
+    'TRACK',
+    'NDM'
   ),
   (
     4,
@@ -35,7 +44,10 @@ VALUES
     'Frankfurt Innenstadt',
     '2025-05-15',
     'https://example.com/citysprint2025',
-    'Schnelles Stadtrennen durch die Frankfurter Innenstadt.'
+    'Schnelles Stadtrennen durch die Frankfurter Innenstadt.',
+    'LADV',
+    'ROAD',
+    'NO_CHAMPIONSHIP'
   ),
   (
     5,
@@ -44,7 +56,10 @@ VALUES
     'Dresden Altstadt',
     '2024-09-10',
     'https://example.com/herbst2024',
-    'Traditionelles Herbstrennen in der malerischen Dresdner Altstadt.'
+    'Traditionelles Herbstrennen in der malerischen Dresdner Altstadt.',
+    'INDEPENDENT',
+    'TRACK',
+    'DM'
   ),
   (
     6,
@@ -53,7 +68,10 @@ VALUES
     'Düsseldorf Rheinufer',
     '2026-08-15',
     'https://example.com/rhein2026',
-    'Spektakuläres Rennen entlang des Rheins.'
+    'Spektakuläres Rennen entlang des Rheins.',
+    'CLUB',
+    'ROAD',
+    'BBM'
   ),
   (
     7,
@@ -62,7 +80,10 @@ VALUES
     'Garmisch-Partenkirchen',
     '2025-06-30',
     'https://example.com/alpen2025',
-    'Anspruchsvolles Bergrennen in den bayerischen Alpen.'
+    'Anspruchsvolles Bergrennen in den bayerischen Alpen.',
+    'INDEPENDENT',
+    'ROAD',
+    'NDM'
   ),
   (
     8,
@@ -71,7 +92,10 @@ VALUES
     'St. Peter-Ording',
     '2026-05-10',
     'https://example.com/nordsee2026',
-    'Einzigartiges Strandrennen an der Nordseeküste.'
+    'Einzigartiges Strandrennen an der Nordseeküste.',
+    'LADV',
+    'TRACK',
+    'NO_CHAMPIONSHIP'
   ),
   (
     9,
@@ -80,7 +104,10 @@ VALUES
     'Stuttgart Schlossplatz',
     '2024-08-05',
     'https://example.com/urban2024',
-    'Urbanes Rennspektakel im Herzen Stuttgarts.'
+    'Urbanes Rennspektakel im Herzen Stuttgarts.',
+    'CLUB',
+    'ROAD',
+    'DM'
   ),
   (
     10,
@@ -89,7 +116,10 @@ VALUES
     'Oberstdorf',
     '2025-11-30',
     'https://example.com/winter2025',
-    'Magisches Winterrennen im verschneiten Allgäu.'
+    'Magisches Winterrennen im verschneiten Allgäu.',
+    'LADV',
+    'TRACK',
+    'BBM'
   ),
   (
     11,
@@ -98,7 +128,10 @@ VALUES
     'Essen Zeche Zollverein',
     '2026-09-23',
     'https://example.com/ruhr2026',
-    'Historisches Rennen im Ruhrgebiet.'
+    'Historisches Rennen im Ruhrgebiet.',
+    'INDEPENDENT',
+    'ROAD',
+    'NDM'
   ),
   (
     12,
@@ -107,7 +140,10 @@ VALUES
     'Leipzig',
     '2026-02-24',
     'https://example.com/leipzig2026',
-    'Saisonauftakt in der Messestadt.'
+    'Saisonauftakt in der Messestadt.',
+    'CLUB',
+    'TRACK',
+    'NO_CHAMPIONSHIP'
   ),
   (
     13,
@@ -116,7 +152,10 @@ VALUES
     'Wernigerode',
     '2024-06-03',
     'https://example.com/harz2024',
-    'Abenteuerliches Rennen durch den Harz.'
+    'Abenteuerliches Rennen durch den Harz.',
+    'INDEPENDENT',
+    'ROAD',
+    'DM'
   ),
   (
     14,
@@ -125,7 +164,10 @@ VALUES
     'Rostock',
     '2025-08-24',
     'https://example.com/ostsee2025',
-    'Maritimes Rennerlebnis an der Ostseeküste.'
+    'Maritimes Rennerlebnis an der Ostseeküste.',
+    'LADV',
+    'TRACK',
+    'BBM'
   ),
   (
     15,
@@ -134,7 +176,10 @@ VALUES
     'Freiburg',
     '2026-10-05',
     'https://example.com/blackforest2026',
-    'Herbstliches Rennen durch den Schwarzwald.'
+    'Herbstliches Rennen durch den Schwarzwald.',
+    'CLUB',
+    'ROAD',
+    'NDM'
   );
 
 -- Erste 40 Mitglieder behalten

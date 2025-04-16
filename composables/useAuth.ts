@@ -1,10 +1,13 @@
 import { ref } from 'vue'
+import type { Provider } from '@supabase/supabase-js'
 
 export function useAuth() {
   const supabase = useSupabaseClient()
+  const config = useRuntimeConfig()
   const user = ref()
   const loading = ref(false)
   const error = ref('')
+  const provider: Provider = (config.public.authProvider as Provider) || 'azure'
 
   async function login() {
     try {
@@ -12,7 +15,7 @@ export function useAuth() {
       error.value = ''
 
       const { error: signInError } = await supabase.auth.signInWithOAuth({
-        provider: 'azure',
+        provider,
         options: {
           redirectTo: window.location.origin,
           scopes: 'email profile',

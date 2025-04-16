@@ -1,5 +1,10 @@
 import { z } from 'zod'
 import { useZodLocalization } from './useZodLocalization'
+import {
+  CHAMPIONSHIP_TYPES,
+  RACE_TYPES,
+  REGISTRATION_TYPES,
+} from '~/types/enums'
 
 // Initialisiere Lokalisierung
 useZodLocalization()
@@ -11,6 +16,9 @@ const baseSchema = z.object({
   date: z.string().date(),
   announcement_link: z.string().url('Ungültige URL').optional(),
   description: z.string().optional(),
+  championship_type: z.enum(CHAMPIONSHIP_TYPES),
+  race_type: z.enum(RACE_TYPES),
+  registration_type: z.enum(REGISTRATION_TYPES),
 })
 
 export const competitionSchema = baseSchema.superRefine((data, ctx) => {

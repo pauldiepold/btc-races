@@ -89,8 +89,10 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
   - ❌ Cronjobs für Erinerungsmails
   - ❌ E-Mail mit Token für Bestätigung senden bei Registrierung
 - ❌ nicht bei Events anmelden können, bei denen die Anmeldefrist vergangen ist
-- ❌ Startpass importieren aus Campai + Anmeldung bei meldepflichtigen Events sperren
+- ✅ Startpass importieren aus Campai
+  - ✅ Anmeldung bei meldepflichtigen Events sperren
 - ❌ Abmeldung ermöglichen
+- ❌ Echte Daten zu den Wettkämpfen importieren --> von Cindy holen
 
 ### Bonus:
 

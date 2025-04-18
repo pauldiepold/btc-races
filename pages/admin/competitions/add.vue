@@ -26,12 +26,14 @@ async function onSubmit(
   data: Database['public']['Tables']['competitions']['Row']
 ) {
   try {
-    const { error } = await $fetch('/api/competitions', {
+    const { data: response, error } = await $fetch('/api/competitions', {
       method: 'POST',
       body: data,
     })
 
     if (error) throw new Error(error.message)
+    if (!response?.id)
+      throw new Error('Keine ID in der Server-Antwort erhalten')
 
     toast.add({
       title: 'Erfolg',
@@ -39,9 +41,9 @@ async function onSubmit(
       color: 'success',
     })
 
-    // Weiterleitung zur Detailseite
+    // Weiterleitung zur Detailseite mit der ID aus der Server-Antwort
     setTimeout(async () => {
-      await navigateTo(`/competitions/${data.id}`)
+      await navigateTo(`/competitions/${response.id}`)
     }, 1500)
   } catch (error: any) {
     toast.add({

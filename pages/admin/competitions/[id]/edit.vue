@@ -5,24 +5,33 @@ import type { Database } from '~/types/database.types'
 const route = useRoute()
 const toast = useToast()
 const client = useSupabaseClient<Database>()
+const state = ref<Database['public']['Tables']['competitions']['Row']>()
+const loading = ref(true)
+const error = ref<string>()
 
-// Lade existierende Daten
-const { data: competition } = await useAsyncData(
-  `competition-${route.params.id}`,
-  async () => {
-    const { data } = await client
+onMounted(async () => {
+  try {
+    const { data, error: fetchError } = await client
       .from('competitions')
       .select('*')
       .eq('id', parseInt(route.params.id as string))
       .single()
 
-    return data
-  }
-)
+    if (fetchError) throw fetchError
+    if (!data) throw new Error('Wettkampf nicht gefunden')
 
-const state = ref<Partial<Database['public']['Tables']['competitions']['Row']>>(
-  competition.value || {}
-)
+    state.value = data
+  } catch (err: any) {
+    error.value = err.message || 'Fehler beim Laden des Wettkampfs'
+    toast.add({
+      title: 'Fehler',
+      description: error.value,
+      color: 'error',
+    })
+  } finally {
+    loading.value = false
+  }
+})
 
 async function onSubmit(
   data: Database['public']['Tables']['competitions']['Row']
@@ -65,8 +74,14 @@ async function onSubmit(
     back-link-text="Zurück zum Wettkampf"
   >
     <BaseLayer class="max-w-2xl">
+      <div v-if="loading" class="py-8 text-center">
+        <UISpinner />
+      </div>
+      <div v-else-if="error" class="py-8 text-center text-red-500">
+        {{ error }}
+      </div>
       <CompetitionForm
-        v-if="competition"
+        v-else-if="state"
         v-model="state"
         :is-edit="true"
         @submit="onSubmit"

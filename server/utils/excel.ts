@@ -5,6 +5,7 @@ const REQUIRED_COLUMNS = [
   'Nachname',
   'Mitgliedsnummer',
   'E-Mail',
+  'DLV Startpass',
 ] as const
 
 export async function readExcelFile(filePath: string) {

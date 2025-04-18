@@ -53,6 +53,7 @@ export default defineEventHandler(async (event: H3Event) => {
           Nachname: row['Nachname']?.toString() || '',
           Mitgliedsnummer: row['Mitgliedsnummer']?.toString() || '',
           'E-Mail': row['E-Mail']?.toString() || '',
+          'DLV Startpass': row['DLV Startpass']?.toString() || '',
         })
 
         validMembers.push(memberData)
@@ -106,6 +107,8 @@ export default defineEventHandler(async (event: H3Event) => {
       id: member.Mitgliedsnummer,
       name: `${member.Vorname} ${member.Nachname.charAt(0)}.`,
       has_left: false,
+      has_ladv_startpass:
+        member['DLV Startpass']?.trim().toLowerCase() === 'ja',
       updated_at: new Date().toISOString(),
     }))
 

@@ -14,6 +14,7 @@ const baseSchema = z.object({
     .refine((val) => !isNaN(val), 'Mitgliedsnummer muss eine Zahl sein')
     .refine((val) => val > 0, 'Mitgliedsnummer muss positiv sein'),
   'E-Mail': z.string().email('Ungültige E-Mail-Adresse'),
+  'DLV Startpass': z.string().optional(),
 })
 
 export const memberSchema = baseSchema

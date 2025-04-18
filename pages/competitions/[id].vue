@@ -5,6 +5,7 @@ import {
   raceTypeMap,
   championshipTypeMap,
 } from '~/types/enums'
+import { useCompetitionRegistration } from '~/composables/useCompetitionRegistration'
 
 definePageMeta({
   colorMode: 'dark',
@@ -57,6 +58,11 @@ const { data: registrations } = await useAsyncData(
 if (!competition.value) {
   navigateTo('/')
 }
+
+const canRegister = computed(() => {
+  if (!competition.value) return false
+  return useCompetitionRegistration(competition.value) === 'REGISTRATION_OPEN'
+})
 </script>
 
 <template>
@@ -68,7 +74,7 @@ if (!competition.value) {
     <template #actions>
       <div class="flex flex-col gap-4 md:flex-row">
         <UButton
-          v-if="competition"
+          v-if="competition && canRegister"
           :to="`/competitions/register/${competition.id}`"
           color="primary"
           size="lg"

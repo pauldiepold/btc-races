@@ -67,7 +67,7 @@ async function onSubmit(
 </script>
 
 <template>
-  <BaseLayout
+  <BasePage
     heading="Wettkampf bearbeiten"
     :back-link="`/competitions/${route.params.id}`"
     back-link-text="Zurück zum Wettkampf"
@@ -86,5 +86,5 @@ async function onSubmit(
         @submit="onSubmit"
       />
     </BaseLayer>
-  </BaseLayout>
+  </BasePage>
 </template>

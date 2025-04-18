@@ -110,3 +110,40 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
 ## Mit der Datenbank arbeiten
 
 ### Neue Datenfelder hinzufügen:
+
+1. Neue Migration erstellen:
+
+   ```bash
+   npx supabase migration new migration_name
+   ```
+
+2. In die neue leere Datei die gewünschte Änderung schreiben
+
+3. Lokale Datenbank zurücksetzen (löscht die Datenbank, führt alle Migrationen aus und führt das Seeding aus):
+
+   ```bash
+   npx supabase db reset
+   ```
+
+   Falls kein komplette Reset gewünscht ist, kann auch nurdie Migration ausgeführt werden:
+
+   ```bash
+   npx supabase migration up
+   ```
+
+4. Aus der lokalen Supabase-Konsole (http://127.0.0.1:54323/) müssen die Database.types erneut heruntergeladen werden: Unter API Docs / TABLES AND VIEWS / Introduction / Generate and download types kann die Datei heruntergeladen werden und muss `~/types/database.types.ts` ersetzen.
+
+5. Zuletzt muss das Seeding angepasst werden. Am einfachsten per AI und die Änderung beschreiben.
+
+6. Solange die Migration noch nicht in der Prod-Datenbank vorhanden ist, kann sie noch verändert werden und mit `npx supabase db reset` getestet werden. Sobald die Entwicklung abgeschlossen ist, kann sie auf die remote Datenbank gepusht werden:
+
+   ```bash
+   npx supabase db push
+   ```
+
+   Zuvor muss einmalig folgendes ausgeführt werden:
+
+   ```bash
+   npx supabase login
+   npx supabase link
+   ```

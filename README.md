@@ -77,6 +77,7 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
   - ✅ Track / Road
   - 🟡 Distanzen --> Tabelle angelegt, noch nirgendwo verwendet
 - ✅ Favicon hinzugefügt, Metadaten angepasst, Navbar und Footer aufgeräumt
+- ✅ Layout anpassen + Transitions hinzufügen
 - 🟡 E-Mails:
   - ✅ mit Microsoft Azure verbunden
   - ✅ Templating hinzugefügt, noch nicht getestet

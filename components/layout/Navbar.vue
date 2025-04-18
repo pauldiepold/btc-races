@@ -19,7 +19,10 @@ async function handleLogout() {
 <template>
   <header class="bg-(--ui-bg-muted)">
     <div class="container mx-auto px-4 py-3">
-      <div class="flex items-center justify-between">
+      <div
+        class="flex items-center"
+        :class="{ 'justify-center': !user, 'justify-between': user }"
+      >
         <NuxtLink to="/" class="group flex items-center">
           <img
             src="~/assets/images/BTC_Logo_yellow.png"
@@ -46,6 +49,7 @@ async function handleLogout() {
               <UButton
                 variant="soft"
                 class="cursor-pointer"
+                icon="lucide:log-out"
                 @click="handleLogout"
               >
                 Ausloggen
@@ -92,6 +96,7 @@ async function handleLogout() {
                 <UButton
                   variant="outline"
                   class="w-full justify-center"
+                  icon="lucide:log-out"
                   @click="handleLogout"
                 >
                   Ausloggen

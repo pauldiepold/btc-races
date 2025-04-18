@@ -52,7 +52,22 @@ export default defineNuxtConfig({
           content: 'Anmeldesystem für Wettkämpfe des BTC',
         },
       ],
-      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon/favicon.ico' },
+        {
+          rel: 'icon',
+          type: 'image/png',
+          sizes: '32x32',
+          href: '/favicon/favicon-32x32.png',
+        },
+        {
+          rel: 'icon',
+          type: 'image/png',
+          sizes: '16x16',
+          href: '/favicon/favicon-16x16.png',
+        },
+        { rel: 'apple-touch-icon', href: '/favicon/apple-touch-icon.png' },
+      ],
     },
   },
 })

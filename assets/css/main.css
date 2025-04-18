@@ -18,6 +18,21 @@
   --ui-bg-inverted: var(--ui-color-neutral-900);
   --ui-text-dimmed: var(--ui-color-neutral-800);
   --ui-border-accented: var(--ui-color-neutral-300);
+
+  --ui-color-primary: oklch(82.53% 0.17093 80.013);
+  --ui-color-primary-50: oklch(97.437% 0.0304 88.371);
+  --ui-color-primary-100: oklch(95.989% 0.05036 89.756);
+  --ui-color-primary-200: oklch(92.811% 0.0881 88.965);
+  --ui-color-primary-300: oklch(90.022% 0.1224 88.797);
+  --ui-color-primary-400: oklch(87.254% 0.14825 86.981);
+  --ui-color-primary-500: oklch(84.884% 0.16525 84.648);
+  --ui-color-primary-600: oklch(82.53% 0.17093 80.013);
+  --ui-color-primary-700: oklch(68.67% 0.14197 80.669);
+  --ui-color-primary-800: oklch(53.86% 0.11128 80.913);
+  --ui-color-primary-900: oklch(38.161% 0.0785 82.78);
+  --ui-color-primary-950: oklch(29.697% 0.06088 84.761);
+
+  --ui-primary: var(--ui-color-primary-600);
 }
 
 .dark {

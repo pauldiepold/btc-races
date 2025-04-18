@@ -5,19 +5,55 @@ const { user } = useAuth()
 <template>
   <footer class="bg-(--ui-bg-muted) py-8">
     <div class="container mx-auto px-4">
-      <div class="flex flex-col items-center justify-center space-y-4">
-        <p class="text-center">
-          © {{ new Date().getFullYear() }} - Berlin Track Club e.V.
-        </p>
-        <ULink
-          href="https://berlin-track-club.de"
-          target="_blank"
-          rel="noopener noreferrer"
+      <div class="flex flex-col items-center justify-center space-y-6">
+        <UButton
+          v-if="!user"
+          icon="lucide:settings"
+          to="/admin"
+          variant="soft"
+          color="primary"
         >
-          https://berlin-track-club.de
-        </ULink>
-        <UButton v-if="!user" to="/admin" variant="solid" color="neutral">
           Admin-Bereich
+        </UButton>
+
+        <div class="text-center">
+          <p class="mb-2">
+            <ULink
+              href="https://berlin-track-club.de"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hover:text-primary transition-colors"
+            >
+              © {{ new Date().getFullYear() }} - Berlin Track Club e.V.
+            </ULink>
+          </p>
+
+          <p class="text-sm text-gray-400">
+            Entwickelt mit
+            <ULink
+              href="https://nuxt.com"
+              target="_blank"
+              class="hover:text-primary transition-colors"
+              >Nuxt.js</ULink
+            >
+            &
+            <ULink
+              href="https://supabase.com"
+              target="_blank"
+              class="hover:text-primary transition-colors"
+              >Supabase</ULink
+            >
+          </p>
+        </div>
+
+        <UButton
+          href="https://github.com/pauldiepold/btc-races"
+          target="_blank"
+          icon="lucide:github"
+          variant="ghost"
+          class="hover:text-primary transition-colors"
+        >
+          zum GitHub-Repo
         </UButton>
       </div>
     </div>

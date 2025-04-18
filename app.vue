@@ -20,13 +20,6 @@ useHead({
   htmlAttrs: {
     lang: 'de',
   },
-  link: [
-    {
-      rel: 'icon',
-      type: 'image/png',
-      href: '/favicon.png',
-    },
-  ],
 })
 </script>
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ImportResponse } from '~/types/api.types'
+import type { ApiResponse } from '~/types/api.types'
 
 definePageMeta({
   colorMode: 'dark',
@@ -29,7 +29,7 @@ const handleSubmit = async () => {
     const formData = new FormData()
     formData.append('file', file.value)
 
-    const response = await $fetch<ImportResponse>('/api/import/members', {
+    const response = await $fetch<ApiResponse<void>>('/api/import/members', {
       method: 'POST',
       body: formData,
     })
@@ -46,7 +46,7 @@ const handleSubmit = async () => {
         warnings.value = [...warnings.value, ...response.warnings]
       }
     } else if (response.error) {
-      warnings.value = [response.error]
+      warnings.value = [response.error.message]
     }
   } catch (error) {
     warnings.value = [

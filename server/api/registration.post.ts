@@ -52,6 +52,35 @@ export default defineEventHandler(async (event) => {
       } as ApiResponse<null>
     }
 
+    // Prüfe, ob das Mitglied einen Startpass hat, wenn es sich um einen LADV-Wettkampf handelt
+    if (competition.registration_type === 'LADV') {
+      const { data: member, error: memberError } = await client
+        .from('members')
+        .select('has_ladv_startpass')
+        .eq('id', validationResult.data.member_id)
+        .single()
+
+      if (memberError) {
+        return {
+          error: {
+            message: 'Mitglied nicht gefunden',
+            code: 'MEMBER_NOT_FOUND',
+          },
+          statusCode: 404,
+        } as ApiResponse<null>
+      }
+
+      if (!member.has_ladv_startpass) {
+        return {
+          error: {
+            message: 'Für diesen Wettkampf wird ein LADV-Startpass benötigt',
+            code: 'STARTPASS_REQUIRED',
+          },
+          statusCode: 400,
+        } as ApiResponse<null>
+      }
+    }
+
     // Generiere einen Verifizierungstoken
     const verificationToken = generateToken()
 

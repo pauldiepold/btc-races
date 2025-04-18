@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { Database } from '~/types/database.types'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
@@ -40,6 +40,12 @@ const state = ref<Partial<RegistrationSchema>>(
   createFormState(parseInt(competitionId))
 )
 const isSubmitting = ref(false)
+
+const memberOptions = computed(() => {
+  return competition.value?.registration_type === 'LADV'
+    ? memberStore.startpassMemberOptions
+    : memberStore.memberOptions
+})
 
 async function onSubmit(event: FormSubmitEvent<RegistrationSchema>) {
   isSubmitting.value = true
@@ -106,7 +112,7 @@ async function onError(error: any) {
         <UFormField label="Name" name="member" size="lg" required>
           <USelect
             v-model="state.member_id"
-            :items="memberStore.memberOptions"
+            :items="memberOptions"
             option-attribute="label"
             value-attribute="value"
             placeholder="Bitte wählen"

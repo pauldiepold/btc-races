@@ -88,7 +88,7 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
   - ❌ Nachfrage-E-Mail nach 3 Tagen bei nicht bestätigten Anmeldungen
   - ❌ Cronjobs für Erinerungsmails
   - ❌ E-Mail mit Token für Bestätigung senden bei Registrierung
-- ❌ nicht bei Events anmelden können, bei denen die Anmeldefrist vergangen ist
+- ✅ nicht bei Events anmelden können, bei denen die Anmeldefrist vergangen ist
 - ✅ Startpass importieren aus Campai
   - ✅ Anmeldung bei meldepflichtigen Events sperren
 - ❌ Abmeldung ermöglichen
@@ -104,7 +104,7 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
 
 ### Code-Qualität:
 
-- ❌ Typen sortieren, gerade bei den Requests ist etwas Chaos
+- ✅ Typen sortieren, gerade bei den Api Responses und Models ist etwas Chaos
 - ❌ Alle Supabase Abfragen in einen Service auslagern, Client + Serverseitig trennen?
 
 ## Mit der Datenbank arbeiten

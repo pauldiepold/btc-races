@@ -31,6 +31,8 @@ useHead({
       duration: 3000,
     }"
   >
-    <NuxtPage />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
   </UApp>
 </template>

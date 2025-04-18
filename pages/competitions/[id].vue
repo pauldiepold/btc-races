@@ -59,8 +59,7 @@ if (!competition.value) {
 </script>
 
 <template>
-  <NuxtLayout
-    name="base"
+  <BasePage
     :heading="competition?.name"
     back-link="/"
     back-link-text="Zurück zur Übersicht"
@@ -255,5 +254,5 @@ if (!competition.value) {
         </UButton>
       </BaseLayer>
     </div>
-  </NuxtLayout>
+  </BasePage>
 </template>

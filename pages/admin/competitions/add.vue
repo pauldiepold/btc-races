@@ -77,8 +77,7 @@ async function onError() {
 </script>
 
 <template>
-  <NuxtLayout
-    name="base"
+  <BasePage
     heading="Neuen Wettkampf erstellen"
     back-link="/"
     back-link-text="Zurück zur Übersicht"
@@ -202,5 +201,5 @@ async function onError() {
         </div>
       </UForm>
     </BaseLayer>
-  </NuxtLayout>
+  </BasePage>
 </template>

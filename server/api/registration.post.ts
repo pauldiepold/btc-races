@@ -1,8 +1,9 @@
-import type { ApiResponse } from '~/types/api'
+import type { ApiResponse } from '~/types/api.types'
 import type { Database } from '~/types/database.types'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { registrationSchema } from '~/composables/useRegistrationSchema'
 import { generateToken } from './../utils/token'
+import { useCompetitionRegistration } from '~/composables/useCompetitionRegistration'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseServiceRole<Database>(event)
@@ -22,6 +23,64 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
+    // Hole den Wettkampf für die Statusprüfung
+    const { data: competition, error: competitionError } = await client
+      .from('competitions')
+      .select('*')
+      .eq('id', validationResult.data.competition_id)
+      .single()
+
+    if (competitionError) {
+      return {
+        error: {
+          message: 'Wettkampf nicht gefunden',
+          code: 'COMPETITION_NOT_FOUND',
+        },
+        statusCode: 404,
+      } as ApiResponse<null>
+    }
+
+    // Prüfe, ob eine Anmeldung noch möglich ist
+    const registrationStatus = useCompetitionRegistration(competition)
+    if (registrationStatus !== 'REGISTRATION_OPEN') {
+      return {
+        error: {
+          message: 'Eine Anmeldung zu diesem Wettkampf ist nicht mehr möglich',
+          code: 'REGISTRATION_NOT_POSSIBLE',
+        },
+        statusCode: 400,
+      } as ApiResponse<null>
+    }
+
+    // Prüfe, ob das Mitglied einen Startpass hat, wenn es sich um einen LADV-Wettkampf handelt
+    if (competition.registration_type === 'LADV') {
+      const { data: member, error: memberError } = await client
+        .from('members')
+        .select('has_ladv_startpass')
+        .eq('id', validationResult.data.member_id)
+        .single()
+
+      if (memberError) {
+        return {
+          error: {
+            message: 'Mitglied nicht gefunden',
+            code: 'MEMBER_NOT_FOUND',
+          },
+          statusCode: 404,
+        } as ApiResponse<null>
+      }
+
+      if (!member.has_ladv_startpass) {
+        return {
+          error: {
+            message: 'Für diesen Wettkampf wird ein LADV-Startpass benötigt',
+            code: 'STARTPASS_REQUIRED',
+          },
+          statusCode: 400,
+        } as ApiResponse<null>
+      }
+    }
+
     // Generiere einen Verifizierungstoken
     const verificationToken = generateToken()
 

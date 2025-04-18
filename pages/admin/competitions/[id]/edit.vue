@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ApiResponse } from '~/types/api'
+import type { ApiResponse } from '~/types/api.types'
 import type { Database } from '~/types/database.types'
 
 const route = useRoute()
@@ -67,8 +67,7 @@ async function onSubmit(
 </script>
 
 <template>
-  <NuxtLayout
-    name="base"
+  <BasePage
     heading="Wettkampf bearbeiten"
     :back-link="`/competitions/${route.params.id}`"
     back-link-text="Zurück zum Wettkampf"
@@ -87,5 +86,5 @@ async function onSubmit(
         @submit="onSubmit"
       />
     </BaseLayer>
-  </NuxtLayout>
+  </BasePage>
 </template>

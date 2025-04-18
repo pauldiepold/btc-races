@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
-import type { Member } from '~/types/member.types'
-import { ref } from 'vue'
+import type { Database } from '~/types/database.types'
+import { ref, computed } from 'vue'
 
 export const useMemberStore = defineStore('memberStore', () => {
-  const client = useSupabaseClient()
-  const members = ref<Member[]>([])
+  const client = useSupabaseClient<Database>()
+  const members = ref<Database['public']['Tables']['members']['Row'][]>([])
   const loading = ref(false)
   const isReady = ref(false)
   const error = ref<Error | null>(null)
@@ -21,7 +21,9 @@ export const useMemberStore = defineStore('memberStore', () => {
     try {
       const { data, error: supabaseError } = await client
         .from('members')
-        .select('id, name, has_left, created_at, updated_at')
+        .select(
+          'id, name, has_left, created_at, updated_at, has_ladv_startpass'
+        )
         .eq('has_left', false)
         .order('name')
 
@@ -48,6 +50,15 @@ export const useMemberStore = defineStore('memberStore', () => {
     }))
   })
 
+  const startpassMemberOptions = computed(() => {
+    return members.value
+      .filter((member) => member.has_ladv_startpass)
+      .map((member) => ({
+        label: member.name,
+        value: member.id,
+      }))
+  })
+
   onMounted(async () => {
     await fetchMembers()
   })
@@ -61,5 +72,6 @@ export const useMemberStore = defineStore('memberStore', () => {
     refreshMembers,
     memberOptions,
     isReady,
+    startpassMemberOptions,
   }
 })

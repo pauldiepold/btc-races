@@ -20,7 +20,9 @@ defineProps<{ competition: Competition }>()
         <h3 class="line-clamp-1 text-lg font-semibold">
           {{ competition.name }}
         </h3>
-        <CompetitionStatus :competition="competition" />
+        <div class="flex justify-start">
+          <CompetitionStatus :competition="competition" />
+        </div>
       </div>
 
       <!-- Beschreibung wenn vorhanden -->

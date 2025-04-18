@@ -1,19 +1,46 @@
 <script setup lang="ts">
 import type { Database } from '~/types/database.types'
+import { useCompetitionRegistration } from '~/composables/useCompetitionRegistration'
 
 type Competition = Database['public']['Tables']['competitions']['Row']
 
+type CompetitionStatusColor = {
+  text: string
+  color: 'success' | 'error' | 'warning'
+}
+
 const props = defineProps<{ competition: Competition }>()
 
-const status = computed(() => getCompetitionStatus(props.competition))
+const status = computed<CompetitionStatusColor>(() => {
+  const registrationStatus = useCompetitionRegistration(props.competition)
+
+  switch (registrationStatus) {
+    case 'REGISTRATION_OPEN':
+      return {
+        text: 'Anmeldung möglich',
+        color: 'success',
+      }
+    case 'REGISTRATION_CLOSED':
+      return {
+        text: 'Meldefrist verstrichen',
+        color: 'error',
+      }
+    case 'COMPETITION_ENDED':
+      return {
+        text: 'Vergangen',
+        color: 'warning',
+      }
+    default:
+      // Dieser Fall sollte nie eintreten, aber TypeScript braucht ihn
+      return {
+        text: 'Unbekannt',
+        color: 'warning',
+      }
+  }
+})
 </script>
 <template>
-  <div>
-    <span
-      class="rounded-full px-4 py-1 text-xs font-medium"
-      :class="status.color"
-    >
-      {{ status.text }}
-    </span>
-  </div>
+  <UBadge class="rounded-full" variant="subtle" :color="status.color">
+    {{ status.text }}
+  </UBadge>
 </template>

@@ -1,4 +1,4 @@
-import type { ApiResponse } from '~/types/api'
+import type { ApiResponse } from '~/types/api.types'
 import type { Database } from '~/types/database.types'
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 import { competitionSchema } from '~/composables/useCompetitionSchema'

@@ -167,6 +167,7 @@ export type Database = {
       members: {
         Row: {
           created_at: string
+          has_ladv_startpass: boolean
           has_left: boolean
           id: number
           name: string
@@ -174,6 +175,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          has_ladv_startpass?: boolean
           has_left?: boolean
           id?: number
           name: string
@@ -181,6 +183,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          has_ladv_startpass?: boolean
           has_left?: boolean
           id?: number
           name?: string

@@ -60,8 +60,7 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <NuxtLayout
-    name="base"
+  <BasePage
     heading="Mitglieder importieren"
     back-link="/admin"
     back-link-text="Zurück zum Admin-Dashboard"
@@ -102,5 +101,5 @@ const handleSubmit = async () => {
         </UButton>
       </form>
     </BaseLayer>
-  </NuxtLayout>
+  </BasePage>
 </template>

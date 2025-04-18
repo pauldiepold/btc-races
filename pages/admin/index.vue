@@ -112,8 +112,7 @@ const {
 </script>
 
 <template>
-  <NuxtLayout
-    name="base"
+  <BasePage
     heading="Admin Dashboard"
     back-link="/"
     back-link-text="Zurück zur Startseite"
@@ -205,7 +204,7 @@ const {
                   {{ competition.registrations[0]?.count || 0 }} Anmeldungen
                 </p>
                 <UButton
-                  :to="`/admin/competitions/${competition.id}`"
+                  :to="`/competitions/${competition.id}`"
                   variant="ghost"
                   color="primary"
                   trailing-icon="lucide:arrow-right"
@@ -255,5 +254,5 @@ const {
         </UCard>
       </div>
     </div>
-  </NuxtLayout>
+  </BasePage>
 </template>

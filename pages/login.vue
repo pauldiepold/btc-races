@@ -7,12 +7,7 @@ definePageMeta({
 </script>
 
 <template>
-  <NuxtLayout
-    name="base"
-    heading=""
-    back-link="/"
-    back-link-text="Zurück zur Startseite"
-  >
+  <BasePage heading="" back-link="/" back-link-text="Zurück zur Startseite">
     <div
       class="mx-auto max-w-lg space-y-4 rounded-lg bg-(--ui-bg-accented) p-6 shadow-sm"
     >
@@ -35,5 +30,5 @@ definePageMeta({
         Zugriff ist nur mit einem BTC-Microsoft Account möglich.
       </p>
     </div>
-  </NuxtLayout>
+  </BasePage>
 </template>

@@ -188,7 +188,7 @@ watch(
 </script>
 
 <template>
-  <NuxtLayout name="base" heading="Wettkämpfe">
+  <BasePage heading="Wettkämpfe">
     <template #actions>
       <ClientOnly>
         <UButton
@@ -337,7 +337,7 @@ watch(
         </div>
       </div>
     </template>
-  </NuxtLayout>
+  </BasePage>
 </template>
 
 <style>

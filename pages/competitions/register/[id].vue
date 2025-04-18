@@ -90,8 +90,7 @@ async function onError(error: any) {
 </script>
 
 <template>
-  <NuxtLayout
-    name="base"
+  <BasePage
     :heading="`Anmeldung: ${competition?.name}`"
     :back-link="`/competitions/${competition?.id}`"
     back-link-text="Zurück zum Wettkampf"
@@ -142,5 +141,5 @@ async function onError(error: any) {
         <UButton type="submit" color="primary"> Anmeldung absenden </UButton>
       </UForm>
     </BaseLayer>
-  </NuxtLayout>
+  </BasePage>
 </template>

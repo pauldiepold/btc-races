@@ -11,6 +11,7 @@ definePageMeta({
 })
 
 const route = useRoute()
+const user = useSupabaseUser()
 const competitionId = route.params.id as string
 
 const client = useSupabaseClient<Database>()
@@ -66,15 +67,27 @@ if (!competition.value) {
     back-link-text="Zurück zur Übersicht"
   >
     <template #actions>
-      <UButton
-        v-if="competition"
-        :to="`/competitions/register/${competition.id}`"
-        color="primary"
-        size="lg"
-        class="w-full justify-center md:w-auto md:justify-start"
-      >
-        Zu diesem Wettkampf anmelden
-      </UButton>
+      <div class="flex flex-col gap-4 md:flex-row">
+        <UButton
+          v-if="competition"
+          :to="`/competitions/register/${competition.id}`"
+          color="primary"
+          size="lg"
+          class="w-full justify-center md:w-auto md:justify-start"
+        >
+          Zu diesem Wettkampf anmelden
+        </UButton>
+        <UButton
+          v-if="user && competition"
+          :to="`/admin/competitions/${competition.id}/edit`"
+          color="neutral"
+          variant="outline"
+          size="lg"
+          class="w-full justify-center md:w-auto md:justify-start"
+        >
+          Wettkampf bearbeiten
+        </UButton>
+      </div>
     </template>
     <template #sidebar>
       <div class="space-y-6">

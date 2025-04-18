@@ -10,7 +10,9 @@ import {
   registrationTypeItems,
   championshipTypeItems,
 } from '~/types/enums'
+
 definePageMeta({
+  title: 'Startseite',
   colorMode: 'dark',
 })
 
@@ -194,6 +196,7 @@ watch(
           to="/admin/competitions/add"
           color="primary"
           class="w-full justify-center md:w-auto md:justify-start"
+          icon="lucide:circle-plus"
         >
           Wettkampf hinzufügen
         </UButton>
@@ -239,7 +242,6 @@ watch(
           v-model="searchString"
           type="text"
           placeholder="Wettkampf suchen..."
-          highlight
           size="lg"
           color="neutral"
           icon="i-lucide-search"
@@ -305,9 +307,10 @@ watch(
             variant="outline"
             color="neutral"
             size="sm"
+            icon="lucide:chevrons-up"
             @click="loadMorePastEvents"
           >
-            Ältere Wettkämpfe anzeigen
+            ältere Wettkämpfe anzeigen
           </UButton>
 
           <!-- Wettkampfliste -->
@@ -326,9 +329,10 @@ watch(
             variant="outline"
             color="neutral"
             size="sm"
+            icon="lucide:chevrons-down"
             @click="loadMoreFutureEvents"
           >
-            Weitere Wettkämpfe anzeigen
+            weitere Wettkämpfe anzeigen
           </UButton>
         </div>
       </div>

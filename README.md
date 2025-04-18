@@ -70,7 +70,7 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
 
 ### Notwendig:
 
-- ❌ Competitions bearbeiten können
+- ✅ Competitions bearbeiten können
 - ✅ Neue Felder auf Competitions + Filter auf Übersicht:
   - ✅meldepflichtig
   - ✅ Meisterschaft
@@ -80,14 +80,14 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
 - 🟡 E-Mails:
   - ✅ mit Microsoft Azure verbunden
   - ✅ Templating hinzugefügt, noch nicht getestet
-  - Bestätigungsmail nach Anmeldung mit Verifizierungslink
-  - Erinnerungsmail an Mitglieder 5 Tage vor Meldefrist mit Abmeldelink
-  - Erinnerungsmail an Admins 3 Tage vor Meldefrist
-  - Erinnerungsmail an teilnehmende Mitglieder 3 Tage vor dem Wettkampf
-  - Nachfrage-E-Mail nach 3 Tagen bei nicht bestätigten Anmeldungen
-  - Cronjobs für Erinerungsmails
-  - E-Mail mit Token für Bestätigung senden bei Registrierung
-- nicht bei Events anmelden können, bei denen die Anmeldefrist vergangen ist
+  - ❌ Bestätigungsmail nach Anmeldung mit Verifizierungslink
+  - ❌ Erinnerungsmail an Mitglieder 5 Tage vor Meldefrist mit Abmeldelink
+  - ❌ Erinnerungsmail an Admins 3 Tage vor Meldefrist
+  - ❌ Erinnerungsmail an teilnehmende Mitglieder 3 Tage vor dem Wettkampf
+  - ❌ Nachfrage-E-Mail nach 3 Tagen bei nicht bestätigten Anmeldungen
+  - ❌ Cronjobs für Erinerungsmails
+  - ❌ E-Mail mit Token für Bestätigung senden bei Registrierung
+- ❌ nicht bei Events anmelden können, bei denen die Anmeldefrist vergangen ist
 - ❌ Startpass importieren aus Campai + Anmeldung bei meldepflichtigen Events sperren
 - ❌ Abmeldung ermöglichen
 

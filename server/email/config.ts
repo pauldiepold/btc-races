@@ -37,12 +37,15 @@ export function loadEmailConfig(): EmailConfig {
   const provider = process.env.NUXT_EMAIL_PROVIDER as EmailProviderType
   const testMode = process.env.NUXT_EMAIL_TEST_MODE === 'true'
   const testAddress = process.env.NUXT_EMAIL_TEST_ADDRESS || 'test@example.com'
-  const publicUrl = process.env.NUXT_PUBLIC_URL
+  const publicUrl =
+    process.env.NUXT_PUBLIC_URL ||
+    process.env.NUXT_APP_BASE_URL ||
+    'https://btc-races.vercel.app'
 
   // Prüfe, ob die PUBLIC_URL gesetzt ist
   if (!publicUrl) {
-    console.warn(
-      '[EmailConfig] NUXT_PUBLIC_URL ist nicht gesetzt. Links in E-Mails werden nicht funktionieren.'
+    throw new Error(
+      '[EmailConfig] NUXT_PUBLIC_URL oder NUXT_APP_BASE_URL ist nicht gesetzt. Links in E-Mails werden nicht funktionieren.'
     )
   }
 
@@ -57,7 +60,7 @@ export function loadEmailConfig(): EmailConfig {
     provider: provider === 'azure' ? 'azure' : 'local',
     testMode,
     testAddress,
-    publicUrl: publicUrl || 'http://localhost:3000',
+    publicUrl,
   }
 
   // Azure-spezifische Konfiguration
@@ -83,7 +86,7 @@ export function loadEmailConfig(): EmailConfig {
   }
 
   console.log(
-    `[EmailConfig] Konfiguration geladen: Provider=${config.provider}, TestMode=${config.testMode}`
+    `[EmailConfig] Konfiguration geladen: Provider=${config.provider}, TestMode=${config.testMode}, PublicUrl=${config.publicUrl}`
   )
 
   return config

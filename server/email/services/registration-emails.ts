@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { randomBytes } from 'crypto'
 import { EmailManager } from '../manager'
+import { emailConfig } from '../config'
 import type {
   EmailType,
   EmailLogInsert,
@@ -18,7 +19,7 @@ export class RegistrationEmailService {
 
   constructor(supabase: SupabaseClient<Database>) {
     this.supabase = supabase
-    this.emailManager = new EmailManager()
+    this.emailManager = new EmailManager(supabase)
   }
 
   /**
@@ -98,7 +99,7 @@ export class RegistrationEmailService {
           competitionDate: new Date(
             context.competition.date
           ).toLocaleDateString('de-DE'),
-          [context.linkText]: `${process.env.PUBLIC_URL}/${context.linkUrlPath}?token=${context.token}`,
+          [context.linkText]: `${emailConfig.publicUrl}/${context.linkUrlPath}?token=${context.token}`,
           expiryDate: context.tokenExpiresAt.toLocaleDateString('de-DE'),
         },
       })
@@ -123,7 +124,8 @@ export class RegistrationEmailService {
         .from('email_logs')
         .update({
           status: 'failed',
-          error: error instanceof Error ? error.message : String(error),
+          error_message:
+            error instanceof Error ? error.message : 'Unbekannter Fehler',
         })
         .eq('registration_id', context.registrationId)
         .eq('email_type', context.emailType)

@@ -8,6 +8,7 @@ export class TemplateService {
 
   private constructor() {
     this.registerPartials()
+    this.registerLayouts()
   }
 
   public static getInstance(): TemplateService {
@@ -28,6 +29,22 @@ export class TemplateService {
       if (file.endsWith('.hbs')) {
         const name = path.basename(file, '.hbs')
         const template = fs.readFileSync(path.join(partialsDir, file), 'utf8')
+        Handlebars.registerPartial(name, template)
+      }
+    })
+  }
+
+  private registerLayouts() {
+    const layoutsDir = path.join(
+      process.cwd(),
+      'server/email/templates/layouts'
+    )
+    const files = fs.readdirSync(layoutsDir)
+
+    files.forEach((file) => {
+      if (file.endsWith('.hbs')) {
+        const name = path.basename(file, '.hbs')
+        const template = fs.readFileSync(path.join(layoutsDir, file), 'utf8')
         Handlebars.registerPartial(name, template)
       }
     })

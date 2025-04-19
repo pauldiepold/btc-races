@@ -1,18 +1,33 @@
 import { EmailClient } from '@azure/communication-email'
 import type { EmailOptions, EmailService } from '../types'
 import { TemplateService } from './template'
+import { emailConfig } from '../config'
 
+/**
+ * E-Mail-Service-Implementierung, die Azure Communication Services verwendet
+ */
 export class AzureEmailService implements EmailService {
   private client: EmailClient
   private templateService: TemplateService
+  private senderAddress: string
 
   constructor() {
-    const connectionString = process.env.AZURE_COMMUNICATION_CONNECTION_STRING
+    const connectionString = emailConfig.azureConnectionString
     if (!connectionString) {
-      throw new Error('AZURE_COMMUNICATION_CONNECTION_STRING ist nicht gesetzt')
+      throw new Error(
+        'Azure Communication Connection String ist nicht gesetzt in der Konfiguration'
+      )
     }
+
+    if (!emailConfig.senderAddress) {
+      throw new Error(
+        'Sender Email Address ist nicht gesetzt in der Konfiguration'
+      )
+    }
+
     this.client = new EmailClient(connectionString)
     this.templateService = TemplateService.getInstance()
+    this.senderAddress = emailConfig.senderAddress
   }
 
   async sendEmail(options: EmailOptions): Promise<void> {
@@ -22,12 +37,8 @@ export class AzureEmailService implements EmailService {
         options.data
       )
 
-      if (!process.env.SENDER_EMAIL_ADDRESS) {
-        throw new Error('SENDER_EMAIL_ADDRESS ist nicht gesetzt')
-      }
-
       const emailMessage = {
-        senderAddress: process.env.SENDER_EMAIL_ADDRESS,
+        senderAddress: this.senderAddress,
         content: {
           subject: options.subject,
           html: htmlContent,
@@ -38,10 +49,23 @@ export class AzureEmailService implements EmailService {
         },
       }
 
+      console.log('Versuche E-Mail zu senden an:', options.to)
       const poller = await this.client.beginSend(emailMessage)
-      await poller.pollUntilDone()
+      const result = await poller.pollUntilDone()
+
+      if (result.status === 'Succeeded') {
+        console.log('E-Mail erfolgreich gesendet:', result.id)
+      } else {
+        console.error('E-Mail-Zustellung fehlgeschlagen:', result)
+        throw new Error(`E-Mail-Zustellung fehlgeschlagen: ${result.status}`)
+      }
     } catch (error) {
-      console.error('Fehler beim Senden der E-Mail:', error)
+      console.error('Fehler beim Senden der E-Mail:', {
+        error: error instanceof Error ? error.message : 'Unbekannter Fehler',
+        stack: error instanceof Error ? error.stack : undefined,
+        recipient: options.to,
+        subject: options.subject,
+      })
       throw error
     }
   }

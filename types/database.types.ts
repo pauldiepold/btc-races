@@ -136,6 +136,61 @@ export type Database = {
         }
         Relationships: []
       }
+      email_logs: {
+        Row: {
+          created_at: string | null
+          email_type: string
+          error: string | null
+          id: number
+          recipient_email: string
+          registration_id: number | null
+          retry_count: number | null
+          sent_at: string | null
+          status: string
+          subject: string
+          token: string | null
+          token_expires_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email_type: string
+          error?: string | null
+          id?: number
+          recipient_email: string
+          registration_id?: number | null
+          retry_count?: number | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email_type?: string
+          error?: string | null
+          id?: number
+          recipient_email?: string
+          registration_id?: number | null
+          retry_count?: number | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'email_logs_registration_id_fkey'
+            columns: ['registration_id']
+            referencedRelation: 'registrations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       emails: {
         Row: {
           created_at: string

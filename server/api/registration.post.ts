@@ -4,6 +4,7 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 import { registrationSchema } from '~/composables/useRegistrationSchema'
 import { generateToken } from './../utils/token'
 import { useCompetitionRegistration } from '~/composables/useCompetitionRegistration'
+import { RegistrationEmailService } from '@/server/email'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseServiceRole<Database>(event)
@@ -128,7 +129,18 @@ export default defineEventHandler(async (event) => {
       } as ApiResponse<null>
     }
 
-    // TODO: Sende Bestätigungsmail mit Verifizierungslink
+    // Bestätigungsmail mit E-Mail-Service senden
+    try {
+      const emailService = new RegistrationEmailService(client)
+      await emailService.sendConfirmationEmail(data.id)
+      console.log(
+        `Bestätigungsmail für Registrierung ${data.id} wurde gesendet`
+      )
+    } catch (emailError: any) {
+      console.error('Fehler beim Senden der Bestätigungsmail:', emailError)
+      // Wir geben trotzdem eine erfolgreiche Antwort zurück, da die Registrierung
+      // erfolgreich erstellt wurde. Der E-Mail-Versand kann später wiederholt werden.
+    }
 
     return {
       data,

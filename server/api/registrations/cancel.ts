@@ -5,8 +5,8 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   try {
-    // Parse den Request-Body
-    const { token } = await readBody(event)
+    // Token aus Query-Parametern lesen
+    const token = getQuery(event).token as string
 
     if (!token) {
       return {
@@ -57,13 +57,11 @@ export default defineEventHandler(async (event) => {
       } as ApiResponse<null>
     }
 
-    const registrationId = validationResult.registrationId
-
     // Registrierung auf abgemeldet setzen
     const { error } = await supabase
       .from('registrations')
       .update({ status: 'canceled' })
-      .eq('id', registrationId)
+      .eq('id', validationResult.registrationId)
 
     if (error) {
       console.error('Fehler beim Abmelden:', error)

@@ -5,8 +5,8 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   try {
-    // Parse den Request-Body
-    const { token } = await readBody(event)
+    // Token aus Query-Parametern lesen
+    const token = getQuery(event).token as string
 
     if (!token) {
       return {

@@ -1,18 +1,20 @@
-{{#> base title="Anmeldebestätigung"}}
+{{#*inline "content"}}
   <p>Hallo {{firstName}},</p>
   
   <p>vielen Dank für deine Anmeldung zum Wettkampf <strong>{{competitionName}}</strong> am {{competitionDate}}.</p>
   
   <p>Um deine Anmeldung zu bestätigen, klicke bitte auf den folgenden Link:</p>
   
-  <p><a href="{{confirmationLink}}" style="display: inline-block; background-color: #ffb700 !important; color: white !important; text-decoration: none; padding: 10px 20px; border-radius: 5px; margin: 20px 0; mso-color-alt: #ffb700;">Anmeldung bestätigen</a></p>
+  <a href="{{confirmationLink}}" class="button">Anmeldung bestätigen</a>
   
   <p>Oder kopiere diese URL in deinen Browser:</p>
-  <p style="word-break: break-all;">{{confirmationLink}}</p>
+  <p class="url">{{confirmationLink}}</p>
   
   <p>Dieser Link ist gültig bis zum {{expiryDate}}.</p>
   
   <p>Falls du dich nicht zu diesem Wettkampf angemeldet hast, kannst du diese E-Mail ignorieren.</p>
   
   <p>Bei Fragen stehen wir dir gerne zur Verfügung.</p>
-{{/base}} 
+{{/inline}}
+
+{{> base title="Anmeldebestätigung"}} 

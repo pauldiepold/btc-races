@@ -61,27 +61,6 @@ export class RegistrationEmailService {
    * Gemeinsame Methode zum Versenden von E-Mails mit verschiedenen Kontexten
    */
   private async sendEmailWithToken(context: EmailContext): Promise<void> {
-    // E-Mail in die Logs eintragen
-    const emailLogData: EmailLogInsert = {
-      registration_id: context.registrationId,
-      email_type: context.emailType,
-      recipient_email: context.member.email!,
-      subject: context.subject,
-      token: context.token,
-      token_expires_at: context.tokenExpiresAt.toISOString(),
-      status: 'pending',
-    }
-
-    const { error: logError } = await this.supabase
-      .from('email_logs')
-      .insert(emailLogData)
-
-    if (logError) {
-      throw new Error(
-        `Fehler beim Protokollieren der E-Mail: ${logError.message}`
-      )
-    }
-
     try {
       // E-Mail senden
       await this.emailManager.sendEmail({
@@ -104,32 +83,45 @@ export class RegistrationEmailService {
         },
       })
 
-      // Status aktualisieren
-      await this.supabase
+      // E-Mail in die Logs eintragen
+      const emailLogData: EmailLogInsert = {
+        registration_id: context.registrationId,
+        email_type: context.emailType,
+        recipient_email: context.member.email!,
+        subject: context.subject,
+        token: context.token,
+        token_expires_at: context.tokenExpiresAt.toISOString(),
+        status: 'sent',
+        sent_at: new Date().toISOString(),
+      }
+
+      const { error: logError } = await this.supabase
         .from('email_logs')
-        .update({
-          status: 'sent',
-          sent_at: new Date().toISOString(),
-        })
-        .eq('registration_id', context.registrationId)
-        .eq('email_type', context.emailType)
-        .eq('token', context.token)
+        .insert(emailLogData)
+
+      if (logError) {
+        throw new Error(
+          `Fehler beim Protokollieren der E-Mail: ${logError.message}`
+        )
+      }
 
       console.log(
         `[RegistrationEmailService] E-Mail vom Typ "${context.emailType}" für Registrierung ${context.registrationId} gesendet`
       )
     } catch (error) {
       // Fehler protokollieren
-      await this.supabase
-        .from('email_logs')
-        .update({
-          status: 'failed',
-          error_message:
-            error instanceof Error ? error.message : 'Unbekannter Fehler',
-        })
-        .eq('registration_id', context.registrationId)
-        .eq('email_type', context.emailType)
-        .eq('token', context.token)
+      const emailLogData: EmailLogInsert = {
+        registration_id: context.registrationId,
+        email_type: context.emailType,
+        recipient_email: context.member.email!,
+        subject: context.subject,
+        token: context.token,
+        token_expires_at: context.tokenExpiresAt.toISOString(),
+        status: 'failed',
+        error: error instanceof Error ? error.message : 'Unbekannter Fehler',
+      }
+
+      await this.supabase.from('email_logs').insert(emailLogData)
 
       throw error
     }
@@ -167,7 +159,7 @@ export class RegistrationEmailService {
       tokenExpiresAt,
       templateName: 'registration-confirmation',
       subject: `Anmeldebestätigung für ${registration.competition_name}`,
-      linkUrlPath: 'confirm-registration',
+      linkUrlPath: 'registrations/confirm',
       linkText: 'confirmationLink',
     })
   }
@@ -204,7 +196,7 @@ export class RegistrationEmailService {
       tokenExpiresAt,
       templateName: 'registration-cancellation',
       subject: `Abmeldebestätigung für ${registration.competition_name}`,
-      linkUrlPath: 'confirm-cancellation',
+      linkUrlPath: 'reigstrations/cancel',
       linkText: 'cancellationLink',
     })
   }

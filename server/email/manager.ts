@@ -1,3 +1,5 @@
+import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '~/types/database.types'
 import type { EmailOptions, EmailService } from './types'
 import { createEmailService } from './factory'
 import { emailConfig } from './config'
@@ -6,16 +8,15 @@ import { emailConfig } from './config'
  * E-Mail-Manager, der verschiedene E-Mail-Dienste kapselt
  * und zusätzliche Funktionen wie Test-Modus bietet
  */
-export class EmailManager {
+export class EmailManager implements EmailService {
+  private supabase: SupabaseClient<Database>
   private emailService: EmailService
   private testMode: boolean
   private testEmail: string
 
-  constructor() {
-    // E-Mail-Service über die Factory erstellen
+  constructor(supabase: SupabaseClient<Database>) {
+    this.supabase = supabase
     this.emailService = createEmailService()
-
-    // Testmodus und Test-E-Mail-Adresse aus der Konfiguration laden
     this.testMode = emailConfig.testMode
     this.testEmail = emailConfig.testAddress
 
@@ -54,11 +55,34 @@ export class EmailManager {
       )
     }
 
-    // E-Mail mit möglicherweise geänderten Empfängern und Betreff senden
-    await this.emailService.sendEmail({
-      ...options,
-      to: recipients,
-      subject: subject,
-    })
+    try {
+      // E-Mail mit möglicherweise geänderten Empfängern und Betreff senden
+      await this.emailService.sendEmail({
+        ...options,
+        to: recipients,
+        subject: subject,
+      })
+
+      console.log(
+        `[EmailManager] E-Mail erfolgreich gesendet an: ${recipients
+          .map((r) => r.address)
+          .join(', ')}`
+      )
+    } catch (error) {
+      console.error('[EmailManager] Fehler beim Senden der E-Mail:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Rendert eine E-Mail-Vorlage mit den gegebenen Daten
+   */
+  private renderTemplate(
+    templateName: string,
+    data?: Record<string, any>
+  ): string {
+    // TODO: Implementiere Template-Rendering
+    // Hier könnte z.B. eine Template-Engine wie Handlebars oder EJS verwendet werden
+    return `Template: ${templateName} mit Daten: ${JSON.stringify(data)}`
   }
 }

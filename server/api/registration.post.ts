@@ -2,7 +2,6 @@ import type { ApiResponse } from '~/types/api.types'
 import type { Database } from '~/types/database.types'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { registrationSchema } from '~/composables/useRegistrationSchema'
-import { generateToken } from './../utils/token'
 import { useCompetitionRegistration } from '~/composables/useCompetitionRegistration'
 import { RegistrationEmailService } from '@/server/email'
 
@@ -82,9 +81,6 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Generiere einen Verifizierungstoken
-    const verificationToken = generateToken()
-
     // Erstelle die Anmeldung
     const { data, error } = await client
       .from('registrations')
@@ -92,7 +88,6 @@ export default defineEventHandler(async (event) => {
         member_id: validationResult.data.member_id,
         competition_id: validationResult.data.competition_id,
         notes: validationResult.data.notes,
-        verification_token: verificationToken,
         status: 'pending',
       })
       .select()

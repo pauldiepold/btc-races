@@ -7,6 +7,7 @@ CREATE TABLE "public"."email_logs" (
     "subject" TEXT NOT NULL,
     "token" TEXT,
     "token_expires_at" TIMESTAMP WITH TIME ZONE,
+    "token_verified_at" TIMESTAMP WITH TIME ZONE,
     "status" TEXT NOT NULL DEFAULT 'pending',
     "sent_at" TIMESTAMP WITH TIME ZONE,
     "error" TEXT,
@@ -22,10 +23,18 @@ CREATE INDEX "email_logs_token_idx" ON "public"."email_logs" ("token") WHERE "to
 CREATE INDEX "email_logs_status_idx" ON "public"."email_logs" ("status");
 
 -- Trigger for updated_at
+CREATE OR REPLACE FUNCTION update_modified_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
 CREATE TRIGGER update_email_logs_updated_at
     BEFORE UPDATE ON "public"."email_logs"
     FOR EACH ROW
-    EXECUTE FUNCTION "public"."update_modified_column"();
+    EXECUTE FUNCTION update_modified_column();
 
 -- Add RLS
 ALTER TABLE "public"."email_logs" ENABLE ROW LEVEL SECURITY;
@@ -39,3 +48,77 @@ CREATE POLICY "Enable all access for authenticated users only"
 -- Grants
 GRANT ALL ON TABLE "public"."email_logs" TO "postgres", "service_role";
 GRANT USAGE ON SEQUENCE "public"."email_logs_id_seq" TO "postgres", "service_role";
+
+-- ZWEITE MIGRATION: Entferne nicht mehr benötigte Spalten und erstelle Views
+
+-- Entferne nicht mehr benötigte Spalten aus der registrations-Tabelle
+ALTER TABLE "public"."registrations" DROP COLUMN IF EXISTS "verification_token";
+ALTER TABLE "public"."registrations" DROP COLUMN IF EXISTS "verified_at";
+
+-- Create view for members with their email addresses
+CREATE OR REPLACE VIEW "public"."members_with_emails" AS
+SELECT 
+    m.id,
+    m.name,
+    m.has_ladv_startpass,
+    m.has_left,
+    m.created_at,
+    m.updated_at,
+    e.email
+FROM 
+    members m
+LEFT JOIN 
+    emails e ON m.id = e.member_id;
+
+-- Create view for registrations with all related details
+CREATE OR REPLACE VIEW "public"."registrations_with_details" AS
+SELECT 
+    r.id,
+    r.member_id,
+    r.competition_id,
+    r.status,
+    r.notes,
+    r.created_at,
+    r.updated_at,
+    -- Member details
+    m.name as member_name,
+    e.email as member_email,
+    m.has_ladv_startpass,
+    -- Competition details
+    c.name as competition_name,
+    c.date as competition_date,
+    c.location as competition_location,
+    c.registration_deadline,
+    c.race_type,
+    c.championship_type
+FROM 
+    registrations r
+JOIN 
+    members m ON r.member_id = m.id
+JOIN 
+    emails e ON m.id = e.member_id
+JOIN 
+    competitions c ON r.competition_id = c.id;
+
+-- Create public view for registrations (minimal data, no email)
+CREATE OR REPLACE VIEW "public"."public_registrations" AS
+SELECT 
+    r.id,
+    r.status,
+    r.created_at,
+    m.name as member_name,
+    c.name as competition_name,
+    c.date as competition_date
+FROM 
+    registrations r
+JOIN 
+    members m ON r.member_id = m.id
+JOIN 
+    competitions c ON r.competition_id = c.id;
+
+-- Grant permissions for authenticated users
+GRANT SELECT ON "public"."members_with_emails" TO "postgres", "service_role", "authenticated";
+GRANT SELECT ON "public"."registrations_with_details" TO "postgres", "service_role", "authenticated";
+
+-- Grant permissions for the public view (available to all)
+GRANT SELECT ON "public"."public_registrations" TO "postgres", "service_role", "authenticated", "anon";

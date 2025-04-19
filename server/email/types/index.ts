@@ -40,3 +40,31 @@ export type EmailLogInsert =
   Database['public']['Tables']['email_logs']['Insert']
 export type EmailLogUpdate =
   Database['public']['Tables']['email_logs']['Update']
+
+// Typen für die Views
+export type MemberWithEmail =
+  Database['public']['Views']['members_with_emails']['Row']
+export type RegistrationWithDetails =
+  Database['public']['Views']['registrations_with_details']['Row']
+export type PublicRegistration =
+  Database['public']['Views']['public_registrations']['Row']
+
+/**
+ * Kontext für den Versand einer E-Mail mit Token
+ * Wird vom RegistrationEmailService für verschiedene E-Mail-Typen verwendet
+ */
+export interface EmailContext {
+  emailType: EmailType
+  registrationId: number
+  member: MemberWithEmail
+  competition: {
+    name: string
+    date: string
+  }
+  token: string
+  tokenExpiresAt: Date
+  templateName: string
+  subject: string
+  linkUrlPath: string
+  linkText: string
+}

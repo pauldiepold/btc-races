@@ -49,10 +49,23 @@ export class AzureEmailService implements EmailService {
         },
       }
 
+      console.log('Versuche E-Mail zu senden an:', options.to)
       const poller = await this.client.beginSend(emailMessage)
-      await poller.pollUntilDone()
+      const result = await poller.pollUntilDone()
+
+      if (result.status === 'Succeeded') {
+        console.log('E-Mail erfolgreich gesendet:', result.id)
+      } else {
+        console.error('E-Mail-Zustellung fehlgeschlagen:', result)
+        throw new Error(`E-Mail-Zustellung fehlgeschlagen: ${result.status}`)
+      }
     } catch (error) {
-      console.error('Fehler beim Senden der E-Mail:', error)
+      console.error('Fehler beim Senden der E-Mail:', {
+        error: error instanceof Error ? error.message : 'Unbekannter Fehler',
+        stack: error instanceof Error ? error.stack : undefined,
+        recipient: options.to,
+        subject: options.subject,
+      })
       throw error
     }
   }

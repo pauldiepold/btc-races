@@ -150,6 +150,7 @@ export type Database = {
           subject: string
           token: string | null
           token_expires_at: string | null
+          token_verified_at: string | null
           updated_at: string | null
         }
         Insert: {
@@ -165,6 +166,7 @@ export type Database = {
           subject: string
           token?: string | null
           token_expires_at?: string | null
+          token_verified_at?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -180,13 +182,26 @@ export type Database = {
           subject?: string
           token?: string | null
           token_expires_at?: string | null
+          token_verified_at?: string | null
           updated_at?: string | null
         }
         Relationships: [
           {
             foreignKeyName: 'email_logs_registration_id_fkey'
             columns: ['registration_id']
+            referencedRelation: 'public_registrations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'email_logs_registration_id_fkey'
+            columns: ['registration_id']
             referencedRelation: 'registrations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'email_logs_registration_id_fkey'
+            columns: ['registration_id']
+            referencedRelation: 'registrations_with_details'
             referencedColumns: ['id']
           },
         ]
@@ -215,6 +230,12 @@ export type Database = {
             foreignKeyName: 'emails_member_id_fkey'
             columns: ['member_id']
             referencedRelation: 'members'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'emails_member_id_fkey'
+            columns: ['member_id']
+            referencedRelation: 'members_with_emails'
             referencedColumns: ['id']
           },
         ]
@@ -255,8 +276,6 @@ export type Database = {
           notes: string | null
           status: Database['public']['Enums']['registration_status'] | null
           updated_at: string | null
-          verification_token: string
-          verified_at: string | null
         }
         Insert: {
           competition_id: number
@@ -266,8 +285,6 @@ export type Database = {
           notes?: string | null
           status?: Database['public']['Enums']['registration_status'] | null
           updated_at?: string | null
-          verification_token: string
-          verified_at?: string | null
         }
         Update: {
           competition_id?: number
@@ -277,8 +294,6 @@ export type Database = {
           notes?: string | null
           status?: Database['public']['Enums']['registration_status'] | null
           updated_at?: string | null
-          verification_token?: string
-          verified_at?: string | null
         }
         Relationships: [
           {
@@ -293,11 +308,81 @@ export type Database = {
             referencedRelation: 'members'
             referencedColumns: ['id']
           },
+          {
+            foreignKeyName: 'registrations_member_id_fkey'
+            columns: ['member_id']
+            referencedRelation: 'members_with_emails'
+            referencedColumns: ['id']
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      members_with_emails: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          has_ladv_startpass: boolean | null
+          has_left: boolean | null
+          id: number | null
+          name: string | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
+      public_registrations: {
+        Row: {
+          competition_date: string | null
+          competition_name: string | null
+          created_at: string | null
+          id: number | null
+          member_name: string | null
+          status: Database['public']['Enums']['registration_status'] | null
+        }
+        Relationships: []
+      }
+      registrations_with_details: {
+        Row: {
+          championship_type:
+            | Database['public']['Enums']['championship_type']
+            | null
+          competition_date: string | null
+          competition_id: number | null
+          competition_location: string | null
+          competition_name: string | null
+          created_at: string | null
+          has_ladv_startpass: boolean | null
+          id: number | null
+          member_email: string | null
+          member_id: number | null
+          member_name: string | null
+          notes: string | null
+          race_type: Database['public']['Enums']['race_type'] | null
+          registration_deadline: string | null
+          status: Database['public']['Enums']['registration_status'] | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'registrations_competition_id_fkey'
+            columns: ['competition_id']
+            referencedRelation: 'competitions'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'registrations_member_id_fkey'
+            columns: ['member_id']
+            referencedRelation: 'members'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'registrations_member_id_fkey'
+            columns: ['member_id']
+            referencedRelation: 'members_with_emails'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never

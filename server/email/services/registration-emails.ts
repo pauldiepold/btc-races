@@ -1,43 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { randomBytes } from 'crypto'
 import { EmailManager } from '../manager'
-import type { EmailType, EmailLogInsert } from '../types'
+import type {
+  EmailType,
+  EmailLogInsert,
+  EmailContext,
+  RegistrationWithDetails,
+} from '../types'
 import type { Database } from '~/types/database.types'
-
-// Typen für die Supabase-Abfrageergebnisse
-interface Member {
-  id: number
-  first_name: string
-  last_name: string
-  email: string
-}
-
-interface Competition {
-  id: number
-  name: string
-  date: string
-}
-
-interface Registration {
-  id: number
-  member_id: number
-  competition_id: number
-  members: Member
-  competitions: Competition
-}
-
-interface EmailContext {
-  emailType: EmailType
-  registrationId: number
-  member: Member
-  competition: Competition
-  token: string
-  tokenExpiresAt: Date
-  templateName: string
-  subject: string
-  linkUrlPath: string
-  linkText: string
-}
 
 export class RegistrationEmailService {
   private supabase: SupabaseClient<Database>
@@ -60,23 +30,16 @@ export class RegistrationEmailService {
 
   /**
    * Hilfsmethode zum Laden der Registrierungsdaten aus der Datenbank
+   * Nutzt die neue View registrations_with_details
    */
   private async loadRegistrationData(
     registrationId: number
-  ): Promise<Registration> {
-    const { data: registration, error } = (await this.supabase
-      .from('registrations')
-      .select(
-        `
-        id,
-        member_id,
-        competition_id,
-        members (id, first_name, last_name, email),
-        competitions (id, name, date)
-      `
-      )
+  ): Promise<RegistrationWithDetails> {
+    const { data: registration, error } = await this.supabase
+      .from('registrations_with_details')
+      .select('*')
       .eq('id', registrationId)
-      .single()) as { data: Registration | null; error: Error | null }
+      .single()
 
     if (error || !registration) {
       throw new Error(
@@ -84,9 +47,9 @@ export class RegistrationEmailService {
       )
     }
 
-    if (!registration.members.email) {
+    if (!registration.member_email) {
       throw new Error(
-        `Mitglied (ID: ${registration.members.id}) hat keine E-Mail-Adresse`
+        `Mitglied (ID: ${registration.member_id}) hat keine E-Mail-Adresse`
       )
     }
 
@@ -101,7 +64,7 @@ export class RegistrationEmailService {
     const emailLogData: EmailLogInsert = {
       registration_id: context.registrationId,
       email_type: context.emailType,
-      recipient_email: context.member.email,
+      recipient_email: context.member.email!,
       subject: context.subject,
       token: context.token,
       token_expires_at: context.tokenExpiresAt.toISOString(),
@@ -123,14 +86,14 @@ export class RegistrationEmailService {
       await this.emailManager.sendEmail({
         to: [
           {
-            address: context.member.email,
-            displayName: `${context.member.first_name} ${context.member.last_name}`,
+            address: context.member.email!,
+            displayName: context.member.name!,
           },
         ],
         subject: context.subject,
         template: context.templateName,
         data: {
-          firstName: context.member.first_name,
+          firstName: context.member.name!.split(' ')[0],
           competitionName: context.competition.name,
           competitionDate: new Date(
             context.competition.date
@@ -185,12 +148,23 @@ export class RegistrationEmailService {
     await this.sendEmailWithToken({
       emailType: 'registration_confirmation',
       registrationId,
-      member: registration.members,
-      competition: registration.competitions,
+      member: {
+        id: registration.member_id!,
+        name: registration.member_name!,
+        email: registration.member_email!,
+        has_ladv_startpass: registration.has_ladv_startpass!,
+        has_left: false, // TODO: Aus der View holen
+        created_at: registration.created_at!,
+        updated_at: registration.updated_at!,
+      },
+      competition: {
+        name: registration.competition_name!,
+        date: registration.competition_date!,
+      },
       token,
       tokenExpiresAt,
       templateName: 'registration-confirmation',
-      subject: `Anmeldebestätigung für ${registration.competitions.name}`,
+      subject: `Anmeldebestätigung für ${registration.competition_name}`,
       linkUrlPath: 'confirm-registration',
       linkText: 'confirmationLink',
     })
@@ -211,12 +185,23 @@ export class RegistrationEmailService {
     await this.sendEmailWithToken({
       emailType: 'registration_cancellation',
       registrationId,
-      member: registration.members,
-      competition: registration.competitions,
+      member: {
+        id: registration.member_id!,
+        name: registration.member_name!,
+        email: registration.member_email!,
+        has_ladv_startpass: registration.has_ladv_startpass!,
+        has_left: false, // TODO: Aus der View holen
+        created_at: registration.created_at!,
+        updated_at: registration.updated_at!,
+      },
+      competition: {
+        name: registration.competition_name!,
+        date: registration.competition_date!,
+      },
       token,
       tokenExpiresAt,
       templateName: 'registration-cancellation',
-      subject: `Abmeldebestätigung für ${registration.competitions.name}`,
+      subject: `Abmeldebestätigung für ${registration.competition_name}`,
       linkUrlPath: 'confirm-cancellation',
       linkText: 'cancellationLink',
     })

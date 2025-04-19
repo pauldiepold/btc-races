@@ -34,17 +34,22 @@ export interface EmailConfig {
  * Lädt und validiert die E-Mail-Konfiguration aus Umgebungsvariablen
  */
 export function loadEmailConfig(): EmailConfig {
-  const provider = (
-    process.env.EMAIL_PROVIDER || 'local'
-  ).toLowerCase() as EmailProviderType
-  const testMode = process.env.EMAIL_TEST_MODE === 'true'
-  const testAddress = process.env.EMAIL_TEST_ADDRESS || 'test@example.com'
-  const publicUrl = process.env.PUBLIC_URL
+  const provider = process.env.NUXT_EMAIL_PROVIDER as EmailProviderType
+  const testMode = process.env.NUXT_EMAIL_TEST_MODE === 'true'
+  const testAddress = process.env.NUXT_EMAIL_TEST_ADDRESS || 'test@example.com'
+  const publicUrl = process.env.NUXT_PUBLIC_URL
 
   // Prüfe, ob die PUBLIC_URL gesetzt ist
   if (!publicUrl) {
     console.warn(
-      '[EmailConfig] PUBLIC_URL ist nicht gesetzt. Links in E-Mails werden nicht funktionieren.'
+      '[EmailConfig] NUXT_PUBLIC_URL ist nicht gesetzt. Links in E-Mails werden nicht funktionieren.'
+    )
+  }
+
+  // Validiere den Provider
+  if (provider !== 'local' && provider !== 'azure') {
+    console.warn(
+      `[EmailConfig] Ungültiger Provider "${provider}". Verwende 'local' als Fallback.`
     )
   }
 
@@ -56,20 +61,20 @@ export function loadEmailConfig(): EmailConfig {
   }
 
   // Azure-spezifische Konfiguration
-  if (provider === 'azure') {
+  if (config.provider === 'azure') {
     const azureConnectionString =
-      process.env.AZURE_COMMUNICATION_CONNECTION_STRING
-    const senderAddress = process.env.SENDER_EMAIL_ADDRESS
+      process.env.NUXT_AZURE_COMMUNICATION_CONNECTION_STRING
+    const senderAddress = process.env.NUXT_SENDER_EMAIL_ADDRESS
 
     if (!azureConnectionString) {
-      console.warn(
-        '[EmailConfig] AZURE_COMMUNICATION_CONNECTION_STRING ist nicht gesetzt, aber Azure Provider wird verwendet.'
+      throw new Error(
+        '[EmailConfig] NUXT_AZURE_COMMUNICATION_CONNECTION_STRING ist nicht gesetzt, aber Azure Provider wird verwendet.'
       )
     }
 
     if (!senderAddress) {
-      console.warn(
-        '[EmailConfig] SENDER_EMAIL_ADDRESS ist nicht gesetzt, aber Azure Provider wird verwendet.'
+      throw new Error(
+        '[EmailConfig] NUXT_SENDER_EMAIL_ADDRESS ist nicht gesetzt, aber Azure Provider wird verwendet.'
       )
     }
 

@@ -1,11 +1,14 @@
 import type { H3Event } from 'h3'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '~/types/database.types'
-import { ServerRepository } from '~/server/repositories/base/server.repository'
+import { BaseRepository } from '~/repositories/base/base.repository'
+import {
+  createRepository,
+  type ClientType,
+} from '~/server/repositories/base/repository.factory'
 import type { Email, EmailInsert, EmailUpdate } from '~/types/models.types'
 
-// Email-Repository für die Emails-Tabelle
-export class EmailsServerRepository extends ServerRepository<
+export class EmailsRepository extends BaseRepository<
   'emails',
   Email,
   EmailInsert,
@@ -31,9 +34,9 @@ export class EmailsServerRepository extends ServerRepository<
 }
 
 // Factory-Funktion
-export async function createEmailsServerRepository(
-  event: H3Event
-): Promise<EmailsServerRepository> {
-  const client = await ServerRepository.getClient(event)
-  return new EmailsServerRepository(client)
+export async function createEmailsRepository(
+  event: H3Event,
+  clientType: ClientType = 'user'
+): Promise<EmailsRepository> {
+  return createRepository(event, EmailsRepository, clientType)
 }

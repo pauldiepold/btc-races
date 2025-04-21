@@ -1,7 +1,7 @@
-import { RegistrationEmailService } from '@/server/email'
-import type { Database } from '~/types/database.types'
+import { RegistrationEmailsService } from '~/server/email/services'
 import type { ApiResponse } from '~/types/api.types'
-import { serverSupabaseServiceRole } from '#supabase/server'
+import { EmailTypes } from '~/types/enums'
+import { createRegistrationsRepository } from '~/server/repositories/registrations/registrations.repository'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -18,9 +18,8 @@ export default defineEventHandler(async (event) => {
       } as ApiResponse<null>
     }
 
-    // Service Role für nicht-authentifizierte Benutzer verwenden
-    const supabase = await serverSupabaseServiceRole<Database>(event)
-    const emailService = new RegistrationEmailService(supabase)
+    // E-Mail-Service erstellen
+    const emailService = await RegistrationEmailsService.create(event)
 
     // Token validieren
     const validationResult = await emailService.validateToken(token)
@@ -36,7 +35,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Prüfen, ob es sich um eine Abmeldebestätigung handelt
-    if (validationResult.emailType !== 'registration_cancellation') {
+    if (validationResult.emailType !== EmailTypes.REGISTRATION_CANCELLATION) {
       return {
         error: {
           message: 'Ungültiger Token-Typ',
@@ -57,19 +56,23 @@ export default defineEventHandler(async (event) => {
       } as ApiResponse<null>
     }
 
-    // Registrierung auf abgemeldet setzen
-    const { error } = await supabase
-      .from('registrations')
-      .update({ status: 'canceled' })
-      .eq('id', validationResult.registrationId)
+    // Repository für die Registrierung erstellen mit Service-Role
+    const registrationsRepo = await createRegistrationsRepository(
+      event,
+      'service_role'
+    )
 
-    if (error) {
-      console.error('Fehler beim Abmelden:', error)
+    // Registrierung auf abgemeldet setzen
+    const success = await registrationsRepo.updateStatus(
+      validationResult.registrationId,
+      'canceled'
+    )
+
+    if (!success) {
       return {
         error: {
           message: 'Fehler beim Abmelden vom Wettkampf',
           code: 'DATABASE_ERROR',
-          details: error.message,
         },
         statusCode: 500,
       } as ApiResponse<null>

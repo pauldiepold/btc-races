@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import {
-  CHAMPIONSHIP_TYPES,
-  RACE_TYPES,
-  REGISTRATION_TYPES,
-} from '~/types/enums'
+import { ChampionshipTypes, RaceTypes, RegistrationTypes } from '~/types/enums'
 import type { Competition } from '~/types/models.types'
 const { showSuccess, showError } = useToastMessages()
 
@@ -14,9 +10,9 @@ const state = ref<Partial<Competition>>({
   date: undefined,
   announcement_link: undefined,
   description: undefined,
-  championship_type: CHAMPIONSHIP_TYPES[0],
-  race_type: RACE_TYPES[0],
-  registration_type: REGISTRATION_TYPES[0],
+  championship_type: ChampionshipTypes.NO_CHAMPIONSHIP,
+  race_type: RaceTypes.TRACK,
+  registration_type: RegistrationTypes.INDEPENDENT,
 })
 
 async function onSubmit(data: Competition) {

@@ -3,14 +3,14 @@ import { memberSchema } from '~/composables/useMemberSchema'
 import type { H3Event } from 'h3'
 import { writeFile, unlink } from 'fs/promises'
 import { z } from 'zod'
-import { createMembersServerRepository } from '~/server/repositories/members/members.server.repository'
-import { createEmailsServerRepository } from '~/server/repositories/emails/emails.server.repository'
+import { createMembersRepository } from '~/server/repositories/members/members.repository'
+import { createEmailsRepository } from '~/server/repositories/emails/emails.repository'
 
 export default defineEventHandler(async (event: H3Event) => {
   try {
-    // Repositories erstellen
-    const membersRepo = await createMembersServerRepository(event)
-    const emailsRepo = await createEmailsServerRepository(event)
+    // Repositories erstellen mit Service-Role für administrative Operationen
+    const membersRepo = await createMembersRepository(event, 'service_role')
+    const emailsRepo = await createEmailsRepository(event, 'service_role')
 
     const formData = await readFormData(event)
     const file = formData.get('file') as File

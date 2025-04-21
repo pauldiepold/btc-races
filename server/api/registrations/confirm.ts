@@ -1,7 +1,7 @@
-import { RegistrationEmailService } from '@/server/email'
-import type { Database } from '~/types/database.types'
+import { RegistrationEmailsService } from '~/server/email/services'
 import type { ApiResponse } from '~/types/api.types'
-import { serverSupabaseServiceRole } from '#supabase/server'
+import { EmailTypes } from '~/types/enums'
+import { createRegistrationsRepository } from '~/server/repositories/registrations/registrations.repository'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -18,9 +18,8 @@ export default defineEventHandler(async (event) => {
       } as ApiResponse<null>
     }
 
-    // Service Role für nicht-authentifizierte Benutzer verwenden
-    const supabase = await serverSupabaseServiceRole<Database>(event)
-    const emailService = new RegistrationEmailService(supabase)
+    // E-Mail-Service erstellen
+    const emailService = await RegistrationEmailsService.create(event)
 
     // Token validieren
     const validationResult = await emailService.validateToken(token)
@@ -36,7 +35,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Prüfen, ob es sich um eine Anmeldebestätigung handelt
-    if (validationResult.emailType !== 'registration_confirmation') {
+    if (validationResult.emailType !== EmailTypes.REGISTRATION_CONFIRMATION) {
       return {
         error: {
           message: 'Ungültiger Token-Typ',
@@ -57,19 +56,23 @@ export default defineEventHandler(async (event) => {
       } as ApiResponse<null>
     }
 
-    // Registrierung bestätigen
-    const { error } = await supabase
-      .from('registrations')
-      .update({ status: 'confirmed' })
-      .eq('id', validationResult.registrationId)
+    // Repository für die Registrierung erstellen mit Service-Role
+    const registrationsRepo = await createRegistrationsRepository(
+      event,
+      'service_role'
+    )
 
-    if (error) {
-      console.error('Fehler beim Bestätigen der Registrierung:', error)
+    // Registrierung bestätigen
+    const success = await registrationsRepo.updateStatus(
+      validationResult.registrationId,
+      'confirmed'
+    )
+
+    if (!success) {
       return {
         error: {
           message: 'Fehler beim Bestätigen der Registrierung',
           code: 'DATABASE_ERROR',
-          details: error.message,
         },
         statusCode: 500,
       } as ApiResponse<null>

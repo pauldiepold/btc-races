@@ -1,7 +1,7 @@
 import type { ApiResponse } from '~/types/api.types'
 import { serverSupabaseUser } from '#supabase/server'
 import { competitionSchema } from '~/composables/useCompetitionSchema'
-import { createCompetitionsServerRepository } from '~/server/repositories/competitions/competitions.server.repository'
+import { createCompetitionsRepository } from '~/server/repositories/competitions/competitions.repository'
 
 export default defineEventHandler(async (event) => {
   // Authentifizierung prüfen
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Repository erstellen
-  const competitionsRepo = await createCompetitionsServerRepository(event)
+  const competitionsRepo = await createCompetitionsRepository(event)
   const body = await readBody(event)
   const id = event.context.params?.id
 

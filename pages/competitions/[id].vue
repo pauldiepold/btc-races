@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {
-  registrationTypeMapLong,
-  raceTypeMap,
-  championshipTypeMap,
+  RegistrationTypeLabels,
+  RaceTypeLabels,
+  ChampionshipTypeLabels,
 } from '~/types/enums'
 import { useCompetitionRegistration } from '~/composables/useCompetitionRegistration'
 import { useRepositories } from '~/composables/useRepositories'
@@ -204,7 +204,7 @@ const canRegister = computed(() => {
           <UFormField label="Anmeldung" size="lg">
             <UInput
               :model-value="
-                registrationTypeMapLong[competition.registration_type]
+                RegistrationTypeLabels[competition.registration_type]
               "
               icon="lucide:tag"
               class="w-full !cursor-pointer"
@@ -214,7 +214,7 @@ const canRegister = computed(() => {
 
           <UFormField label="Rennart" size="lg">
             <UInput
-              :model-value="raceTypeMap[competition.race_type]"
+              :model-value="RaceTypeLabels[competition.race_type]"
               icon="lucide:ruler"
               class="w-full !cursor-pointer"
               disabled
@@ -223,7 +223,9 @@ const canRegister = computed(() => {
 
           <UFormField label="Meisterschaft" size="lg">
             <UInput
-              :model-value="championshipTypeMap[competition.championship_type]"
+              :model-value="
+                ChampionshipTypeLabels[competition.championship_type]
+              "
               icon="lucide:clock"
               class="w-full !cursor-pointer"
               disabled

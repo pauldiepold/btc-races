@@ -1,8 +1,9 @@
-// Server-spezifische Repository-Basis
-export * from './base/server.repository'
-export * from './base/service-role.repository'
+// Repository-Factory
+export * from './base/repository.factory'
 
-// Konkrete serverseitige Repositories
-export * from './sent-emails/sent-emails.server.repository'
-
-// Hier später weitere serverseitige Repositories exportieren
+// Repositories
+export * from './sent-emails/sent-emails.repository'
+export * from './registrations/registrations.repository'
+export * from './emails/emails.repository'
+export * from './members/members.repository'
+export * from './competitions/competitions.repository'

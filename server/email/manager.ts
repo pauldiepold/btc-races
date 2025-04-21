@@ -63,18 +63,18 @@ export class EmailManager {
   /**
    * Sendet eine E-Mail mit optional überschriebenen Empfängern im Testmodus
    */
-  async sendEmail(options: EmailMessage): Promise<void> {
-    let recipients = options.to
-    let subject = options.subject
+  async sendEmail(message: EmailMessage): Promise<void> {
+    let recipients = message.to
+    let subject = message.subject
 
     if (this.isTestModeActive()) {
       // Im Testmodus werden alle Empfänger mit der Test-E-Mail-Adresse überschrieben
       // und der Betreff wird gekennzeichnet
-      recipients = this.transformRecipients(options.to)
-      subject = this.transformSubject(options.subject, options.to)
+      recipients = this.transformRecipients(message.to)
+      subject = this.transformSubject(message.subject, message.to)
 
       console.log(
-        `[EmailManager] Empfänger überschrieben: ${options.to
+        `[EmailManager] Empfänger überschrieben: ${message.to
           .map((r: EmailRecipient) => `${r.displayName} <${r.address}>`)
           .join(', ')} -> ${emailConfig.testAddress}`
       )
@@ -82,7 +82,7 @@ export class EmailManager {
 
     try {
       await this.emailProvider.sendEmail({
-        ...options,
+        ...message,
         to: recipients,
         subject: subject,
       })

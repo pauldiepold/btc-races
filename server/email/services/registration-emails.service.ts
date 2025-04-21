@@ -4,10 +4,10 @@ import { EmailTypes } from '~/types/enums'
 import { TokenService } from './token.service'
 import { TemplateService } from './template.service'
 import { EmailSenderService } from './email-sender.service'
-import type { SentEmailsRepository } from '~/server/repositories/sent-emails/sent-emails.repository'
-import { createSentEmailsRepository } from '~/server/repositories/sent-emails/sent-emails.repository'
-import type { RegistrationsRepository } from '~/server/repositories/registrations/registrations.repository'
-import { createRegistrationsRepository } from '~/server/repositories/registrations/registrations.repository'
+import type { SentEmailsRepository } from '~/server/repositories/sent-emails.repository'
+import { createSentEmailsRepository } from '~/server/repositories/sent-emails.repository'
+import type { RegistrationsRepository } from '~/server/repositories/registrations.repository'
+import { createRegistrationsRepository } from '~/server/repositories/registrations.repository'
 
 /**
  * Service für die Verwaltung von E-Mails im Zusammenhang mit Registrierungen

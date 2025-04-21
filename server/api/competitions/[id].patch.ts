@@ -1,7 +1,7 @@
 import type { ApiResponse } from '~/types/api.types'
 import { serverSupabaseUser } from '#supabase/server'
 import { competitionSchema } from '~/composables/useCompetitionSchema'
-import { createCompetitionsRepository } from '~/server/repositories/competitions/competitions.repository'
+import { createCompetitionsRepository } from '~/server/repositories/competitions.repository'
 
 export default defineEventHandler(async (event) => {
   // Authentifizierung prüfen

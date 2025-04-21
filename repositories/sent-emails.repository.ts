@@ -1,9 +1,10 @@
-import { ClientRepository } from '../base/client.repository'
+import { ClientRepository } from './base/client.repository'
 import type {
   SentEmail,
   SentEmailInsert,
   SentEmailUpdate,
 } from '~/types/models.types'
+
 // Client-Version
 export class SentEmailsClientRepository extends ClientRepository<
   'sent_emails',

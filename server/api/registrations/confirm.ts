@@ -1,7 +1,7 @@
 import { RegistrationEmailsService } from '~/server/email/services'
 import type { ApiResponse } from '~/types/api.types'
 import { EmailTypes } from '~/types/enums'
-import { createRegistrationsRepository } from '~/server/repositories/registrations/registrations.repository'
+import { createRegistrationsRepository } from '~/server/repositories/registrations.repository'
 
 export default defineEventHandler(async (event) => {
   try {

@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto'
 import type { EmailType } from '~/types/enums'
-import type { SentEmailsRepository } from '~/server/repositories/sent-emails/sent-emails.repository'
+import type { SentEmailsRepository } from '~/server/repositories/sent-emails.repository'
 
 /**
  * Service für Token-Funktionalitäten im E-Mail-System

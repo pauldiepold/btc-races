@@ -9,7 +9,7 @@ import type { BaseRepository } from '~/repositories/base/base.repository'
 
 export type ClientType = 'user' | 'service_role'
 
-export async function getRepositoryClient(
+export async function getSupabaseClient(
   event: H3Event,
   clientType: ClientType = 'user'
 ): Promise<SupabaseClient<Database>> {
@@ -31,6 +31,6 @@ export async function createRepository<
   clientType: ClientType = 'user',
   ...constructorArgs: any[]
 ): Promise<R> {
-  const client = await getRepositoryClient(event, clientType)
+  const client = await getSupabaseClient(event, clientType)
   return new RepositoryClass(client, ...constructorArgs)
 }

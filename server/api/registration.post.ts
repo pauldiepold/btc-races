@@ -2,9 +2,9 @@ import type { ApiResponse } from '~/types/api.types'
 import { registrationSchema } from '~/composables/useRegistrationSchema'
 import { useCompetitionRegistration } from '~/composables/useCompetitionRegistration'
 import { RegistrationEmailsService } from '~/server/email/services'
-import { createRegistrationsRepository } from '~/server/repositories/registrations/registrations.repository'
-import { createCompetitionsRepository } from '~/server/repositories/competitions/competitions.repository'
-import { createMembersRepository } from '~/server/repositories/members/members.repository'
+import { createRegistrationsRepository } from '~/server/repositories/registrations.repository'
+import { createCompetitionsRepository } from '~/server/repositories/competitions.repository'
+import { createMembersRepository } from '~/server/repositories/members.repository'
 
 export default defineEventHandler(async (event) => {
   // Repositories erstellen mit Service-Role für Schreibzugriff

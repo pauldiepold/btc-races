@@ -3,8 +3,8 @@ import { memberSchema } from '~/composables/useMemberSchema'
 import type { H3Event } from 'h3'
 import { writeFile, unlink } from 'fs/promises'
 import { z } from 'zod'
-import { createMembersRepository } from '~/server/repositories/members/members.repository'
-import { createEmailsRepository } from '~/server/repositories/emails/emails.repository'
+import { createMembersRepository } from '~/server/repositories/members.repository'
+import { createEmailsRepository } from '~/server/repositories/emails.repository'
 
 export default defineEventHandler(async (event: H3Event) => {
   try {

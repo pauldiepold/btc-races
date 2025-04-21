@@ -1,4 +1,4 @@
-import { ClientRepository } from '../base/client.repository'
+import { ClientRepository } from './base/client.repository'
 import type {
   Registration,
   RegistrationInsert,

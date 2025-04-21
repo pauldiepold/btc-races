@@ -1,19 +1,16 @@
-import { SentEmailsClientRepository } from '~/repositories/sent-emails/sent-emails.repository'
-import { CompetitionsClientRepository } from '~/repositories/competitions/competitions.repository'
-import { MembersClientRepository } from '~/repositories/members/members.repository'
-import { RegistrationsClientRepository } from '~/repositories/registrations/registrations.repository'
+import { CompetitionsClientRepository } from '~/repositories/competitions.repository'
+import { MembersClientRepository } from '~/repositories/members.repository'
+import { RegistrationsClientRepository } from '~/repositories/registrations.repository'
 
 /**
  * Composable, das Zugriff auf alle Client-Repositories bietet
  */
 export function useRepositories() {
-  const sentEmails = new SentEmailsClientRepository()
   const competitions = new CompetitionsClientRepository()
   const members = new MembersClientRepository()
   const registrations = new RegistrationsClientRepository()
 
   return {
-    sentEmails,
     competitions,
     members,
     registrations,

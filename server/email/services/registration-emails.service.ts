@@ -79,8 +79,8 @@ export class RegistrationEmailsService {
     // 4. Sende E-Mail mit EmailSenderService
     const subject = `Anmeldebestätigung für ${registration.competition_name}`
 
-    await this.emailSender.sendEmail({
-      recipients: [
+    await this.emailSender.sendEmailWithTemplate({
+      to: [
         {
           address: registration.member_email!,
           displayName: registration.member_name!,
@@ -136,8 +136,8 @@ export class RegistrationEmailsService {
     // 4. Sende E-Mail mit EmailSenderService
     const subject = `Abmeldebestätigung für ${registration.competition_name}`
 
-    await this.emailSender.sendEmail({
-      recipients: [
+    await this.emailSender.sendEmailWithTemplate({
+      to: [
         {
           address: registration.member_email!,
           displayName: registration.member_name!,

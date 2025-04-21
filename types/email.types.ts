@@ -49,8 +49,6 @@ export interface EmailMessage {
   subject: string
   /** E-Mail-Inhalt (HTML oder Text) */
   content: string
-  /** Template (optional) */
-  template?: EmailTemplate
   /** Anhänge (optional) */
   attachments?: EmailAttachment[]
 }

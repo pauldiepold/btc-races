@@ -1,17 +1,20 @@
 import { EmailManager } from '../manager'
-import type { EmailRecipient, EmailTemplate } from '~/types/email.types'
-import type { TemplateData } from './template.service'
+import type { EmailMessage, EmailRecipient } from '~/types/email.types'
+import { TemplateService, type TemplateData } from './template.service'
 
 /**
- * Interface für die Optionen beim E-Mail-Versand
+ * Erweiterte Optionen für den E-Mail-Versand mit Template-Informationen
  */
-export interface EmailOptions {
-  recipients: EmailRecipient[]
+export interface EmailWithTemplateOptions {
+  to: EmailRecipient[]
   subject: string
   templateName: string
   templateData: TemplateData
   cc?: EmailRecipient[]
   bcc?: EmailRecipient[]
+  from?: EmailRecipient
+  rawContent?: string
+  attachments?: EmailMessage['attachments']
 }
 
 /**
@@ -19,27 +22,42 @@ export interface EmailOptions {
  */
 export class EmailSenderService {
   private emailManager: EmailManager
+  private templateService: TemplateService
 
   constructor() {
     this.emailManager = new EmailManager()
+    this.templateService = new TemplateService()
   }
 
   /**
-   * Sendet eine E-Mail mit den angegebenen Optionen
+   * Sendet eine E-Mail mit Template-Verarbeitung
    */
-  async sendEmail(options: EmailOptions): Promise<void> {
-    const template: EmailTemplate = {
-      name: options.templateName,
-      data: options.templateData,
-    }
+  async sendEmailWithTemplate(
+    options: EmailWithTemplateOptions
+  ): Promise<void> {
+    // Rendere das Template mit dem TemplateService
+    const content = await this.templateService.renderTemplate(
+      options.templateName,
+      options.templateData,
+      options.rawContent
+    )
 
-    await this.emailManager.sendEmail({
-      to: options.recipients,
+    // Sende die E-Mail mit dem gerenderten Inhalt
+    await this.sendEmail({
+      to: options.to,
       cc: options.cc,
       bcc: options.bcc,
+      from: options.from,
       subject: options.subject,
-      content: '', // Wird durch das Template erzeugt
-      template,
+      content,
+      attachments: options.attachments,
     })
+  }
+
+  /**
+   * Sendet eine vorbereitete E-Mail ohne Template-Verarbeitung
+   */
+  async sendEmail(message: EmailMessage): Promise<void> {
+    await this.emailManager.sendEmail(message)
   }
 }

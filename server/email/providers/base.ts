@@ -1,23 +1,22 @@
+import type { EmailMessage, EmailProvider } from '~/types/email.types'
 import Handlebars from 'handlebars'
 import fs from 'fs'
 import path from 'path'
 
-export class TemplateService {
-  private static instance: TemplateService
+/**
+ * Basisklasse für alle E-Mail-Provider mit integrierter Template-Verarbeitung
+ */
+export abstract class BaseEmailProvider implements EmailProvider {
   private templates: Map<string, Handlebars.TemplateDelegate> = new Map()
 
-  private constructor() {
+  constructor() {
     this.registerPartials()
     this.registerLayouts()
   }
 
-  public static getInstance(): TemplateService {
-    if (!TemplateService.instance) {
-      TemplateService.instance = new TemplateService()
-    }
-    return TemplateService.instance
-  }
-
+  /**
+   * Registriert alle Partials aus dem Partials-Verzeichnis
+   */
   private registerPartials() {
     const partialsDir = path.join(
       process.cwd(),
@@ -34,6 +33,9 @@ export class TemplateService {
     })
   }
 
+  /**
+   * Registriert alle Layouts aus dem Layouts-Verzeichnis
+   */
   private registerLayouts() {
     const layoutsDir = path.join(
       process.cwd(),
@@ -50,7 +52,10 @@ export class TemplateService {
     })
   }
 
-  public async getTemplate(
+  /**
+   * Lädt und kompiliert ein Template
+   */
+  private async getTemplate(
     templateName: string
   ): Promise<Handlebars.TemplateDelegate> {
     if (this.templates.has(templateName)) {
@@ -69,8 +74,51 @@ export class TemplateService {
     return compiledTemplate
   }
 
-  public async render(templateName: string, data: any): Promise<string> {
+  /**
+   * Rendert ein Template mit den gegebenen Daten
+   */
+  protected async renderTemplate(
+    templateName: string,
+    data: any
+  ): Promise<string> {
     const template = await this.getTemplate(templateName)
     return template(data)
+  }
+
+  /**
+   * Sendet eine E-Mail mit optionalem Template
+   */
+  async sendEmail(message: EmailMessage): Promise<void> {
+    let content = message.content
+
+    // Wenn ein Template angegeben ist, rendere es
+    if (message.template) {
+      content = await this.renderTemplate(message.template.name, {
+        ...message.template.data,
+        content: message.content, // Originaler Content als Fallback
+      })
+    }
+
+    // Rufe die spezifische Implementierung des Providers auf
+    await this.sendEmailInternal({
+      ...message,
+      content,
+    })
+  }
+
+  /**
+   * Abstrakte Methode, die von konkreten Providern implementiert werden muss
+   */
+  protected abstract sendEmailInternal(message: EmailMessage): Promise<void>
+
+  /**
+   * Konvertiert HTML in Plain-Text für bessere Lesbarkeit
+   */
+  public convertHtmlToPlainText(html: string): string {
+    return html
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<[^>]+>/g, '')
+      .replace(/\n\s*\n/g, '\n')
+      .trim()
   }
 }

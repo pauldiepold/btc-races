@@ -7,7 +7,7 @@ import type {
   EmailLogInsert,
   EmailContext,
   RegistrationWithDetails,
-} from '../types'
+} from '~/types/email.types'
 import type { Database } from '~/types/database.types'
 
 export class RegistrationEmailService {
@@ -19,7 +19,7 @@ export class RegistrationEmailService {
 
   constructor(supabase: SupabaseClient<Database>) {
     this.supabase = supabase
-    this.emailManager = new EmailManager(supabase)
+    this.emailManager = new EmailManager()
   }
 
   /**
@@ -71,15 +71,18 @@ export class RegistrationEmailService {
           },
         ],
         subject: context.subject,
-        template: context.templateName,
-        data: {
-          firstName: context.member.name!.split(' ')[0],
-          competitionName: context.competition.name,
-          competitionDate: new Date(
-            context.competition.date
-          ).toLocaleDateString('de-DE'),
-          [context.linkText]: `${emailConfig.publicUrl}/${context.linkUrlPath}?token=${context.token}`,
-          expiryDate: context.tokenExpiresAt.toLocaleDateString('de-DE'),
+        content: '', // Leerer Content, da wir das Template verwenden
+        template: {
+          name: context.templateName,
+          data: {
+            firstName: context.member.name!.split(' ')[0],
+            competitionName: context.competition.name,
+            competitionDate: new Date(
+              context.competition.date
+            ).toLocaleDateString('de-DE'),
+            [context.linkText]: `${emailConfig.publicUrl}/${context.linkUrlPath}?token=${context.token}`,
+            expiryDate: context.tokenExpiresAt.toLocaleDateString('de-DE'),
+          },
         },
       })
 

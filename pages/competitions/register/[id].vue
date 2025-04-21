@@ -69,8 +69,6 @@ async function onSubmit(event: FormSubmitEvent<RegistrationSchema>) {
       color: 'success',
     })
 
-    console.log('Anmeldung erfolgreich erstellt')
-
     // Weiterleitung zur Detailseite
     setTimeout(async () => {
       await navigateTo(`/competitions/${competitionId}`)

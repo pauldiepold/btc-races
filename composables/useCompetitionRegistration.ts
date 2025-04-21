@@ -1,6 +1,4 @@
-import type { Database } from '~/types/database.types'
-
-type Competition = Database['public']['Tables']['competitions']['Row']
+import type { Competition } from '~/types/models.types'
 
 export type CompetitionRegistrationStatus =
   | 'REGISTRATION_OPEN' // Anmeldung möglich

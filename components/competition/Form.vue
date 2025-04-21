@@ -6,18 +6,16 @@ import {
   raceTypeItems,
   registrationTypeItems,
 } from '~/types/enums'
+import type { Competition } from '~/types/models.types'
 
 const props = defineProps<{
-  modelValue: Partial<Database['public']['Tables']['competitions']['Row']>
+  modelValue: Partial<Competition>
   isEdit?: boolean
 }>()
 
 const emit = defineEmits<{
-  (
-    e: 'update:modelValue',
-    value: Partial<Database['public']['Tables']['competitions']['Row']>
-  ): void
-  (e: 'submit', data: Database['public']['Tables']['competitions']['Row']): void
+  (e: 'update:modelValue', value: Partial<Competition>): void
+  (e: 'submit', data: Competition): void
 }>()
 
 const { schema } = useCompetitionSchema()
@@ -25,9 +23,7 @@ const toast = useToast()
 
 const isSubmitting = ref(false)
 
-async function onSubmit(
-  event: FormSubmitEvent<Database['public']['Tables']['competitions']['Row']>
-) {
+async function onSubmit(event: FormSubmitEvent<Competition>) {
   isSubmitting.value = true
   try {
     emit('submit', event.data)
@@ -44,9 +40,10 @@ async function onError() {
   })
 }
 
-function updateField<
-  K extends keyof Database['public']['Tables']['competitions']['Row'],
->(field: K, value: Database['public']['Tables']['competitions']['Row'][K]) {
+function updateField<K extends keyof Competition>(
+  field: K,
+  value: Competition[K]
+) {
   emit('update:modelValue', { ...props.modelValue, [field]: value })
 }
 </script>

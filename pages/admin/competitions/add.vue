@@ -1,56 +1,48 @@
 <script setup lang="ts">
-import type { Database } from '~/types/database.types'
 import {
   CHAMPIONSHIP_TYPES,
   RACE_TYPES,
   REGISTRATION_TYPES,
 } from '~/types/enums'
+import type { Competition } from '~/types/models.types'
+const { showSuccess, showError } = useToastMessages()
 
-const toast = useToast()
+const state = ref<Partial<Competition>>({
+  name: undefined,
+  location: undefined,
+  registration_deadline: undefined,
+  date: undefined,
+  announcement_link: undefined,
+  description: undefined,
+  championship_type: CHAMPIONSHIP_TYPES[0],
+  race_type: RACE_TYPES[0],
+  registration_type: REGISTRATION_TYPES[0],
+})
 
-const state = ref<Partial<Database['public']['Tables']['competitions']['Row']>>(
-  {
-    name: undefined,
-    location: undefined,
-    registration_deadline: undefined,
-    date: undefined,
-    announcement_link: undefined,
-    description: undefined,
-    championship_type: CHAMPIONSHIP_TYPES[0],
-    race_type: RACE_TYPES[0],
-    registration_type: REGISTRATION_TYPES[0],
-  }
-)
-
-async function onSubmit(
-  data: Database['public']['Tables']['competitions']['Row']
-) {
+async function onSubmit(data: Competition) {
   try {
     const { data: response, error } = await $fetch('/api/competitions', {
       method: 'POST',
       body: data,
     })
 
-    if (error) throw new Error(error.message)
-    if (!response?.id)
-      throw new Error('Keine ID in der Server-Antwort erhalten')
+    if (error || !response?.id) {
+      throw new Error(
+        error?.message || 'Keine gültige Antwort vom Server erhalten'
+      )
+    }
 
-    toast.add({
-      title: 'Erfolg',
-      description: 'Der Wettkampf wurde erfolgreich erstellt.',
-      color: 'success',
-    })
+    showSuccess('Der Wettkampf wurde erfolgreich erstellt.')
 
-    // Weiterleitung zur Detailseite mit der ID aus der Server-Antwort
-    setTimeout(async () => {
-      await navigateTo(`/competitions/${response.id}`)
+    setTimeout(() => {
+      navigateTo(`/competitions/${response.id}`)
     }, 1500)
-  } catch (error: any) {
-    toast.add({
-      title: 'Fehler',
-      description: error.message || 'Ein Fehler ist aufgetreten.',
-      color: 'error',
-    })
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Ein unbekannter Fehler ist aufgetreten'
+    showError(errorMessage)
   }
 }
 </script>

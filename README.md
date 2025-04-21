@@ -150,3 +150,80 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
    npx supabase login
    npx supabase link
    ```
+
+# Repository-System
+
+## Struktur
+
+Das Repository-System bietet eine konsistente API für den Zugriff auf Datenbanktabellen. Es umfasst:
+
+### Basisklassen
+
+- **BaseRepository**: Grundfunktionalität für alle Repositories
+- **ClientRepository**: Für Client-seitige Verwendung (im Browser)
+- **ServerRepository**: Für Server-seitige Verwendung (API-Routen)
+- **ServiceRoleRepository**: Für Server-seitige Verwendung mit administrativen Rechten
+
+### Konkrete Implementierungen
+
+Jede Tabelle hat in der Regel drei spezialisierte Repository-Klassen:
+
+- **[Name]ClientRepository**: Für Browser-Zugriff
+- **[Name]ServerRepository**: Für normalen Server-Zugriff
+- **[Name]ServiceRepository**: Für Server-Zugriff mit erhöhten Rechten
+
+### Factory-Funktionen
+
+Anstatt statische Methoden für jede Klasse zu implementieren, verwenden wir spezialisierte Factory-Funktionen:
+
+```typescript
+// Erstellen eines Server-Repositories
+const sentEmails = await createSentEmailsServerRepository(event)
+
+// Erstellen eines ServiceRole-Repositories
+const sentEmails = await createSentEmailsServiceRepository(event)
+```
+
+## Verwendung
+
+### Client-seitig
+
+Mit dem `useRepositories` Composable:
+
+```typescript
+// In einer Vue-Komponente
+const { sentEmails } = useRepositories()
+
+// Daten abfragen
+const email = await sentEmails.findByToken('token123')
+```
+
+### Server-seitig
+
+Mit dem `createServerRepositories` Helfer:
+
+```typescript
+// In einem API-Handler
+export default defineEventHandler(async (event) => {
+  const { sentEmails } = await createServerRepositories(event)
+
+  // Mit normalen Nutzerrechten arbeiten
+  const emails = await sentEmails.findAll()
+
+  return { emails }
+})
+```
+
+### Mit administrativen Rechten
+
+```typescript
+// In einem API-Handler
+export default defineEventHandler(async (event) => {
+  const { sentEmails } = await createServerRepositories(event, true)
+
+  // Mit administrativen Rechten arbeiten
+  await sentEmails.createWithoutRLS({ ... })
+
+  return { success: true }
+})
+```

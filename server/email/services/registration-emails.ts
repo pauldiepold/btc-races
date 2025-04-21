@@ -5,7 +5,7 @@ import { emailConfig } from '../config'
 import type {
   EmailType,
   EmailLogInsert,
-  EmailContext,
+  RegistrationEmailParams,
   RegistrationWithDetails,
 } from '~/types/email.types'
 import type { Database } from '~/types/database.types'
@@ -60,40 +60,42 @@ export class RegistrationEmailService {
   /**
    * Gemeinsame Methode zum Versenden von E-Mails mit verschiedenen Kontexten
    */
-  private async sendEmailWithToken(context: EmailContext): Promise<void> {
+  private async sendEmailWithToken(
+    params: RegistrationEmailParams
+  ): Promise<void> {
     try {
       // E-Mail senden
       await this.emailManager.sendEmail({
         to: [
           {
-            address: context.member.email!,
-            displayName: context.member.name!,
+            address: params.memberEmail,
+            displayName: params.memberName,
           },
         ],
-        subject: context.subject,
+        subject: params.subject,
         content: '', // Leerer Content, da wir das Template verwenden
         template: {
-          name: context.templateName,
+          name: params.templateName,
           data: {
-            firstName: context.member.name!.split(' ')[0],
-            competitionName: context.competition.name,
+            firstName: params.memberName.split(' ')[0],
+            competitionName: params.competitionName,
             competitionDate: new Date(
-              context.competition.date
+              params.competitionDate
             ).toLocaleDateString('de-DE'),
-            [context.linkText]: `${emailConfig.publicUrl}/${context.linkUrlPath}?token=${context.token}`,
-            expiryDate: context.tokenExpiresAt.toLocaleDateString('de-DE'),
+            [params.linkText]: `${emailConfig.publicUrl}/${params.linkUrlPath}?token=${params.token}`,
+            expiryDate: params.tokenExpiresAt.toLocaleDateString('de-DE'),
           },
         },
       })
 
       // E-Mail in die Logs eintragen
       const emailLogData: EmailLogInsert = {
-        registration_id: context.registrationId,
-        email_type: context.emailType,
-        recipient_email: context.member.email!,
-        subject: context.subject,
-        token: context.token,
-        token_expires_at: context.tokenExpiresAt.toISOString(),
+        registration_id: params.registrationId,
+        email_type: params.emailType,
+        recipient_email: params.memberEmail,
+        subject: params.subject,
+        token: params.token,
+        token_expires_at: params.tokenExpiresAt.toISOString(),
         status: 'sent',
         sent_at: new Date().toISOString(),
       }
@@ -109,17 +111,17 @@ export class RegistrationEmailService {
       }
 
       console.log(
-        `[RegistrationEmailService] E-Mail vom Typ "${context.emailType}" für Registrierung ${context.registrationId} gesendet`
+        `[RegistrationEmailService] E-Mail vom Typ "${params.emailType}" für Registrierung ${params.registrationId} gesendet`
       )
     } catch (error) {
       // Fehler protokollieren
       const emailLogData: EmailLogInsert = {
-        registration_id: context.registrationId,
-        email_type: context.emailType,
-        recipient_email: context.member.email!,
-        subject: context.subject,
-        token: context.token,
-        token_expires_at: context.tokenExpiresAt.toISOString(),
+        registration_id: params.registrationId,
+        email_type: params.emailType,
+        recipient_email: params.memberEmail,
+        subject: params.subject,
+        token: params.token,
+        token_expires_at: params.tokenExpiresAt.toISOString(),
         status: 'failed',
         error: error instanceof Error ? error.message : 'Unbekannter Fehler',
       }
@@ -145,19 +147,10 @@ export class RegistrationEmailService {
     await this.sendEmailWithToken({
       emailType: 'registration_confirmation',
       registrationId,
-      member: {
-        id: registration.member_id!,
-        name: registration.member_name!,
-        email: registration.member_email!,
-        has_ladv_startpass: registration.has_ladv_startpass!,
-        has_left: false, // TODO: Aus der View holen
-        created_at: registration.created_at!,
-        updated_at: registration.updated_at!,
-      },
-      competition: {
-        name: registration.competition_name!,
-        date: registration.competition_date!,
-      },
+      memberName: registration.member_name!,
+      memberEmail: registration.member_email!,
+      competitionName: registration.competition_name!,
+      competitionDate: registration.competition_date!,
       token,
       tokenExpiresAt,
       templateName: 'registration-confirmation',
@@ -182,19 +175,10 @@ export class RegistrationEmailService {
     await this.sendEmailWithToken({
       emailType: 'registration_cancellation',
       registrationId,
-      member: {
-        id: registration.member_id!,
-        name: registration.member_name!,
-        email: registration.member_email!,
-        has_ladv_startpass: registration.has_ladv_startpass!,
-        has_left: false, // TODO: Aus der View holen
-        created_at: registration.created_at!,
-        updated_at: registration.updated_at!,
-      },
-      competition: {
-        name: registration.competition_name!,
-        date: registration.competition_date!,
-      },
+      memberName: registration.member_name!,
+      memberEmail: registration.member_email!,
+      competitionName: registration.competition_name!,
+      competitionDate: registration.competition_date!,
       token,
       tokenExpiresAt,
       templateName: 'registration-cancellation',

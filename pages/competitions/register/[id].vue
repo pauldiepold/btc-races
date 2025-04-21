@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { Database } from '~/types/database.types'
 import type { FormSubmitEvent } from '@nuxt/ui'
+import { useRepositories } from '~/composables/useRepositories'
+import { useToastMessages } from '~/composables/useToastMessages'
 
 definePageMeta({
   colorMode: 'dark',
@@ -11,18 +12,17 @@ definePageMeta({
 const route = useRoute()
 const competitionId = route.params.id as string
 
-const client = useSupabaseClient<Database>()
+const { competitions } = useRepositories()
+const { showError, showSuccess } = useToastMessages()
 
 const { data: competition } = await useAsyncData(
   `competition-${competitionId}`,
   async () => {
-    const { data } = await client
-      .from('competitions')
-      .select('*')
-      .eq('id', parseInt(competitionId))
-      .single()
-
-    return data
+    const result = await competitions.findById(competitionId)
+    if (!result) {
+      showError('Wettkampf konnte nicht geladen werden')
+    }
+    return result
   }
 )
 
@@ -34,7 +34,6 @@ if (!competition.value) {
 const memberStore = useMemberStore()
 
 const { schema, createFormState } = useRegistrationSchema()
-const toast = useToast()
 
 const state = ref<Partial<RegistrationSchema>>(
   createFormState(parseInt(competitionId))
@@ -62,24 +61,16 @@ async function onSubmit(event: FormSubmitEvent<RegistrationSchema>) {
       throw new Error(error.message)
     }
 
-    toast.add({
-      title: 'Erfolg',
-      description:
-        'Deine Anmeldung wurde erfolgreich erstellt. Du erhältst in Kürze eine Bestätigungsmail.',
-      color: 'success',
-    })
+    showSuccess(
+      'Deine Anmeldung wurde erfolgreich erstellt. Du erhältst in Kürze eine Bestätigungsmail.'
+    )
 
     // Weiterleitung zur Detailseite
     setTimeout(async () => {
       await navigateTo(`/competitions/${competitionId}`)
     }, 1500)
   } catch (error: any) {
-    toast.add({
-      title: 'Fehler',
-      description: error.message || 'Ein Fehler ist aufgetreten.',
-      color: 'error',
-      duration: 5000,
-    })
+    showError(error.message || 'Ein Fehler ist aufgetreten.')
   } finally {
     isSubmitting.value = false
   }
@@ -87,11 +78,7 @@ async function onSubmit(event: FormSubmitEvent<RegistrationSchema>) {
 
 async function onError(error: any) {
   console.log(error)
-  toast.add({
-    title: 'Fehler',
-    description: 'Bitte überprüfe deine Eingaben.',
-    color: 'error',
-  })
+  showError('Bitte überprüfe deine Eingaben.')
 }
 </script>
 

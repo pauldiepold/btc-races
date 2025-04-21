@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { Database } from '~/types/database.types'
 import type {
   RaceType,
   RegistrationType,
@@ -16,8 +15,8 @@ definePageMeta({
   colorMode: 'dark',
 })
 
-const client = useSupabaseClient<Database>()
 const user = useSupabaseUser()
+const { competitions: competitionsRepository } = useRepositories()
 
 // Filter-Status
 const searchString = ref('')
@@ -52,16 +51,9 @@ const {
   data: competitions,
   pending: loading,
   error,
-} = await useAsyncData('competitions', async () => {
-  const { data, error: supabaseError } = await client
-    .from('competitions')
-    .select()
-    .order('date', { ascending: true })
-
-  if (supabaseError) throw supabaseError
-
-  return data
-})
+} = await useAsyncData('competitions', () =>
+  competitionsRepository.findAllOrderedByDate(true)
+)
 
 // Gefilterte Events
 const filteredEvents = computed(() => {

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import type { Database } from '~/types/database.types'
 import {
   registrationTypeMapLong,
   raceTypeMap,
   championshipTypeMap,
 } from '~/types/enums'
 import { useCompetitionRegistration } from '~/composables/useCompetitionRegistration'
+import { useRepositories } from '~/composables/useRepositories'
+import { useToastMessages } from '~/composables/useToastMessages'
 
 definePageMeta({
   colorMode: 'dark',
@@ -15,42 +16,28 @@ const route = useRoute()
 const user = useSupabaseUser()
 const competitionId = route.params.id as string
 
-const client = useSupabaseClient<Database>()
+const { competitions, registrations } = useRepositories()
+const { showError } = useToastMessages()
 
 const { data: competition } = await useAsyncData(
   `competition-${competitionId}`,
   async () => {
-    const { data } = await client
-      .from('competitions')
-      .select('*')
-      .eq('id', parseInt(competitionId))
-      .single()
-
-    return data
+    const result = await competitions.findById(competitionId)
+    if (!result) {
+      showError('Wettkampf konnte nicht geladen werden')
+    }
+    return result
   }
 )
 
-const { data: registrations } = await useAsyncData(
+const { data: competitionRegistrations } = await useAsyncData(
   `registrations-${competitionId}`,
   async () => {
-    const { data } = await client
-      .from('registrations')
-      .select(
-        `
-        id,
-        status,
-        notes,
-        created_at,
-        member:members (
-          id,
-          name
-        )
-      `
-      )
-      .eq('competition_id', parseInt(competitionId))
-      .order('created_at', { ascending: false })
-
-    return data
+    const result = await registrations.findByCompetitionId(competitionId)
+    if (!result || result.length === 0) {
+      console.log('Keine Registrierungen gefunden oder Fehler beim Laden')
+    }
+    return result || []
   }
 )
 
@@ -98,13 +85,13 @@ const canRegister = computed(() => {
       <div class="space-y-6">
         <BaseLayer>
           <h2 class="mb-4 text-xl font-bold">Teilnehmer</h2>
-          <p v-if="registrations" class="text-sm">
-            Bereits {{ registrations.length }} Mitglieder angemeldet
+          <p v-if="competitionRegistrations" class="text-sm">
+            Bereits {{ competitionRegistrations.length }} Mitglieder angemeldet
           </p>
 
           <div class="mt-4 space-y-3">
             <div
-              v-for="registration in registrations"
+              v-for="registration in competitionRegistrations"
               :key="registration.id"
               class="rounded bg-(--ui-bg) p-3"
             >

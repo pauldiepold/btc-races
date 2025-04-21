@@ -136,76 +136,6 @@ export type Database = {
         }
         Relationships: []
       }
-      email_logs: {
-        Row: {
-          created_at: string | null
-          email_type: string
-          error: string | null
-          id: number
-          recipient_email: string
-          registration_id: number | null
-          retry_count: number | null
-          sent_at: string | null
-          status: string
-          subject: string
-          token: string | null
-          token_expires_at: string | null
-          token_verified_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          email_type: string
-          error?: string | null
-          id?: number
-          recipient_email: string
-          registration_id?: number | null
-          retry_count?: number | null
-          sent_at?: string | null
-          status?: string
-          subject: string
-          token?: string | null
-          token_expires_at?: string | null
-          token_verified_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          email_type?: string
-          error?: string | null
-          id?: number
-          recipient_email?: string
-          registration_id?: number | null
-          retry_count?: number | null
-          sent_at?: string | null
-          status?: string
-          subject?: string
-          token?: string | null
-          token_expires_at?: string | null
-          token_verified_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'email_logs_registration_id_fkey'
-            columns: ['registration_id']
-            referencedRelation: 'public_registrations'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'email_logs_registration_id_fkey'
-            columns: ['registration_id']
-            referencedRelation: 'registrations'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'email_logs_registration_id_fkey'
-            columns: ['registration_id']
-            referencedRelation: 'registrations_with_details'
-            referencedColumns: ['id']
-          },
-        ]
-      }
       emails: {
         Row: {
           created_at: string
@@ -316,6 +246,73 @@ export type Database = {
           },
         ]
       }
+      sent_emails: {
+        Row: {
+          created_at: string | null
+          email_type: string
+          error: string | null
+          id: number
+          registration_id: number | null
+          retry_count: number | null
+          sent_at: string | null
+          status: string
+          subject: string
+          token: string | null
+          token_expires_at: string | null
+          token_verified_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email_type: string
+          error?: string | null
+          id?: number
+          registration_id?: number | null
+          retry_count?: number | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          token?: string | null
+          token_expires_at?: string | null
+          token_verified_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email_type?: string
+          error?: string | null
+          id?: number
+          registration_id?: number | null
+          retry_count?: number | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          token?: string | null
+          token_expires_at?: string | null
+          token_verified_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'sent_emails_registration_id_fkey'
+            columns: ['registration_id']
+            referencedRelation: 'public_registrations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'sent_emails_registration_id_fkey'
+            columns: ['registration_id']
+            referencedRelation: 'registrations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'sent_emails_registration_id_fkey'
+            columns: ['registration_id']
+            referencedRelation: 'registrations_with_details'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: {
       members_with_emails: {
@@ -379,6 +376,60 @@ export type Database = {
             foreignKeyName: 'registrations_member_id_fkey'
             columns: ['member_id']
             referencedRelation: 'members_with_emails'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      sent_emails_with_details: {
+        Row: {
+          competition_date: string | null
+          competition_name: string | null
+          created_at: string | null
+          email_type: string | null
+          error: string | null
+          id: number | null
+          member_id: number | null
+          member_name: string | null
+          recipient_email: string | null
+          registration_id: number | null
+          retry_count: number | null
+          sent_at: string | null
+          status: string | null
+          subject: string | null
+          token: string | null
+          token_expires_at: string | null
+          token_verified_at: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'registrations_member_id_fkey'
+            columns: ['member_id']
+            referencedRelation: 'members'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'registrations_member_id_fkey'
+            columns: ['member_id']
+            referencedRelation: 'members_with_emails'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'sent_emails_registration_id_fkey'
+            columns: ['registration_id']
+            referencedRelation: 'public_registrations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'sent_emails_registration_id_fkey'
+            columns: ['registration_id']
+            referencedRelation: 'registrations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'sent_emails_registration_id_fkey'
+            columns: ['registration_id']
+            referencedRelation: 'registrations_with_details'
             referencedColumns: ['id']
           },
         ]

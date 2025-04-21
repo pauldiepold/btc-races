@@ -1,14 +1,17 @@
-import { serverSupabaseClient } from '#supabase/server'
 import { readExcelFile } from '~/server/utils/excel'
 import { memberSchema } from '~/composables/useMemberSchema'
 import type { H3Event } from 'h3'
 import { writeFile, unlink } from 'fs/promises'
 import { z } from 'zod'
+import { createMembersServerRepository } from '~/server/repositories/members/members.server.repository'
+import { createEmailsServerRepository } from '~/server/repositories/emails/emails.server.repository'
 
 export default defineEventHandler(async (event: H3Event) => {
-  const supabase = await serverSupabaseClient(event)
-
   try {
+    // Repositories erstellen
+    const membersRepo = await createMembersServerRepository(event)
+    const emailsRepo = await createEmailsServerRepository(event)
+
     const formData = await readFormData(event)
     const file = formData.get('file') as File
 
@@ -84,23 +87,12 @@ export default defineEventHandler(async (event: H3Event) => {
       }
     }
 
-    // Transaktion starten
-    const { data: existingMembers, error: fetchError } = await supabase
-      .from('members')
-      .select('id, has_left')
+    // Bestehende Mitglieder abrufen und als ausgetreten markieren
+    const existingMembers = await membersRepo.findAllMembers()
 
-    if (fetchError) throw fetchError
-
-    // Alle bestehenden Mitglieder als ausgetreten markieren
-    const { error: updateError } = await supabase
-      .from('members')
-      .update({ has_left: true })
-      .in(
-        'id',
-        existingMembers.map((m) => m.id)
-      )
-
-    if (updateError) throw updateError
+    if (existingMembers.length > 0) {
+      await membersRepo.markMembersAsLeft(existingMembers.map((m) => m.id))
+    }
 
     // Neue Mitglieder vorbereiten
     const memberInserts = validMembers.map((member) => ({
@@ -117,23 +109,17 @@ export default defineEventHandler(async (event: H3Event) => {
       email: member['E-Mail'],
     }))
 
-    // Batch-Insert für Mitglieder
-    const { error: membersError } = await supabase
-      .from('members')
-      .upsert(memberInserts, {
-        onConflict: 'id',
-      })
+    // Mitglieder einfügen/aktualisieren
+    const membersResult = await membersRepo.upsertMembers(memberInserts)
+    if (!membersResult) {
+      throw new Error('Fehler beim Speichern der Mitglieder')
+    }
 
-    if (membersError) throw membersError
-
-    // Batch-Insert für E-Mails
-    const { error: emailsError } = await supabase
-      .from('emails')
-      .upsert(emailInserts, {
-        onConflict: 'member_id',
-      })
-
-    if (emailsError) throw emailsError
+    // E-Mails einfügen/aktualisieren
+    const emailsResult = await emailsRepo.upsertEmails(emailInserts)
+    if (!emailsResult) {
+      throw new Error('Fehler beim Speichern der E-Mail-Adressen')
+    }
 
     // Temporäre Datei löschen
     await unlink(tempFilePath)

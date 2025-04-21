@@ -1,67 +1,50 @@
 <script setup lang="ts">
 import type { ApiResponse } from '~/types/api.types'
-import type { Database } from '~/types/database.types'
+import { useRepositories } from '~/composables/useRepositories'
+import { useToastMessages } from '~/composables/useToastMessages'
+import type { Competition } from '~/types/models.types'
 
 const route = useRoute()
-const toast = useToast()
-const client = useSupabaseClient<Database>()
-const state = ref<Database['public']['Tables']['competitions']['Row']>()
+const { competitions } = useRepositories()
+const { showError, showSuccess } = useToastMessages()
+
+const state = ref<Competition>()
 const loading = ref(true)
 const error = ref<string>()
 
 onMounted(async () => {
-  try {
-    const { data, error: fetchError } = await client
-      .from('competitions')
-      .select('*')
-      .eq('id', parseInt(route.params.id as string))
-      .single()
+  const data = await competitions.findById(parseInt(route.params.id as string))
+  loading.value = false
 
-    if (fetchError) throw fetchError
-    if (!data) throw new Error('Wettkampf nicht gefunden')
-
-    state.value = data
-  } catch (err: any) {
-    error.value = err.message || 'Fehler beim Laden des Wettkampfs'
-    toast.add({
-      title: 'Fehler',
-      description: error.value,
-      color: 'error',
-    })
-  } finally {
-    loading.value = false
+  if (!data) {
+    error.value = 'Wettkampf nicht gefunden'
+    showError('Fehler beim Laden des Wettkampfs')
+    return
   }
+
+  state.value = data
 })
 
-async function onSubmit(
-  data: Database['public']['Tables']['competitions']['Row']
-) {
+async function onSubmit(data: Competition) {
   try {
-    const { error } = await $fetch<
-      ApiResponse<Database['public']['Tables']['competitions']['Row']>
-    >(`/api/competitions/${route.params.id}`, {
-      method: 'PATCH',
-      body: data,
-    })
+    const { error } = await $fetch<ApiResponse<Competition>>(
+      `/api/competitions/${route.params.id}`,
+      {
+        method: 'PATCH',
+        body: data,
+      }
+    )
 
     if (error) throw new Error(error.message)
 
-    toast.add({
-      title: 'Erfolg',
-      description: 'Der Wettkampf wurde erfolgreich aktualisiert.',
-      color: 'success',
-    })
+    showSuccess('Der Wettkampf wurde erfolgreich aktualisiert')
 
     // Weiterleitung zur Detailseite
     setTimeout(async () => {
       await navigateTo(`/competitions/${route.params.id}`)
     }, 1500)
   } catch (error: any) {
-    toast.add({
-      title: 'Fehler',
-      description: error.message || 'Ein Fehler ist aufgetreten.',
-      color: 'error',
-    })
+    showError(error.message || 'Ein Fehler ist aufgetreten')
   }
 }
 </script>

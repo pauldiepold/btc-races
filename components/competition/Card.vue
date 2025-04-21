@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import type { Database } from '~/types/database.types'
 import { raceTypeMap, registrationTypeMapShort } from '~/types/enums'
-
-type Competition = Database['public']['Tables']['competitions']['Row']
+import type { Competition } from '~/types/models.types'
 
 defineProps<{ competition: Competition }>()
 </script>

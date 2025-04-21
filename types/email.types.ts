@@ -1,15 +1,9 @@
 import type { Database } from '~/types/database.types'
+// Import der neuen Template-Typen
 
 /**
  * Typdefinitionen für das E-Mail-System
  */
-
-/**
- * E-Mail-Template-Daten
- */
-export interface EmailTemplateData {
-  [key: string]: any
-}
 
 /**
  * E-Mail-Empfänger
@@ -20,7 +14,9 @@ export interface EmailRecipient {
 }
 
 /**
- * Optionen für das Senden einer E-Mail
+ * Template-Informationen für eine E-Mail
+ * - name: Name des zu verwendenden Templates
+ * - data: Daten, die im Template eingesetzt werden
  */
 export interface EmailTemplate {
   name: string
@@ -87,21 +83,31 @@ export type PublicRegistration =
   Database['public']['Views']['public_registrations']['Row']
 
 /**
- * Kontext für den Versand einer E-Mail mit Token
- * Wird vom RegistrationEmailService für verschiedene E-Mail-Typen verwendet
+ * Datenstruktur für das Versenden einer E-Mail mit Token für Registrierungen
+ * Orientiert sich an der Struktur der email_logs Tabelle mit flacher Hierarchie
  */
-export interface EmailContext {
+export interface RegistrationEmailParams {
+  // E-Mail-Informationen
   emailType: EmailType
+  subject: string
+
+  // Registrierungsinformationen
   registrationId: number
-  member: MemberWithEmail
-  competition: {
-    name: string
-    date: string
-  }
+
+  // Mitgliedsinformationen (flach statt verschachtelt)
+  memberName: string
+  memberEmail: string
+
+  // Wettbewerbsinformationen
+  competitionName: string
+  competitionDate: string
+
+  // Token-Informationen
   token: string
   tokenExpiresAt: Date
+
+  // Template-Informationen
   templateName: string
-  subject: string
   linkUrlPath: string
   linkText: string
 }

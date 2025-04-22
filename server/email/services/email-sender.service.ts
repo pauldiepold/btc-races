@@ -1,63 +1,102 @@
-import { EmailManager } from '../manager'
-import type { EmailMessage, EmailRecipient } from '~/types/email.types'
-import { TemplateService, type TemplateData } from './template.service'
-
-/**
- * Erweiterte Optionen für den E-Mail-Versand mit Template-Informationen
- */
-export interface EmailWithTemplateOptions {
-  to: EmailRecipient[]
-  subject: string
-  templateName: string
-  templateData: TemplateData
-  cc?: EmailRecipient[]
-  bcc?: EmailRecipient[]
-  from?: EmailRecipient
-  rawContent?: string
-  attachments?: EmailMessage['attachments']
-}
+import type {
+  EmailMessage,
+  EmailProvider,
+  EmailRecipient,
+} from '~/types/email.types'
+import { emailConfig } from '../config'
+import { AzureEmailProvider } from '../providers/azure'
+import { LocalEmailProvider } from '../providers/local'
 
 /**
  * Service für den Versand von E-Mails
  */
 export class EmailSenderService {
-  private emailManager: EmailManager
-  private templateService: TemplateService
+  private emailProvider: EmailProvider
 
   constructor() {
-    this.emailManager = new EmailManager()
-    this.templateService = new TemplateService()
+    // Provider-Erstellung basierend auf der Konfiguration
+    this.emailProvider =
+      emailConfig.provider === 'azure'
+        ? new AzureEmailProvider()
+        : new LocalEmailProvider()
+
+    if (this.isTestModeActive()) {
+      console.log(
+        `[EmailSenderService] Testmodus aktiv. Alle E-Mails werden an ${emailConfig.testAddress} umgeleitet.`
+      )
+    }
   }
 
   /**
-   * Sendet eine E-Mail mit Template-Verarbeitung
+   * Prüft, ob der Testmodus aktiv ist
    */
-  async sendEmailWithTemplate(
-    options: EmailWithTemplateOptions
-  ): Promise<void> {
-    // Rendere das Template mit dem TemplateService
-    const content = await this.templateService.renderTemplate(
-      options.templateName,
-      options.templateData,
-      options.rawContent
-    )
-
-    // Sende die E-Mail mit dem gerenderten Inhalt
-    await this.sendEmail({
-      to: options.to,
-      cc: options.cc,
-      bcc: options.bcc,
-      from: options.from,
-      subject: options.subject,
-      content,
-      attachments: options.attachments,
-    })
+  private isTestModeActive(): boolean {
+    return emailConfig.testMode
   }
 
   /**
-   * Sendet eine vorbereitete E-Mail ohne Template-Verarbeitung
+   * Transformiert die Empfänger im Testmodus
+   */
+  private transformRecipients(_recipients: EmailRecipient[]): EmailRecipient[] {
+    return [
+      {
+        address: emailConfig.testAddress,
+        displayName: 'Test-Empfänger',
+      },
+    ]
+  }
+
+  /**
+   * Transformiert den Betreff im Testmodus
+   */
+  private transformSubject(
+    subject: string,
+    originalRecipients: EmailRecipient[]
+  ): string {
+    const recipientList = originalRecipients
+      .map((r) => `${r.displayName} <${r.address}>`)
+      .join(', ')
+    return `[TEST] ${subject} (Original: ${recipientList})`
+  }
+
+  /**
+   * Sendet eine E-Mail mit optional überschriebenen Empfängern im Testmodus
    */
   async sendEmail(message: EmailMessage): Promise<void> {
-    await this.emailManager.sendEmail(message)
+    let recipients = message.to
+    let subject = message.subject
+
+    if (this.isTestModeActive()) {
+      // Im Testmodus werden alle Empfänger mit der Test-E-Mail-Adresse überschrieben
+      // und der Betreff wird gekennzeichnet
+      recipients = this.transformRecipients(message.to)
+      subject = this.transformSubject(message.subject, message.to)
+
+      console.log(
+        `[EmailSenderService] Empfänger überschrieben: ${message.to
+          .map((r: EmailRecipient) => `${r.displayName} <${r.address}>`)
+          .join(', ')} -> ${emailConfig.testAddress}`
+      )
+    }
+
+    try {
+      await this.emailProvider.sendEmail({
+        ...message,
+        to: recipients,
+        subject: subject,
+      })
+
+      console.log(
+        `[EmailSenderService] E-Mail erfolgreich gesendet an: ${recipients
+          .map((r: EmailRecipient) => r.address)
+          .join(', ')}`
+      )
+    } catch (error) {
+      console.error(
+        '[EmailSenderService] Fehler beim Senden der E-Mail:',
+        error
+      )
+      throw error
+    }
   }
 }

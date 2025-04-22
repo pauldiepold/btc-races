@@ -38,9 +38,8 @@ export class SentEmailsRepository extends BaseRepository<
     return data
   }
 
-  // E-Mail ohne RLS-Beschränkungen erstellen
-  // Hinweis: Erfordert Service-Role-Berechtigungen
-  async createWithoutRLS(data: SentEmailInsert): Promise<SentEmail | null> {
+  // E-Mail erstellen
+  async create(data: SentEmailInsert): Promise<SentEmail | null> {
     const { data: result, error } = await this.supabase
       .from(this.tableName)
       .insert(data as any)

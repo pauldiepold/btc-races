@@ -3,9 +3,6 @@
 // Konfiguration
 export { emailConfig, loadEmailConfig } from './config'
 
-// Manager
-export { EmailManager } from './manager'
-
 // Services
 export * from './services'
 

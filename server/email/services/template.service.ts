@@ -12,7 +12,7 @@ export interface TemplateData {
 }
 
 /**
- * Service für die Aufbereitung und Verarbeitung von E-Mail-Templates
+ * Service für das Rendern von Templates und die Aufbereitung von Template-Daten
  */
 export class TemplateService {
   private templates: Map<string, Handlebars.TemplateDelegate> = new Map()
@@ -95,17 +95,6 @@ export class TemplateService {
       ...data,
       content: content || '', // Originaler Content als Fallback
     })
-  }
-
-  /**
-   * Konvertiert HTML in Plain-Text für bessere Lesbarkeit
-   */
-  public convertHtmlToPlainText(html: string): string {
-    return html
-      .replace(/<br\s*\/?>/gi, '\n')
-      .replace(/<[^>]+>/g, '')
-      .replace(/\n\s*\n/g, '\n')
-      .trim()
   }
 
   /**

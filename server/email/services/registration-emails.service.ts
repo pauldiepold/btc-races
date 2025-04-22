@@ -1,5 +1,4 @@
 import type { H3Event } from 'h3'
-import type { EmailType } from '~/types/enums'
 import { EmailTypes } from '~/types/enums'
 import { TokenService } from './token.service'
 import { TemplateService } from './template.service'
@@ -10,11 +9,11 @@ import type { RegistrationsRepository } from '~/server/repositories/registration
 import { createRegistrationsRepository } from '~/server/repositories/registrations.repository'
 
 /**
- * Service für die Verwaltung von E-Mails im Zusammenhang mit Registrierungen
+ * Service für die Verwaltung und den Versand von E-Mails im Zusammenhang mit Registrierungen
  */
 export class RegistrationEmailsService {
   private templateService: TemplateService
-  private emailSender: EmailSenderService
+  private emailSenderService: EmailSenderService
 
   constructor(
     private readonly sentEmailsRepo: SentEmailsRepository,
@@ -22,7 +21,7 @@ export class RegistrationEmailsService {
     private readonly tokenService: TokenService
   ) {
     this.templateService = new TemplateService()
-    this.emailSender = new EmailSenderService()
+    this.emailSenderService = new EmailSenderService()
   }
 
   /**
@@ -76,10 +75,16 @@ export class RegistrationEmailsService {
         expiryDate
       )
 
-    // 4. Sende E-Mail mit EmailSenderService
+    // 4. Template rendern
+    const renderedTemplate = await this.templateService.renderTemplate(
+      'registration-confirmation',
+      templateData
+    )
+
+    // 5. E-Mail senden mit EmailSenderService
     const subject = `Anmeldebestätigung für ${registration.competition_name}`
 
-    await this.emailSender.sendEmailWithTemplate({
+    await this.emailSenderService.sendEmail({
       to: [
         {
           address: registration.member_email!,
@@ -87,12 +92,11 @@ export class RegistrationEmailsService {
         },
       ],
       subject,
-      templateName: 'registration-confirmation',
-      templateData,
+      content: renderedTemplate,
     })
 
-    // 5. Protokolliere versendete E-Mail mit Repository
-    await this.sentEmailsRepo.createWithoutRLS({
+    // 6. Protokolliere versendete E-Mail mit Repository
+    await this.sentEmailsRepo.create({
       registration_id: registrationId,
       email_type: EmailTypes.REGISTRATION_CONFIRMATION,
       subject,
@@ -133,10 +137,16 @@ export class RegistrationEmailsService {
         expiryDate
       )
 
-    // 4. Sende E-Mail mit EmailSenderService
+    // 4. Template rendern
+    const renderedTemplate = await this.templateService.renderTemplate(
+      'registration-cancellation',
+      templateData
+    )
+
+    // 5. E-Mail senden mit EmailSenderService
     const subject = `Abmeldebestätigung für ${registration.competition_name}`
 
-    await this.emailSender.sendEmailWithTemplate({
+    await this.emailSenderService.sendEmail({
       to: [
         {
           address: registration.member_email!,
@@ -144,12 +154,11 @@ export class RegistrationEmailsService {
         },
       ],
       subject,
-      templateName: 'registration-cancellation',
-      templateData,
+      content: renderedTemplate,
     })
 
-    // 5. Protokolliere versendete E-Mail mit Repository
-    await this.sentEmailsRepo.createWithoutRLS({
+    // 6. Protokolliere versendete E-Mail mit Repository
+    await this.sentEmailsRepo.create({
       registration_id: registrationId,
       email_type: EmailTypes.REGISTRATION_CANCELLATION,
       subject,
@@ -161,14 +170,9 @@ export class RegistrationEmailsService {
   }
 
   /**
-   * Prüft, ob ein Token gültig ist und gibt die zugehörigen Informationen zurück
+   * Gibt Zugriff auf den TokenService für Token-Validierung
    */
-  async validateToken(token: string): Promise<{
-    success: boolean
-    message: string
-    emailType?: EmailType
-    registrationId?: number
-  }> {
-    return this.tokenService.validateToken(token)
+  getTokenService(): TokenService {
+    return this.tokenService
   }
 }

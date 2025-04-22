@@ -21,8 +21,9 @@ export default defineEventHandler(async (event) => {
     // E-Mail-Service erstellen
     const emailService = await RegistrationEmailsService.create(event)
 
-    // Token validieren
-    const validationResult = await emailService.validateToken(token)
+    // Token validieren mit TokenService
+    const tokenService = emailService.getTokenService()
+    const validationResult = await tokenService.validateToken(token)
 
     if (!validationResult.success) {
       return {

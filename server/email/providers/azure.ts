@@ -17,8 +17,8 @@ export class AzureEmailProvider extends BaseEmailProvider {
     this.client = new EmailClient(emailConfig.azureConnectionString)
   }
 
-  protected async sendEmailInternal(options: EmailMessage): Promise<void> {
-    const sender = options.from || {
+  protected async sendEmailInternal(emailMessage: EmailMessage): Promise<void> {
+    const sender = emailMessage.from || {
       address: emailConfig.senderAddress!,
       displayName: 'BTC Races',
     }
@@ -26,25 +26,25 @@ export class AzureEmailProvider extends BaseEmailProvider {
     await this.client.beginSend({
       senderAddress: sender.address,
       content: {
-        subject: options.subject,
-        html: options.content,
-        plainText: this.convertHtmlToPlainText(options.content),
+        subject: emailMessage.subject,
+        html: emailMessage.content,
+        plainText: this.convertHtmlToPlainText(emailMessage.content),
       },
       recipients: {
-        to: options.to.map((recipient) => ({
+        to: emailMessage.to.map((recipient) => ({
           address: recipient.address,
           displayName: recipient.displayName,
         })),
-        cc: options.cc?.map((recipient) => ({
+        cc: emailMessage.cc?.map((recipient) => ({
           address: recipient.address,
           displayName: recipient.displayName,
         })),
-        bcc: options.bcc?.map((recipient) => ({
+        bcc: emailMessage.bcc?.map((recipient) => ({
           address: recipient.address,
           displayName: recipient.displayName,
         })),
       },
-      attachments: options.attachments?.map((attachment) => ({
+      attachments: emailMessage.attachments?.map((attachment) => ({
         name: attachment.filename,
         contentInBase64: attachment.content.toString('base64'),
         contentType: attachment.contentType,

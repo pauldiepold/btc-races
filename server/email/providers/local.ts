@@ -6,8 +6,8 @@ import type { EmailMessage } from '~/types/email.types'
  * Gibt E-Mails nur in der Konsole aus
  */
 export class LocalEmailProvider extends BaseEmailProvider {
-  protected async sendEmailInternal(options: EmailMessage): Promise<void> {
-    const sender = options.from || {
+  protected async sendEmailInternal(emailMessage: EmailMessage): Promise<void> {
+    const sender = emailMessage.from || {
       address: 'local@btc-races.com',
       displayName: 'BTC Races (Local)',
     }
@@ -16,30 +16,32 @@ export class LocalEmailProvider extends BaseEmailProvider {
     console.log('Von:', `${sender.displayName} <${sender.address}>`)
     console.log(
       'An:',
-      options.to.map((r) => `${r.displayName || ''} <${r.address}>`).join(', ')
+      emailMessage.to
+        .map((r) => `${r.displayName || ''} <${r.address}>`)
+        .join(', ')
     )
-    if (options.cc?.length) {
+    if (emailMessage.cc?.length) {
       console.log(
         'CC:',
-        options.cc
+        emailMessage.cc
           .map((r) => `${r.displayName || ''} <${r.address}>`)
           .join(', ')
       )
     }
-    if (options.bcc?.length) {
+    if (emailMessage.bcc?.length) {
       console.log(
         'BCC:',
-        options.bcc
+        emailMessage.bcc
           .map((r) => `${r.displayName || ''} <${r.address}>`)
           .join(', ')
       )
     }
-    console.log('Betreff:', options.subject)
-    console.log('Inhalt:', options.content)
-    if (options.attachments?.length) {
+    console.log('Betreff:', emailMessage.subject)
+    console.log('Inhalt:', emailMessage.content)
+    if (emailMessage.attachments?.length) {
       console.log(
         'Anhänge:',
-        options.attachments.map((a) => a.filename).join(', ')
+        emailMessage.attachments.map((a) => a.filename).join(', ')
       )
     }
     console.log('=============================================')

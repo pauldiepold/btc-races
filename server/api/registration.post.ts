@@ -86,70 +86,111 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Erstelle die Anmeldung
-    try {
-      const data = await registrationsRepo.create({
-        member_id: validationResult.data.member_id,
-        competition_id: validationResult.data.competition_id,
-        notes: validationResult.data.notes,
-        status: 'pending',
-      })
+    // Prüfe, ob bereits eine aktive Anmeldung existiert
+    const hasActiveRegistration = await registrationsRepo.hasActiveRegistration(
+      validationResult.data.member_id,
+      validationResult.data.competition_id
+    )
 
-      if (!data) {
+    if (hasActiveRegistration) {
+      // Hole den Namen des Mitglieds für eine personalisierte Fehlermeldung
+      const member = await membersRepo.findById(validationResult.data.member_id)
+
+      return {
+        error: {
+          message: `${member?.name || 'Ein Mitglied'} ist für diesen Wettkampf bereits angemeldet.`,
+          code: 'DUPLICATE_REGISTRATION',
+        },
+        statusCode: 400,
+      } as ApiResponse<null>
+    }
+
+    // Prüfe, ob bereits eine abgemeldete Registrierung existiert, die wiederverwendet werden kann
+    const canceledRegistration =
+      await registrationsRepo.findCanceledRegistration(
+        validationResult.data.member_id,
+        validationResult.data.competition_id
+      )
+
+    let data
+    if (canceledRegistration) {
+      // Reaktiviere die abgemeldete Registrierung
+      const success = await registrationsRepo.updateStatus(
+        canceledRegistration.id,
+        'pending'
+      )
+
+      if (!success) {
         return {
           error: {
-            message: 'Fehler beim Erstellen der Anmeldung.',
+            message: 'Fehler beim Reaktivieren der vorherigen Anmeldung',
             code: 'DATABASE_ERROR',
           },
           statusCode: 500,
         } as ApiResponse<null>
       }
 
-      // Bestätigungsmail mit dem neuen E-Mail-Service senden
-      try {
-        const emailService = await RegistrationEmailsService.create(event)
-        await emailService.sendRegistrationConfirmation(data.id)
-        console.log(
-          `Bestätigungsmail für Registrierung ${data.id} wurde gesendet`
-        )
-      } catch (emailError: any) {
-        console.error('Fehler beim Senden der Bestätigungsmail:', emailError)
-        // Wir geben trotzdem eine erfolgreiche Antwort zurück, da die Registrierung
-        // erfolgreich erstellt wurde. Der E-Mail-Versand kann später wiederholt werden.
+      // Aktualisiere die Notizen
+      if (validationResult.data.notes !== canceledRegistration.notes) {
+        await registrationsRepo.updateRegistration(canceledRegistration.id, {
+          notes: validationResult.data.notes,
+        })
       }
 
-      return {
-        data,
-        statusCode: 201,
-      } as ApiResponse<typeof data>
-    } catch (error: any) {
-      console.error('Supabase Fehler:', error)
+      data = canceledRegistration
+      console.log(
+        `Abgemeldete Registrierung ${canceledRegistration.id} wurde reaktiviert`
+      )
+    } else {
+      // Erstelle eine neue Anmeldung, wenn keine abgemeldete existiert
+      try {
+        data = await registrationsRepo.create({
+          member_id: validationResult.data.member_id,
+          competition_id: validationResult.data.competition_id,
+          notes: validationResult.data.notes,
+          status: 'pending',
+        })
 
-      // Prüfe auf doppelte Registrierung
-      if (error.code === '23505') {
-        // Unique violation
-        const member = await membersRepo.findById(
-          validationResult.data.member_id
-        )
+        if (!data) {
+          return {
+            error: {
+              message: 'Fehler beim Erstellen der Anmeldung.',
+              code: 'DATABASE_ERROR',
+            },
+            statusCode: 500,
+          } as ApiResponse<null>
+        }
+      } catch (error: any) {
+        console.error('Supabase Fehler:', error)
 
         return {
           error: {
-            message: `${member?.name || 'Ein Mitglied'} ist für diesen Wettkampf bereits angemeldet.`,
-            code: 'DUPLICATE_REGISTRATION',
+            message: 'Fehler beim Erstellen der Anmeldung.',
+            code: 'DATABASE_ERROR',
+            details: error.message,
           },
-          statusCode: 400,
+          statusCode: 500,
         } as ApiResponse<null>
       }
-
-      return {
-        error: {
-          message: 'Fehler beim Erstellen der Anmeldung.',
-          code: 'DATABASE_ERROR',
-          details: error.message,
-        },
-        statusCode: 500,
-      } as ApiResponse<null>
     }
+
+    // Bestätigungsmail mit dem neuen E-Mail-Service senden
+    try {
+      const emailService = await RegistrationEmailsService.create(event)
+      await emailService.sendRegistrationConfirmation(data.id)
+      console.log(
+        `Bestätigungsmail für Registrierung ${data.id} wurde gesendet`
+      )
+    } catch (emailError: any) {
+      console.error('Fehler beim Senden der Bestätigungsmail:', emailError)
+      // Wir geben trotzdem eine erfolgreiche Antwort zurück, da die Registrierung
+      // erfolgreich erstellt wurde. Der E-Mail-Versand kann später wiederholt werden.
+    }
+
+    return {
+      data,
+      statusCode: 201,
+    } as ApiResponse<typeof data>
   } catch (error: any) {
     console.error('Fehler beim Erstellen der Anmeldung:', error)
     return {

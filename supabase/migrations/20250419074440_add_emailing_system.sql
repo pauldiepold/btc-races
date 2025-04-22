@@ -155,3 +155,5 @@ GRANT SELECT ON "public"."sent_emails_with_details" TO "postgres", "service_role
 
 -- Berechtigungen für die öffentliche View (für alle verfügbar)
 GRANT SELECT ON "public"."public_registrations" TO "postgres", "service_role", "authenticated", "anon";
+
+ALTER TYPE "public"."registration_status" ADD VALUE 'pending_cancellation';

@@ -441,7 +441,11 @@ export type Database = {
     Enums: {
       championship_type: 'NO_CHAMPIONSHIP' | 'BBM' | 'NDM' | 'DM'
       race_type: 'TRACK' | 'ROAD'
-      registration_status: 'pending' | 'confirmed' | 'canceled'
+      registration_status:
+        | 'pending'
+        | 'confirmed'
+        | 'canceled'
+        | 'pending_cancellation'
       registration_type: 'INDEPENDENT' | 'LADV' | 'CLUB'
     }
     CompositeTypes: {
@@ -977,7 +981,12 @@ export const Constants = {
     Enums: {
       championship_type: ['NO_CHAMPIONSHIP', 'BBM', 'NDM', 'DM'],
       race_type: ['TRACK', 'ROAD'],
-      registration_status: ['pending', 'confirmed', 'canceled'],
+      registration_status: [
+        'pending',
+        'confirmed',
+        'canceled',
+        'pending_cancellation',
+      ],
       registration_type: ['INDEPENDENT', 'LADV', 'CLUB'],
     },
   },

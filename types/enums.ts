@@ -4,6 +4,8 @@ import type { Database } from './database.types'
 export type ChampionshipType = Database['public']['Enums']['championship_type']
 export type RaceType = Database['public']['Enums']['race_type']
 export type RegistrationType = Database['public']['Enums']['registration_type']
+export type RegistrationStatus =
+  Database['public']['Enums']['registration_status']
 
 /**
  * Meisterschaftstypen
@@ -59,15 +61,16 @@ export type EmailType = (typeof EmailTypes)[EmailTypeKeys]
 /**
  * Registrierungsstatus
  */
-export const RegistrationStatus = {
+export const RegistrationStatuses = {
   PENDING: 'pending' as const,
   CONFIRMED: 'confirmed' as const,
-  CANCELLED: 'cancelled' as const,
+  CANCELED: 'canceled' as const,
+  PENDING_CANCELLATION: 'pending_cancellation' as const,
 }
 
-export type RegistrationStatusKeys = keyof typeof RegistrationStatus
+export type RegistrationStatusKeys = keyof typeof RegistrationStatuses
 export type RegistrationStatusType =
-  (typeof RegistrationStatus)[RegistrationStatusKeys]
+  (typeof RegistrationStatuses)[RegistrationStatusKeys]
 
 // Labels für Benutzeroberfläche
 export const ChampionshipTypeLabels: Record<ChampionshipTypeValues, string> = {
@@ -105,9 +108,10 @@ export const EmailTypeLabels: Record<EmailType, string> = {
 
 export const RegistrationStatusLabels: Record<RegistrationStatusType, string> =
   {
-    [RegistrationStatus.PENDING]: 'Ausstehend',
-    [RegistrationStatus.CONFIRMED]: 'Bestätigt',
-    [RegistrationStatus.CANCELLED]: 'Abgemeldet',
+    [RegistrationStatuses.PENDING]: 'Ausstehend',
+    [RegistrationStatuses.CONFIRMED]: 'Bestätigt',
+    [RegistrationStatuses.CANCELED]: 'Abgemeldet',
+    [RegistrationStatuses.PENDING_CANCELLATION]: 'Abmeldung ausstehend',
   }
 
 // Für Abwärtskompatibilität: Die alten Dropdown-Items und Maps bleiben erhalten
@@ -176,7 +180,8 @@ export const ZOD_EMAIL_TYPES = [
 ] as const
 
 export const ZOD_REGISTRATION_STATUS = [
-  RegistrationStatus.PENDING,
-  RegistrationStatus.CONFIRMED,
-  RegistrationStatus.CANCELLED,
+  RegistrationStatuses.PENDING,
+  RegistrationStatuses.CONFIRMED,
+  RegistrationStatuses.CANCELED,
+  RegistrationStatuses.PENDING_CANCELLATION,
 ] as const

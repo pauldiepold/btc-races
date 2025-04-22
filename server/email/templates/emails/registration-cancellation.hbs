@@ -1,4 +1,4 @@
-{{#> base title="Abmeldebestätigung"}}
+{{#*inline "content"}}
   <p>Hallo {{firstName}},</p>
   
   <p>wir haben deine Anfrage erhalten, dich vom Wettkampf <strong>{{competitionName}}</strong> am {{competitionDate}} abzumelden.</p>
@@ -15,4 +15,6 @@
   <p>Falls du dich nicht abmelden möchtest, kannst du diese E-Mail ignorieren und bleibst für den Wettkampf angemeldet.</p>
   
   <p>Bei Fragen stehen wir dir gerne zur Verfügung.</p>
-{{/base}} 
+{{/inline}}
+
+{{> base title="Abmeldebestätigung"}} 

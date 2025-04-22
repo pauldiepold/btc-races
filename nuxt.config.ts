@@ -39,7 +39,12 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: '/login',
       callback: '/auth/callback',
-      exclude: ['/', '/competitions/**'],
+      exclude: [
+        '/',
+        '/competitions/**',
+        '/registrations/confirm',
+        '/registrations/cancel',
+      ],
     },
   },
 

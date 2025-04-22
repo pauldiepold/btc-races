@@ -4,7 +4,7 @@ import type { SentEmailsRepository } from '~/server/repositories/sent-emails.rep
 
 /**
  * Service für Token-Funktionalitäten im E-Mail-System
- * (Generierung, Validierung, Ablaufdaten)
+ * (Generierung, Validierung, Ablaufdaten, Verifikation)
  */
 export class TokenService {
   // Gültigkeitsdauer des Tokens in Millisekunden (7 Tage)
@@ -65,5 +65,17 @@ export class TokenService {
       emailType: emailLog.email_type as EmailType,
       registrationId: emailLog.registration_id!,
     }
+  }
+
+  /**
+   * Markiert einen Token als verifiziert
+   * Diese Methode sollte aufgerufen werden, nachdem die mit dem Token
+   * verbundene Aktion erfolgreich durchgeführt wurde
+   *
+   * @param token Der zu markierende Token
+   * @returns True, wenn das Markieren erfolgreich war, sonst False
+   */
+  async markTokenAsVerified(token: string): Promise<boolean> {
+    return await this.sentEmailsRepo.markAsVerified(token)
   }
 }

@@ -53,6 +53,23 @@ export class SentEmailsRepository extends BaseRepository<
 
     return result
   }
+
+  // Token als verifiziert markieren
+  async markAsVerified(token: string): Promise<boolean> {
+    const { error } = await this.supabase
+      .from(this.tableName)
+      .update({
+        token_verified_at: new Date().toISOString(),
+      })
+      .eq('token', token)
+
+    if (error) {
+      console.error('Fehler beim Markieren des Tokens als verifiziert:', error)
+      return false
+    }
+
+    return true
+  }
 }
 
 // Factory-Funktion

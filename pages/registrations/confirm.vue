@@ -11,6 +11,8 @@ const token = route.query.token as string
 const loading = ref(true)
 const error = ref<string | null>(null)
 const success = ref(false)
+const alreadyConfirmed = ref(false)
+const competition = ref<{ id: number; name: string } | null>(null)
 
 // Automatische Bestätigung beim Laden der Seite
 onMounted(async () => {
@@ -21,9 +23,13 @@ onMounted(async () => {
   }
 
   try {
-    const response = await $fetch<ApiResponse<{ success: boolean }>>(
-      `/api/registrations/confirm?token=${token}`
-    )
+    const response = await $fetch<
+      ApiResponse<{
+        success: boolean
+        alreadyConfirmed: boolean
+        competition: { id: number; name: string }
+      }>
+    >(`/api/registrations/confirm?token=${token}`)
 
     if (response.error) {
       switch (response.error.code) {
@@ -47,6 +53,14 @@ onMounted(async () => {
       }
     } else {
       success.value = true
+      if (response.data) {
+        if (response.data.alreadyConfirmed) {
+          alreadyConfirmed.value = true
+        }
+        if (response.data.competition) {
+          competition.value = response.data.competition
+        }
+      }
     }
   } catch (e: any) {
     error.value = 'Ein unerwarteter Fehler ist aufgetreten'
@@ -95,12 +109,35 @@ onMounted(async () => {
           color="success"
           variant="soft"
           icon="i-lucide-check-circle"
-          title="Anmeldung erfolgreich bestätigt"
-          description="Deine Anmeldung wurde erfolgreich bestätigt. Du wirst nun von unseren Coaches für den Wettkampf angemeldet."
+          :title="
+            alreadyConfirmed
+              ? 'Bereits bestätigt'
+              : 'Anmeldung erfolgreich bestätigt'
+          "
+          :description="
+            alreadyConfirmed
+              ? 'Deine Anmeldung wurde bereits zu einem früheren Zeitpunkt bestätigt. Du bist für den Wettkampf angemeldet.'
+              : 'Deine Anmeldung wurde erfolgreich bestätigt. Du wirst nun von unseren Coaches für den Wettkampf angemeldet.'
+          "
         />
-        <UButton to="/" color="primary" class="w-full justify-center">
-          Zurück zur Startseite
-        </UButton>
+        <div class="grid gap-3">
+          <UButton
+            v-if="competition"
+            :to="`/competitions/${competition.id}`"
+            color="primary"
+            class="w-full justify-center"
+          >
+            Zum Wettkampf {{ competition.name }}
+          </UButton>
+          <UButton
+            to="/"
+            color="neutral"
+            variant="soft"
+            class="w-full justify-center"
+          >
+            Zurück zur Startseite
+          </UButton>
+        </div>
       </div>
     </div>
   </BasePage>

@@ -63,24 +63,61 @@ export default defineEventHandler(async (event) => {
       'service_role'
     )
 
-    // Registrierung bestätigen
-    const success = await registrationsRepo.updateStatus(
-      validationResult.registrationId,
-      'confirmed'
+    // Wettkampfdetails abrufen, um zu prüfen, ob die Registrierung bereits bestätigt wurde
+    const registration = await registrationsRepo.findWithDetails(
+      validationResult.registrationId
     )
 
-    if (!success) {
+    if (!registration || !registration.competition_id) {
       return {
         error: {
-          message: 'Fehler beim Bestätigen der Registrierung',
+          message: 'Registrierungsdaten nicht gefunden',
           code: 'DATABASE_ERROR',
         },
         statusCode: 500,
       } as ApiResponse<null>
     }
 
-    // Erfolgreiche Antwort
-    const responseData = { success: true }
+    // Prüfen, ob die Registrierung bereits bestätigt wurde
+    const alreadyConfirmed = registration.status === 'confirmed'
+
+    // Nur bestätigen, wenn noch nicht bestätigt
+    let success = true
+    if (!alreadyConfirmed) {
+      // Registrierung bestätigen
+      success = await registrationsRepo.updateStatus(
+        validationResult.registrationId,
+        'confirmed'
+      )
+
+      if (!success) {
+        return {
+          error: {
+            message: 'Fehler beim Bestätigen der Registrierung',
+            code: 'DATABASE_ERROR',
+          },
+          statusCode: 500,
+        } as ApiResponse<null>
+      }
+
+      // Token als verifiziert markieren
+      const tokenSuccess = await tokenService.markTokenAsVerified(token)
+      if (!tokenSuccess) {
+        console.error('Fehler beim Markieren des Tokens als verifiziert')
+        // Wir geben hier keinen Fehler zurück, da die Hauptaktion (Bestätigung) erfolgreich war
+      }
+    }
+
+    // Erfolgreiche Antwort mit Wettkampfdetails und Information, ob bereits bestätigt
+    const responseData = {
+      success: true,
+      alreadyConfirmed,
+      competition: {
+        id: registration.competition_id,
+        name: registration.competition_name || 'Wettkampf',
+      },
+    }
+
     return {
       data: responseData,
       statusCode: 200,

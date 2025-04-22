@@ -75,23 +75,16 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
   - ✅meldepflichtig
   - ✅ Meisterschaft
   - ✅ Track / Road
-  - 🟡 Distanzen --> Tabelle angelegt, noch nirgendwo verwendet
 - ✅ Favicon hinzugefügt, Metadaten angepasst, Navbar und Footer aufgeräumt
 - ✅ Layout anpassen + Transitions hinzufügen
 - 🟡 E-Mails:
   - ✅ mit Microsoft Azure verbunden
   - ✅ Templating hinzugefügt, noch nicht getestet
-  - ❌ Bestätigungsmail nach Anmeldung mit Verifizierungslink
-  - ❌ Erinnerungsmail an Mitglieder 5 Tage vor Meldefrist mit Abmeldelink
-  - ❌ Erinnerungsmail an Admins 3 Tage vor Meldefrist
-  - ❌ Erinnerungsmail an teilnehmende Mitglieder 3 Tage vor dem Wettkampf
-  - ❌ Nachfrage-E-Mail nach 3 Tagen bei nicht bestätigten Anmeldungen
-  - ❌ Cronjobs für Erinerungsmails
-  - ❌ E-Mail mit Token für Bestätigung senden bei Registrierung
+  - ✅ Bestätigungsmail nach Anmeldung mit Verifizierungslink
+  - ❌ Von Wettkämpfen wieder abmelden können
 - ✅ nicht bei Events anmelden können, bei denen die Anmeldefrist vergangen ist
 - ✅ Startpass importieren aus Campai
   - ✅ Anmeldung bei meldepflichtigen Events sperren
-- ❌ Abmeldung ermöglichen
 - ❌ Echte Daten zu den Wettkämpfen importieren --> von Cindy holen
 - ❌ Beschreibungen überall anpassen:
   - ❌ Register: Falls du keinen Startpass hast... --> rechts in der Sidebar evt. noch die Kurzinfos zum Wettkampf anzeigen
@@ -104,6 +97,14 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
 - ❌ Nach Anmeldung sofort ohne Timeout weiterleiten und zur neuen Anmeldung scrollen + grün aufblinken lassen (bzw. sowieso die neusten oben anzeigen)
 - ❌Admin: Nachrichten an alle Teilnehmer senden können
 - ❌Datum für Erinnerungs-Mails einstellen können?
+- Daten zu den Wettkämpfen erweitern:
+  - 🟡 Distanzen --> Tabelle angelegt, noch nirgendwo verwendet
+- E-Mail Ergänzungen:
+  - ❌ Erinnerungsmail an Mitglieder 5 Tage vor Meldefrist mit Abmeldelink
+  - ❌ Erinnerungsmail an Admins 3 Tage vor Meldefrist
+  - ❌ Erinnerungsmail an teilnehmende Mitglieder 3 Tage vor dem Wettkampf
+  - ❌ Nachfrage-E-Mail nach 3 Tagen bei nicht bestätigten Anmeldungen
+  - ❌ Cronjobs für Erinerungsmails
 
 ### Code-Qualität:
 

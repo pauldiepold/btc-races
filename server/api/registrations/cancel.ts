@@ -57,30 +57,67 @@ export default defineEventHandler(async (event) => {
       } as ApiResponse<null>
     }
 
-    // Repository für die Registrierung erstellen mit Service-Role
+    // Repository für die Registrierung erstellen
     const registrationsRepo = await createRegistrationsRepository(
       event,
       'service_role'
     )
 
-    // Registrierung auf abgemeldet setzen
-    const success = await registrationsRepo.updateStatus(
-      validationResult.registrationId,
-      'canceled'
+    // Wettkampfdetails abrufen, um zu prüfen, ob die Registrierung bereits abgemeldet wurde
+    const registration = await registrationsRepo.findWithDetails(
+      validationResult.registrationId
     )
 
-    if (!success) {
+    if (!registration || !registration.competition_id) {
       return {
         error: {
-          message: 'Fehler beim Abmelden vom Wettkampf',
+          message: 'Registrierungsdaten nicht gefunden',
           code: 'DATABASE_ERROR',
         },
         statusCode: 500,
       } as ApiResponse<null>
     }
 
-    // Erfolgreiche Antwort
-    const responseData = { success: true }
+    // Prüfen, ob die Registrierung bereits abgemeldet wurde
+    const alreadyCanceled = registration.status === 'canceled'
+
+    // Nur abmelden, wenn noch nicht abgemeldet
+    let success = true
+    if (!alreadyCanceled) {
+      // Registrierung abmelden
+      success = await registrationsRepo.updateStatus(
+        validationResult.registrationId,
+        'canceled'
+      )
+
+      if (!success) {
+        return {
+          error: {
+            message: 'Fehler beim Abmelden vom Wettkampf',
+            code: 'DATABASE_ERROR',
+          },
+          statusCode: 500,
+        } as ApiResponse<null>
+      }
+
+      // Token als verifiziert markieren
+      const tokenSuccess = await tokenService.markTokenAsVerified(token)
+      if (!tokenSuccess) {
+        console.error('Fehler beim Markieren des Tokens als verifiziert')
+        // Wir geben hier keinen Fehler zurück, da die Hauptaktion (Abmeldung) erfolgreich war
+      }
+    }
+
+    // Erfolgreiche Antwort mit Wettkampfdetails und Information, ob bereits abgemeldet
+    const responseData = {
+      success: true,
+      alreadyCanceled,
+      competition: {
+        id: registration.competition_id,
+        name: registration.competition_name || 'Wettkampf',
+      },
+    }
+
     return {
       data: responseData,
       statusCode: 200,

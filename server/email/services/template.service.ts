@@ -1,8 +1,6 @@
 import { emailConfig } from '../config'
 import type { RegistrationWithDetailsView } from '~/types/models.types'
-import Handlebars from 'handlebars'
-import fs from 'fs'
-import path from 'path'
+import template from 'art-template'
 
 /**
  * Interface für allgemeine Template-Daten
@@ -12,74 +10,182 @@ export interface TemplateData {
 }
 
 /**
+ * Interface für Art-Template Funktionen
+ */
+interface ArtTemplateRenderFunction {
+  (data: TemplateData): string
+}
+
+/**
  * Service für das Rendern von Templates und die Aufbereitung von Template-Daten
  */
 export class TemplateService {
-  private templates: Map<string, Handlebars.TemplateDelegate> = new Map()
+  // Templates als Konstanten definiert
+  private readonly baseLayoutTemplate = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset='UTF-8' />
+        <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+        <title>{{ title }}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+          }
+          .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          }
+          .header {
+            background-color: #ffb700;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+          }
+          .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+          }
+          .content {
+            padding: 30px;
+            background-color: #ffffff;
+          }
+          .content p {
+            margin: 0 0 15px 0;
+          }
+          .button {
+            display: inline-block;
+            background-color: #ffb700;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+            text-align: center;
+          }
+          .button:hover {
+            background-color: #e6a500;
+          }
+          .url {
+            word-break: break-all;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+          }
+          .footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+            padding: 20px;
+            border-top: 1px solid #eee;
+            background-color: #f9f9f9;
+            border-radius: 0 0 8px 8px;
+          }
+          .footer p {
+            margin: 5px 0;
+          }
+          .footer .disclaimer {
+            font-size: 0.8em;
+            color: #999;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header" style="background-color: {{ headerColor || '#ffb700' }}; color: white; padding: 20px; text-align: center; margin-bottom: 20px;">
+            <h1>{{ headerTitle }}</h1>
+          </div>
+
+          <div class="content">
+            {{@ content }}
+          </div>
+
+          <div class="footer" style="font-size: 12px; color: #666; margin-top: 30px; padding-top: 10px; border-top: 1px solid #eee;">
+            <p>Liebe Grüße,<br />Dein BTC</p>
+            <p class="disclaimer">Diese E-Mail wurde automatisch generiert. Bitte antworte nicht direkt auf diese Nachricht.</p>
+            <p>&copy; {{ currentYear }} BTC-Races</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `
+
+  private readonly registrationConfirmationTemplate = `
+    <p>Hallo {{ firstName }},</p>
+    
+    <p>vielen Dank für deine Anmeldung zum Wettkampf <strong>{{ competitionName }}</strong> am {{ competitionDate }}.</p>
+    
+    <p>Um deine Anmeldung zu bestätigen, klicke bitte auf den folgenden Link:</p>
+    
+    <a href="{{ confirmationLink }}" class="button">Anmeldung bestätigen</a>
+    
+    <p>Oder kopiere diese URL in deinen Browser:</p>
+    <p class="url">{{ confirmationLink }}</p>
+    
+    <p>Dieser Link ist gültig bis zum {{ expiryDate }}.</p>
+    
+    <p>Falls du dich nicht zu diesem Wettkampf angemeldet hast, kannst du diese E-Mail ignorieren.</p>
+    
+    <p>Bei Fragen stehen wir dir gerne zur Verfügung.</p>
+  `
+
+  private readonly registrationCancellationTemplate = `
+    <p>Hallo {{ firstName }},</p>
+    
+    <p>wir haben deine Anfrage erhalten, dich vom Wettkampf <strong>{{ competitionName }}</strong> am {{ competitionDate }} abzumelden.</p>
+    
+    <p>Um deine Abmeldung zu bestätigen, klicke bitte auf den folgenden Link:</p>
+    
+    <a href="{{ cancellationLink }}" class="button">Abmeldung bestätigen</a>
+    
+    <p>Oder kopiere diese URL in deinen Browser:</p>
+    <p class="url">{{ cancellationLink }}</p>
+    
+    <p>Dieser Link ist gültig bis zum {{ expiryDate }}.</p>
+    
+    <p>Falls du dich nicht abmelden möchtest, kannst du diese E-Mail ignorieren und bleibst für den Wettkampf angemeldet.</p>
+    
+    <p>Bei Fragen stehen wir dir gerne zur Verfügung.</p>
+  `
+
+  // Kompilierte Template-Funktionen
+  private compiledTemplates: Map<string, ArtTemplateRenderFunction> = new Map()
 
   constructor() {
-    this.registerPartials()
-    this.registerLayouts()
+    this.registerTemplates()
   }
 
   /**
-   * Registriert alle Partials aus dem Partials-Verzeichnis
+   * Registriert alle Templates für die spätere Verwendung
    */
-  private registerPartials() {
-    const partialsDir = path.join(
-      process.cwd(),
-      'server/email/templates/partials'
+  private registerTemplates() {
+    // Kompiliere E-Mail-Templates
+    this.compiledTemplates.set(
+      'base',
+      template.compile(this.baseLayoutTemplate)
     )
-    const files = fs.readdirSync(partialsDir)
-
-    files.forEach((file) => {
-      if (file.endsWith('.hbs')) {
-        const name = path.basename(file, '.hbs')
-        const template = fs.readFileSync(path.join(partialsDir, file), 'utf8')
-        Handlebars.registerPartial(name, template)
-      }
-    })
-  }
-
-  /**
-   * Registriert alle Layouts aus dem Layouts-Verzeichnis
-   */
-  private registerLayouts() {
-    const layoutsDir = path.join(
-      process.cwd(),
-      'server/email/templates/layouts'
+    this.compiledTemplates.set(
+      'registration-confirmation',
+      template.compile(this.registrationConfirmationTemplate)
     )
-    const files = fs.readdirSync(layoutsDir)
-
-    files.forEach((file) => {
-      if (file.endsWith('.hbs')) {
-        const name = path.basename(file, '.hbs')
-        const template = fs.readFileSync(path.join(layoutsDir, file), 'utf8')
-        Handlebars.registerPartial(name, template)
-      }
-    })
-  }
-
-  /**
-   * Lädt und kompiliert ein Template
-   */
-  private async getTemplate(
-    templateName: string
-  ): Promise<Handlebars.TemplateDelegate> {
-    if (this.templates.has(templateName)) {
-      return this.templates.get(templateName)!
-    }
-
-    const templatePath = path.join(
-      process.cwd(),
-      'server/email/templates/emails',
-      `${templateName}.hbs`
+    this.compiledTemplates.set(
+      'registration-cancellation',
+      template.compile(this.registrationCancellationTemplate)
     )
-    const template = fs.readFileSync(templatePath, 'utf8')
-    const compiledTemplate = Handlebars.compile(template)
-
-    this.templates.set(templateName, compiledTemplate)
-    return compiledTemplate
   }
 
   /**
@@ -87,14 +193,46 @@ export class TemplateService {
    */
   public async renderTemplate(
     templateName: string,
-    data: TemplateData,
-    content?: string
+    data: TemplateData
   ): Promise<string> {
-    const template = await this.getTemplate(templateName)
-    return template({
+    if (!this.compiledTemplates.has(templateName)) {
+      throw new Error(`Template "${templateName}" nicht gefunden`)
+    }
+
+    const renderTemplate = this.compiledTemplates.get(templateName)!
+
+    // Erweitere die Daten um das aktuelle Jahr
+    const enhancedData = {
       ...data,
-      content: content || '', // Originaler Content als Fallback
-    })
+      currentYear: new Date().getFullYear(),
+    }
+
+    // Wenn es ein E-Mail-Template ist, render es zuerst und dann in das Base-Layout einbetten
+    if (templateName !== 'base') {
+      const content = renderTemplate(enhancedData)
+      const renderBase = this.compiledTemplates.get('base')!
+
+      return renderBase({
+        ...enhancedData,
+        content,
+        title: this.getTemplateTitle(templateName),
+      })
+    }
+
+    // Andernfalls direkt rendern (z.B. für Tests oder individuelle Templates)
+    return renderTemplate(enhancedData)
+  }
+
+  /**
+   * Ermittelt den Titel für ein Template
+   */
+  private getTemplateTitle(templateName: string): string {
+    const titles: Record<string, string> = {
+      'registration-confirmation': 'Anmeldebestätigung',
+      'registration-cancellation': 'Abmeldebestätigung',
+    }
+
+    return titles[templateName] || 'BTC-Races'
   }
 
   /**
@@ -111,6 +249,8 @@ export class TemplateService {
       competitionDate: this.formatDate(registration.competition_date),
       confirmationLink: this.buildLink('/registrations/confirm', token),
       expiryDate: this.formatDate(expiryDate.toISOString()),
+      headerTitle: 'Anmeldebestätigung',
+      headerColor: '#ffb700',
     }
   }
 
@@ -128,6 +268,8 @@ export class TemplateService {
       competitionDate: this.formatDate(registration.competition_date),
       cancellationLink: this.buildLink('/registrations/cancel', token),
       expiryDate: this.formatDate(expiryDate.toISOString()),
+      headerTitle: 'Abmeldebestätigung',
+      headerColor: '#ffb700',
     }
   }
 
@@ -143,6 +285,8 @@ export class TemplateService {
       competitionDate: this.formatDate(registration.competition_date),
       competitionLocation:
         registration.competition_location || 'nicht angegeben',
+      headerTitle: 'Wettkampf-Erinnerung',
+      headerColor: '#ffb700',
     }
   }
 

@@ -106,9 +106,12 @@ async function onError(error: any) {
             option-attribute="label"
             value-attribute="value"
             placeholder="Bitte wählen"
-            description="hasdf"
             class="w-full"
           />
+          <template #help>
+            Für einen meldepflichtigen Wettkampf über LADV brauchst du einen
+            DLV-Startpass.
+          </template>
         </UFormField>
 
         <UFormField label="Anmerkungen" name="notes" size="lg">

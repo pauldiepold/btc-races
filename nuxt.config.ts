@@ -22,6 +22,14 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
   ],
 
+  icon: {
+    clientBundle: {
+      scan: true,
+      // guard for uncompressed bundle size, will fail the build if exceeds
+      sizeLimitKb: 256,
+    },
+  },
+
   runtimeConfig: {
     // Client-seitige Umgebungsvariablen
     public: {

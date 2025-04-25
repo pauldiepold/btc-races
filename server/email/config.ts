@@ -38,6 +38,7 @@ export function loadEmailConfig(): EmailConfig {
   const testMode = process.env.NUXT_EMAIL_TEST_MODE === 'true'
   const testAddress = process.env.NUXT_EMAIL_TEST_ADDRESS || 'test@example.com'
   const publicUrl =
+    process.env.VERCEL_URL ||
     process.env.NUXT_PUBLIC_URL ||
     process.env.NUXT_APP_BASE_URL ||
     'https://btc-races.vercel.app'

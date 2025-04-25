@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import type { Database } from '~/types/database.types'
 import {
-  registrationTypeMapLong,
-  raceTypeMap,
-  championshipTypeMap,
+  RegistrationTypeLabels,
+  RaceTypeLabels,
+  ChampionshipTypeLabels,
 } from '~/types/enums'
 import { useCompetitionRegistration } from '~/composables/useCompetitionRegistration'
+import { useRepositories } from '~/composables/useRepositories'
+import { useToastMessages } from '~/composables/useToastMessages'
 
 definePageMeta({
   colorMode: 'dark',
@@ -15,42 +16,17 @@ const route = useRoute()
 const user = useSupabaseUser()
 const competitionId = route.params.id as string
 
-const client = useSupabaseClient<Database>()
+const { competitions } = useRepositories()
+const { showError } = useToastMessages()
 
 const { data: competition } = await useAsyncData(
   `competition-${competitionId}`,
   async () => {
-    const { data } = await client
-      .from('competitions')
-      .select('*')
-      .eq('id', parseInt(competitionId))
-      .single()
-
-    return data
-  }
-)
-
-const { data: registrations } = await useAsyncData(
-  `registrations-${competitionId}`,
-  async () => {
-    const { data } = await client
-      .from('registrations')
-      .select(
-        `
-        id,
-        status,
-        notes,
-        created_at,
-        member:members (
-          id,
-          name
-        )
-      `
-      )
-      .eq('competition_id', parseInt(competitionId))
-      .order('created_at', { ascending: false })
-
-    return data
+    const result = await competitions.findById(competitionId)
+    if (!result) {
+      showError('Wettkampf konnte nicht geladen werden')
+    }
+    return result
   }
 )
 
@@ -96,58 +72,8 @@ const canRegister = computed(() => {
     </template>
     <template #sidebar>
       <div class="space-y-6">
-        <BaseLayer>
-          <h2 class="mb-4 text-xl font-bold">Teilnehmer</h2>
-          <p v-if="registrations" class="text-sm">
-            Bereits {{ registrations.length }} Mitglieder angemeldet
-          </p>
-
-          <div class="mt-4 space-y-3">
-            <div
-              v-for="registration in registrations"
-              :key="registration.id"
-              class="rounded bg-(--ui-bg) p-3"
-            >
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <p class="font-medium">{{ registration.member.name }}</p>
-                  <p
-                    class="text-sm"
-                    :class="{
-                      'text-green-600': registration.status === 'confirmed',
-                      'text-yellow-600': registration.status === 'pending',
-                      'text-red-600': registration.status === 'canceled',
-                    }"
-                  >
-                    {{
-                      registration.status === 'confirmed'
-                        ? 'Bestätigt'
-                        : registration.status === 'pending'
-                          ? 'Ausstehend'
-                          : 'Abgesagt'
-                    }}
-                  </p>
-                </div>
-                <!-- TODO: Button um neue E-Mail anzufordern -->
-                <div class="text-right">
-                  <div
-                    class="flex items-center justify-end gap-2 text-sm text-gray-500"
-                  >
-                    <span>{{
-                      new Date(registration.created_at).toLocaleDateString(
-                        'de-DE'
-                      )
-                    }}</span>
-                    <UIcon name="lucide:calendar" class="h-4 w-4" />
-                  </div>
-                </div>
-              </div>
-              <p v-if="registration.notes" class="mt-2 text-sm text-gray-600">
-                {{ registration.notes }}
-              </p>
-            </div>
-          </div>
-        </BaseLayer>
+        <!-- Teilnehmer Komponente -->
+        <CompetitionParticipants :competition-id="competitionId" />
 
         <!-- Kontakt -->
         <BaseLayer>
@@ -217,7 +143,7 @@ const canRegister = computed(() => {
           <UFormField label="Anmeldung" size="lg">
             <UInput
               :model-value="
-                registrationTypeMapLong[competition.registration_type]
+                RegistrationTypeLabels[competition.registration_type]
               "
               icon="lucide:tag"
               class="w-full !cursor-pointer"
@@ -227,7 +153,7 @@ const canRegister = computed(() => {
 
           <UFormField label="Rennart" size="lg">
             <UInput
-              :model-value="raceTypeMap[competition.race_type]"
+              :model-value="RaceTypeLabels[competition.race_type]"
               icon="lucide:ruler"
               class="w-full !cursor-pointer"
               disabled
@@ -236,7 +162,9 @@ const canRegister = computed(() => {
 
           <UFormField label="Meisterschaft" size="lg">
             <UInput
-              :model-value="championshipTypeMap[competition.championship_type]"
+              :model-value="
+                ChampionshipTypeLabels[competition.championship_type]
+              "
               icon="lucide:clock"
               class="w-full !cursor-pointer"
               disabled

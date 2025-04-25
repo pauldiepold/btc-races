@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import type { Database } from '~/types/database.types'
-import { raceTypeMap, registrationTypeMapShort } from '~/types/enums'
-
-type Competition = Database['public']['Tables']['competitions']['Row']
+import { RegistrationTypeLabelsShort, RaceTypeLabels } from '~/types/enums'
+import type { Competition } from '~/types/models.types'
 
 defineProps<{ competition: Competition }>()
 </script>
@@ -51,7 +49,7 @@ defineProps<{ competition: Competition }>()
 
         <div v-if="competition.race_type" class="flex items-center gap-2">
           <Icon name="mdi:shoe-sneaker" class="text-muted h-4 w-4" />
-          <span>{{ raceTypeMap[competition.race_type] }}</span>
+          <span>{{ RaceTypeLabels[competition.race_type] }}</span>
         </div>
 
         <div
@@ -71,7 +69,7 @@ defineProps<{ competition: Competition }>()
         >
           <Icon name="mdi:register" class="text-muted h-4 w-4" />
           <span>{{
-            registrationTypeMapShort[competition.registration_type]
+            RegistrationTypeLabelsShort[competition.registration_type]
           }}</span>
         </div>
       </div>

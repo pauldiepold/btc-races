@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import type { Database } from '~/types/database.types'
+import { useRepositories } from '~/composables/useRepositories'
+import { useToastMessages } from '~/composables/useToastMessages'
 
 definePageMeta({
   colorMode: 'dark',
 })
 
-const client = useSupabaseClient<Database>()
+const { competitions, members, registrations } = useRepositories()
+const { showError } = useToastMessages()
 
 const {
   data: activeCompetitionsCount,
   pending: _loading,
   error: _error,
 } = await useAsyncData('activeCompetitionsCount', async () => {
-  const { count, error: supabaseError } = await client
-    .from('competitions')
-    .select('*', { count: 'exact', head: true })
-    .gte('date', new Date().toISOString().split('T')[0])
-
-  if (supabaseError) throw supabaseError
-
-  return count || 0
+  const result = await competitions.countActive()
+  if (result === 0) {
+    // Wir prüfen hier, ob wirklich null zurückkommt (Fehler) oder nur 0 (kein Fehler, aber keine aktiven Wettbewerbe)
+    console.log('Keine aktiven Wettbewerbe gefunden oder Fehler beim Zählen.')
+  }
+  return result
 })
 
 const {
@@ -27,13 +27,11 @@ const {
   pending: _loadingMembers,
   error: _errorMembers,
 } = await useAsyncData('membersCount', async () => {
-  const { count, error: supabaseError } = await client
-    .from('members')
-    .select('*', { count: 'exact', head: true })
-
-  if (supabaseError) throw supabaseError
-
-  return count || 0
+  const result = await members.count()
+  if (result === 0 && _errorMembers.value) {
+    showError('Fehler beim Laden der Mitglieder')
+  }
+  return result
 })
 
 const {
@@ -41,14 +39,7 @@ const {
   pending: _loadingConfirmed,
   error: _errorConfirmed,
 } = await useAsyncData('confirmedRegistrationsCount', async () => {
-  const { count, error: supabaseError } = await client
-    .from('registrations')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'confirmed')
-
-  if (supabaseError) throw supabaseError
-
-  return count || 0
+  return registrations.count({ status: 'confirmed' })
 })
 
 const {
@@ -56,14 +47,7 @@ const {
   pending: _loadingPending,
   error: _errorPending,
 } = await useAsyncData('pendingRegistrationsCount', async () => {
-  const { count, error: supabaseError } = await client
-    .from('registrations')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'pending')
-
-  if (supabaseError) throw supabaseError
-
-  return count || 0
+  return registrations.count({ status: 'pending' })
 })
 
 const {
@@ -71,21 +55,11 @@ const {
   pending: _loadingActive,
   error: _errorActive,
 } = await useAsyncData('activeCompetitions', async () => {
-  const { data, error: supabaseError } = await client
-    .from('competitions')
-    .select(
-      `
-      *,
-      registrations:registrations(count)
-    `
-    )
-    .gte('date', new Date().toISOString().split('T')[0])
-    .order('date', { ascending: true })
-    .limit(5)
-
-  if (supabaseError) throw supabaseError
-
-  return data
+  const result = await competitions.findActiveWithRegistrationsCount(5)
+  if (!result || result.length === 0) {
+    console.log('Keine aktiven Wettbewerbe gefunden oder Fehler beim Laden.')
+  }
+  return result || []
 })
 
 const {
@@ -93,21 +67,11 @@ const {
   pending: _loadingNewest,
   error: _errorNewest,
 } = await useAsyncData('newestRegistrations', async () => {
-  const { data, error: supabaseError } = await client
-    .from('registrations')
-    .select(
-      `
-      *,
-      member:members(name),
-      competition:competitions(name)
-    `
-    )
-    .order('created_at', { ascending: false })
-    .limit(5)
-
-  if (supabaseError) throw supabaseError
-
-  return data
+  const result = await registrations.findNewestWithDetails(5)
+  if (!result || result.length === 0) {
+    console.log('Keine Registrierungen gefunden oder Fehler beim Laden.')
+  }
+  return result || []
 })
 </script>
 

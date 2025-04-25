@@ -22,6 +22,14 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
   ],
 
+  icon: {
+    clientBundle: {
+      scan: true,
+      // guard for uncompressed bundle size, will fail the build if exceeds
+      sizeLimitKb: 256,
+    },
+  },
+
   runtimeConfig: {
     // Client-seitige Umgebungsvariablen
     public: {
@@ -39,7 +47,12 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: '/login',
       callback: '/auth/callback',
-      exclude: ['/', '/competitions/**'],
+      exclude: [
+        '/',
+        '/competitions/**',
+        '/registrations/confirm',
+        '/registrations/cancel',
+      ],
     },
   },
 

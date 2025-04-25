@@ -1,71 +1,187 @@
 import type { Database } from './database.types'
 
-// Enums aus der Datenbank
+// Datenbank-Typen
 export type ChampionshipType = Database['public']['Enums']['championship_type']
 export type RaceType = Database['public']['Enums']['race_type']
 export type RegistrationType = Database['public']['Enums']['registration_type']
+export type RegistrationStatus =
+  Database['public']['Enums']['registration_status']
 
-// Enum Werte
-export const CHAMPIONSHIP_TYPES = [
-  'NO_CHAMPIONSHIP',
-  'BBM',
-  'NDM',
-  'DM',
-] as const
-export const RACE_TYPES = ['TRACK', 'ROAD'] as const
-export const REGISTRATION_TYPES = ['INDEPENDENT', 'LADV', 'CLUB'] as const
+/**
+ * Meisterschaftstypen
+ */
+export const ChampionshipTypes = {
+  NO_CHAMPIONSHIP: 'NO_CHAMPIONSHIP' as const,
+  BBM: 'BBM' as const,
+  NDM: 'NDM' as const,
+  DM: 'DM' as const,
+}
 
-// Optionen für Dropdowns
+// Typen für Typensicherheit
+export type ChampionshipTypeKeys = keyof typeof ChampionshipTypes
+export type ChampionshipTypeValues =
+  (typeof ChampionshipTypes)[ChampionshipTypeKeys]
+
+/**
+ * Wettkampftypen
+ */
+export const RaceTypes = {
+  TRACK: 'TRACK' as const,
+  ROAD: 'ROAD' as const,
+}
+
+export type RaceTypeKeys = keyof typeof RaceTypes
+export type RaceTypeValues = (typeof RaceTypes)[RaceTypeKeys]
+
+/**
+ * Anmeldetypen
+ */
+export const RegistrationTypes = {
+  INDEPENDENT: 'INDEPENDENT' as const,
+  LADV: 'LADV' as const,
+  CLUB: 'CLUB' as const,
+}
+
+export type RegistrationTypeKeys = keyof typeof RegistrationTypes
+export type RegistrationTypeValues =
+  (typeof RegistrationTypes)[RegistrationTypeKeys]
+
+/**
+ * E-Mail-Typen
+ */
+export const EmailTypes = {
+  REGISTRATION_CONFIRMATION: 'registration_confirmation' as const,
+  REGISTRATION_CANCELLATION: 'registration_cancellation' as const,
+  COMPETITION_REMINDER: 'competition_reminder' as const,
+}
+
+export type EmailTypeKeys = keyof typeof EmailTypes
+export type EmailType = (typeof EmailTypes)[EmailTypeKeys]
+
+/**
+ * Registrierungsstatus
+ */
+export const RegistrationStatuses = {
+  PENDING: 'pending' as const,
+  CONFIRMED: 'confirmed' as const,
+  CANCELED: 'canceled' as const,
+  PENDING_CANCELLATION: 'pending_cancellation' as const,
+}
+
+export type RegistrationStatusKeys = keyof typeof RegistrationStatuses
+export type RegistrationStatusType =
+  (typeof RegistrationStatuses)[RegistrationStatusKeys]
+
+// Labels für Benutzeroberfläche
+export const ChampionshipTypeLabels: Record<ChampionshipTypeValues, string> = {
+  [ChampionshipTypes.NO_CHAMPIONSHIP]: 'keine Meisterschaft',
+  [ChampionshipTypes.BBM]: 'Berlin-Brandenburgische Meisterschaft',
+  [ChampionshipTypes.NDM]: 'Norddeutsche Meisterschaft',
+  [ChampionshipTypes.DM]: 'Deutsche Meisterschaft',
+}
+
+export const RaceTypeLabels: Record<RaceTypeValues, string> = {
+  [RaceTypes.TRACK]: 'Bahn',
+  [RaceTypes.ROAD]: 'Straße',
+}
+
+export const RegistrationTypeLabels: Record<RegistrationTypeValues, string> = {
+  [RegistrationTypes.INDEPENDENT]: 'Eigenständige Anmeldung',
+  [RegistrationTypes.LADV]: 'LADV-Meldung durch die Coaches',
+  [RegistrationTypes.CLUB]: 'Anmeldung durch den Verein',
+}
+
+export const RegistrationTypeLabelsShort: Record<
+  RegistrationTypeValues,
+  string
+> = {
+  [RegistrationTypes.INDEPENDENT]: 'Eigenständig',
+  [RegistrationTypes.LADV]: 'LADV',
+  [RegistrationTypes.CLUB]: 'Verein',
+}
+
+export const EmailTypeLabels: Record<EmailType, string> = {
+  [EmailTypes.REGISTRATION_CONFIRMATION]: 'Anmeldebestätigung',
+  [EmailTypes.REGISTRATION_CANCELLATION]: 'Abmeldebestätigung',
+  [EmailTypes.COMPETITION_REMINDER]: 'Wettkampferinnerung',
+}
+
+export const RegistrationStatusLabels: Record<RegistrationStatusType, string> =
+  {
+    [RegistrationStatuses.PENDING]: 'Ausstehend',
+    [RegistrationStatuses.CONFIRMED]: 'Bestätigt',
+    [RegistrationStatuses.CANCELED]: 'Abgemeldet',
+    [RegistrationStatuses.PENDING_CANCELLATION]: 'Abmeldung ausstehend',
+  }
+
+// Für Abwärtskompatibilität: Die alten Dropdown-Items und Maps bleiben erhalten
 export const championshipTypeItems = [
   {
-    label: 'keine Meisterschaft',
-    value: 'NO_CHAMPIONSHIP' as ChampionshipType,
+    label: ChampionshipTypeLabels[ChampionshipTypes.NO_CHAMPIONSHIP],
+    value: ChampionshipTypes.NO_CHAMPIONSHIP as ChampionshipType,
   },
   {
-    label: 'Berlin-Brandenburgische Meisterschaft',
-    value: 'BBM' as ChampionshipType,
+    label: ChampionshipTypeLabels[ChampionshipTypes.BBM],
+    value: ChampionshipTypes.BBM as ChampionshipType,
   },
-  { label: 'Norddeutsche Meisterschaft', value: 'NDM' as ChampionshipType },
-  { label: 'Deutsche Meisterschaft', value: 'DM' as ChampionshipType },
+  {
+    label: ChampionshipTypeLabels[ChampionshipTypes.NDM],
+    value: ChampionshipTypes.NDM as ChampionshipType,
+  },
+  {
+    label: ChampionshipTypeLabels[ChampionshipTypes.DM],
+    value: ChampionshipTypes.DM as ChampionshipType,
+  },
 ]
 
 export const raceTypeItems = [
-  { label: 'Bahn', value: 'TRACK' as RaceType },
-  { label: 'Straße', value: 'ROAD' as RaceType },
+  {
+    label: RaceTypeLabels[RaceTypes.TRACK],
+    value: RaceTypes.TRACK as RaceType,
+  },
+  { label: RaceTypeLabels[RaceTypes.ROAD], value: RaceTypes.ROAD as RaceType },
 ]
 
 export const registrationTypeItems = [
   {
-    label: 'Eigenständige Anmeldung',
-    value: 'INDEPENDENT' as RegistrationType,
+    label: RegistrationTypeLabels[RegistrationTypes.INDEPENDENT],
+    value: RegistrationTypes.INDEPENDENT as RegistrationType,
   },
   {
-    label: 'LADV-Meldung durch die Coaches',
-    value: 'LADV' as RegistrationType,
+    label: RegistrationTypeLabels[RegistrationTypes.LADV],
+    value: RegistrationTypes.LADV as RegistrationType,
   },
-  { label: 'Anmeldung durch den Verein', value: 'CLUB' as RegistrationType },
+  {
+    label: RegistrationTypeLabels[RegistrationTypes.CLUB],
+    value: RegistrationTypes.CLUB as RegistrationType,
+  },
 ]
 
-export const raceTypeMap = {
-  TRACK: 'Bahn',
-  ROAD: 'Straße',
-}
+// Zod-kompatible Arrays
+export const ZOD_CHAMPIONSHIP_TYPES = [
+  ChampionshipTypes.NO_CHAMPIONSHIP,
+  ChampionshipTypes.BBM,
+  ChampionshipTypes.NDM,
+  ChampionshipTypes.DM,
+] as const
 
-export const registrationTypeMapShort = {
-  INDEPENDENT: 'Eigenständig',
-  LADV: 'LADV',
-  CLUB: 'Verein',
-}
+export const ZOD_RACE_TYPES = [RaceTypes.TRACK, RaceTypes.ROAD] as const
 
-export const registrationTypeMapLong = {
-  INDEPENDENT: 'Eigenständige Anmeldung',
-  LADV: 'LADV-Meldung durch die Coaches',
-  CLUB: 'Anmeldung durch den Verein',
-}
+export const ZOD_REGISTRATION_TYPES = [
+  RegistrationTypes.INDEPENDENT,
+  RegistrationTypes.LADV,
+  RegistrationTypes.CLUB,
+] as const
 
-export const championshipTypeMap = {
-  NO_CHAMPIONSHIP: 'keine Meisterschaft',
-  BBM: 'Berlin-Brandenburgische Meisterschaft',
-  NDM: 'Norddeutsche Meisterschaft',
-  DM: 'Deutsche Meisterschaft',
-}
+export const ZOD_EMAIL_TYPES = [
+  EmailTypes.REGISTRATION_CONFIRMATION,
+  EmailTypes.REGISTRATION_CANCELLATION,
+  EmailTypes.COMPETITION_REMINDER,
+] as const
+
+export const ZOD_REGISTRATION_STATUS = [
+  RegistrationStatuses.PENDING,
+  RegistrationStatuses.CONFIRMED,
+  RegistrationStatuses.CANCELED,
+  RegistrationStatuses.PENDING_CANCELLATION,
+] as const

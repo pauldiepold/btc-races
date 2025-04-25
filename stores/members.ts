@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
 import type { Database } from '~/types/database.types'
 import { ref, computed } from 'vue'
+import type { Member } from '~/types/models.types'
 
 export const useMemberStore = defineStore('memberStore', () => {
   const client = useSupabaseClient<Database>()
-  const members = ref<Database['public']['Tables']['members']['Row'][]>([])
+  const members = ref<Member[]>([])
   const loading = ref(false)
   const isReady = ref(false)
   const error = ref<Error | null>(null)

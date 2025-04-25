@@ -1,7 +1,7 @@
 import type { ApiResponse } from '~/types/api.types'
-import type { Database } from '~/types/database.types'
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseUser } from '#supabase/server'
 import { competitionSchema } from '~/composables/useCompetitionSchema'
+import { createCompetitionsRepository } from '~/server/repositories/competitions.repository'
 
 export default defineEventHandler(async (event) => {
   // Authentifizierung prüfen
@@ -16,7 +16,8 @@ export default defineEventHandler(async (event) => {
     } as ApiResponse<null>
   }
 
-  const client = await serverSupabaseClient<Database>(event)
+  // Repository erstellen
+  const competitionsRepo = await createCompetitionsRepository(event)
   const body = await readBody(event)
 
   // Validierung mit dem gleichen Schema wie im Frontend
@@ -33,19 +34,13 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const { data, error } = await client
-      .from('competitions')
-      .insert(validationResult.data)
-      .select()
-      .single()
+    const data = await competitionsRepo.createCompetition(validationResult.data)
 
-    if (error) {
-      console.error('Supabase Fehler:', error)
+    if (!data) {
       return {
         error: {
           message: 'Fehler beim Erstellen des Wettkampfes.',
           code: 'DATABASE_ERROR',
-          details: error.message,
         },
         statusCode: 500,
       } as ApiResponse<null>

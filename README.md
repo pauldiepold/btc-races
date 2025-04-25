@@ -75,23 +75,16 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
   - ✅meldepflichtig
   - ✅ Meisterschaft
   - ✅ Track / Road
-  - 🟡 Distanzen --> Tabelle angelegt, noch nirgendwo verwendet
 - ✅ Favicon hinzugefügt, Metadaten angepasst, Navbar und Footer aufgeräumt
 - ✅ Layout anpassen + Transitions hinzufügen
 - 🟡 E-Mails:
   - ✅ mit Microsoft Azure verbunden
   - ✅ Templating hinzugefügt, noch nicht getestet
-  - ❌ Bestätigungsmail nach Anmeldung mit Verifizierungslink
-  - ❌ Erinnerungsmail an Mitglieder 5 Tage vor Meldefrist mit Abmeldelink
-  - ❌ Erinnerungsmail an Admins 3 Tage vor Meldefrist
-  - ❌ Erinnerungsmail an teilnehmende Mitglieder 3 Tage vor dem Wettkampf
-  - ❌ Nachfrage-E-Mail nach 3 Tagen bei nicht bestätigten Anmeldungen
-  - ❌ Cronjobs für Erinerungsmails
-  - ❌ E-Mail mit Token für Bestätigung senden bei Registrierung
+  - ✅ Bestätigungsmail nach Anmeldung mit Verifizierungslink
+  - ❌ Von Wettkämpfen wieder abmelden können
 - ✅ nicht bei Events anmelden können, bei denen die Anmeldefrist vergangen ist
 - ✅ Startpass importieren aus Campai
   - ✅ Anmeldung bei meldepflichtigen Events sperren
-- ❌ Abmeldung ermöglichen
 - ❌ Echte Daten zu den Wettkämpfen importieren --> von Cindy holen
 - ❌ Beschreibungen überall anpassen:
   - ❌ Register: Falls du keinen Startpass hast... --> rechts in der Sidebar evt. noch die Kurzinfos zum Wettkampf anzeigen
@@ -104,6 +97,14 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
 - ❌ Nach Anmeldung sofort ohne Timeout weiterleiten und zur neuen Anmeldung scrollen + grün aufblinken lassen (bzw. sowieso die neusten oben anzeigen)
 - ❌Admin: Nachrichten an alle Teilnehmer senden können
 - ❌Datum für Erinnerungs-Mails einstellen können?
+- Daten zu den Wettkämpfen erweitern:
+  - 🟡 Distanzen --> Tabelle angelegt, noch nirgendwo verwendet
+- E-Mail Ergänzungen:
+  - ❌ Erinnerungsmail an Mitglieder 5 Tage vor Meldefrist mit Abmeldelink
+  - ❌ Erinnerungsmail an Admins 3 Tage vor Meldefrist
+  - ❌ Erinnerungsmail an teilnehmende Mitglieder 3 Tage vor dem Wettkampf
+  - ❌ Nachfrage-E-Mail nach 3 Tagen bei nicht bestätigten Anmeldungen
+  - ❌ Cronjobs für Erinerungsmails
 
 ### Code-Qualität:
 
@@ -150,3 +151,80 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
    npx supabase login
    npx supabase link
    ```
+
+# Repository-System
+
+## Struktur
+
+Das Repository-System bietet eine konsistente API für den Zugriff auf Datenbanktabellen. Es umfasst:
+
+### Basisklassen
+
+- **BaseRepository**: Grundfunktionalität für alle Repositories
+- **ClientRepository**: Für Client-seitige Verwendung (im Browser)
+- **ServerRepository**: Für Server-seitige Verwendung (API-Routen)
+- **ServiceRoleRepository**: Für Server-seitige Verwendung mit administrativen Rechten
+
+### Konkrete Implementierungen
+
+Jede Tabelle hat in der Regel drei spezialisierte Repository-Klassen:
+
+- **[Name]ClientRepository**: Für Browser-Zugriff
+- **[Name]ServerRepository**: Für normalen Server-Zugriff
+- **[Name]ServiceRepository**: Für Server-Zugriff mit erhöhten Rechten
+
+### Factory-Funktionen
+
+Anstatt statische Methoden für jede Klasse zu implementieren, verwenden wir spezialisierte Factory-Funktionen:
+
+```typescript
+// Erstellen eines Server-Repositories
+const sentEmails = await createSentEmailsServerRepository(event)
+
+// Erstellen eines ServiceRole-Repositories
+const sentEmails = await createSentEmailsServiceRepository(event)
+```
+
+## Verwendung
+
+### Client-seitig
+
+Mit dem `useRepositories` Composable:
+
+```typescript
+// In einer Vue-Komponente
+const { sentEmails } = useRepositories()
+
+// Daten abfragen
+const email = await sentEmails.findByToken('token123')
+```
+
+### Server-seitig
+
+Mit dem `createServerRepositories` Helfer:
+
+```typescript
+// In einem API-Handler
+export default defineEventHandler(async (event) => {
+  const { sentEmails } = await createServerRepositories(event)
+
+  // Mit normalen Nutzerrechten arbeiten
+  const emails = await sentEmails.findAll()
+
+  return { emails }
+})
+```
+
+### Mit administrativen Rechten
+
+```typescript
+// In einem API-Handler
+export default defineEventHandler(async (event) => {
+  const { sentEmails } = await createServerRepositories(event, true)
+
+  // Mit administrativen Rechten arbeiten
+  await sentEmails.createWithoutRLS({ ... })
+
+  return { success: true }
+})
+```

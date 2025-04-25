@@ -1,0 +1,107 @@
+<script setup lang="ts">
+import { useRepositories } from '~/composables/useRepositories'
+
+const props = defineProps<{
+  competitionId: string
+}>()
+
+const { registrations } = useRepositories()
+
+const { data: competitionRegistrations } = await useAsyncData(
+  `registrations-${props.competitionId}`,
+  async () => {
+    const result = await registrations.findByCompetitionId(props.competitionId)
+    if (!result || result.length === 0) {
+      console.log('Keine Registrierungen gefunden oder Fehler beim Laden')
+    }
+    return result || []
+  }
+)
+
+// Registrierungen nach Status gruppieren
+const confirmedRegistrations = computed(
+  () =>
+    competitionRegistrations.value?.filter(
+      (reg) => reg.status === 'confirmed'
+    ) || []
+)
+
+// Alle ausstehenden Registrierungen (Bestätigungen und Abmeldungen)
+const pendingRegistrations = computed(
+  () =>
+    competitionRegistrations.value?.filter(
+      (reg) => reg.status === 'pending' || reg.status === 'pending_cancellation'
+    ) || []
+)
+
+const canceledRegistrations = computed(
+  () =>
+    competitionRegistrations.value?.filter(
+      (reg) => reg.status === 'canceled'
+    ) || []
+)
+
+// State für das Auf- und Zuklappen der abgemeldeten Teilnehmer
+const showCanceled = ref(false)
+</script>
+
+<template>
+  <BaseLayer>
+    <h2 class="mb-4 text-xl font-bold">Teilnehmer</h2>
+    <p v-if="competitionRegistrations" class="text-sm">
+      Bereits {{ competitionRegistrations.length }} Mitglieder angemeldet
+    </p>
+
+    <div class="mt-4 space-y-6">
+      <!-- Bestätigte Teilnehmer -->
+      <div v-if="confirmedRegistrations.length > 0">
+        <h3 class="mb-2 font-medium text-green-600">
+          Bestätigte Teilnehmer ({{ confirmedRegistrations.length }})
+        </h3>
+        <div class="space-y-3">
+          <CompetitionParticipant
+            v-for="registration in confirmedRegistrations"
+            :key="registration.id"
+            :registration="registration"
+          />
+        </div>
+      </div>
+
+      <!-- Ausstehende Teilnehmer (Bestätigungen und Abmeldungen) -->
+      <div v-if="pendingRegistrations.length > 0">
+        <h3 class="mb-2 font-medium text-yellow-600">
+          Ausstehend ({{ pendingRegistrations.length }})
+        </h3>
+        <div class="space-y-3">
+          <CompetitionParticipant
+            v-for="registration in pendingRegistrations"
+            :key="registration.id"
+            :registration="registration"
+          />
+        </div>
+      </div>
+
+      <!-- Abgemeldete Teilnehmer (aufklappbar) -->
+      <div v-if="canceledRegistrations.length > 0">
+        <div class="cursor-pointer" @click="showCanceled = !showCanceled">
+          <h3 class="mb-2 flex items-center font-medium text-red-600">
+            <UIcon
+              :name="
+                showCanceled ? 'lucide:chevron-down' : 'lucide:chevron-right'
+              "
+              class="mr-1 h-4 w-4"
+            />
+            Abgemeldete Teilnehmer ({{ canceledRegistrations.length }})
+          </h3>
+        </div>
+        <div v-if="showCanceled" class="space-y-3">
+          <CompetitionParticipant
+            v-for="registration in canceledRegistrations"
+            :key="registration.id"
+            :registration="registration"
+          />
+        </div>
+      </div>
+    </div>
+  </BaseLayer>
+</template>

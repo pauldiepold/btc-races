@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import type { Database } from '~/types/database.types'
 import { useCompetitionRegistration } from '~/composables/useCompetitionRegistration'
-
-type Competition = Database['public']['Tables']['competitions']['Row']
+import type { Competition } from '~/types/models.types'
 
 type CompetitionStatusColor = {
   text: string

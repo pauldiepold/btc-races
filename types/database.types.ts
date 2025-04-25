@@ -162,6 +162,12 @@ export type Database = {
             referencedRelation: 'members'
             referencedColumns: ['id']
           },
+          {
+            foreignKeyName: 'emails_member_id_fkey'
+            columns: ['member_id']
+            referencedRelation: 'members_with_emails'
+            referencedColumns: ['id']
+          },
         ]
       }
       members: {
@@ -200,8 +206,6 @@ export type Database = {
           notes: string | null
           status: Database['public']['Enums']['registration_status'] | null
           updated_at: string | null
-          verification_token: string
-          verified_at: string | null
         }
         Insert: {
           competition_id: number
@@ -211,8 +215,6 @@ export type Database = {
           notes?: string | null
           status?: Database['public']['Enums']['registration_status'] | null
           updated_at?: string | null
-          verification_token: string
-          verified_at?: string | null
         }
         Update: {
           competition_id?: number
@@ -222,8 +224,6 @@ export type Database = {
           notes?: string | null
           status?: Database['public']['Enums']['registration_status'] | null
           updated_at?: string | null
-          verification_token?: string
-          verified_at?: string | null
         }
         Relationships: [
           {
@@ -238,11 +238,202 @@ export type Database = {
             referencedRelation: 'members'
             referencedColumns: ['id']
           },
+          {
+            foreignKeyName: 'registrations_member_id_fkey'
+            columns: ['member_id']
+            referencedRelation: 'members_with_emails'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      sent_emails: {
+        Row: {
+          created_at: string | null
+          email_type: string
+          error: string | null
+          id: number
+          registration_id: number | null
+          retry_count: number | null
+          sent_at: string | null
+          status: string
+          subject: string
+          token: string | null
+          token_expires_at: string | null
+          token_verified_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email_type: string
+          error?: string | null
+          id?: number
+          registration_id?: number | null
+          retry_count?: number | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          token?: string | null
+          token_expires_at?: string | null
+          token_verified_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email_type?: string
+          error?: string | null
+          id?: number
+          registration_id?: number | null
+          retry_count?: number | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          token?: string | null
+          token_expires_at?: string | null
+          token_verified_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'sent_emails_registration_id_fkey'
+            columns: ['registration_id']
+            referencedRelation: 'public_registrations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'sent_emails_registration_id_fkey'
+            columns: ['registration_id']
+            referencedRelation: 'registrations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'sent_emails_registration_id_fkey'
+            columns: ['registration_id']
+            referencedRelation: 'registrations_with_details'
+            referencedColumns: ['id']
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      members_with_emails: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          has_ladv_startpass: boolean | null
+          has_left: boolean | null
+          id: number | null
+          name: string | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
+      public_registrations: {
+        Row: {
+          competition_date: string | null
+          competition_name: string | null
+          created_at: string | null
+          id: number | null
+          member_name: string | null
+          status: Database['public']['Enums']['registration_status'] | null
+        }
+        Relationships: []
+      }
+      registrations_with_details: {
+        Row: {
+          championship_type:
+            | Database['public']['Enums']['championship_type']
+            | null
+          competition_date: string | null
+          competition_id: number | null
+          competition_location: string | null
+          competition_name: string | null
+          created_at: string | null
+          has_ladv_startpass: boolean | null
+          id: number | null
+          member_email: string | null
+          member_id: number | null
+          member_name: string | null
+          notes: string | null
+          race_type: Database['public']['Enums']['race_type'] | null
+          registration_deadline: string | null
+          status: Database['public']['Enums']['registration_status'] | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'registrations_competition_id_fkey'
+            columns: ['competition_id']
+            referencedRelation: 'competitions'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'registrations_member_id_fkey'
+            columns: ['member_id']
+            referencedRelation: 'members'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'registrations_member_id_fkey'
+            columns: ['member_id']
+            referencedRelation: 'members_with_emails'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      sent_emails_with_details: {
+        Row: {
+          competition_date: string | null
+          competition_name: string | null
+          created_at: string | null
+          email_type: string | null
+          error: string | null
+          id: number | null
+          member_id: number | null
+          member_name: string | null
+          recipient_email: string | null
+          registration_id: number | null
+          retry_count: number | null
+          sent_at: string | null
+          status: string | null
+          subject: string | null
+          token: string | null
+          token_expires_at: string | null
+          token_verified_at: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'registrations_member_id_fkey'
+            columns: ['member_id']
+            referencedRelation: 'members'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'registrations_member_id_fkey'
+            columns: ['member_id']
+            referencedRelation: 'members_with_emails'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'sent_emails_registration_id_fkey'
+            columns: ['registration_id']
+            referencedRelation: 'public_registrations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'sent_emails_registration_id_fkey'
+            columns: ['registration_id']
+            referencedRelation: 'registrations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'sent_emails_registration_id_fkey'
+            columns: ['registration_id']
+            referencedRelation: 'registrations_with_details'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
@@ -250,7 +441,11 @@ export type Database = {
     Enums: {
       championship_type: 'NO_CHAMPIONSHIP' | 'BBM' | 'NDM' | 'DM'
       race_type: 'TRACK' | 'ROAD'
-      registration_status: 'pending' | 'confirmed' | 'canceled'
+      registration_status:
+        | 'pending'
+        | 'confirmed'
+        | 'canceled'
+        | 'pending_cancellation'
       registration_type: 'INDEPENDENT' | 'LADV' | 'CLUB'
     }
     CompositeTypes: {
@@ -786,7 +981,12 @@ export const Constants = {
     Enums: {
       championship_type: ['NO_CHAMPIONSHIP', 'BBM', 'NDM', 'DM'],
       race_type: ['TRACK', 'ROAD'],
-      registration_status: ['pending', 'confirmed', 'canceled'],
+      registration_status: [
+        'pending',
+        'confirmed',
+        'canceled',
+        'pending_cancellation',
+      ],
       registration_type: ['INDEPENDENT', 'LADV', 'CLUB'],
     },
   },

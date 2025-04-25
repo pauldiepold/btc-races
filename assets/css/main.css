@@ -49,3 +49,12 @@
   --ui-text-dimmed: var(--ui-color-neutral-200);
   --ui-border-accented: var(--ui-color-neutral-600);
 }
+
+button,
+[role='button'] {
+  cursor: pointer;
+}
+
+:disabled {
+  cursor: default;
+}

@@ -56,16 +56,6 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
    npm run dev
    ```
 
-## Projektstruktur
-
-- `assets/`: Statische Assets wie CSS und Bilder
-- `components/`: Wiederverwendbare Vue-Komponenten
-- `composables/`: Kompositionsfunktionen (z.B. Supabase-Integration)
-- `layouts/`: Seitenlayouts (Admin vs. Öffentlich)
-- `pages/`: Seitenkomponenten (Routing basiert auf Dateistruktur)
-- `public/`: Öffentliche Dateien
-- `server/`: Serverseitige Dateien und Datenbankschema
-
 ## Nächste Schritte für die Entwicklung
 
 ### Notwendig:
@@ -86,9 +76,9 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
 - ✅ Startpass importieren aus Campai
   - ✅ Anmeldung bei meldepflichtigen Events sperren
 - ❌ Echte Daten zu den Wettkämpfen importieren --> von LADV importieren
-- ❌ Beschreibungen überall anpassen:
-  - ❌ Register: Falls du keinen Startpass hast... --> rechts in der Sidebar evt. noch die Kurzinfos zum Wettkampf anzeigen
-  - ❌ Ist die Startseite ausreichend?
+- ✅ Beschreibungen überall anpassen:
+  - ✅ Register: Falls du keinen Startpass hast... --> rechts in der Sidebar evt. noch die Kurzinfos zum Wettkampf anzeigen
+  - ✅ Ist die Startseite ausreichend?
 
 ### Bonus:
 

@@ -75,7 +75,7 @@ const cancelRegistration = async () => {
       <!-- Hauptinformationen -->
       <div>
         <p class="text-lg font-medium">{{ registration.member.name }}</p>
-        <p v-if="registration.notes" class="mt-1 text-sm text-gray-600">
+        <p v-if="registration.notes" class="mt-1 text-sm text-gray-400">
           {{ registration.notes }}
         </p>
       </div>

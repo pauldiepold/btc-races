@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-app",
+  "name": "btc-races",
   "type": "module",
   "private": true,
   "scripts": {
@@ -9,8 +9,7 @@
     "format": "prettier --write .",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
-    "prepare": "husky"
+    "postinstall": "nuxt prepare"
   },
   "dependencies": {
     "@azure/communication-email": "^1.0.0",

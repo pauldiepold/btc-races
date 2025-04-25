@@ -106,6 +106,7 @@ async function onError(error: any) {
             option-attribute="label"
             value-attribute="value"
             placeholder="Bitte wählen"
+            description="hasdf"
             class="w-full"
           />
         </UFormField>

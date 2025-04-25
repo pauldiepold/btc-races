@@ -4,17 +4,19 @@ withDefaults(
     heading?: string
     backLink?: string | null
     backLinkText?: string | null
+    maxWidth?: string | null
   }>(),
   {
     heading: 'Berlin Track Club',
     backLink: null,
     backLinkText: null,
+    maxWidth: null,
   }
 )
 </script>
 
 <template>
-  <div>
+  <div :class="maxWidth ? `max-w-${maxWidth} mx-auto` : ''">
     <UButton
       v-if="backLink && backLinkText"
       :to="backLink"

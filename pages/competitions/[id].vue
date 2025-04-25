@@ -72,7 +72,7 @@ const canRegister = computed(() => {
     </template>
     <template #sidebar>
       <div class="space-y-6">
-        <!-- Teilnehmer Komponente -->
+        <!-- Teilnehmer:innen Komponente -->
         <CompetitionParticipants :competition-id="competitionId" />
 
         <!-- Kontakt -->

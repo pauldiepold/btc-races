@@ -48,8 +48,9 @@ async function onSubmit(data: Competition) {
     heading="Neuen Wettkampf erstellen"
     back-link="/"
     back-link-text="Zurück zur Übersicht"
+    max-width="2xl"
   >
-    <BaseLayer class="max-w-2xl">
+    <BaseLayer>
       <CompetitionForm v-model="state" @submit="onSubmit" />
     </BaseLayer>
   </BasePage>

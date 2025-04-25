@@ -77,15 +77,15 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
   - ✅ Track / Road
 - ✅ Favicon hinzugefügt, Metadaten angepasst, Navbar und Footer aufgeräumt
 - ✅ Layout anpassen + Transitions hinzufügen
-- 🟡 E-Mails:
+- ✅ E-Mails:
   - ✅ mit Microsoft Azure verbunden
   - ✅ Templating hinzugefügt, noch nicht getestet
   - ✅ Bestätigungsmail nach Anmeldung mit Verifizierungslink
-  - ❌ Von Wettkämpfen wieder abmelden können
+  - ✅ Von Wettkämpfen wieder abmelden können
 - ✅ nicht bei Events anmelden können, bei denen die Anmeldefrist vergangen ist
 - ✅ Startpass importieren aus Campai
   - ✅ Anmeldung bei meldepflichtigen Events sperren
-- ❌ Echte Daten zu den Wettkämpfen importieren --> von Cindy holen
+- ❌ Echte Daten zu den Wettkämpfen importieren --> von LADV importieren
 - ❌ Beschreibungen überall anpassen:
   - ❌ Register: Falls du keinen Startpass hast... --> rechts in der Sidebar evt. noch die Kurzinfos zum Wettkampf anzeigen
   - ❌ Ist die Startseite ausreichend?
@@ -95,10 +95,10 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
 - ❌ User können selbst Wettkämpfe einstellen --> Freischaltung durch Admins notwendig?
 - ❌ Light-Mode wieder aktivieren und Design etwas verbessern
 - ❌ Nach Anmeldung sofort ohne Timeout weiterleiten und zur neuen Anmeldung scrollen + grün aufblinken lassen (bzw. sowieso die neusten oben anzeigen)
-- ❌Admin: Nachrichten an alle Teilnehmer senden können
+- ❌Admin: Nachrichten an alle Teilnehmer:innen senden können
 - ❌Datum für Erinnerungs-Mails einstellen können?
 - Daten zu den Wettkämpfen erweitern:
-  - 🟡 Distanzen --> Tabelle angelegt, noch nirgendwo verwendet
+  - 🟡 Distanzen --> Tabelle angelegt, noch nirgendwo verwendet --> Disziplincodes aus LADV verwenden
 - E-Mail Ergänzungen:
   - ❌ Erinnerungsmail an Mitglieder 5 Tage vor Meldefrist mit Abmeldelink
   - ❌ Erinnerungsmail an Admins 3 Tage vor Meldefrist
@@ -109,7 +109,7 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
 ### Code-Qualität:
 
 - ✅ Typen sortieren, gerade bei den Api Responses und Models ist etwas Chaos
-- ❌ Alle Supabase Abfragen in einen Service auslagern, Client + Serverseitig trennen?
+- ✅ Alle Supabase Abfragen in einen Service auslagern, Client + Serverseitig trennen?
 
 ## Mit der Datenbank arbeiten
 

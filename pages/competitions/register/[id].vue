@@ -87,8 +87,9 @@ async function onError(error: any) {
     :heading="`Anmeldung: ${competition?.name}`"
     :back-link="`/competitions/${competition?.id}`"
     back-link-text="Zurück zum Wettkampf"
+    max-width="2xl"
   >
-    <BaseLayer class="max-w-2xl">
+    <BaseLayer>
       <UForm
         :schema="schema"
         :state="state"
@@ -119,17 +120,17 @@ async function onError(error: any) {
           <UCheckbox
             v-model="state.terms_accepted"
             required
-            label="Ich bestätige hiermit meine Teilnahme am Wettkampf"
+            label="Ich bestätige hiermit, dass ich mich selber anmelde und dass ich am Wettkampf teilnehmen möchte."
             :ui="{
               base: 'dark:ring-(--ui-primary)',
             }"
           />
-          <template #help>
-            Nach Absenden des Formulars erhältst du eine E-Mail mit einem
-            Bestätigungslink. Klicke diesen an, um deine Teilnahme zu
-            bestätigen.
-          </template>
         </UFormField>
+
+        <p class="text-sm text-gray-400">
+          Nach Absenden des Formulars erhältst du eine E-Mail mit einem
+          Bestätigungslink. Klicke diesen an, um deine Teilnahme zu bestätigen.
+        </p>
 
         <UButton type="submit" color="primary"> Anmeldung absenden </UButton>
       </UForm>

@@ -41,22 +41,19 @@ const canceledRegistrations = computed(
     ) || []
 )
 
-// State für das Auf- und Zuklappen der abgemeldeten Teilnehmer
+// State für das Auf- und Zuklappen der abgemeldeten Teilnehmer:innen
 const showCanceled = ref(false)
 </script>
 
 <template>
   <BaseLayer>
-    <h2 class="mb-4 text-xl font-bold">Teilnehmer</h2>
-    <p v-if="competitionRegistrations" class="text-sm">
-      Bereits {{ competitionRegistrations.length }} Mitglieder angemeldet
-    </p>
+    <h2 class="mb-4 text-xl font-bold">Teilnehmer:innen</h2>
 
     <div class="mt-4 space-y-6">
-      <!-- Bestätigte Teilnehmer -->
+      <!-- Bestätigte Teilnehmer:innen -->
       <div v-if="confirmedRegistrations.length > 0">
         <h3 class="mb-2 font-medium text-green-600">
-          Bestätigte Teilnehmer ({{ confirmedRegistrations.length }})
+          Bestätigte Teilnehmer:innen ({{ confirmedRegistrations.length }})
         </h3>
         <div class="space-y-3">
           <CompetitionParticipant
@@ -67,7 +64,7 @@ const showCanceled = ref(false)
         </div>
       </div>
 
-      <!-- Ausstehende Teilnehmer (Bestätigungen und Abmeldungen) -->
+      <!-- Ausstehende Teilnehmer:innen (Bestätigungen und Abmeldungen) -->
       <div v-if="pendingRegistrations.length > 0">
         <h3 class="mb-2 font-medium text-yellow-600">
           Ausstehend ({{ pendingRegistrations.length }})
@@ -81,7 +78,7 @@ const showCanceled = ref(false)
         </div>
       </div>
 
-      <!-- Abgemeldete Teilnehmer (aufklappbar) -->
+      <!-- Abgemeldete Teilnehmer:innen (aufklappbar) -->
       <div v-if="canceledRegistrations.length > 0">
         <div class="cursor-pointer" @click="showCanceled = !showCanceled">
           <h3 class="mb-2 flex items-center font-medium text-red-600">
@@ -91,7 +88,7 @@ const showCanceled = ref(false)
               "
               class="mr-1 h-4 w-4"
             />
-            Abgemeldete Teilnehmer ({{ canceledRegistrations.length }})
+            Abgemeldete Teilnehmer:innen ({{ canceledRegistrations.length }})
           </h3>
         </div>
         <div v-if="showCanceled" class="space-y-3">

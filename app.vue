@@ -31,6 +31,7 @@ useHead({
       duration: 3000,
     }"
   >
+    <NuxtLoadingIndicator color="#ffb700" :height="2" />
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>

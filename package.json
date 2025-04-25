@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.36",
+    "@iconify-json/mdi": "^1.2.3",
     "@types/node": "^22.14.0",
     "husky": "^9.1.7",
     "prettier": "^3.5.3",

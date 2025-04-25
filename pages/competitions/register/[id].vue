@@ -66,9 +66,7 @@ async function onSubmit(event: FormSubmitEvent<RegistrationSchema>) {
     )
 
     // Weiterleitung zur Detailseite
-    setTimeout(async () => {
-      await navigateTo(`/competitions/${competitionId}`)
-    }, 1500)
+    await navigateTo(`/competitions/${competitionId}`)
   } catch (error: any) {
     showError(error.message || 'Ein Fehler ist aufgetreten.')
   } finally {
@@ -87,8 +85,13 @@ async function onError(error: any) {
     :heading="`Anmeldung: ${competition?.name}`"
     :back-link="`/competitions/${competition?.id}`"
     back-link-text="Zurück zum Wettkampf"
+    max-width="3xl"
   >
-    <BaseLayer class="max-w-2xl">
+    <template v-if="competition" #sidebar>
+      <h2 class="mb-4 text-lg font-bold">Wettkampfdetails</h2>
+      <CompetitionDetails :competition="competition" />
+    </template>
+    <BaseLayer>
       <UForm
         :schema="schema"
         :state="state"
@@ -105,6 +108,10 @@ async function onError(error: any) {
             placeholder="Bitte wählen"
             class="w-full"
           />
+          <template #help>
+            Für einen meldepflichtigen Wettkampf über LADV brauchst du einen
+            DLV-Startpass.
+          </template>
         </UFormField>
 
         <UFormField label="Anmerkungen" name="notes" size="lg">
@@ -119,19 +126,21 @@ async function onError(error: any) {
           <UCheckbox
             v-model="state.terms_accepted"
             required
-            label="Ich bestätige hiermit meine Teilnahme am Wettkampf"
+            label="Ich bestätige hiermit, dass ich mich selber anmelde und dass ich am Wettkampf teilnehmen möchte."
             :ui="{
               base: 'dark:ring-(--ui-primary)',
             }"
           />
-          <template #help>
-            Nach Absenden des Formulars erhältst du eine E-Mail mit einem
-            Bestätigungslink. Klicke diesen an, um deine Teilnahme zu
-            bestätigen.
-          </template>
         </UFormField>
 
-        <UButton type="submit" color="primary"> Anmeldung absenden </UButton>
+        <p class="text-sm text-gray-400">
+          Nach Absenden des Formulars erhältst du eine E-Mail mit einem
+          Bestätigungslink. Klicke diesen an, um deine Teilnahme zu bestätigen.
+        </p>
+
+        <UButton type="submit" color="primary" :loading="isSubmitting">
+          Anmeldung absenden
+        </UButton>
       </UForm>
     </BaseLayer>
   </BasePage>

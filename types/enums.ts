@@ -108,7 +108,7 @@ export const EmailTypeLabels: Record<EmailType, string> = {
 
 export const RegistrationStatusLabels: Record<RegistrationStatusType, string> =
   {
-    [RegistrationStatuses.PENDING]: 'Ausstehend',
+    [RegistrationStatuses.PENDING]: 'Anmeldung ausstehend',
     [RegistrationStatuses.CONFIRMED]: 'Bestätigt',
     [RegistrationStatuses.CANCELED]: 'Abgemeldet',
     [RegistrationStatuses.PENDING_CANCELLATION]: 'Abmeldung ausstehend',

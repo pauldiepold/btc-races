@@ -15,7 +15,7 @@ defineProps({
   <li>
     <NuxtLink
       :to="to"
-      class="group hover:text-primary relative px-2 py-1 font-medium tracking-wider transition-colors"
+      class="hover:text-primary group relative px-2 py-1 font-medium tracking-wider transition-colors"
       :class="{ 'text-primary': $route.path === to }"
     >
       {{ label }}

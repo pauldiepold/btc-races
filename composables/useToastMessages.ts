@@ -27,7 +27,7 @@ export function useToastMessages() {
       title: 'Erfolg',
       description: message,
       color: 'success',
-      duration: 3000,
+      duration: 4000,
     })
   }
 

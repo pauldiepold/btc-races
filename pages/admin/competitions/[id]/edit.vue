@@ -40,9 +40,7 @@ async function onSubmit(data: Competition) {
     showSuccess('Der Wettkampf wurde erfolgreich aktualisiert')
 
     // Weiterleitung zur Detailseite
-    setTimeout(async () => {
-      await navigateTo(`/competitions/${route.params.id}`)
-    }, 1500)
+    await navigateTo(`/competitions/${route.params.id}`)
   } catch (error: any) {
     showError(error.message || 'Ein Fehler ist aufgetreten')
   }
@@ -54,8 +52,9 @@ async function onSubmit(data: Competition) {
     heading="Wettkampf bearbeiten"
     :back-link="`/competitions/${route.params.id}`"
     back-link-text="Zurück zum Wettkampf"
+    max-width="2xl"
   >
-    <BaseLayer class="max-w-2xl">
+    <BaseLayer>
       <div v-if="loading" class="py-8 text-center">
         <UIcon name="lucide:loader" class="animate-spin text-3xl" />
       </div>

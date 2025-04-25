@@ -71,31 +71,36 @@ const cancelRegistration = async () => {
 
 <template>
   <div class="rounded bg-(--ui-bg) p-3">
-    <div class="grid grid-cols-2 gap-4">
+    <div class="flex flex-col gap-3">
+      <!-- Hauptinformationen -->
       <div>
-        <p class="font-medium">{{ registration.member.name }}</p>
-        <p class="text-sm" :class="statusColor">
-          {{ RegistrationStatusLabels[registration.status] }}
+        <p class="text-lg font-medium">{{ registration.member.name }}</p>
+        <p v-if="registration.notes" class="mt-1 text-sm text-gray-600">
+          {{ registration.notes }}
         </p>
       </div>
-      <div class="text-right">
-        <div class="flex items-center justify-end gap-2 text-sm text-gray-500">
-          <span>{{
-            new Date(registration.created_at).toLocaleDateString('de-DE')
-          }}</span>
-          <UIcon name="lucide:calendar" class="h-4 w-4" />
+
+      <!-- Status und Aktionen -->
+      <div
+        class="flex items-center justify-between border-t border-gray-600 pt-3"
+      >
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium" :class="statusColor">
+            {{ RegistrationStatusLabels[registration.status] }}
+          </span>
+          <span class="text-xs text-gray-500">
+            ({{
+              new Date(registration.created_at).toLocaleDateString('de-DE')
+            }})
+          </span>
         </div>
 
-        <!-- Abmelden-Button nur für bestätigte Teilnehmer anzeigen -->
-
-        <!-- Modal zur Bestätigung der Abmeldung -->
         <UModal v-model:open="isModalOpen" title="Teilnahme abmelden">
           <UButton
             v-if="registration.status === 'confirmed'"
             color="error"
             variant="soft"
-            size="xs"
-            class="mt-2"
+            size="sm"
           >
             Abmelden
           </UButton>
@@ -128,8 +133,5 @@ const cancelRegistration = async () => {
         </UModal>
       </div>
     </div>
-    <p v-if="registration.notes" class="mt-2 text-sm text-gray-600">
-      {{ registration.notes }}
-    </p>
   </div>
 </template>

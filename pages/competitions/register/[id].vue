@@ -85,7 +85,7 @@ async function onError(error: any) {
     :heading="`Anmeldung: ${competition?.name}`"
     :back-link="`/competitions/${competition?.id}`"
     back-link-text="Zurück zum Wettkampf"
-    max-width="3xl"
+    max-width="max-w-3xl"
   >
     <template v-if="competition" #sidebar>
       <h2 class="mb-4 text-lg font-bold">Wettkampfdetails</h2>

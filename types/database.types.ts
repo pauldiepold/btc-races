@@ -81,58 +81,79 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'competition_distances_competition_id_fkey'
-            columns: ['competition_id']
-            referencedRelation: 'competitions'
-            referencedColumns: ['id']
+            foreignKeyName: "competition_distances_competition_id_fkey"
+            columns: ["competition_id"]
+            referencedRelation: "competitions"
+            referencedColumns: ["id"]
           },
         ]
       }
       competitions: {
         Row: {
           announcement_link: string | null
-          championship_type: Database['public']['Enums']['championship_type']
+          ausrichter: string | null
+          championship_type: Database["public"]["Enums"]["championship_type"]
           created_at: string | null
           created_by: string | null
           date: string
           description: string | null
           id: number
+          ladv_data: Json | null
+          ladv_description: string | null
+          ladv_id: number | null
+          ladv_last_sync: string | null
           location: string | null
           name: string
-          race_type: Database['public']['Enums']['race_type']
+          race_type: Database["public"]["Enums"]["race_type"]
           registration_deadline: string
-          registration_type: Database['public']['Enums']['registration_type']
+          registration_type: Database["public"]["Enums"]["registration_type"]
+          sportstaette: string | null
           updated_at: string | null
+          veranstalter: string | null
         }
         Insert: {
           announcement_link?: string | null
-          championship_type?: Database['public']['Enums']['championship_type']
+          ausrichter?: string | null
+          championship_type?: Database["public"]["Enums"]["championship_type"]
           created_at?: string | null
           created_by?: string | null
           date: string
           description?: string | null
           id?: number
+          ladv_data?: Json | null
+          ladv_description?: string | null
+          ladv_id?: number | null
+          ladv_last_sync?: string | null
           location?: string | null
           name: string
-          race_type?: Database['public']['Enums']['race_type']
+          race_type?: Database["public"]["Enums"]["race_type"]
           registration_deadline: string
-          registration_type?: Database['public']['Enums']['registration_type']
+          registration_type?: Database["public"]["Enums"]["registration_type"]
+          sportstaette?: string | null
           updated_at?: string | null
+          veranstalter?: string | null
         }
         Update: {
           announcement_link?: string | null
-          championship_type?: Database['public']['Enums']['championship_type']
+          ausrichter?: string | null
+          championship_type?: Database["public"]["Enums"]["championship_type"]
           created_at?: string | null
           created_by?: string | null
           date?: string
           description?: string | null
           id?: number
+          ladv_data?: Json | null
+          ladv_description?: string | null
+          ladv_id?: number | null
+          ladv_last_sync?: string | null
           location?: string | null
           name?: string
-          race_type?: Database['public']['Enums']['race_type']
+          race_type?: Database["public"]["Enums"]["race_type"]
           registration_deadline?: string
-          registration_type?: Database['public']['Enums']['registration_type']
+          registration_type?: Database["public"]["Enums"]["registration_type"]
+          sportstaette?: string | null
           updated_at?: string | null
+          veranstalter?: string | null
         }
         Relationships: []
       }
@@ -157,16 +178,16 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'emails_member_id_fkey'
-            columns: ['member_id']
-            referencedRelation: 'members'
-            referencedColumns: ['id']
+            foreignKeyName: "emails_member_id_fkey"
+            columns: ["member_id"]
+            referencedRelation: "members"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'emails_member_id_fkey'
-            columns: ['member_id']
-            referencedRelation: 'members_with_emails'
-            referencedColumns: ['id']
+            foreignKeyName: "emails_member_id_fkey"
+            columns: ["member_id"]
+            referencedRelation: "members_with_emails"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -204,7 +225,7 @@ export type Database = {
           id: number
           member_id: number
           notes: string | null
-          status: Database['public']['Enums']['registration_status'] | null
+          status: Database["public"]["Enums"]["registration_status"] | null
           updated_at: string | null
         }
         Insert: {
@@ -213,7 +234,7 @@ export type Database = {
           id?: number
           member_id: number
           notes?: string | null
-          status?: Database['public']['Enums']['registration_status'] | null
+          status?: Database["public"]["Enums"]["registration_status"] | null
           updated_at?: string | null
         }
         Update: {
@@ -222,27 +243,27 @@ export type Database = {
           id?: number
           member_id?: number
           notes?: string | null
-          status?: Database['public']['Enums']['registration_status'] | null
+          status?: Database["public"]["Enums"]["registration_status"] | null
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: 'registrations_competition_id_fkey'
-            columns: ['competition_id']
-            referencedRelation: 'competitions'
-            referencedColumns: ['id']
+            foreignKeyName: "registrations_competition_id_fkey"
+            columns: ["competition_id"]
+            referencedRelation: "competitions"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'registrations_member_id_fkey'
-            columns: ['member_id']
-            referencedRelation: 'members'
-            referencedColumns: ['id']
+            foreignKeyName: "registrations_member_id_fkey"
+            columns: ["member_id"]
+            referencedRelation: "members"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'registrations_member_id_fkey'
-            columns: ['member_id']
-            referencedRelation: 'members_with_emails'
-            referencedColumns: ['id']
+            foreignKeyName: "registrations_member_id_fkey"
+            columns: ["member_id"]
+            referencedRelation: "members_with_emails"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -294,22 +315,22 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'sent_emails_registration_id_fkey'
-            columns: ['registration_id']
-            referencedRelation: 'public_registrations'
-            referencedColumns: ['id']
+            foreignKeyName: "sent_emails_registration_id_fkey"
+            columns: ["registration_id"]
+            referencedRelation: "public_registrations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'sent_emails_registration_id_fkey'
-            columns: ['registration_id']
-            referencedRelation: 'registrations'
-            referencedColumns: ['id']
+            foreignKeyName: "sent_emails_registration_id_fkey"
+            columns: ["registration_id"]
+            referencedRelation: "registrations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'sent_emails_registration_id_fkey'
-            columns: ['registration_id']
-            referencedRelation: 'registrations_with_details'
-            referencedColumns: ['id']
+            foreignKeyName: "sent_emails_registration_id_fkey"
+            columns: ["registration_id"]
+            referencedRelation: "registrations_with_details"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -334,14 +355,15 @@ export type Database = {
           created_at: string | null
           id: number | null
           member_name: string | null
-          status: Database['public']['Enums']['registration_status'] | null
+          status: Database["public"]["Enums"]["registration_status"] | null
         }
         Relationships: []
       }
       registrations_with_details: {
         Row: {
+          ausrichter: string | null
           championship_type:
-            | Database['public']['Enums']['championship_type']
+            | Database["public"]["Enums"]["championship_type"]
             | null
           competition_date: string | null
           competition_id: number | null
@@ -350,33 +372,38 @@ export type Database = {
           created_at: string | null
           has_ladv_startpass: boolean | null
           id: number | null
+          ladv_description: string | null
+          ladv_id: number | null
+          ladv_last_sync: string | null
           member_email: string | null
           member_id: number | null
           member_name: string | null
           notes: string | null
-          race_type: Database['public']['Enums']['race_type'] | null
+          race_type: Database["public"]["Enums"]["race_type"] | null
           registration_deadline: string | null
-          status: Database['public']['Enums']['registration_status'] | null
+          sportstaette: string | null
+          status: Database["public"]["Enums"]["registration_status"] | null
           updated_at: string | null
+          veranstalter: string | null
         }
         Relationships: [
           {
-            foreignKeyName: 'registrations_competition_id_fkey'
-            columns: ['competition_id']
-            referencedRelation: 'competitions'
-            referencedColumns: ['id']
+            foreignKeyName: "registrations_competition_id_fkey"
+            columns: ["competition_id"]
+            referencedRelation: "competitions"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'registrations_member_id_fkey'
-            columns: ['member_id']
-            referencedRelation: 'members'
-            referencedColumns: ['id']
+            foreignKeyName: "registrations_member_id_fkey"
+            columns: ["member_id"]
+            referencedRelation: "members"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'registrations_member_id_fkey'
-            columns: ['member_id']
-            referencedRelation: 'members_with_emails'
-            referencedColumns: ['id']
+            foreignKeyName: "registrations_member_id_fkey"
+            columns: ["member_id"]
+            referencedRelation: "members_with_emails"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -403,34 +430,34 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'registrations_member_id_fkey'
-            columns: ['member_id']
-            referencedRelation: 'members'
-            referencedColumns: ['id']
+            foreignKeyName: "registrations_member_id_fkey"
+            columns: ["member_id"]
+            referencedRelation: "members"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'registrations_member_id_fkey'
-            columns: ['member_id']
-            referencedRelation: 'members_with_emails'
-            referencedColumns: ['id']
+            foreignKeyName: "registrations_member_id_fkey"
+            columns: ["member_id"]
+            referencedRelation: "members_with_emails"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'sent_emails_registration_id_fkey'
-            columns: ['registration_id']
-            referencedRelation: 'public_registrations'
-            referencedColumns: ['id']
+            foreignKeyName: "sent_emails_registration_id_fkey"
+            columns: ["registration_id"]
+            referencedRelation: "public_registrations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'sent_emails_registration_id_fkey'
-            columns: ['registration_id']
-            referencedRelation: 'registrations'
-            referencedColumns: ['id']
+            foreignKeyName: "sent_emails_registration_id_fkey"
+            columns: ["registration_id"]
+            referencedRelation: "registrations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'sent_emails_registration_id_fkey'
-            columns: ['registration_id']
-            referencedRelation: 'registrations_with_details'
-            referencedColumns: ['id']
+            foreignKeyName: "sent_emails_registration_id_fkey"
+            columns: ["registration_id"]
+            referencedRelation: "registrations_with_details"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -439,14 +466,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      championship_type: 'NO_CHAMPIONSHIP' | 'BBM' | 'NDM' | 'DM'
-      race_type: 'TRACK' | 'ROAD'
+      championship_type: "NO_CHAMPIONSHIP" | "BBM" | "NDM" | "DM"
+      race_type: "TRACK" | "ROAD"
       registration_status:
-        | 'pending'
-        | 'confirmed'
-        | 'canceled'
-        | 'pending_cancellation'
-      registration_type: 'INDEPENDENT' | 'LADV' | 'CLUB'
+        | "pending"
+        | "confirmed"
+        | "canceled"
+        | "pending_cancellation"
+      registration_type: "INDEPENDENT" | "LADV" | "CLUB"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -562,10 +589,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'objects_bucketId_fkey'
-            columns: ['bucket_id']
-            referencedRelation: 'buckets'
-            referencedColumns: ['id']
+            foreignKeyName: "objects_bucketId_fkey"
+            columns: ["bucket_id"]
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -593,10 +620,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'prefixes_bucketId_fkey'
-            columns: ['bucket_id']
-            referencedRelation: 'buckets'
-            referencedColumns: ['id']
+            foreignKeyName: "prefixes_bucketId_fkey"
+            columns: ["bucket_id"]
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -636,10 +663,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 's3_multipart_uploads_bucket_id_fkey'
-            columns: ['bucket_id']
-            referencedRelation: 'buckets'
-            referencedColumns: ['id']
+            foreignKeyName: "s3_multipart_uploads_bucket_id_fkey"
+            columns: ["bucket_id"]
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -682,16 +709,16 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 's3_multipart_uploads_parts_bucket_id_fkey'
-            columns: ['bucket_id']
-            referencedRelation: 'buckets'
-            referencedColumns: ['id']
+            foreignKeyName: "s3_multipart_uploads_parts_bucket_id_fkey"
+            columns: ["bucket_id"]
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 's3_multipart_uploads_parts_upload_id_fkey'
-            columns: ['upload_id']
-            referencedRelation: 's3_multipart_uploads'
-            referencedColumns: ['id']
+            foreignKeyName: "s3_multipart_uploads_parts_upload_id_fkey"
+            columns: ["upload_id"]
+            referencedRelation: "s3_multipart_uploads"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -865,29 +892,29 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, 'public'>]
+type DefaultSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-        Database[DefaultSchemaTableNameOrOptions['schema']]['Views'])
+    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-      Database[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
+  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] &
-        DefaultSchema['Views'])
-    ? (DefaultSchema['Tables'] &
-        DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -896,21 +923,21 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -919,21 +946,21 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -942,32 +969,32 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema['Enums']
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof Database },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
+    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
-    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema['CompositeTypes']
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
-    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
@@ -979,15 +1006,15 @@ export const Constants = {
   },
   public: {
     Enums: {
-      championship_type: ['NO_CHAMPIONSHIP', 'BBM', 'NDM', 'DM'],
-      race_type: ['TRACK', 'ROAD'],
+      championship_type: ["NO_CHAMPIONSHIP", "BBM", "NDM", "DM"],
+      race_type: ["TRACK", "ROAD"],
       registration_status: [
-        'pending',
-        'confirmed',
-        'canceled',
-        'pending_cancellation',
+        "pending",
+        "confirmed",
+        "canceled",
+        "pending_cancellation",
       ],
-      registration_type: ['INDEPENDENT', 'LADV', 'CLUB'],
+      registration_type: ["INDEPENDENT", "LADV", "CLUB"],
     },
   },
   storage: {

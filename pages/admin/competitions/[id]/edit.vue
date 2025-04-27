@@ -52,7 +52,7 @@ async function onSubmit(data: Competition) {
     heading="Wettkampf bearbeiten"
     :back-link="`/competitions/${route.params.id}`"
     back-link-text="Zurück zum Wettkampf"
-    max-width="2xl"
+    max-width="max-w-2xl"
   >
     <BaseLayer>
       <div v-if="loading" class="py-8 text-center">

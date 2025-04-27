@@ -218,3 +218,42 @@ export default defineEventHandler(async (event) => {
   return { success: true }
 })
 ```
+
+## LADV-Integration
+
+Die Anwendung unterstützt die Integration mit dem [LADV-System](https://ladv.de/entwickler) (Leichtathletik-Verband Baden-Württemberg). Dies ermöglicht das automatische Importieren von Wettkampfdaten aus dem LADV-System.
+
+### Funktionalität
+
+- **Automatischer Import**: Wettkämpfe können über ihre LADV-ID importiert werden
+- **Daten-Synchronisation**: Automatische Aktualisierung der Wettkampfdaten
+- **Mock-Modus**: Entwicklung und Tests ohne API-Zugriff möglich
+
+### Konfiguration
+
+Die Integration wird über Umgebungsvariablen konfiguriert:
+
+```env
+NUXT_LADV_PROVIDER=mock|api  # Standard: mock
+NUXT_LADV_API_KEY=your-key   # Nur für API-Modus erforderlich
+```
+
+### Technische Details
+
+- **API-Dokumentation**: [LADV API V2 Dokumentation](https://html.ladv.de/api/2024-07-17-LADVAPIDokumentation-V2-014.pdf)
+- **Datenmodell**: Erweiterung der `competitions`-Tabelle um LADV-spezifische Felder
+- **Mock-Daten**: Realistische Testdaten für Entwicklung und Tests
+
+### Verwendung
+
+```typescript
+import { LadvService } from '~/server/ladv'
+
+const ladvService = new LadvService()
+
+// Wettkampfdetails abrufen
+const competition = await ladvService.getCompetitionDetails(123)
+
+// Nach Wettkämpfen suchen
+const competitions = await ladvService.searchCompetitions('Stuttgart')
+```

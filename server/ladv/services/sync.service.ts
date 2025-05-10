@@ -37,6 +37,8 @@ export class LadvSyncService {
     // Daten für die Aktualisierung vorbereiten
     const updateData = {
       name: ladvData.name,
+      location: ladvData.ort.name,
+      announcement_link: ladvData.url,
       veranstalter: ladvData.veranstalter,
       ausrichter: ladvData.ausrichter,
       sportstaette: ladvData.sportstaette,

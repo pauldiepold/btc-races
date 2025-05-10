@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { Database } from '~/types/database.types'
 import {
   championshipTypeItems,
   raceTypeItems,
   registrationTypeItems,
+} from '~/types/enums'
+import type {
+  RaceType,
+  RegistrationType,
+  ChampionshipType,
 } from '~/types/enums'
 import type { Competition } from '~/types/models.types'
 
@@ -89,11 +93,7 @@ function updateField<K extends keyof Competition>(
               fieldset: 'gap-2',
             }"
             @update:model-value="
-              (v: string) =>
-                updateField(
-                  'race_type',
-                  v as Database['public']['Enums']['race_type']
-                )
+              (v: string) => updateField('race_type', v as RaceType)
             "
           />
         </UFormField>
@@ -111,10 +111,7 @@ function updateField<K extends keyof Competition>(
             }"
             @update:model-value="
               (v: string) =>
-                updateField(
-                  'registration_type',
-                  v as Database['public']['Enums']['registration_type']
-                )
+                updateField('registration_type', v as RegistrationType)
             "
           />
         </UFormField>
@@ -133,10 +130,7 @@ function updateField<K extends keyof Competition>(
           }"
           @update:model-value="
             (v: string) =>
-              updateField(
-                'championship_type',
-                v as Database['public']['Enums']['championship_type']
-              )
+              updateField('championship_type', v as ChampionshipType)
           "
         />
       </UFormField>
@@ -191,6 +185,22 @@ function updateField<K extends keyof Competition>(
               'announcement_link',
               (e.target as HTMLInputElement).value
             )
+        "
+      />
+    </UFormField>
+    <UFormField label="LADV-ID" size="lg" name="ladv_id">
+      <UInput
+        :value="modelValue.ladv_id"
+        type="number"
+        class="w-full"
+        @input="
+          (e: Event) => {
+            console.log(e.target)
+            return updateField(
+              'ladv_id',
+              e.target ? parseInt((e.target as HTMLInputElement).value) : null
+            )
+          }
         "
       />
     </UFormField>

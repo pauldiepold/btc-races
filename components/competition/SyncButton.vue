@@ -1,14 +1,3 @@
-<template>
-  <UButton
-    v-if="user && competition?.ladv_id"
-    color="primary"
-    :loading="isSyncing"
-    @click="syncWithLadv"
-  >
-    Mit LADV synchronisieren
-  </UButton>
-</template>
-
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { Competition } from '~/types/models.types'
@@ -48,3 +37,14 @@ async function syncWithLadv() {
   }
 }
 </script>
+
+<template>
+  <UButton
+    v-if="user && competition?.ladv_id"
+    color="primary"
+    :loading="isSyncing"
+    @click="syncWithLadv"
+  >
+    Mit LADV synchronisieren
+  </UButton>
+</template>

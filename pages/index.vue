@@ -200,7 +200,14 @@ watch(
         <h2 class="text-lg font-semibold">Über das Anmeldesystem</h2>
         <p>
           Mit diesem System kannst du dich für aktuelle Wettkämpfe anmelden, die
-          per LADV durch unsere Coaches gemeldet werden müssen.
+          über
+          <a
+            class="cursor-pointer underline"
+            target="_blank"
+            href="https://ladv.de/berlin/ausschreibungen"
+            >LADV</a
+          >
+          durch unsere Coaches gemeldet werden müssen.
         </p>
         <hr />
         <p>So meldest du dich an:</p>
@@ -214,13 +221,13 @@ watch(
             Anmeldung.
           </li>
           <li>
-            In der Bestätigungs-E-Mail findest du einen Link zur Anmeldung, über
-            den du deine Teilnahme bestätigen musst.
+            Du bekommst eine E-Mail an deine bei uns hinterlegte E-Mail-Adresse
+            mit einem Link, über den du deine Teilnahme bestätigen musst.
           </li>
         </ul>
         <hr />
         <p>
-          Kurz vor Ende der Meldefrist hast du noch einmal die Möglichkeit dich
+          Bis kurz vor Ende der Meldefrist hast du noch die Möglichkeit dich
           abzumelden. Ansonsten wirst du durch unsere Coaches bei dem Wettkampf
           angemeldet.
         </p>

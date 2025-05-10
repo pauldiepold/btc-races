@@ -75,12 +75,16 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
 - ✅ nicht bei Events anmelden können, bei denen die Anmeldefrist vergangen ist
 - ✅ Startpass importieren aus Campai
   - ✅ Anmeldung bei meldepflichtigen Events sperren
-- ❌ Echte Daten zu den Wettkämpfen importieren --> von LADV importieren
+- ✅ Echte Daten zu den Wettkämpfen importieren --> von LADV importieren
 - ✅ Beschreibungen überall anpassen:
   - ✅ Register: Falls du keinen Startpass hast... --> rechts in der Sidebar evt. noch die Kurzinfos zum Wettkampf anzeigen
   - ✅ Ist die Startseite ausreichend?
 
 ### Bonus:
+
+- Register ist nicht breit genug mit Sidebar, Add Competition zu breit
+- Captcha für öffentliche Formulare
+- Bestätigungsmail nach Bestätigung: Details und Link zum Wettkampf, Abmeldung möglich bis
 
 - ❌ User können selbst Wettkämpfe einstellen --> Freischaltung durch Admins notwendig?
 - ❌ Light-Mode wieder aktivieren und Design etwas verbessern

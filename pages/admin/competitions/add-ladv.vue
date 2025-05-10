@@ -18,16 +18,12 @@ async function onSubmit() {
 
   isSubmitting.value = true
   try {
-    const { data, error } = await $fetch('/api/competitions/ladv', {
+    const data = await $fetch('/api/competitions/ladv', {
       method: 'POST',
       body: {
         ladvUrl: state.value.ladvUrl,
       },
     })
-
-    if (error) {
-      throw new Error(error.message)
-    }
 
     showSuccess('Der Wettkampf wurde erfolgreich erstellt.')
     setTimeout(() => {

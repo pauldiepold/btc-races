@@ -63,6 +63,7 @@ const canRegister = computed(() => {
         >
           Wettkampf bearbeiten
         </UButton>
+        <CompetitionSyncButton :competition="competition" />
       </div>
     </template>
     <template #sidebar>

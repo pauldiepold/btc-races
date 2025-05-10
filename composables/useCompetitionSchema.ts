@@ -19,6 +19,7 @@ const baseSchema = z.object({
   championship_type: z.enum(ZOD_CHAMPIONSHIP_TYPES),
   race_type: z.enum(ZOD_RACE_TYPES),
   registration_type: z.enum(ZOD_REGISTRATION_TYPES),
+  ladv_id: z.number().nullable().optional(),
 })
 
 export const competitionSchema = baseSchema.superRefine((data, ctx) => {

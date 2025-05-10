@@ -16,7 +16,7 @@ withDefaults(
 </script>
 
 <template>
-  <div :class="maxWidth ? `max-w-${maxWidth} mx-auto` : ''">
+  <div :class="maxWidth ? `${maxWidth} mx-auto` : ''">
     <UButton
       v-if="backLink && backLinkText"
       :to="backLink"

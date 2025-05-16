@@ -63,6 +63,7 @@ const canRegister = computed(() => {
         >
           Wettkampf bearbeiten
         </UButton>
+        <CompetitionSyncButton :competition="competition" />
       </div>
     </template>
     <template #sidebar>
@@ -90,6 +91,10 @@ const canRegister = computed(() => {
       </div>
     </template>
 
+    <template v-if="competition" #right-of-heading>
+      <CompetitionStatus :competition="competition" />
+    </template>
+
     <div v-if="competition" class="space-y-6">
       <!-- Wettkampfdetails -->
       <CompetitionDetails :competition="competition" />
@@ -108,6 +113,9 @@ const canRegister = computed(() => {
       <!-- Ausschreibung -->
       <BaseLayer v-if="competition.announcement_link">
         <h2 class="mb-4 text-xl font-bold">Ausschreibung</h2>
+        <p v-if="competition.ladv_description" class="mb-4">
+          {{ competition.ladv_description }}
+        </p>
         <p class="mb-4">
           Weitere Details findest du in der offiziellen Ausschreibung:
         </p>

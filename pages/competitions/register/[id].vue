@@ -82,15 +82,12 @@ async function onError(error: any) {
 
 <template>
   <BasePage
-    :heading="`Anmeldung: ${competition?.name}`"
+    :heading="competition?.name"
     :back-link="`/competitions/${competition?.id}`"
     back-link-text="Zurück zum Wettkampf"
-    max-width="3xl"
+    max-width="max-w-3xl"
   >
-    <template v-if="competition" #sidebar>
-      <h2 class="mb-4 text-lg font-bold">Wettkampfdetails</h2>
-      <CompetitionDetails :competition="competition" />
-    </template>
+    <h2 class="mb-4 text-lg font-bold">Anmeldung</h2>
     <BaseLayer>
       <UForm
         :schema="schema"
@@ -122,11 +119,17 @@ async function onError(error: any) {
           />
         </UFormField>
 
-        <UFormField name="terms" size="lg" required color="primary">
+        <UFormField
+          v-if="state.member_id"
+          name="terms"
+          size="lg"
+          required
+          color="primary"
+        >
           <UCheckbox
             v-model="state.terms_accepted"
             required
-            label="Ich bestätige hiermit, dass ich mich selber anmelde und dass ich am Wettkampf teilnehmen möchte."
+            :label="`Ich bestätige hiermit, dass ich ${memberStore.getMemberById(state.member_id)?.name} bin und am Wettkampf ${competition?.name} teilnehmen möchte.`"
             :ui="{
               base: 'dark:ring-(--ui-primary)',
             }"
@@ -134,8 +137,9 @@ async function onError(error: any) {
         </UFormField>
 
         <p class="text-sm text-gray-400">
-          Nach Absenden des Formulars erhältst du eine E-Mail mit einem
-          Bestätigungslink. Klicke diesen an, um deine Teilnahme zu bestätigen.
+          Nach Absenden des Formulars erhältst du eine E-Mail an deine bei uns
+          hinterlegte E-Mail-Adresse mit einem Link, über den du deine Teilnahme
+          bestätigen musst.
         </p>
 
         <UButton type="submit" color="primary" :loading="isSubmitting">
@@ -143,5 +147,11 @@ async function onError(error: any) {
         </UButton>
       </UForm>
     </BaseLayer>
+    <template v-if="competition">
+      <h2 class="mt-8 mb-4 text-lg font-bold">
+        Wettkampfdetails zu {{ competition.name }}
+      </h2>
+      <CompetitionDetails :competition="competition" />
+    </template>
   </BasePage>
 </template>

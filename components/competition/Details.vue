@@ -4,6 +4,7 @@ import {
   RegistrationTypeLabels,
   RaceTypeLabels,
   ChampionshipTypeLabels,
+  ChampionshipTypes,
 } from '~/types/enums'
 
 defineProps<{
@@ -14,11 +15,7 @@ defineProps<{
 <template>
   <BaseLayer>
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-      <UFormField label="Status" size="lg">
-        <CompetitionStatus class="mt-2" :competition="competition" />
-      </UFormField>
-
-      <UFormField label="Ort" size="lg">
+      <UFormField v-if="competition.location" label="Ort" size="xl">
         <UInput
           :model-value="competition.location"
           icon="lucide:map-pin"
@@ -27,29 +24,63 @@ defineProps<{
         />
       </UFormField>
 
-      <UFormField label="Meldefrist" size="lg" class="w-full !cursor-pointer">
+      <UFormField v-if="competition.sportstaette" label="Sportstätte" size="xl">
         <UInput
-          :model-value="
-            new Date(competition.registration_deadline).toLocaleDateString(
-              'de-DE'
-            )
-          "
-          icon="lucide:clock"
+          :model-value="competition.sportstaette"
+          icon="lucide:map-pin"
           class="w-full !cursor-pointer"
           disabled
         />
       </UFormField>
 
-      <UFormField label="Datum" size="lg">
+      <div class="col-start-1 grid grid-cols-2 gap-4">
+        <UFormField label="Meldefrist" size="xl" class="w-full !cursor-pointer">
+          <UInput
+            :model-value="
+              new Date(competition.registration_deadline).toLocaleDateString(
+                'de-DE'
+              )
+            "
+            icon="lucide:clock"
+            class="w-full !cursor-pointer"
+            disabled
+          />
+        </UFormField>
+
+        <UFormField label="Datum" size="xl">
+          <UInput
+            :model-value="
+              new Date(competition.date).toLocaleDateString('de-DE')
+            "
+            icon="lucide:calendar"
+            class="w-full !cursor-pointer"
+            disabled
+          />
+        </UFormField>
+      </div>
+
+      <UFormField
+        v-if="competition.veranstalter"
+        class="col-start-1"
+        label="Veranstalter"
+        size="xl"
+      >
         <UInput
-          :model-value="new Date(competition.date).toLocaleDateString('de-DE')"
-          icon="lucide:calendar"
+          :model-value="competition.veranstalter"
           class="w-full !cursor-pointer"
           disabled
         />
       </UFormField>
 
-      <UFormField label="Anmeldung" size="lg">
+      <UFormField v-if="competition.ausrichter" label="Ausrichter" size="xl">
+        <UInput
+          :model-value="competition.ausrichter"
+          class="w-full !cursor-pointer"
+          disabled
+        />
+      </UFormField>
+
+      <UFormField v-if="false" label="Anmeldung" size="xl">
         <UInput
           :model-value="RegistrationTypeLabels[competition.registration_type]"
           icon="lucide:tag"
@@ -58,7 +89,7 @@ defineProps<{
         />
       </UFormField>
 
-      <UFormField label="Rennart" size="lg">
+      <UFormField label="Rennart" size="xl" class="col-start-1">
         <UInput
           :model-value="RaceTypeLabels[competition.race_type]"
           icon="lucide:ruler"
@@ -67,7 +98,13 @@ defineProps<{
         />
       </UFormField>
 
-      <UFormField label="Meisterschaft" size="lg">
+      <UFormField
+        v-if="
+          competition.championship_type !== ChampionshipTypes.NO_CHAMPIONSHIP
+        "
+        label="Meisterschaft"
+        size="xl"
+      >
         <UInput
           :model-value="ChampionshipTypeLabels[competition.championship_type]"
           icon="lucide:clock"

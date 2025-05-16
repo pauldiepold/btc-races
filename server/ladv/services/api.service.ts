@@ -14,9 +14,10 @@ export class LadvService {
   private provider: ApiLadvProvider | MockLadvProvider
 
   constructor() {
-    this.provider = ladvConfig.provider === 'api'
-      ? new ApiLadvProvider()
-      : new MockLadvProvider()
+    this.provider =
+      ladvConfig.provider === 'api'
+        ? new ApiLadvProvider()
+        : new MockLadvProvider()
   }
 
   /**
@@ -32,4 +33,4 @@ export class LadvService {
   async searchCompetitions(query: string): Promise<LadvCompetition[]> {
     return await this.provider.searchCompetitions(query)
   }
-} 
+}

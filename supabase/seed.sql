@@ -21,7 +21,7 @@ VALUES
     '2025-07-05',
     'https://example.com/sommergp2025',
     'Großes Sommerrennen mit internationaler Beteiligung.',
-    'LADV',
+    'CLUB',
     'ROAD',
     'BBM'
   ),
@@ -45,7 +45,7 @@ VALUES
     '2025-05-15',
     'https://example.com/citysprint2025',
     'Schnelles Stadtrennen durch die Frankfurter Innenstadt.',
-    'LADV',
+    'CLUB',
     'ROAD',
     'NO_CHAMPIONSHIP'
   ),
@@ -93,7 +93,7 @@ VALUES
     '2026-05-10',
     'https://example.com/nordsee2026',
     'Einzigartiges Strandrennen an der Nordseeküste.',
-    'LADV',
+    'INDEPENDENT',
     'TRACK',
     'NO_CHAMPIONSHIP'
   ),
@@ -117,7 +117,7 @@ VALUES
     '2025-11-30',
     'https://example.com/winter2025',
     'Magisches Winterrennen im verschneiten Allgäu.',
-    'LADV',
+    'INDEPENDENT',
     'TRACK',
     'BBM'
   ),
@@ -165,7 +165,7 @@ VALUES
     '2025-08-24',
     'https://example.com/ostsee2025',
     'Maritimes Rennerlebnis an der Ostseeküste.',
-    'LADV',
+    'CLUB',
     'TRACK',
     'BBM'
   ),

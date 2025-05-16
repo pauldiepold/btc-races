@@ -9,99 +9,419 @@ import type { LadvCompetition } from '~/types/ladv.types'
  */
 const mockCompetitions: LadvCompetition[] = [
   {
-    id: 1,
-    name: "25. Bönnigheimer Sportfest an Himmelfahrt",
-    sportstaette: "Sportanlagen Bönnigheim",
-    meldAdresse: "Rose Müller, Bei der Kelter 5, 74321 Bietigheim-Bissingen",
-    meldEmail: "meldungen@lg-neckar-enz.de",
-    veranstalter: "LG Neckar-Enz",
-    ausrichter: "TSV Bönnigheim",
-    beschreibung: "In den Laufdisziplinen bitte die Bestleistung 2023/2024 angeben. Weitere Hinweise finden Sie auf der Homepage des Sportfests unter www.sportfest-an-himmelfahrt.de",
-    datum: new Date("2024-05-09").getTime(),
-    datumText: "09.05.2024",
-    meldDatum: new Date("2024-05-05").getTime(),
-    meldDatumText: "05.05.2024",
+    id: 42008,
+    name: 'Abendsportfest',
+    sportstaette: 'Ernst-Reuter-Sportfeld',
+    meldAdresse: 'Detlef Weller, Beerenstr. 11, 14163 Berlin,',
+    meldEmail: 'weller-detlef@web.de',
+    veranstalter: 'Zehlendorfer TSV v. 1888',
+    ausrichter: 'Zehlendorfer TSV v. 1888',
+    beschreibung: '',
+    datum: 1747778400000,
+    datumText: '21.05.2025',
+    meldDatum: 1747432800000,
+    meldDatumText: '17.05.2025',
     abgesagt: false,
-    wrc: true,
-    url: "https://ladv.de/ausschreibung/detail/1",
-    tags: "jugend,stuttgart,schueler,ludwigsburg,aktive,rems-neckar",
+    url: 'https://ladv.de/ausschreibung/detail/42008/Abendsportfest-Berlin-Zehlendorf.htm',
+    tags: 'jugend,aktive',
+    kategorien: ['jugend', 'aktive'],
     ort: {
-      id: 55,
-      name: "Bönnigheim",
-      lv: "WÜ",
-      land: "DEU",
-      lng: 9.0942,
-      lat: 49.0387
+      id: 1497,
+      name: 'Berlin-Zehlendorf',
+      lv: 'BE',
+      land: 'DEU',
+      lng: 13.259,
+      lat: 52.434,
     },
+    veranstaltungen: [],
+    lvs: 'BE',
+    landesverband: ['BE'],
+    links: [],
+    attachements: [
+      {
+        name: 'Ausschreibung',
+        extension: '.docx',
+        url: 'https://ladv.de/ausschreibung/datei/380909',
+      },
+    ],
     wettbewerbe: [
-      { disziplin: "100", klasse: "M14" },
-      { disziplin: "300", klasse: "M14" },
-      { disziplin: "800", klasse: "M16" }
-    ]
+      {
+        disziplin: 'WEI',
+        klasse: 'WJB',
+        disziplinNew: 'TWEI',
+        klasseNew: 'WJU18',
+      },
+      {
+        disziplin: '800',
+        klasse: 'WJB',
+        disziplinNew: 'L800',
+        klasseNew: 'WJU18',
+      },
+      {
+        disziplin: '200',
+        klasse: 'WJB',
+        disziplinNew: 'L200',
+        klasseNew: 'WJU18',
+      },
+      {
+        disziplin: '100',
+        klasse: 'WJB',
+        disziplinNew: 'L100',
+        klasseNew: 'WJU18',
+      },
+      {
+        disziplin: '400',
+        klasse: 'WJB',
+        disziplinNew: 'L400',
+        klasseNew: 'WJU18',
+      },
+      {
+        disziplin: 'STA',
+        klasse: 'WJB',
+        disziplinNew: 'TSTA',
+        klasseNew: 'WJU18',
+      },
+      {
+        disziplin: 'HOC',
+        klasse: 'WJB',
+        disziplinNew: 'THOC',
+        klasseNew: 'WJU18',
+      },
+      {
+        disziplin: 'WEI',
+        klasse: 'M14',
+        disziplinNew: 'TWEI',
+        klasseNew: 'M14',
+      },
+      {
+        disziplin: '800',
+        klasse: 'M14',
+        disziplinNew: 'L800',
+        klasseNew: 'M14',
+      },
+      {
+        disziplin: '300',
+        klasse: 'M14',
+        disziplinNew: 'L300',
+        klasseNew: 'M14',
+      },
+      {
+        disziplin: '100',
+        klasse: 'M14',
+        disziplinNew: 'L100',
+        klasseNew: 'M14',
+      },
+      {
+        disziplin: 'STA',
+        klasse: 'M14',
+        disziplinNew: 'TSTA',
+        klasseNew: 'M14',
+      },
+      {
+        disziplin: 'HOC',
+        klasse: 'M14',
+        disziplinNew: 'THOC',
+        klasseNew: 'M14',
+      },
+      {
+        disziplin: 'WEI',
+        klasse: 'W14',
+        disziplinNew: 'TWEI',
+        klasseNew: 'W14',
+      },
+      {
+        disziplin: '800',
+        klasse: 'W14',
+        disziplinNew: 'L800',
+        klasseNew: 'W14',
+      },
+      {
+        disziplin: '300',
+        klasse: 'W14',
+        disziplinNew: 'L300',
+        klasseNew: 'W14',
+      },
+      {
+        disziplin: '100',
+        klasse: 'W14',
+        disziplinNew: 'L100',
+        klasseNew: 'W14',
+      },
+      {
+        disziplin: 'STA',
+        klasse: 'W14',
+        disziplinNew: 'TSTA',
+        klasseNew: 'W14',
+      },
+      {
+        disziplin: 'HOC',
+        klasse: 'W14',
+        disziplinNew: 'THOC',
+        klasseNew: 'W14',
+      },
+      {
+        disziplin: 'WEI',
+        klasse: 'MJA',
+        disziplinNew: 'TWEI',
+        klasseNew: 'MJU20',
+      },
+      {
+        disziplin: '800',
+        klasse: 'MJA',
+        disziplinNew: 'L800',
+        klasseNew: 'MJU20',
+      },
+      {
+        disziplin: '200',
+        klasse: 'MJA',
+        disziplinNew: 'L200',
+        klasseNew: 'MJU20',
+      },
+      {
+        disziplin: '100',
+        klasse: 'MJA',
+        disziplinNew: 'L100',
+        klasseNew: 'MJU20',
+      },
+      {
+        disziplin: '400',
+        klasse: 'MJA',
+        disziplinNew: 'L400',
+        klasseNew: 'MJU20',
+      },
+      {
+        disziplin: 'STA',
+        klasse: 'MJA',
+        disziplinNew: 'TSTA',
+        klasseNew: 'MJU20',
+      },
+      {
+        disziplin: 'HOC',
+        klasse: 'MJA',
+        disziplinNew: 'THOC',
+        klasseNew: 'MJU20',
+      },
+      {
+        disziplin: 'WEI',
+        klasse: 'MJB',
+        disziplinNew: 'TWEI',
+        klasseNew: 'MJU18',
+      },
+      {
+        disziplin: '800',
+        klasse: 'MJB',
+        disziplinNew: 'L800',
+        klasseNew: 'MJU18',
+      },
+      {
+        disziplin: '200',
+        klasse: 'MJB',
+        disziplinNew: 'L200',
+        klasseNew: 'MJU18',
+      },
+      {
+        disziplin: '400',
+        klasse: 'MJB',
+        disziplinNew: 'L400',
+        klasseNew: 'MJU18',
+      },
+      {
+        disziplin: 'STA',
+        klasse: 'MJB',
+        disziplinNew: 'TSTA',
+        klasseNew: 'MJU18',
+      },
+      {
+        disziplin: 'HOC',
+        klasse: 'MJB',
+        disziplinNew: 'THOC',
+        klasseNew: 'MJU18',
+      },
+      {
+        disziplin: 'WEI',
+        klasse: 'W15',
+        disziplinNew: 'TWEI',
+        klasseNew: 'W15',
+      },
+      {
+        disziplin: '800',
+        klasse: 'W15',
+        disziplinNew: 'L800',
+        klasseNew: 'W15',
+      },
+      {
+        disziplin: '300',
+        klasse: 'W15',
+        disziplinNew: 'L300',
+        klasseNew: 'W15',
+      },
+      {
+        disziplin: '100',
+        klasse: 'W15',
+        disziplinNew: 'L100',
+        klasseNew: 'W15',
+      },
+      {
+        disziplin: 'STA',
+        klasse: 'W15',
+        disziplinNew: 'TSTA',
+        klasseNew: 'W15',
+      },
+      {
+        disziplin: 'HOC',
+        klasse: 'W15',
+        disziplinNew: 'THOC',
+        klasseNew: 'W15',
+      },
+      {
+        disziplin: 'WEI',
+        klasse: 'WJA',
+        disziplinNew: 'TWEI',
+        klasseNew: 'WJU20',
+      },
+      {
+        disziplin: '800',
+        klasse: 'WJA',
+        disziplinNew: 'L800',
+        klasseNew: 'WJU20',
+      },
+      {
+        disziplin: '200',
+        klasse: 'WJA',
+        disziplinNew: 'L200',
+        klasseNew: 'WJU20',
+      },
+      {
+        disziplin: '100',
+        klasse: 'WJA',
+        disziplinNew: 'L100',
+        klasseNew: 'WJU20',
+      },
+      {
+        disziplin: '400',
+        klasse: 'WJA',
+        disziplinNew: 'L400',
+        klasseNew: 'WJU20',
+      },
+      {
+        disziplin: 'STA',
+        klasse: 'WJA',
+        disziplinNew: 'TSTA',
+        klasseNew: 'WJU20',
+      },
+      {
+        disziplin: 'HOC',
+        klasse: 'WJA',
+        disziplinNew: 'THOC',
+        klasseNew: 'WJU20',
+      },
+      {
+        disziplin: 'WEI',
+        klasse: 'M15',
+        disziplinNew: 'TWEI',
+        klasseNew: 'M15',
+      },
+      {
+        disziplin: '800',
+        klasse: 'M15',
+        disziplinNew: 'L800',
+        klasseNew: 'M15',
+      },
+      {
+        disziplin: '300',
+        klasse: 'M15',
+        disziplinNew: 'L300',
+        klasseNew: 'M15',
+      },
+      {
+        disziplin: '100',
+        klasse: 'M15',
+        disziplinNew: 'L100',
+        klasseNew: 'M15',
+      },
+      {
+        disziplin: 'STA',
+        klasse: 'M15',
+        disziplinNew: 'TSTA',
+        klasseNew: 'M15',
+      },
+      {
+        disziplin: 'HOC',
+        klasse: 'M15',
+        disziplinNew: 'THOC',
+        klasseNew: 'M15',
+      },
+      { disziplin: 'STA', klasse: 'M', disziplinNew: 'TSTA', klasseNew: 'M' },
+      { disziplin: 'STA', klasse: 'W', disziplinNew: 'TSTA', klasseNew: 'W' },
+    ],
   },
   {
     id: 2,
-    name: "Stuttgarter Stadtmeisterschaften",
-    sportstaette: "Gottlieb-Daimler-Stadion",
-    meldAdresse: "Stuttgarter Leichtathletik-Verband, Hauptstraße 1, 70173 Stuttgart",
-    meldEmail: "meldungen@slv.de",
-    veranstalter: "Stuttgarter Leichtathletik-Verband",
-    ausrichter: "LG Stuttgart",
-    beschreibung: "Die Stuttgarter Stadtmeisterschaften 2024. Alle Disziplinen der Leichtathletik werden angeboten.",
-    datum: new Date("2024-06-15").getTime(),
-    datumText: "15.06.2024",
-    meldDatum: new Date("2024-06-10").getTime(),
-    meldDatumText: "10.06.2024",
+    name: 'Stuttgarter Stadtmeisterschaften',
+    sportstaette: 'Gottlieb-Daimler-Stadion',
+    meldAdresse:
+      'Stuttgarter Leichtathletik-Verband, Hauptstraße 1, 70173 Stuttgart',
+    meldEmail: 'meldungen@slv.de',
+    veranstalter: 'Stuttgarter Leichtathletik-Verband',
+    ausrichter: 'LG Stuttgart',
+    beschreibung:
+      'Die Stuttgarter Stadtmeisterschaften 2024. Alle Disziplinen der Leichtathletik werden angeboten.',
+    datum: new Date('2024-06-15').getTime(),
+    datumText: '15.06.2024',
+    meldDatum: new Date('2024-06-10').getTime(),
+    meldDatumText: '10.06.2024',
     abgesagt: false,
     wrc: true,
-    url: "https://ladv.de/ausschreibung/detail/2",
-    tags: "stadtmeisterschaft,stuttgart,aktive,jugend",
+    url: 'https://ladv.de/ausschreibung/detail/2',
+    tags: 'stadtmeisterschaft,stuttgart,aktive,jugend',
     ort: {
       id: 1,
-      name: "Stuttgart",
-      lv: "WÜ",
-      land: "DEU",
+      name: 'Stuttgart',
+      lv: 'WÜ',
+      land: 'DEU',
       lng: 9.1815,
-      lat: 48.7758
+      lat: 48.7758,
     },
     wettbewerbe: [
-      { disziplin: "100", klasse: "M16" },
-      { disziplin: "200", klasse: "M16" },
-      { disziplin: "400", klasse: "M18" },
-      { disziplin: "800", klasse: "M18" }
-    ]
+      { disziplin: '100', klasse: 'M16' },
+      { disziplin: '200', klasse: 'M16' },
+      { disziplin: '400', klasse: 'M18' },
+      { disziplin: '800', klasse: 'M18' },
+    ],
   },
   {
     id: 3,
-    name: "Ludwigsburger Stadtlauf",
-    sportstaette: "Stadion am Salier",
-    meldAdresse: "Ludwigsburger Leichtathletik-Club, Sportplatzweg 1, 71636 Ludwigsburg",
-    meldEmail: "meldungen@llc.de",
-    veranstalter: "Ludwigsburger Leichtathletik-Club",
-    ausrichter: "LLC Ludwigsburg",
-    beschreibung: "Der traditionelle Ludwigsburger Stadtlauf mit verschiedenen Streckenlängen für alle Altersklassen.",
-    datum: new Date("2024-07-20").getTime(),
-    datumText: "20.07.2024",
-    meldDatum: new Date("2024-07-15").getTime(),
-    meldDatumText: "15.07.2024",
+    name: 'Ludwigsburger Stadtlauf',
+    sportstaette: 'Stadion am Salier',
+    meldAdresse:
+      'Ludwigsburger Leichtathletik-Club, Sportplatzweg 1, 71636 Ludwigsburg',
+    meldEmail: 'meldungen@llc.de',
+    veranstalter: 'Ludwigsburger Leichtathletik-Club',
+    ausrichter: 'LLC Ludwigsburg',
+    beschreibung:
+      'Der traditionelle Ludwigsburger Stadtlauf mit verschiedenen Streckenlängen für alle Altersklassen.',
+    datum: new Date('2024-07-20').getTime(),
+    datumText: '20.07.2024',
+    meldDatum: new Date('2024-07-15').getTime(),
+    meldDatumText: '15.07.2024',
     abgesagt: false,
     wrc: false,
-    url: "https://ladv.de/ausschreibung/detail/3",
-    tags: "stadtlauf,ludwigsburg,strassenlauf",
+    url: 'https://ladv.de/ausschreibung/detail/3',
+    tags: 'stadtlauf,ludwigsburg,strassenlauf',
     ort: {
       id: 2,
-      name: "Ludwigsburg",
-      lv: "WÜ",
-      land: "DEU",
+      name: 'Ludwigsburg',
+      lv: 'WÜ',
+      land: 'DEU',
       lng: 9.1916,
-      lat: 48.8973
+      lat: 48.8973,
     },
     wettbewerbe: [
-      { disziplin: "5km", klasse: "M16" },
-      { disziplin: "10km", klasse: "M18" },
-      { disziplin: "Halbmarathon", klasse: "M20" }
-    ]
-  }
+      { disziplin: '5km', klasse: 'M16' },
+      { disziplin: '10km', klasse: 'M18' },
+      { disziplin: 'Halbmarathon', klasse: 'M20' },
+    ],
+  },
 ]
 
 /**
@@ -112,7 +432,7 @@ export class MockLadvProvider {
    * Simuliert eine Verzögerung der API-Antwort
    */
   private async simulateDelay(): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await new Promise((resolve) => setTimeout(resolve, 500))
   }
 
   /**
@@ -120,8 +440,8 @@ export class MockLadvProvider {
    */
   async getCompetitionDetails(id: number): Promise<LadvCompetition | null> {
     await this.simulateDelay()
-    
-    const competition = mockCompetitions.find(c => c.id === id)
+
+    const competition = mockCompetitions.find((c) => c.id === id)
     if (!competition) {
       return null
     }
@@ -139,16 +459,17 @@ export class MockLadvProvider {
    */
   async searchCompetitions(query: string): Promise<LadvCompetition[]> {
     await this.simulateDelay()
-    
+
     if (!query) {
       return mockCompetitions
     }
 
     const searchTerm = query.toLowerCase()
-    return mockCompetitions.filter(c => 
-      c.name.toLowerCase().includes(searchTerm) ||
-      c.ort.name.toLowerCase().includes(searchTerm) ||
-      c.tags.toLowerCase().includes(searchTerm)
+    return mockCompetitions.filter(
+      (c) =>
+        c.name.toLowerCase().includes(searchTerm) ||
+        c.ort.name.toLowerCase().includes(searchTerm) ||
+        c.tags.toLowerCase().includes(searchTerm)
     )
   }
-} 
+}

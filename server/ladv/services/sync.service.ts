@@ -2,6 +2,7 @@ import type { H3Event } from 'h3'
 import { LadvService } from './api.service'
 import { createCompetitionsRepository } from '~/server/repositories/competitions.repository'
 import type { Competition } from '~/types/models.types'
+import { format } from 'date-fns-tz';
 
 export class LadvSyncService {
   private ladvService: LadvService
@@ -10,6 +11,13 @@ export class LadvSyncService {
   constructor(event: H3Event) {
     this.ladvService = new LadvService()
     this.event = event
+  }
+
+  /**
+   * Konvertiert ein Datum in die Berliner Zeitzone
+   */
+  private convertToBerlinTime(timestamp: string | Date | number): string {
+    return format(new Date(timestamp), 'yyyy-MM-dd', { timeZone: 'Europe/Berlin' })
   }
 
   /**
@@ -29,7 +37,9 @@ export class LadvSyncService {
     }
 
     // LADV-Daten abrufen
-    const ladvData = await this.ladvService.getCompetitionDetails(competition.ladv_id)
+    const ladvData = await this.ladvService.getCompetitionDetails(
+      competition.ladv_id
+    )
     if (!ladvData) {
       throw new Error('LADV-Daten konnten nicht abgerufen werden')
     }
@@ -44,11 +54,11 @@ export class LadvSyncService {
       sportstaette: ladvData.sportstaette,
       ladv_description: ladvData.beschreibung,
       ladv_data: JSON.parse(JSON.stringify(ladvData)), // Konvertiere zu einfachem JSON
-      date: new Date(ladvData.datum).toISOString(),
-      registration_deadline: new Date(ladvData.meldDatum).toISOString()
+      date: this.convertToBerlinTime(ladvData.datum),
+      registration_deadline: this.convertToBerlinTime(ladvData.meldDatum),
     }
 
     // Daten in der Datenbank aktualisieren
     return await competitionsRepo.updateLadvData(competitionId, updateData)
   }
-} 
+}

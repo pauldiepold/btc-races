@@ -47,7 +47,10 @@ export class CompetitionsRepository extends BaseRepository<
       .single()
 
     if (error) {
-      console.error(`Fehler beim Laden des Wettbewerbs mit LADV-ID ${ladvId}:`, error)
+      console.error(
+        `Fehler beim Laden des Wettbewerbs mit LADV-ID ${ladvId}:`,
+        error
+      )
       return null
     }
 
@@ -101,7 +104,7 @@ export class CompetitionsRepository extends BaseRepository<
       .from(this.tableName)
       .update({
         ...ladvData,
-        ladv_last_sync: new Date().toISOString()
+        ladv_last_sync: new Date().toISOString(),
       })
       .eq('id', id)
       .select()

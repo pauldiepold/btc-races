@@ -57,4 +57,4 @@ export default defineEventHandler(async (event) => {
       message: error.message || 'Fehler beim Erstellen des Wettkampfs',
     })
   }
-}) 
+})

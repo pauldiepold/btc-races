@@ -8,4 +8,4 @@ export { LadvService } from './services/api.service'
 
 // Provider
 export { ApiLadvProvider } from './providers/api'
-export { MockLadvProvider } from './providers/mock' 
+export { MockLadvProvider } from './providers/mock'

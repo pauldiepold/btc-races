@@ -50,6 +50,10 @@ function updateField<K extends keyof Competition>(
 ) {
   emit('update:modelValue', { ...props.modelValue, [field]: value })
 }
+
+const isLadvCompetition = computed(() => {
+  return props.isEdit && props.modelValue.ladv_id !== null
+})
 </script>
 
 <template>
@@ -60,7 +64,35 @@ function updateField<K extends keyof Competition>(
     @submit="onSubmit"
     @error="onError"
   >
-    <UFormField label="Name des Wettkampfes" size="lg" name="name" required>
+    <UFormField
+      v-if="isLadvCompetition"
+      label="LADV-ID"
+      size="lg"
+      name="ladv_id"
+    >
+      <UInput
+        :value="modelValue.ladv_id"
+        type="number"
+        class="w-full"
+        @input="
+          (e: Event) => {
+            console.log(e.target)
+            return updateField(
+              'ladv_id',
+              e.target ? parseInt((e.target as HTMLInputElement).value) : null
+            )
+          }
+        "
+      />
+    </UFormField>
+
+    <UFormField
+      v-if="!isLadvCompetition"
+      label="Name des Wettkampfes"
+      size="lg"
+      name="name"
+      required
+    >
       <UInput
         :value="modelValue.name"
         class="w-full"
@@ -71,7 +103,7 @@ function updateField<K extends keyof Competition>(
       />
     </UFormField>
 
-    <UFormField label="Ort" name="location" size="lg">
+    <UFormField v-if="!isLadvCompetition" label="Ort" name="location" size="lg">
       <UInput
         :value="modelValue.location"
         class="w-full"
@@ -98,6 +130,7 @@ function updateField<K extends keyof Competition>(
           />
         </UFormField>
         <UFormField
+          v-if="!isLadvCompetition"
           name="registration_type"
           label="Anmeldung"
           size="lg"
@@ -105,7 +138,9 @@ function updateField<K extends keyof Competition>(
         >
           <URadioGroup
             :default-value="modelValue.registration_type"
-            :items="registrationTypeItems"
+            :items="
+              registrationTypeItems.filter((item) => item.value !== 'LADV')
+            "
             :ui="{
               fieldset: 'gap-2',
             }"
@@ -136,7 +171,10 @@ function updateField<K extends keyof Competition>(
       </UFormField>
     </div>
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div
+      v-if="!isLadvCompetition"
+      class="grid grid-cols-1 gap-4 md:grid-cols-2"
+    >
       <UFormField
         label="Meldeschluss"
         name="registration_deadline"
@@ -170,6 +208,7 @@ function updateField<K extends keyof Competition>(
       </UFormField>
     </div>
     <UFormField
+      v-if="!isLadvCompetition"
       label="Link zur Ausschreibung"
       size="lg"
       name="announcement_link"
@@ -185,22 +224,6 @@ function updateField<K extends keyof Competition>(
               'announcement_link',
               (e.target as HTMLInputElement).value
             )
-        "
-      />
-    </UFormField>
-    <UFormField label="LADV-ID" size="lg" name="ladv_id">
-      <UInput
-        :value="modelValue.ladv_id"
-        type="number"
-        class="w-full"
-        @input="
-          (e: Event) => {
-            console.log(e.target)
-            return updateField(
-              'ladv_id',
-              e.target ? parseInt((e.target as HTMLInputElement).value) : null
-            )
-          }
         "
       />
     </UFormField>

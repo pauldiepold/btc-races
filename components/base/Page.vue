@@ -30,9 +30,14 @@ withDefaults(
       v-if="heading"
       class="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center"
     >
-      <h1 class="text-2xl font-bold">
-        {{ heading }}
-      </h1>
+      <div class="flex items-center justify-start gap-4">
+        <h1 class="text-2xl font-bold">
+          {{ heading }}
+        </h1>
+        <div v-if="$slots.sidebar">
+          <slot name="right-of-heading" />
+        </div>
+      </div>
       <slot name="actions" />
     </div>
 

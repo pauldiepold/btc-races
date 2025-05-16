@@ -22,7 +22,8 @@ export interface LadvConfig {
  * Lädt und validiert die LADV-Konfiguration aus Umgebungsvariablen
  */
 export function loadLadvConfig(): LadvConfig {
-  const provider = (process.env.NUXT_LADV_PROVIDER || 'mock') as LadvProviderType
+  const provider = (process.env.NUXT_LADV_PROVIDER ||
+    'mock') as LadvProviderType
   const apiKey = process.env.NUXT_LADV_API_KEY
 
   // Validiere den Provider
@@ -46,12 +47,10 @@ export function loadLadvConfig(): LadvConfig {
     config.apiKey = apiKey
   }
 
-  console.log(
-    `[LadvConfig] Konfiguration geladen: Provider=${config.provider}`
-  )
+  console.log(`[LadvConfig] Konfiguration geladen: Provider=${config.provider}`)
 
   return config
 }
 
 // Exportiere eine einzelne Instanz der Konfiguration
-export const ladvConfig = loadLadvConfig() 
+export const ladvConfig = loadLadvConfig()

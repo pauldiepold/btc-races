@@ -27,7 +27,7 @@ export interface LadvCompetition {
   meldDatum: number
   meldDatumText: string
   abgesagt: boolean
-  wrc: boolean
+  wrc?: boolean
   url: string
   tags: string
   ort: LadvLocation
@@ -49,5 +49,9 @@ export interface LadvCompetition {
   wettbewerbe: Array<{
     disziplin: string
     klasse: string
+    disziplinNew: string
+    klasseNew: string
   }>
-} 
+  kategorien: Array<string>
+  landesverband: Array<string>
+}

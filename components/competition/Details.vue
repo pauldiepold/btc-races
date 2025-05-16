@@ -15,11 +15,7 @@ defineProps<{
 <template>
   <BaseLayer>
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-      <UFormField label="Status" size="xl">
-        <CompetitionStatus class="mt-2" :competition="competition" />
-      </UFormField>
-
-      <UFormField label="Ort" size="xl">
+      <UFormField v-if="competition.location" label="Ort" size="xl">
         <UInput
           :model-value="competition.location"
           icon="lucide:map-pin"
@@ -28,7 +24,16 @@ defineProps<{
         />
       </UFormField>
 
-      <div class="grid grid-cols-2 gap-4">
+      <UFormField v-if="competition.sportstaette" label="Sportstätte" size="xl">
+        <UInput
+          :model-value="competition.sportstaette"
+          icon="lucide:map-pin"
+          class="w-full !cursor-pointer"
+          disabled
+        />
+      </UFormField>
+
+      <div class="col-start-1 grid grid-cols-2 gap-4">
         <UFormField label="Meldefrist" size="xl" class="w-full !cursor-pointer">
           <UInput
             :model-value="
@@ -54,7 +59,28 @@ defineProps<{
         </UFormField>
       </div>
 
-      <UFormField label="Anmeldung" size="xl">
+      <UFormField
+        v-if="competition.veranstalter"
+        class="col-start-1"
+        label="Veranstalter"
+        size="xl"
+      >
+        <UInput
+          :model-value="competition.veranstalter"
+          class="w-full !cursor-pointer"
+          disabled
+        />
+      </UFormField>
+
+      <UFormField v-if="competition.ausrichter" label="Ausrichter" size="xl">
+        <UInput
+          :model-value="competition.ausrichter"
+          class="w-full !cursor-pointer"
+          disabled
+        />
+      </UFormField>
+
+      <UFormField v-if="false" label="Anmeldung" size="xl">
         <UInput
           :model-value="RegistrationTypeLabels[competition.registration_type]"
           icon="lucide:tag"
@@ -63,7 +89,7 @@ defineProps<{
         />
       </UFormField>
 
-      <UFormField label="Rennart" size="xl">
+      <UFormField label="Rennart" size="xl" class="col-start-1">
         <UInput
           :model-value="RaceTypeLabels[competition.race_type]"
           icon="lucide:ruler"

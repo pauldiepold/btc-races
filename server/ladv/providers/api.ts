@@ -25,10 +25,10 @@ export class ApiLadvProvider {
    */
   async getCompetitionDetails(id: number): Promise<LadvCompetition | null> {
     const url = `${BASE_URL}/${this.apiKey}/ausDetail?id=${id}&wettbewerbe=true&all=true`
-    
+
     try {
       const response = await fetch(url)
-      
+
       if (!response.ok) {
         throw new Error(`API-Fehler: ${response.status} ${response.statusText}`)
       }
@@ -49,4 +49,4 @@ export class ApiLadvProvider {
     console.log(query)
     throw new Error('Suche noch nicht implementiert')
   }
-} 
+}

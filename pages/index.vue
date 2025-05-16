@@ -261,7 +261,7 @@ watch(
           <USelect
             v-model="selectedRaceType"
             :items="[{ label: 'Alle', value: undefined }, ...raceTypeItems]"
-            placeholder="Rennart"
+            placeholder="Bahn / Straße"
             class="w-full"
           />
           <USelect

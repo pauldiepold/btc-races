@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     if (!user) {
       throw createError({
         statusCode: 401,
-        message: 'Nicht autorisiert. Bitte melden Sie sich an.'
+        message: 'Nicht autorisiert. Bitte melden Sie sich an.',
       })
     }
 
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     if (!id) {
       throw createError({
         statusCode: 400,
-        message: 'Wettkampf-ID fehlt'
+        message: 'Wettkampf-ID fehlt',
       })
     }
 
@@ -28,18 +28,18 @@ export default defineEventHandler(async (event) => {
     if (!result) {
       throw createError({
         statusCode: 500,
-        message: 'Synchronisation fehlgeschlagen'
+        message: 'Synchronisation fehlgeschlagen',
       })
     }
 
     return {
       success: true,
-      data: result
+      data: result,
     }
   } catch (error: any) {
     throw createError({
       statusCode: error.statusCode || 500,
-      message: error.message || 'Ein Fehler ist aufgetreten'
+      message: error.message || 'Ein Fehler ist aufgetreten',
     })
   }
-}) 
+})

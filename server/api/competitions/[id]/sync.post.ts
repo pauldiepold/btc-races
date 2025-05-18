@@ -1,4 +1,4 @@
-import { LadvSyncService } from '~/server/ladv/services/sync.service'
+import { LadvCompetitionService } from '~/server/ladv/services/competition.service'
 import { serverSupabaseUser } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Synchronisation durchführen
-    const syncService = new LadvSyncService(event)
+    const syncService = new LadvCompetitionService(event)
     const result = await syncService.syncCompetition(Number(id))
 
     if (!result) {

@@ -1,60 +1,83 @@
 import { defineEventHandler } from 'h3'
-import { LadvService } from '~/server/ladv/services/api.service'
+import { LadvCompetitionService } from '~/server/ladv/services/competition.service'
 import { createCompetitionsRepository } from '~/server/repositories/competitions.repository'
+import { ladvUrlSchema } from '~/composables/useLadvUrlSchema'
+import type { ApiResponse } from '~/types/api.types'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const { ladvUrl } = body
 
-  if (!ladvUrl) {
-    throw createError({
+  // Validierung mit dem LADV-URL-Schema
+  const validationResult = ladvUrlSchema.safeParse({ url: ladvUrl })
+  
+  if (!validationResult.success) {
+    return {
+      error: {
+        message: 'Validierungsfehler',
+        code: 'VALIDATION_ERROR',
+        details: validationResult.error.errors,
+      },
       statusCode: 400,
-      message: 'LADV-URL ist erforderlich',
-    })
+    } as ApiResponse<null>
   }
 
   try {
-    // LADV-ID aus der URL extrahieren
-    const ladvId = ladvUrl.split('/').pop()
-    if (!ladvId) {
-      throw createError({
+    // LADV-ID aus der URL extrahieren (Format: https://ladv.de/ausschreibung/detail/[ID]/[Titel])
+    const urlParts = ladvUrl.split('/').filter((part: string) => part !== '')
+    const detailIndex = urlParts.indexOf('detail')
+    if (detailIndex === -1 || detailIndex + 1 >= urlParts.length) {
+      return {
+        error: {
+          message: 'Ungültige LADV-URL',
+          code: 'INVALID_URL',
+        },
         statusCode: 400,
-        message: 'Ungültige LADV-URL',
-      })
+      } as ApiResponse<null>
+    }
+    
+    const ladvId = parseInt(urlParts[detailIndex + 1])
+    if (!ladvId) {
+      return {
+        error: {
+          message: 'Ungültige LADV-URL',
+          code: 'INVALID_URL',
+        },
+        statusCode: 400,
+      } as ApiResponse<null>
     }
 
-    // LADV-Daten abrufen
-    const ladvService = new LadvService()
-    const ladvData = await ladvService.getCompetitionDetails(parseInt(ladvId))
-
-    if (!ladvData) {
-      throw createError({
-        statusCode: 404,
-        message: 'Wettkampf nicht gefunden',
-      })
+    // Prüfen, ob der Wettkampf bereits existiert
+    const competitionsRepo = await createCompetitionsRepository(event, 'service_role')
+    const existingCompetition = await competitionsRepo.findByLadvId(ladvId)
+    
+    if (existingCompetition) {
+      return {
+        error: {
+          message: 'Ein Wettkampf mit dieser LADV-ID existiert bereits',
+          code: 'COMPETITION_EXISTS',
+        },
+        statusCode: 409,
+      } as ApiResponse<null>
     }
 
-    // Wettkampf in der Datenbank erstellen
-    const competitionsRepo = await createCompetitionsRepository(event)
-    const competition = await competitionsRepo.createCompetition({
-      name: ladvData.name,
-      location: ladvData.sportstaette,
-      date: new Date(ladvData.datum).toISOString(),
-      registration_deadline: new Date(ladvData.meldDatum).toISOString(),
-      description: ladvData.beschreibung,
-      ladv_id: ladvData.id,
-      ladv_data: ladvData,
-      veranstalter: ladvData.veranstalter,
-      ausrichter: ladvData.ausrichter,
-      sportstaette: ladvData.sportstaette,
-      ladv_description: ladvData.beschreibung,
-    })
+    // Wettkampf mit dem neuen Service erstellen
+    const ladvService = new LadvCompetitionService(event)
+    const competition = await ladvService.createCompetition(ladvId)
 
-    return { data: competition }
+    return {
+      data: competition,
+      statusCode: 201,
+    } as ApiResponse<typeof competition>
   } catch (error: any) {
-    throw createError({
+    console.error('Fehler beim Erstellen des Wettkampfs:', error)
+    return {
+      error: {
+        message: error.message || 'Ein unerwarteter Fehler ist aufgetreten',
+        code: 'INTERNAL_ERROR',
+        details: error.message,
+      },
       statusCode: error.statusCode || 500,
-      message: error.message || 'Fehler beim Erstellen des Wettkampfs',
-    })
+    } as ApiResponse<null>
   }
 })

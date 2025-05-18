@@ -72,7 +72,14 @@ defineProps<{
         />
       </UFormField>
 
-      <UFormField v-if="competition.ausrichter" label="Ausrichter" size="xl">
+      <UFormField
+        v-if="
+          competition.ausrichter &&
+          competition.ausrichter !== competition.veranstalter
+        "
+        label="Ausrichter"
+        size="xl"
+      >
         <UInput
           :model-value="competition.ausrichter"
           class="w-full !cursor-pointer"

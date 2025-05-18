@@ -82,18 +82,17 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
 
 ### Bonus:
 
-- Register ist nicht breit genug mit Sidebar, Add Competition zu breit
-- Captcha für öffentliche Formulare
-- Bestätigungsmail nach Bestätigung: Details und Link zum Wettkampf, Abmeldung möglich bis
-
+- ✅ Register ist nicht breit genug mit Sidebar, Add Competition zu breit
+- ❌ Captcha für öffentliche Formulare
+- ❌ Bestätigungsmail nach Bestätigung: Details und Link zum Wettkampf, Abmeldung möglich bis
 - ❌ User können selbst Wettkämpfe einstellen --> Freischaltung durch Admins notwendig?
 - ❌ Light-Mode wieder aktivieren und Design etwas verbessern
 - ❌ Nach Anmeldung sofort ohne Timeout weiterleiten und zur neuen Anmeldung scrollen + grün aufblinken lassen (bzw. sowieso die neusten oben anzeigen)
-- ❌Admin: Nachrichten an alle Teilnehmer:innen senden können
-- ❌Datum für Erinnerungs-Mails einstellen können?
-- Daten zu den Wettkämpfen erweitern:
+- ❌ Admin: Nachrichten an alle Teilnehmer:innen senden können
+- ❌ Datum für Erinnerungs-Mails einstellen können?
+- ❌Daten zu den Wettkämpfen erweitern:
   - 🟡 Distanzen --> Tabelle angelegt, noch nirgendwo verwendet --> Disziplincodes aus LADV verwenden
-- E-Mail Ergänzungen:
+- ❌ E-Mail Ergänzungen:
   - ❌ Erinnerungsmail an Mitglieder 5 Tage vor Meldefrist mit Abmeldelink
   - ❌ Erinnerungsmail an Admins 3 Tage vor Meldefrist
   - ❌ Erinnerungsmail an teilnehmende Mitglieder 3 Tage vor dem Wettkampf

@@ -184,6 +184,17 @@ watch(
     <template #actions>
       <ClientOnly>
         <UButton
+          to="/competitions/add-ladv"
+          color="primary"
+          class="w-full justify-center md:w-auto md:justify-start"
+          icon="lucide:circle-plus"
+        >
+          LADV-Wettkampf hinzufügen
+        </UButton>
+      </ClientOnly>
+
+      <ClientOnly>
+        <UButton
           v-if="user"
           to="/admin/competitions/add"
           color="primary"

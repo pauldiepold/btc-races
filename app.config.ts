@@ -7,4 +7,9 @@ export default defineAppConfig({
   theme: {
     dark: true,
   },
+  icon: {
+    mode: 'css',
+    cssLayer: 'base',
+    size: '20px'
+  }
 })

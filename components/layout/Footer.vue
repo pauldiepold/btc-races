@@ -8,7 +8,7 @@ const { user } = useAuth()
       <div class="flex flex-col items-center justify-center space-y-6">
         <UButton
           v-if="!user"
-          icon="lucide:settings"
+          icon="i-lucide-settings"
           to="/admin"
           variant="soft"
           color="primary"
@@ -49,7 +49,7 @@ const { user } = useAuth()
         <UButton
           href="https://github.com/pauldiepold/btc-races"
           target="_blank"
-          icon="lucide:github"
+          icon="i-lucide-github"
           variant="ghost"
           class="hover:text-primary transition-colors"
         >

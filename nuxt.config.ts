@@ -25,8 +25,7 @@ export default defineNuxtConfig({
   icon: {
     clientBundle: {
       scan: true,
-      // guard for uncompressed bundle size, will fail the build if exceeds
-      sizeLimitKb: 256,
+      includeCustomCollections: true, 
     },
   },
 

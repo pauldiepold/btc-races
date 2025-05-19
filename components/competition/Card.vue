@@ -35,7 +35,7 @@ defineProps<{ competition: Competition }>()
       <div class="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
         <!-- Datum -->
         <div v-if="competition.date" class="flex w-20 items-center gap-2">
-          <Icon name="lucide:calendar" class="text-muted h-4 w-4" />
+          <Icon name="i-lucide-calendar" class="text-muted h-4 w-4" />
           <span>{{
             new Date(competition.date).toLocaleDateString('de-DE')
           }}</span>
@@ -43,7 +43,7 @@ defineProps<{ competition: Competition }>()
 
         <!-- Ort -->
         <div v-if="competition.location" class="flex items-center gap-2">
-          <Icon name="lucide:map-pin" class="text-muted h-4 w-4" />
+          <Icon name="i-lucide-map-pin" class="text-muted h-4 w-4" />
           <span>{{ competition.location }}</span>
         </div>
 
@@ -59,7 +59,7 @@ defineProps<{ competition: Competition }>()
           "
           class="flex items-center gap-2"
         >
-          <Icon name="lucide:medal" class="text-muted h-4 w-4" />
+          <Icon name="i-lucide-medal" class="text-muted h-4 w-4" />
           <span>{{ competition.championship_type }}</span>
         </div>
 

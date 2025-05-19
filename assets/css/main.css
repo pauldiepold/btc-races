@@ -1,8 +1,8 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
 
-@theme static {
-  --font-sans: 'Raleway', sans-serif;
+body {
+  font-family: 'Raleway', sans-serif;
 }
 
 :root {

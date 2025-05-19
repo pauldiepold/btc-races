@@ -187,7 +187,6 @@ watch(
           to="/competitions/add-ladv"
           color="primary"
           class="w-full justify-center md:w-auto md:justify-start"
-          icon="lucide:circle-plus"
         >
           LADV-Wettkampf hinzufügen
         </UButton>
@@ -196,10 +195,10 @@ watch(
       <ClientOnly>
         <UButton
           v-if="user"
+          color="neutral"
+          variant="outline"
           to="/admin/competitions/add"
-          color="primary"
           class="w-full justify-center md:w-auto md:justify-start"
-          icon="lucide:circle-plus"
         >
           Wettkampf hinzufügen
         </UButton>
@@ -317,7 +316,7 @@ watch(
             variant="outline"
             color="neutral"
             size="sm"
-            icon="lucide:chevrons-up"
+            icon="i-lucide-chevrons-up"
             @click="loadMorePastEvents"
           >
             ältere Wettkämpfe anzeigen
@@ -339,7 +338,7 @@ watch(
             variant="outline"
             color="neutral"
             size="sm"
-            icon="lucide:chevrons-down"
+            icon="i-lucide-chevrons-down"
             @click="loadMoreFutureEvents"
           >
             weitere Wettkämpfe anzeigen

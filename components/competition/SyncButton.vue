@@ -7,6 +7,10 @@ const props = defineProps<{
   competition: Competition | null
 }>()
 
+const emit = defineEmits<{
+  'sync-success': []
+}>()
+
 const user = useSupabaseUser()
 const isSyncing = ref(false)
 const { showSuccess, showError } = useToastMessages()
@@ -16,19 +20,16 @@ async function syncWithLadv() {
 
   try {
     isSyncing.value = true
-    const { data, error } = await useFetch(
+    const response = await $fetch(
       `/api/competitions/${props.competition.id}/sync`,
       {
         method: 'POST',
       }
     )
 
-    if (error.value) {
-      throw error.value
-    }
-
-    if (data.value?.success) {
+    if (response.success) {
       showSuccess('Wettkampf wurde erfolgreich synchronisiert')
+      emit('sync-success')
     }
   } catch (error: any) {
     showError(error.message || 'Synchronisation fehlgeschlagen')
@@ -41,10 +42,13 @@ async function syncWithLadv() {
 <template>
   <UButton
     v-if="user && competition?.ladv_id"
-    color="primary"
+    color="neutral"
+    variant="outline"
+    icon="i-lucide-refresh-cw"
     :loading="isSyncing"
+    class="w-full justify-center lg:w-auto lg:justify-start"
     @click="syncWithLadv"
   >
-    Mit LADV synchronisieren
+    LADV-Sync
   </UButton>
 </template>

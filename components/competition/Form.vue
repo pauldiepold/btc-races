@@ -106,7 +106,7 @@ const isLadvCompetition = computed(() => {
       <UInput
         :value="modelValue.location"
         class="w-full"
-        trailing-icon="lucide:map-pin"
+        trailing-icon="i-lucide-map-pin"
         @input="
           (e: Event) =>
             updateField('location', (e.target as HTMLInputElement).value)
@@ -216,7 +216,7 @@ const isLadvCompetition = computed(() => {
         :value="modelValue.announcement_link"
         type="url"
         class="w-full"
-        trailing-icon="lucide:external-link"
+        trailing-icon="i-lucide-external-link"
         @input="
           (e: Event) =>
             updateField(

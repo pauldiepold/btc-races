@@ -11,9 +11,6 @@ const { data: competitionRegistrations } = await useAsyncData(
   `registrations-${props.competitionId}`,
   async () => {
     const result = await registrations.findByCompetitionId(props.competitionId)
-    if (!result || result.length === 0) {
-      console.log('Keine Registrierungen gefunden oder Fehler beim Laden')
-    }
     return result || []
   }
 )
@@ -89,7 +86,9 @@ const showCanceled = ref(false)
             <h3 class="mb-2 flex items-center font-medium text-red-600">
               <UIcon
                 :name="
-                  showCanceled ? 'lucide:chevron-down' : 'lucide:chevron-right'
+                  showCanceled
+                    ? 'i-lucide-chevron-down'
+                    : 'i-lucide-chevron-right'
                 "
                 class="mr-1 h-4 w-4"
               />

@@ -56,7 +56,7 @@ async function onSubmit(data: Competition) {
   >
     <BaseLayer>
       <div v-if="loading" class="py-8 text-center">
-        <UIcon name="lucide:loader" class="animate-spin text-3xl" />
+        <UIcon name="i-lucide-loader" class="animate-spin text-3xl" />
       </div>
       <div v-else-if="error" class="py-8 text-center text-red-500">
         {{ error }}

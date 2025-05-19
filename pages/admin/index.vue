@@ -143,7 +143,7 @@ const {
                 to="/"
                 variant="ghost"
                 color="primary"
-                trailing-icon="lucide:arrow-right"
+                trailing-icon="i-lucide-arrow-right"
               >
                 Alle anzeigen
               </UButton>
@@ -171,7 +171,7 @@ const {
                   :to="`/competitions/${competition.id}`"
                   variant="ghost"
                   color="primary"
-                  trailing-icon="lucide:arrow-right"
+                  trailing-icon="i-lucide-arrow-right"
                 >
                   Details
                 </UButton>

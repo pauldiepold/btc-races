@@ -20,7 +20,7 @@ withDefaults(
     <UButton
       v-if="backLink && backLinkText"
       :to="backLink"
-      icon="lucide:arrow-left"
+      icon="i-lucide-arrow-left"
       variant="ghost"
       class="mb-4"
     >
@@ -28,7 +28,7 @@ withDefaults(
     </UButton>
     <div
       v-if="heading"
-      class="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center"
+      class="mb-6 flex flex-col justify-between gap-4 xl:flex-row xl:items-center"
     >
       <div class="flex items-center justify-start gap-4">
         <h1 class="text-2xl font-bold">
@@ -38,7 +38,12 @@ withDefaults(
           <slot name="rightOfHeading" />
         </div>
       </div>
-      <slot name="actions" />
+      <div
+        v-if="$slots.actions"
+        class="flex flex-col justify-end gap-4 md:flex-row md:items-center"
+      >
+        <slot name="actions" />
+      </div>
     </div>
 
     <div class="flex flex-col gap-6 lg:flex-row">

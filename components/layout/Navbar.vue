@@ -49,7 +49,7 @@ async function handleLogout() {
               <UButton
                 variant="soft"
                 class="cursor-pointer"
-                icon="lucide:log-out"
+                icon="i-lucide-log-out"
                 @click="handleLogout"
               >
                 Ausloggen
@@ -63,7 +63,10 @@ async function handleLogout() {
             aria-label="Menü öffnen"
             @click="toggleMenu"
           >
-            <Icon :name="isMenuOpen ? 'lucide:x' : 'lucide:menu'" size="26px" />
+            <Icon
+              :name="isMenuOpen ? 'i-lucide-x' : 'i-lucide-menu'"
+              size="26px"
+            />
           </button>
         </template>
       </div>
@@ -96,7 +99,7 @@ async function handleLogout() {
                 <UButton
                   variant="outline"
                   class="w-full justify-center"
-                  icon="lucide:log-out"
+                  icon="i-lucide-log-out"
                   @click="handleLogout"
                 >
                   Ausloggen

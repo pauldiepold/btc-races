@@ -18,7 +18,7 @@ defineProps<{
       <UFormField v-if="competition.location" label="Ort" size="xl">
         <UInput
           :model-value="competition.location"
-          icon="lucide:map-pin"
+          icon="i-lucide-map-pin"
           class="w-full !cursor-pointer"
           disabled
         />
@@ -27,7 +27,7 @@ defineProps<{
       <UFormField v-if="competition.sportstaette" label="Sportstätte" size="xl">
         <UInput
           :model-value="competition.sportstaette"
-          icon="lucide:map-pin"
+          icon="i-lucide-map-pin"
           class="w-full !cursor-pointer"
           disabled
         />
@@ -41,7 +41,7 @@ defineProps<{
                 'de-DE'
               )
             "
-            icon="lucide:clock"
+            icon="i-lucide-clock"
             class="w-full !cursor-pointer"
             disabled
           />
@@ -52,7 +52,7 @@ defineProps<{
             :model-value="
               new Date(competition.date).toLocaleDateString('de-DE')
             "
-            icon="lucide:calendar"
+            icon="i-lucide-calendar"
             class="w-full !cursor-pointer"
             disabled
           />
@@ -90,7 +90,7 @@ defineProps<{
       <UFormField v-if="false" label="Anmeldung" size="xl">
         <UInput
           :model-value="RegistrationTypeLabels[competition.registration_type]"
-          icon="lucide:tag"
+          icon="i-lucide-tag"
           class="w-full !cursor-pointer"
           disabled
         />
@@ -99,7 +99,7 @@ defineProps<{
       <UFormField label="Rennart" size="xl" class="col-start-1">
         <UInput
           :model-value="RaceTypeLabels[competition.race_type]"
-          icon="lucide:ruler"
+          icon="i-lucide-ruler"
           class="w-full !cursor-pointer"
           disabled
         />
@@ -114,7 +114,7 @@ defineProps<{
       >
         <UInput
           :model-value="ChampionshipTypeLabels[competition.championship_type]"
-          icon="lucide:clock"
+          icon="i-lucide-clock"
           class="w-full !cursor-pointer"
           disabled
         />

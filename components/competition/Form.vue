@@ -76,7 +76,6 @@ const isLadvCompetition = computed(() => {
         class="w-full"
         @input="
           (e: Event) => {
-            console.log(e.target)
             return updateField(
               'ladv_id',
               e.target ? parseInt((e.target as HTMLInputElement).value) : null

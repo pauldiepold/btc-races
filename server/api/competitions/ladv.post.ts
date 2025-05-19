@@ -56,6 +56,7 @@ export default defineEventHandler(async (event) => {
         error: {
           message: 'Ein Wettkampf mit dieser LADV-ID existiert bereits',
           code: 'COMPETITION_EXISTS',
+          details: existingCompetition.id,
         },
         statusCode: 409,
       } as ApiResponse<null>

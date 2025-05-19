@@ -22,8 +22,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // Synchronisation durchführen
-    const syncService = new LadvCompetitionService(event)
-    const result = await syncService.syncCompetition(Number(id))
+    const ladvCompetitionService = new LadvCompetitionService(event)
+    const result = await ladvCompetitionService.syncCompetition(Number(id))
 
     if (!result) {
       throw createError({

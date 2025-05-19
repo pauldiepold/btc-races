@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia'
-import type { Database } from '~/types/database.types'
 import { ref, computed } from 'vue'
 import type { Member } from '~/types/models.types'
+import { MembersClientRepository } from '~/repositories/members.repository'
 
 export const useMemberStore = defineStore('memberStore', () => {
-  const client = useSupabaseClient<Database>()
   const members = ref<Member[]>([])
   const loading = ref(false)
   const isReady = ref(false)
   const error = ref<Error | null>(null)
+  const membersRepository = new MembersClientRepository()
 
   const getMemberById = (id: number) =>
     members.value.find((member) => member.id === id)
@@ -20,16 +20,7 @@ export const useMemberStore = defineStore('memberStore', () => {
     error.value = null
 
     try {
-      const { data, error: supabaseError } = await client
-        .from('members')
-        .select(
-          'id, name, has_left, created_at, updated_at, has_ladv_startpass'
-        )
-        .eq('has_left', false)
-        .order('name')
-
-      if (supabaseError) throw supabaseError
-      members.value = data || []
+      members.value = await membersRepository.findAllActiveOrderedByName()
       isReady.value = true
     } catch (err) {
       error.value = err as Error

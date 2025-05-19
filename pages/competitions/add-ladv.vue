@@ -22,7 +22,7 @@ async function onSubmit() {
 
   isSubmitting.value = true
   try {
-    const { data, error } = await $fetch<ApiResponse<Competition>>(
+    const { data, error, statusCode } = await $fetch<ApiResponse<Competition>>(
       '/api/competitions/ladv',
       {
         method: 'POST',
@@ -31,6 +31,17 @@ async function onSubmit() {
         },
       }
     )
+
+    if (error && statusCode === 409) {
+      const existingCompetitionId = error.details
+      if (existingCompetitionId) {
+        navigateTo(`/competitions/${existingCompetitionId}`)
+        showSuccess('Dieser Wettkampf wurde bereits erstellt.')
+        return
+      }
+      showError('Ein Wettkampf mit dieser LADV-ID existiert bereits')
+      return
+    }
 
     if (error) throw new Error(error.message)
 
@@ -74,7 +85,7 @@ async function onSubmit() {
 
         <div>
           <UButton type="submit" :loading="isSubmitting" :disabled="!state.url">
-            Wettkampf erstellen
+            Wettkampf hinzufügen
           </UButton>
         </div>
       </UForm>

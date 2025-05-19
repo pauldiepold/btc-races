@@ -34,8 +34,8 @@ withDefaults(
         <h1 class="text-2xl font-bold">
           {{ heading }}
         </h1>
-        <div v-if="$slots.sidebar">
-          <slot name="right-of-heading" />
+        <div v-if="$slots.rightOfHeading">
+          <slot name="rightOfHeading" />
         </div>
       </div>
       <slot name="actions" />

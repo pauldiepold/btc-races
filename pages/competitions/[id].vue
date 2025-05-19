@@ -48,6 +48,7 @@ const canRegister = computed(() => {
           v-if="competition && canRegister"
           :to="`/competitions/register/${competition.id}`"
           color="primary"
+          icon="lucide:user-plus"
           size="lg"
           class="w-full justify-center md:w-auto md:justify-start"
         >
@@ -91,7 +92,7 @@ const canRegister = computed(() => {
       </div>
     </template>
 
-    <template v-if="competition" #right-of-heading>
+    <template v-if="competition" #rightOfHeading>
       <CompetitionStatus :competition="competition" />
     </template>
 

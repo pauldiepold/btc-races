@@ -37,11 +37,22 @@ export function loadEmailConfig(): EmailConfig {
   const provider = process.env.NUXT_EMAIL_PROVIDER as EmailProviderType
   const testMode = process.env.NUXT_EMAIL_TEST_MODE === 'true'
   const testAddress = process.env.NUXT_EMAIL_TEST_ADDRESS || 'test@example.com'
-  const publicUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : process.env.NUXT_PUBLIC_URL ||
-      process.env.NUXT_APP_BASE_URL ||
-      'https://btc-races.vercel.app'
+  const publicUrl = (() => {
+    // Produktionsumgebung
+    if (process.env.VERCEL_ENV === 'production') {
+      return process.env.VERCEL_PROJECT_PRODUCTION_URL
+    }
+    
+    // Vercel Deployment
+    if (process.env.VERCEL_URL) {
+      return `https://${process.env.VERCEL_URL}`
+    }
+    
+    // Fallback-Optionen
+    return process.env.NUXT_PUBLIC_URL ||
+           process.env.NUXT_APP_BASE_URL ||
+           'https://btc-races.vercel.app'
+  })()
 
   // Prüfe, ob die PUBLIC_URL gesetzt ist
   if (!publicUrl) {

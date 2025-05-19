@@ -14,7 +14,7 @@ const competitionId = route.params.id as string
 const { competitions } = useRepositories()
 const { showError } = useToastMessages()
 
-const { data: competition } = await useAsyncData(
+const { data: competition, refresh } = await useAsyncData(
   `competition-${competitionId}`,
   async () => {
     const result = await competitions.findById(competitionId)
@@ -34,6 +34,10 @@ const canRegister = computed(() => {
   if (!competition.value) return false
   return useCompetitionRegistration(competition.value) === 'REGISTRATION_OPEN'
 })
+
+async function refreshCompetition() {
+  await refresh()
+}
 </script>
 
 <template>
@@ -43,23 +47,29 @@ const canRegister = computed(() => {
     back-link-text="Zurück zur Übersicht"
   >
     <template #actions>
-      <div class="flex flex-col gap-4 md:flex-row">
+      <div class="flex flex-col gap-4 lg:flex-row">
         <UButton
           v-if="competition && canRegister"
           :to="`/competitions/register/${competition.id}`"
           color="primary"
+          icon="i-lucide-user-plus"
           size="lg"
-          class="w-full justify-center md:w-auto md:justify-start"
+          class="w-full justify-center lg:w-auto lg:justify-start"
         >
-          Zu diesem Wettkampf anmelden
+          Anmelden
         </UButton>
+        <CompetitionSyncButton
+          :competition="competition"
+          @sync-success="refreshCompetition"
+        />
         <UButton
           v-if="user && competition"
           :to="`/admin/competitions/${competition.id}/edit`"
           color="neutral"
+          icon="i-lucide-pencil"
           variant="outline"
           size="lg"
-          class="w-full justify-center md:w-auto md:justify-start"
+          class="w-full justify-center lg:w-auto lg:justify-start"
         >
           Wettkampf bearbeiten
         </UButton>
@@ -82,12 +92,16 @@ const canRegister = computed(() => {
             color="neutral"
             variant="outline"
             target="_blank"
-            trailing-icon="lucide:external-link"
+            trailing-icon="i-lucide-external-link"
           >
             Final Surge öffnen
           </UButton>
         </BaseLayer>
       </div>
+    </template>
+
+    <template v-if="competition" #rightOfHeading>
+      <CompetitionStatus :competition="competition" />
     </template>
 
     <div v-if="competition" class="space-y-6">
@@ -108,6 +122,9 @@ const canRegister = computed(() => {
       <!-- Ausschreibung -->
       <BaseLayer v-if="competition.announcement_link">
         <h2 class="mb-4 text-xl font-bold">Ausschreibung</h2>
+        <p v-if="competition.ladv_description" class="mb-4">
+          {{ competition.ladv_description }}
+        </p>
         <p class="mb-4">
           Weitere Details findest du in der offiziellen Ausschreibung:
         </p>
@@ -116,7 +133,7 @@ const canRegister = computed(() => {
           target="_blank"
           color="neutral"
           variant="soft"
-          trailing-icon="lucide:external-link"
+          trailing-icon="i-lucide-external-link"
         >
           Ausschreibung öffnen
         </UButton>

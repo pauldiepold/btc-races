@@ -144,12 +144,12 @@ export const raceTypeItems = [
 
 export const registrationTypeItems = [
   {
-    label: RegistrationTypeLabels[RegistrationTypes.INDEPENDENT],
-    value: RegistrationTypes.INDEPENDENT as RegistrationType,
-  },
-  {
     label: RegistrationTypeLabels[RegistrationTypes.LADV],
     value: RegistrationTypes.LADV as RegistrationType,
+  },
+  {
+    label: RegistrationTypeLabels[RegistrationTypes.INDEPENDENT],
+    value: RegistrationTypes.INDEPENDENT as RegistrationType,
   },
   {
     label: RegistrationTypeLabels[RegistrationTypes.CLUB],

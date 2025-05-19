@@ -75,21 +75,24 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
 - ✅ nicht bei Events anmelden können, bei denen die Anmeldefrist vergangen ist
 - ✅ Startpass importieren aus Campai
   - ✅ Anmeldung bei meldepflichtigen Events sperren
-- ❌ Echte Daten zu den Wettkämpfen importieren --> von LADV importieren
+- ✅ Echte Daten zu den Wettkämpfen importieren --> von LADV importieren
 - ✅ Beschreibungen überall anpassen:
   - ✅ Register: Falls du keinen Startpass hast... --> rechts in der Sidebar evt. noch die Kurzinfos zum Wettkampf anzeigen
   - ✅ Ist die Startseite ausreichend?
 
 ### Bonus:
 
+- ✅ Register ist nicht breit genug mit Sidebar, Add Competition zu breit
+- ❌ Captcha für öffentliche Formulare
+- ❌ Bestätigungsmail nach Bestätigung: Details und Link zum Wettkampf, Abmeldung möglich bis
 - ❌ User können selbst Wettkämpfe einstellen --> Freischaltung durch Admins notwendig?
 - ❌ Light-Mode wieder aktivieren und Design etwas verbessern
 - ❌ Nach Anmeldung sofort ohne Timeout weiterleiten und zur neuen Anmeldung scrollen + grün aufblinken lassen (bzw. sowieso die neusten oben anzeigen)
-- ❌Admin: Nachrichten an alle Teilnehmer:innen senden können
-- ❌Datum für Erinnerungs-Mails einstellen können?
-- Daten zu den Wettkämpfen erweitern:
+- ❌ Admin: Nachrichten an alle Teilnehmer:innen senden können
+- ❌ Datum für Erinnerungs-Mails einstellen können?
+- ❌Daten zu den Wettkämpfen erweitern:
   - 🟡 Distanzen --> Tabelle angelegt, noch nirgendwo verwendet --> Disziplincodes aus LADV verwenden
-- E-Mail Ergänzungen:
+- ❌ E-Mail Ergänzungen:
   - ❌ Erinnerungsmail an Mitglieder 5 Tage vor Meldefrist mit Abmeldelink
   - ❌ Erinnerungsmail an Admins 3 Tage vor Meldefrist
   - ❌ Erinnerungsmail an teilnehmende Mitglieder 3 Tage vor dem Wettkampf
@@ -217,4 +220,43 @@ export default defineEventHandler(async (event) => {
 
   return { success: true }
 })
+```
+
+## LADV-Integration
+
+Die Anwendung unterstützt die Integration mit dem [LADV-System](https://ladv.de/entwickler) (Leichtathletik-Verband Baden-Württemberg). Dies ermöglicht das automatische Importieren von Wettkampfdaten aus dem LADV-System.
+
+### Funktionalität
+
+- **Automatischer Import**: Wettkämpfe können über ihre LADV-ID importiert werden
+- **Daten-Synchronisation**: Automatische Aktualisierung der Wettkampfdaten
+- **Mock-Modus**: Entwicklung und Tests ohne API-Zugriff möglich
+
+### Konfiguration
+
+Die Integration wird über Umgebungsvariablen konfiguriert:
+
+```env
+NUXT_LADV_PROVIDER=mock|api  # Standard: mock
+NUXT_LADV_API_KEY=your-key   # Nur für API-Modus erforderlich
+```
+
+### Technische Details
+
+- **API-Dokumentation**: [LADV API V2 Dokumentation](https://html.ladv.de/api/2024-07-17-LADVAPIDokumentation-V2-014.pdf)
+- **Datenmodell**: Erweiterung der `competitions`-Tabelle um LADV-spezifische Felder
+- **Mock-Daten**: Realistische Testdaten für Entwicklung und Tests
+
+### Verwendung
+
+```typescript
+import { LadvService } from '~/server/ladv'
+
+const ladvService = new LadvService()
+
+// Wettkampfdetails abrufen
+const competition = await ladvService.getCompetitionDetails(123)
+
+// Nach Wettkämpfen suchen
+const competitions = await ladvService.searchCompetitions('Stuttgart')
 ```

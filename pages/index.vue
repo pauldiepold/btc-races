@@ -184,11 +184,21 @@ watch(
     <template #actions>
       <ClientOnly>
         <UButton
-          v-if="user"
-          to="/admin/competitions/add"
+          to="/competitions/add-ladv"
           color="primary"
           class="w-full justify-center md:w-auto md:justify-start"
-          icon="lucide:circle-plus"
+        >
+          LADV-Wettkampf hinzufügen
+        </UButton>
+      </ClientOnly>
+
+      <ClientOnly>
+        <UButton
+          v-if="user"
+          color="neutral"
+          variant="outline"
+          to="/admin/competitions/add"
+          class="w-full justify-center md:w-auto md:justify-start"
         >
           Wettkampf hinzufügen
         </UButton>
@@ -200,7 +210,14 @@ watch(
         <h2 class="text-lg font-semibold">Über das Anmeldesystem</h2>
         <p>
           Mit diesem System kannst du dich für aktuelle Wettkämpfe anmelden, die
-          per LADV durch unsere Coaches gemeldet werden müssen.
+          über
+          <a
+            class="cursor-pointer underline"
+            target="_blank"
+            href="https://ladv.de/berlin/ausschreibungen"
+            >LADV</a
+          >
+          durch unsere Coaches gemeldet werden müssen.
         </p>
         <hr />
         <p>So meldest du dich an:</p>
@@ -214,13 +231,13 @@ watch(
             Anmeldung.
           </li>
           <li>
-            In der Bestätigungs-E-Mail findest du einen Link zur Anmeldung, über
-            den du deine Teilnahme bestätigen musst.
+            Du bekommst eine E-Mail an deine bei uns hinterlegte E-Mail-Adresse
+            mit einem Link, über den du deine Teilnahme bestätigen musst.
           </li>
         </ul>
         <hr />
         <p>
-          Kurz vor Ende der Meldefrist hast du noch einmal die Möglichkeit dich
+          Bis kurz vor Ende der Meldefrist hast du noch die Möglichkeit dich
           abzumelden. Ansonsten wirst du durch unsere Coaches bei dem Wettkampf
           angemeldet.
         </p>
@@ -254,7 +271,7 @@ watch(
           <USelect
             v-model="selectedRaceType"
             :items="[{ label: 'Alle', value: undefined }, ...raceTypeItems]"
-            placeholder="Rennart"
+            placeholder="Bahn / Straße"
             class="w-full"
           />
           <USelect
@@ -299,7 +316,7 @@ watch(
             variant="outline"
             color="neutral"
             size="sm"
-            icon="lucide:chevrons-up"
+            icon="i-lucide-chevrons-up"
             @click="loadMorePastEvents"
           >
             ältere Wettkämpfe anzeigen
@@ -321,7 +338,7 @@ watch(
             variant="outline"
             color="neutral"
             size="sm"
-            icon="lucide:chevrons-down"
+            icon="i-lucide-chevrons-down"
             @click="loadMoreFutureEvents"
           >
             weitere Wettkämpfe anzeigen

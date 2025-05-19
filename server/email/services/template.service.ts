@@ -99,7 +99,7 @@ export class TemplateService {
             margin: 5px 0;
           }
           .footer .disclaimer {
-            font-size: 0.8em;
+            font-size: 0.9em;
             color: #999;
           }
         </style>
@@ -112,12 +112,14 @@ export class TemplateService {
 
           <div class="content">
             {{@ content }}
-          </div>
 
-          <div class="footer" style="font-size: 12px; color: #666; margin-top: 30px; padding-top: 10px; border-top: 1px solid #eee;">
-            <p>Liebe Grüße,<br />Dein BTC</p>
+            <p style="margin-top: 30px;">Liebe Grüße,<br />Dein BTC</p>
+          </div>
+          
+
+          <div class="footer">
             <p class="disclaimer">Diese E-Mail wurde automatisch generiert. Bitte antworte nicht direkt auf diese Nachricht.</p>
-            <p>&copy; {{ currentYear }} BTC-Races</p>
+            <p class="disclaimer">&copy; {{ currentYear }} BTC-Races</p>
           </div>
         </div>
       </body>

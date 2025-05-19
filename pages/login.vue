@@ -11,7 +11,7 @@ definePageMeta({
     heading=""
     back-link="/"
     back-link-text="Zurück zur Startseite"
-    max-width="lg"
+    max-width="max-w-lg"
   >
     <div class="space-y-4 rounded-lg bg-(--ui-bg-accented) p-6 shadow-sm">
       <h2 class="text-center text-2xl font-bold">Admin Login</h2>

@@ -16,11 +16,11 @@ withDefaults(
 </script>
 
 <template>
-  <div :class="maxWidth ? `max-w-${maxWidth} mx-auto` : ''">
+  <div :class="maxWidth ? `${maxWidth} mx-auto` : ''">
     <UButton
       v-if="backLink && backLinkText"
       :to="backLink"
-      icon="lucide:arrow-left"
+      icon="i-lucide-arrow-left"
       variant="ghost"
       class="mb-4"
     >
@@ -28,12 +28,22 @@ withDefaults(
     </UButton>
     <div
       v-if="heading"
-      class="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center"
+      class="mb-6 flex flex-col justify-between gap-4 xl:flex-row xl:items-center"
     >
-      <h1 class="text-2xl font-bold">
-        {{ heading }}
-      </h1>
-      <slot name="actions" />
+      <div class="flex items-center justify-start gap-4">
+        <h1 class="text-2xl font-bold">
+          {{ heading }}
+        </h1>
+        <div v-if="$slots.rightOfHeading">
+          <slot name="rightOfHeading" />
+        </div>
+      </div>
+      <div
+        v-if="$slots.actions"
+        class="flex flex-col justify-end gap-4 md:flex-row md:items-center"
+      >
+        <slot name="actions" />
+      </div>
     </div>
 
     <div class="flex flex-col gap-6 lg:flex-row">

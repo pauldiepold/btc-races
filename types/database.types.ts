@@ -91,48 +91,69 @@ export type Database = {
       competitions: {
         Row: {
           announcement_link: string | null
+          ausrichter: string | null
           championship_type: Database['public']['Enums']['championship_type']
           created_at: string | null
           created_by: string | null
           date: string
           description: string | null
           id: number
+          ladv_data: Json | null
+          ladv_description: string | null
+          ladv_id: number | null
+          ladv_last_sync: string | null
           location: string | null
           name: string
           race_type: Database['public']['Enums']['race_type']
           registration_deadline: string
           registration_type: Database['public']['Enums']['registration_type']
+          sportstaette: string | null
           updated_at: string | null
+          veranstalter: string | null
         }
         Insert: {
           announcement_link?: string | null
+          ausrichter?: string | null
           championship_type?: Database['public']['Enums']['championship_type']
           created_at?: string | null
           created_by?: string | null
           date: string
           description?: string | null
           id?: number
+          ladv_data?: Json | null
+          ladv_description?: string | null
+          ladv_id?: number | null
+          ladv_last_sync?: string | null
           location?: string | null
           name: string
           race_type?: Database['public']['Enums']['race_type']
           registration_deadline: string
           registration_type?: Database['public']['Enums']['registration_type']
+          sportstaette?: string | null
           updated_at?: string | null
+          veranstalter?: string | null
         }
         Update: {
           announcement_link?: string | null
+          ausrichter?: string | null
           championship_type?: Database['public']['Enums']['championship_type']
           created_at?: string | null
           created_by?: string | null
           date?: string
           description?: string | null
           id?: number
+          ladv_data?: Json | null
+          ladv_description?: string | null
+          ladv_id?: number | null
+          ladv_last_sync?: string | null
           location?: string | null
           name?: string
           race_type?: Database['public']['Enums']['race_type']
           registration_deadline?: string
           registration_type?: Database['public']['Enums']['registration_type']
+          sportstaette?: string | null
           updated_at?: string | null
+          veranstalter?: string | null
         }
         Relationships: []
       }
@@ -340,6 +361,7 @@ export type Database = {
       }
       registrations_with_details: {
         Row: {
+          ausrichter: string | null
           championship_type:
             | Database['public']['Enums']['championship_type']
             | null
@@ -350,14 +372,19 @@ export type Database = {
           created_at: string | null
           has_ladv_startpass: boolean | null
           id: number | null
+          ladv_description: string | null
+          ladv_id: number | null
+          ladv_last_sync: string | null
           member_email: string | null
           member_id: number | null
           member_name: string | null
           notes: string | null
           race_type: Database['public']['Enums']['race_type'] | null
           registration_deadline: string | null
+          sportstaette: string | null
           status: Database['public']['Enums']['registration_status'] | null
           updated_at: string | null
+          veranstalter: string | null
         }
         Relationships: [
           {

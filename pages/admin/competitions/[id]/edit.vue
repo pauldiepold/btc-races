@@ -52,11 +52,11 @@ async function onSubmit(data: Competition) {
     heading="Wettkampf bearbeiten"
     :back-link="`/competitions/${route.params.id}`"
     back-link-text="Zurück zum Wettkampf"
-    max-width="2xl"
+    max-width="max-w-2xl"
   >
     <BaseLayer>
       <div v-if="loading" class="py-8 text-center">
-        <UIcon name="lucide:loader" class="animate-spin text-3xl" />
+        <UIcon name="i-lucide-loader" class="animate-spin text-3xl" />
       </div>
       <div v-else-if="error" class="py-8 text-center text-red-500">
         {{ error }}

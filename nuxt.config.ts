@@ -25,7 +25,7 @@ export default defineNuxtConfig({
   icon: {
     clientBundle: {
       scan: true,
-      includeCustomCollections: true, 
+      includeCustomCollections: true,
     },
   },
 

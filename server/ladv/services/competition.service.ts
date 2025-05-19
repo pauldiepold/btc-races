@@ -31,13 +31,18 @@ export class LadvCompetitionService {
    * Konvertiert ein Datum in die Berliner Zeitzone
    */
   private convertToBerlinTime(timestamp: string | Date | number): string {
-    return format(new Date(timestamp), 'yyyy-MM-dd', { timeZone: 'Europe/Berlin' })
+    return format(new Date(timestamp), 'yyyy-MM-dd', {
+      timeZone: 'Europe/Berlin',
+    })
   }
 
   /**
    * Mapped LADV-Daten auf das Competition-Format
    */
-  private mapLadvDataToCompetition(ladvData: LadvCompetitionData, isNewCompetition: boolean = false): Partial<Competition> {
+  private mapLadvDataToCompetition(
+    ladvData: LadvCompetitionData,
+    isNewCompetition: boolean = false
+  ): Partial<Competition> {
     const baseData = {
       name: ladvData.name,
       location: ladvData.ort.name,
@@ -74,15 +79,18 @@ export class LadvCompetitionService {
       throw new Error('LADV-Daten konnten nicht abgerufen werden')
     }
 
-    const competitionsRepo = await createCompetitionsRepository(this.event, 'service_role')
+    const competitionsRepo = await createCompetitionsRepository(
+      this.event,
+      'service_role'
+    )
     const competition = await competitionsRepo.createCompetition(
       this.mapLadvDataToCompetition(ladvData, true) as Competition
     )
-    
+
     if (!competition) {
       throw new Error('Fehler beim Erstellen des Wettkampfs')
     }
-    
+
     return competition
   }
 
@@ -90,7 +98,10 @@ export class LadvCompetitionService {
    * Synchronisiert einen bestehenden Wettkampf mit LADV-Daten
    */
   async syncCompetition(competitionId: number): Promise<Competition | null> {
-    const competitionsRepo = await createCompetitionsRepository(this.event, 'service_role')
+    const competitionsRepo = await createCompetitionsRepository(
+      this.event,
+      'service_role'
+    )
     const competition = await competitionsRepo.findById(competitionId)
 
     if (!competition) {
@@ -101,7 +112,9 @@ export class LadvCompetitionService {
       throw new Error('Wettkampf hat keine LADV-ID')
     }
 
-    const ladvData = await this.ladvService.getCompetitionDetails(competition.ladv_id)
+    const ladvData = await this.ladvService.getCompetitionDetails(
+      competition.ladv_id
+    )
     if (!ladvData) {
       throw new Error('LADV-Daten konnten nicht abgerufen werden')
     }
@@ -111,4 +124,4 @@ export class LadvCompetitionService {
       this.mapLadvDataToCompetition(ladvData, false)
     )
   }
-} 
+}

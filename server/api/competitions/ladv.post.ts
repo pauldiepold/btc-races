@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
 
   // Validierung mit dem LADV-URL-Schema
   const validationResult = ladvUrlSchema.safeParse({ url: ladvUrl })
-  
+
   if (!validationResult.success) {
     return {
       error: {
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
         statusCode: 400,
       } as ApiResponse<null>
     }
-    
+
     const ladvId = parseInt(urlParts[detailIndex + 1])
     if (!ladvId) {
       return {
@@ -48,9 +48,12 @@ export default defineEventHandler(async (event) => {
     }
 
     // Prüfen, ob der Wettkampf bereits existiert
-    const competitionsRepo = await createCompetitionsRepository(event, 'service_role')
+    const competitionsRepo = await createCompetitionsRepository(
+      event,
+      'service_role'
+    )
     const existingCompetition = await competitionsRepo.findByLadvId(ladvId)
-    
+
     if (existingCompetition) {
       return {
         error: {

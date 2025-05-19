@@ -74,7 +74,7 @@ async function onSubmit(event: FormSubmitEvent<RegistrationSchema>) {
   }
 }
 
-async function onError(error: any) {
+async function onError() {
   showError('Bitte überprüfe deine Eingaben.')
 }
 </script>

@@ -35,8 +35,11 @@ async function onSubmit() {
     if (error && statusCode === 409) {
       const existingCompetitionId = error.details
       if (existingCompetitionId) {
-        navigateTo(`/competitions/${existingCompetitionId}`)
         showSuccess('Dieser Wettkampf wurde bereits erstellt.')
+
+        setTimeout(() => {
+          navigateTo(`/competitions/${existingCompetitionId}`)
+        }, 500)
         return
       }
       showError('Ein Wettkampf mit dieser LADV-ID existiert bereits')
@@ -47,7 +50,9 @@ async function onSubmit() {
 
     showSuccess('Der Wettkampf wurde erfolgreich erstellt.')
     if (data) {
-      navigateTo(`/competitions/${data.id}`)
+      setTimeout(() => {
+        navigateTo(`/competitions/${data.id}`)
+      }, 500)
     }
   } catch (error: any) {
     showError(error.message || 'Ein unbekannter Fehler ist aufgetreten')

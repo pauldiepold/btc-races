@@ -65,8 +65,10 @@ async function onSubmit(event: FormSubmitEvent<RegistrationSchema>) {
       'Deine Anmeldung wurde erfolgreich erstellt. Du erhältst in Kürze eine Bestätigungsmail.'
     )
 
-    // Weiterleitung zur Detailseite
-    await navigateTo(`/competitions/${competitionId}`)
+    setTimeout(async () => {
+      // Weiterleitung zur Detailseite
+      await navigateTo(`/competitions/${competitionId}`)
+    }, 500)
   } catch (error: any) {
     showError(error.message || 'Ein Fehler ist aufgetreten.')
   } finally {

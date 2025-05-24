@@ -19,16 +19,16 @@ const { data: competitionRegistrations } = await useAsyncData(
 const confirmedRegistrations = computed(
   () =>
     competitionRegistrations.value?.filter(
-      (reg) => reg.status === 'confirmed'
+      (reg) =>
+        reg.status === 'confirmed' || reg.status === 'pending_cancellation'
     ) || []
 )
 
 // Alle ausstehenden Registrierungen (Bestätigungen und Abmeldungen)
 const pendingRegistrations = computed(
   () =>
-    competitionRegistrations.value?.filter(
-      (reg) => reg.status === 'pending' || reg.status === 'pending_cancellation'
-    ) || []
+    competitionRegistrations.value?.filter((reg) => reg.status === 'pending') ||
+    []
 )
 
 const canceledRegistrations = computed(
@@ -39,7 +39,7 @@ const canceledRegistrations = computed(
 )
 
 // State für das Auf- und Zuklappen der abgemeldeten Teilnehmer:innen
-const showCanceled = ref(false)
+const showCanceled = ref(true)
 </script>
 
 <template>
@@ -69,7 +69,7 @@ const showCanceled = ref(false)
         <!-- Ausstehende Teilnehmer:innen (Bestätigungen und Abmeldungen) -->
         <div v-if="pendingRegistrations.length > 0">
           <h3 class="mb-2 font-medium text-yellow-600">
-            Ausstehend ({{ pendingRegistrations.length }})
+            Bestätigung ausstehend ({{ pendingRegistrations.length }})
           </h3>
           <div class="space-y-3">
             <CompetitionParticipant

@@ -77,8 +77,21 @@ async function refreshCompetition() {
     </template>
     <template #sidebar>
       <div class="space-y-6">
-        <!-- Teilnehmer:innen Komponente -->
-        <CompetitionParticipants :competition-id="competitionId" />
+        <!-- Ausschreibung -->
+        <BaseLayer v-if="competition && competition.announcement_link">
+          <p class="mb-4">
+            Weitere Details findest du in der offiziellen Ausschreibung:
+          </p>
+          <UButton
+            :to="competition.announcement_link"
+            target="_blank"
+            color="neutral"
+            variant="outline"
+            trailing-icon="i-lucide-external-link"
+          >
+            Ausschreibung öffnen
+          </UButton>
+        </BaseLayer>
 
         <!-- Kontakt -->
         <BaseLayer>
@@ -108,36 +121,8 @@ async function refreshCompetition() {
       <!-- Wettkampfdetails -->
       <CompetitionDetails :competition="competition" />
 
-      <!-- Beschreibung -->
-      <BaseLayer>
-        <h2 class="mb-4 text-xl font-bold">Beschreibung</h2>
-        <div
-          v-if="competition.description"
-          class="prose max-w-none"
-          v-html="competition.description"
-        />
-        <div v-else>Keine Beschreibung verfügbar.</div>
-      </BaseLayer>
-
-      <!-- Ausschreibung -->
-      <BaseLayer v-if="competition.announcement_link">
-        <h2 class="mb-4 text-xl font-bold">Ausschreibung</h2>
-        <p v-if="competition.ladv_description" class="mb-4">
-          {{ competition.ladv_description }}
-        </p>
-        <p class="mb-4">
-          Weitere Details findest du in der offiziellen Ausschreibung:
-        </p>
-        <UButton
-          :to="competition.announcement_link"
-          target="_blank"
-          color="neutral"
-          variant="soft"
-          trailing-icon="i-lucide-external-link"
-        >
-          Ausschreibung öffnen
-        </UButton>
-      </BaseLayer>
+      <!-- Teilnehmer:innen Komponente -->
+      <CompetitionParticipants :competition-id="competitionId" />
     </div>
   </BasePage>
 </template>

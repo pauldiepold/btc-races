@@ -6,12 +6,14 @@ import {
   type RegistrationStatus,
 } from '~/types/enums'
 import type { Competition } from '~/types/models.types'
+
 const props = defineProps<{
   registration: {
     id: string
-    ladv_canceled_at: string | null
     ladv_registered_at: string | null
     ladv_registered_by: string | null
+    ladv_canceled_at: string | null
+    ladv_canceled_by: string | null
     member: {
       name: string
     }
@@ -23,8 +25,31 @@ const props = defineProps<{
 }>()
 
 const user = useSupabaseUser()
-// LADV Status (temporärer lokaler State)
-const isLADVRegistered = ref(false)
+
+// LADV Status basierend auf Datenbank-Feldern
+const isLADVRegistered = computed(() => {
+  return (
+    props.registration.ladv_registered_at &&
+    !props.registration.ladv_canceled_at
+  )
+})
+
+// Warnung für LADV-Abmeldung durch Coaches nötig
+const needsLADVCancellationByCoach = computed(() => {
+  return (
+    isLADVRegistered.value &&
+    props.registration.status === RegistrationStatuses.CANCELED
+  )
+})
+
+// Warnung für LADV-Anmeldung nötig
+const needsLADVRegistrationByCoach = computed(() => {
+  return (
+    !isLADVRegistered.value &&
+    (props.registration.status === RegistrationStatuses.CONFIRMED ||
+      props.registration.status === RegistrationStatuses.PENDING_CANCELLATION)
+  )
+})
 
 function getStatusColor(status: RegistrationStatus) {
   switch (status) {
@@ -41,22 +66,12 @@ function getStatusColor(status: RegistrationStatus) {
   }
 }
 
-/* const isLADVRegistered = computed(() => {
-  if (
-    props.registration.ladv_registered_at &&
-    !props.registration.ladv_canceled_at
-  ) {
-    return true
-  } else {
-    return false
-  }
-}) */
-
 // Abmeldung-Funktionalität
 const isLoading = ref(false)
 const error = ref('')
 const isModalOpen = ref(false)
 const successMessage = ref('')
+
 const cancelRegistration = async () => {
   isLoading.value = true
   error.value = ''
@@ -87,6 +102,12 @@ const cancelRegistration = async () => {
   } finally {
     isLoading.value = false
   }
+}
+
+// LADV-Aktionen erfolgreich
+const handleLADVSuccess = async () => {
+  // Daten neu laden
+  await refreshNuxtData(`registrations-${useRoute().params.id}`)
 }
 </script>
 
@@ -127,6 +148,7 @@ const cancelRegistration = async () => {
             color="error"
             variant="soft"
             size="sm"
+            @click="isModalOpen = true"
           >
             Abmelden
           </UButton>
@@ -135,8 +157,9 @@ const cancelRegistration = async () => {
               Bist du {{ registration.member.name }} und möchtest Dich selbst
               von diesem Wettkampf abmelden?
             </p>
-            <p class="mt-2 text-sm text-gray-600">
-              Eine Bestätigungs-E-Mail wird automatisch an Dich versendet.
+            <p class="mt-2 text-sm text-gray-500">
+              Du bekommst eine E-Mail mit einem Link zugesendet, über den du
+              deine Abmeldung bestätigen musst.
             </p>
 
             <div v-if="error" class="mt-3 text-sm text-red-600">
@@ -144,13 +167,19 @@ const cancelRegistration = async () => {
             </div>
 
             <div class="mt-6 flex justify-end gap-3">
-              <UButton color="neutral" variant="soft"> Abbrechen </UButton>
+              <UButton
+                color="neutral"
+                variant="soft"
+                @click="isModalOpen = false"
+              >
+                Abbrechen
+              </UButton>
               <UButton
                 color="error"
                 :loading="isLoading"
                 @click="cancelRegistration"
               >
-                Ja, von diesem Wettkampf abmelden
+                Ja, ich möchte mich abmelden
               </UButton>
             </div>
           </template>
@@ -171,27 +200,42 @@ const cancelRegistration = async () => {
         >
           {{ isLADVRegistered ? 'LADV gemeldet' : 'LADV nicht gemeldet' }}
         </span>
+
         <template v-if="user">
-          <template v-if="isLADVRegistered">
-            <UButton
-              size="sm"
-              color="neutral"
-              variant="soft"
-              @click="isLADVRegistered = false"
+          <div class="flex items-center gap-4">
+            <!-- Warnung für LADV-Abmeldung durch Coaches -->
+            <div
+              v-if="needsLADVCancellationByCoach"
+              class="flex items-center gap-1 text-orange-500"
+              title="LADV-Abmeldung durch Coaches erforderlich"
             >
-              LADV abmelden
-            </UButton>
-          </template>
-          <template v-else>
-            <UButton
-              size="sm"
-              color="neutral"
-              variant="soft"
-              @click="isLADVRegistered = true"
+              <Icon name="mdi:exclamation-thick" class="h-4 w-4" />
+              <span class="text-xs">Abmeldung nötig</span>
+            </div>
+
+            <!-- Warnung für LADV-Anmeldung nötig -->
+            <div
+              v-if="needsLADVRegistrationByCoach"
+              class="flex items-center gap-1 text-orange-500"
+              title="LADV-Anmeldung durch Coaches erforderlich"
             >
-              LADV melden
-            </UButton></template
-          >
+              <Icon name="mdi:exclamation-thick" class="h-4 w-4" />
+              <span class="text-xs">Anmeldung nötig</span>
+            </div>
+
+            <CompetitionLADVCancelButton
+              v-if="isLADVRegistered"
+              :registration-id="registration.id"
+              :name="registration.member.name"
+              @success="handleLADVSuccess"
+            />
+            <CompetitionLADVRegisterButton
+              v-else
+              :registration-id="registration.id"
+              :name="registration.member.name"
+              @success="handleLADVSuccess"
+            />
+          </div>
         </template>
       </div>
     </div>

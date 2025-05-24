@@ -1,8 +1,9 @@
 -- Add LADV status to registrations table
 ALTER TABLE "public"."registrations" 
     ADD COLUMN IF NOT EXISTS "ladv_registered_at" timestamp with time zone,
+    ADD COLUMN IF NOT EXISTS "ladv_registered_by" text,
     ADD COLUMN IF NOT EXISTS "ladv_canceled_at" timestamp with time zone,
-    ADD COLUMN IF NOT EXISTS "ladv_registered_by" text;
+    ADD COLUMN IF NOT EXISTS "ladv_canceled_by" text;
 
 -- Drop the existing view first
 DROP VIEW IF EXISTS "public"."registrations_with_details";
@@ -16,8 +17,9 @@ SELECT
     r.status,
     r.notes,
     r.ladv_registered_at,
-    r.ladv_canceled_at,
     r.ladv_registered_by,
+    r.ladv_canceled_at,
+    r.ladv_canceled_by,
     r.created_at,
     r.updated_at,
     -- Member details

@@ -129,7 +129,7 @@ export class TemplateService {
   private readonly registrationConfirmationTemplate = `
     <p>Hallo {{ firstName }},</p>
     
-    <p>vielen Dank für deine Anmeldung zum Wettkampf <strong>{{ competitionName }}</strong> am {{ competitionDate }}.</p>
+    <p>Du hast Dich zum Wettkampf <strong>{{ competitionName }}</strong> am {{ competitionDate }} angemeldet.</p>
     
     <p>Um deine Anmeldung zu bestätigen, klicke bitte auf den folgenden Link:</p>
     

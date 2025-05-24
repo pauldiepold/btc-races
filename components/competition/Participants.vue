@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { useRepositories } from '~/composables/useRepositories'
+import type { Competition } from '~/types/models.types'
 
 const props = defineProps<{
-  competitionId: string
+  competition: Competition
 }>()
 
 const { registrations } = useRepositories()
 
 const { data: competitionRegistrations } = await useAsyncData(
-  `registrations-${props.competitionId}`,
+  `registrations-${props.competition.id}`,
   async () => {
-    const result = await registrations.findByCompetitionId(props.competitionId)
+    const result = await registrations.findByCompetitionId(props.competition.id)
     return result || []
   }
 )
@@ -19,16 +20,16 @@ const { data: competitionRegistrations } = await useAsyncData(
 const confirmedRegistrations = computed(
   () =>
     competitionRegistrations.value?.filter(
-      (reg) => reg.status === 'confirmed'
+      (reg) =>
+        reg.status === 'confirmed' || reg.status === 'pending_cancellation'
     ) || []
 )
 
 // Alle ausstehenden Registrierungen (Bestätigungen und Abmeldungen)
 const pendingRegistrations = computed(
   () =>
-    competitionRegistrations.value?.filter(
-      (reg) => reg.status === 'pending' || reg.status === 'pending_cancellation'
-    ) || []
+    competitionRegistrations.value?.filter((reg) => reg.status === 'pending') ||
+    []
 )
 
 const canceledRegistrations = computed(
@@ -39,7 +40,7 @@ const canceledRegistrations = computed(
 )
 
 // State für das Auf- und Zuklappen der abgemeldeten Teilnehmer:innen
-const showCanceled = ref(false)
+const showCanceled = ref(true)
 </script>
 
 <template>
@@ -62,6 +63,7 @@ const showCanceled = ref(false)
               v-for="registration in confirmedRegistrations"
               :key="registration.id"
               :registration="registration"
+              :competition="competition"
             />
           </div>
         </div>
@@ -69,13 +71,14 @@ const showCanceled = ref(false)
         <!-- Ausstehende Teilnehmer:innen (Bestätigungen und Abmeldungen) -->
         <div v-if="pendingRegistrations.length > 0">
           <h3 class="mb-2 font-medium text-yellow-600">
-            Ausstehend ({{ pendingRegistrations.length }})
+            Bestätigung ausstehend ({{ pendingRegistrations.length }})
           </h3>
           <div class="space-y-3">
             <CompetitionParticipant
               v-for="registration in pendingRegistrations"
               :key="registration.id"
               :registration="registration"
+              :competition="competition"
             />
           </div>
         </div>
@@ -100,6 +103,7 @@ const showCanceled = ref(false)
               v-for="registration in canceledRegistrations"
               :key="registration.id"
               :registration="registration"
+              :competition="competition"
             />
           </div>
         </div>

@@ -223,6 +223,10 @@ export type Database = {
           competition_id: number
           created_at: string
           id: number
+          ladv_canceled_at: string | null
+          ladv_canceled_by: string | null
+          ladv_registered_at: string | null
+          ladv_registered_by: string | null
           member_id: number
           notes: string | null
           status: Database['public']['Enums']['registration_status'] | null
@@ -232,6 +236,10 @@ export type Database = {
           competition_id: number
           created_at?: string
           id?: number
+          ladv_canceled_at?: string | null
+          ladv_canceled_by?: string | null
+          ladv_registered_at?: string | null
+          ladv_registered_by?: string | null
           member_id: number
           notes?: string | null
           status?: Database['public']['Enums']['registration_status'] | null
@@ -241,6 +249,10 @@ export type Database = {
           competition_id?: number
           created_at?: string
           id?: number
+          ladv_canceled_at?: string | null
+          ladv_canceled_by?: string | null
+          ladv_registered_at?: string | null
+          ladv_registered_by?: string | null
           member_id?: number
           notes?: string | null
           status?: Database['public']['Enums']['registration_status'] | null
@@ -372,9 +384,13 @@ export type Database = {
           created_at: string | null
           has_ladv_startpass: boolean | null
           id: number | null
+          ladv_canceled_at: string | null
+          ladv_canceled_by: string | null
           ladv_description: string | null
           ladv_id: number | null
           ladv_last_sync: string | null
+          ladv_registered_at: string | null
+          ladv_registered_by: string | null
           member_email: string | null
           member_id: number | null
           member_name: string | null

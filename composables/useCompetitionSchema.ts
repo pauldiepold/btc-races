@@ -15,7 +15,7 @@ const baseSchema = z.object({
   registration_deadline: z.string().date(),
   date: z.string().date(),
   announcement_link: z.string().url('Ungültige URL').optional(),
-  description: z.string().optional(),
+  description: z.string().nullable().optional(),
   championship_type: z.enum(ZOD_CHAMPIONSHIP_TYPES),
   race_type: z.enum(ZOD_RACE_TYPES),
   registration_type: z.enum(ZOD_REGISTRATION_TYPES),

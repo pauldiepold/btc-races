@@ -39,8 +39,10 @@ async function onSubmit(data: Competition) {
 
     showSuccess('Der Wettkampf wurde erfolgreich aktualisiert')
 
-    // Weiterleitung zur Detailseite
-    await navigateTo(`/competitions/${route.params.id}`)
+    setTimeout(async () => {
+      // Weiterleitung zur Detailseite
+      await navigateTo(`/competitions/${route.params.id}`)
+    }, 500)
   } catch (error: any) {
     showError(error.message || 'Ein Fehler ist aufgetreten')
   }

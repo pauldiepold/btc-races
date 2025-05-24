@@ -32,7 +32,7 @@ async function onSubmit(data: Competition) {
 
     setTimeout(() => {
       navigateTo(`/competitions/${response.id}`)
-    }, 1500)
+    }, 500)
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error

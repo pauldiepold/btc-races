@@ -30,11 +30,14 @@ withDefaults(
       v-if="heading"
       class="mb-6 flex flex-col justify-between gap-4 xl:flex-row xl:items-center"
     >
-      <div class="flex items-center justify-start gap-4">
-        <h1 class="text-2xl font-bold">
+      <div class="flex flex-col items-center justify-start gap-4 lg:flex-row">
+        <h1 class="self-start text-2xl font-bold lg:self-auto">
           {{ heading }}
         </h1>
-        <div v-if="$slots.rightOfHeading">
+        <div
+          v-if="$slots.rightOfHeading"
+          class="order-first self-end lg:order-last lg:self-auto"
+        >
           <slot name="rightOfHeading" />
         </div>
       </div>

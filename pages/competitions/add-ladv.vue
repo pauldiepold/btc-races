@@ -84,7 +84,7 @@ async function onSubmit() {
           />
         </UFormField>
 
-        <p class="mb-4 text-sm text-gray-400">
+        <p class="text-muted mb-4 text-sm">
           bspw: https://ladv.de/ausschreibung/detail/42008/...
         </p>
 

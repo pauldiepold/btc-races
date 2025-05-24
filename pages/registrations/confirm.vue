@@ -74,7 +74,7 @@ onMounted(async () => {
 <template>
   <BasePage heading="" back-link="/" back-link-text="Zurück zur Startseite">
     <div
-      class="mx-auto max-w-lg space-y-4 rounded-lg bg-(--ui-bg-accented) p-6 shadow-sm"
+      class="bg-accented mx-auto max-w-lg space-y-4 rounded-lg p-6 shadow-sm"
     >
       <h2 class="text-center text-2xl font-bold">Anmeldebestätigung</h2>
 
@@ -82,9 +82,7 @@ onMounted(async () => {
         <div
           class="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-indigo-600"
         />
-        <p class="mt-4 text-sm text-(--ui-text-dimmed)">
-          Bestätigung wird verarbeitet...
-        </p>
+        <p class="text-dimmed mt-4 text-sm">Bestätigung wird verarbeitet...</p>
       </div>
 
       <div v-else-if="error" class="space-y-4">

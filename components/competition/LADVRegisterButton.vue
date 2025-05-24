@@ -60,7 +60,7 @@ const confirmRegister = async () => {
     <UModal v-model:open="isModalOpen" title="LADV-Anmeldung bestätigen">
       <template #body>
         <p>Wurde {{ name }} in LADV gemeldet?</p>
-        <p class="mt-2 text-sm text-gray-400">
+        <p class="text-muted mt-2 text-sm">
           Sie bekommt eine Bestätigungs-E-Mail zugesendet.
         </p>
 

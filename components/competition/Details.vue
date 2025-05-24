@@ -124,13 +124,13 @@ defineProps<{
 
     <!-- Beschreibung -->
     <template v-if="competition.description">
-      <hr class="border-(--ui-border-inverted)" />
+      <hr class="border-inverted" />
       <div class="prose" v-html="competition.description" />
     </template>
 
     <!-- LADV-Beschreibung -->
     <template v-if="competition.ladv_description">
-      <hr class="border-(--ui-border-inverted)" />
+      <hr class="border-inverted" />
       <div class="prose" v-html="competition.ladv_description" />
     </template>
   </BaseLayer>

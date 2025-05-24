@@ -17,7 +17,7 @@ async function handleLogout() {
 </script>
 
 <template>
-  <header class="bg-(--ui-bg-muted)">
+  <header class="bg-muted">
     <div class="container mx-auto px-4 py-3">
       <div
         class="flex items-center"
@@ -75,7 +75,7 @@ async function handleLogout() {
       <template v-if="user">
         <div
           v-show="isMenuOpen"
-          class="absolute right-0 left-0 z-50 bg-(--ui-bg-muted) md:hidden"
+          class="bg-muted absolute right-0 left-0 z-50 md:hidden"
         >
           <ul class="space-y-4 px-4 py-4">
             <LayoutHeaderLinkMobile
@@ -93,7 +93,7 @@ async function handleLogout() {
             />
             <li v-if="user" class="border-t border-gray-700 pt-4 text-center">
               <div class="flex flex-col space-y-4">
-                <span class="text-sm text-gray-400">
+                <span class="text-muted text-sm">
                   Eingeloggt als: {{ user.email }}
                 </span>
                 <UButton

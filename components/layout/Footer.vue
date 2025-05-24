@@ -3,7 +3,7 @@ const { user } = useAuth()
 </script>
 
 <template>
-  <footer class="bg-(--ui-bg-muted) py-8">
+  <footer class="bg-muted py-8">
     <div class="container mx-auto px-4">
       <div class="flex flex-col items-center justify-center space-y-6">
         <UButton
@@ -28,7 +28,7 @@ const { user } = useAuth()
             </ULink>
           </p>
 
-          <p class="text-sm text-gray-400">
+          <p class="text-muted text-sm">
             Entwickelt mit
             <ULink
               href="https://nuxt.com"

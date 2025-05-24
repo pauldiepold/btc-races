@@ -13,7 +13,7 @@ definePageMeta({
     back-link-text="Zurück zur Startseite"
     max-width="max-w-lg"
   >
-    <div class="space-y-4 rounded-lg bg-(--ui-bg-accented) p-6 shadow-sm">
+    <div class="bg-accented space-y-4 rounded-lg p-6 shadow-sm">
       <h2 class="text-center text-2xl font-bold">Admin Login</h2>
 
       <div v-if="error" class="text-sm text-red-500">
@@ -29,7 +29,7 @@ definePageMeta({
         :label="loading ? 'Wird eingeloggt...' : 'Mit Microsoft anmelden'"
         @click="login"
       />
-      <p class="text-center text-sm text-(--ui-text-dimmed)">
+      <p class="text-dimmed text-center text-sm">
         Zugriff ist nur mit einem BTC-Microsoft Account möglich.
       </p>
     </div>

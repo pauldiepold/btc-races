@@ -32,7 +32,7 @@ onMounted(async () => {
       <div
         class="border-primary mx-auto h-12 w-12 animate-spin rounded-full border-b-2"
       />
-      <p class="mt-4 text-gray-600">Wird eingeloggt...</p>
+      <p class="text-muted mt-4">Wird eingeloggt...</p>
     </div>
   </div>
 </template>

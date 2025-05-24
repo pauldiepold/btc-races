@@ -137,7 +137,7 @@ async function onError() {
           />
         </UFormField>
 
-        <p class="text-sm text-gray-400">
+        <p class="text-muted text-sm">
           Nach Absenden des Formulars erhältst du eine E-Mail an deine bei uns
           hinterlegte E-Mail-Adresse mit einem Link, über den du deine Teilnahme
           bestätigen musst.

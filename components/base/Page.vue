@@ -55,10 +55,7 @@ withDefaults(
         <slot name="default" />
 
         <!-- Trennlinie für mobile Ansicht -->
-        <hr
-          v-if="$slots.sidebar"
-          class="mt-6 border-(--ui-border-inverted) lg:hidden"
-        />
+        <hr v-if="$slots.sidebar" class="border-inverted mt-6 lg:hidden" />
       </div>
 
       <!-- Seitenleiste -->

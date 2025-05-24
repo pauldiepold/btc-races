@@ -99,7 +99,7 @@ const {
             <h2 class="text-xl font-bold">Wettkämpfe</h2>
           </template>
           <p class="text-3xl font-bold">{{ activeCompetitionsCount }}</p>
-          <p class="mt-2 text-sm text-(--ui-text-dimmed)">Aktive Wettkämpfe</p>
+          <p class="text-dimmed mt-2 text-sm">Aktive Wettkämpfe</p>
         </UCard>
 
         <UCard>
@@ -107,9 +107,7 @@ const {
             <h2 class="text-xl font-bold">Mitglieder</h2>
           </template>
           <p class="text-3xl font-bold">{{ membersCount }}</p>
-          <p class="mt-2 text-sm text-(--ui-text-dimmed)">
-            Registrierte Mitglieder
-          </p>
+          <p class="text-dimmed mt-2 text-sm">Registrierte Mitglieder</p>
         </UCard>
 
         <UCard>
@@ -117,9 +115,7 @@ const {
             <h2 class="text-xl font-bold">Anmeldungen</h2>
           </template>
           <p class="text-3xl font-bold">{{ confirmedRegistrationsCount }}</p>
-          <p class="mt-2 text-sm text-(--ui-text-dimmed)">
-            Bestätigte Anmeldungen
-          </p>
+          <p class="text-dimmed mt-2 text-sm">Bestätigte Anmeldungen</p>
         </UCard>
 
         <UCard>
@@ -127,9 +123,7 @@ const {
             <h2 class="text-xl font-bold">Ausstehend</h2>
           </template>
           <p class="text-3xl font-bold">{{ pendingRegistrationsCount }}</p>
-          <p class="mt-2 text-sm text-(--ui-text-dimmed)">
-            Unbestätigte Anmeldungen
-          </p>
+          <p class="text-dimmed mt-2 text-sm">Unbestätigte Anmeldungen</p>
         </UCard>
       </div>
 
@@ -160,7 +154,7 @@ const {
                 <h3 class="font-medium">{{ competition.name }}</h3>
                 <UBadge color="success" variant="soft">Aktiv</UBadge>
               </div>
-              <p class="text-sm text-(--ui-text-dimmed)">
+              <p class="text-dimmed text-sm">
                 {{ new Date(competition.date).toLocaleDateString() }}
               </p>
               <div class="mt-2 flex justify-between">
@@ -207,10 +201,10 @@ const {
                   }}
                 </UBadge>
               </div>
-              <p class="text-sm text-(--ui-text-dimmed)">
+              <p class="text-dimmed text-sm">
                 {{ registration.competition?.name }}
               </p>
-              <p class="mt-2 text-sm text-(--ui-text-dimmed)">
+              <p class="text-dimmed mt-2 text-sm">
                 {{ new Date(registration.created_at).toLocaleString() }}
               </p>
             </div>

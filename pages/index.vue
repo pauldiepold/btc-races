@@ -303,7 +303,7 @@ watch(
         <!-- Keine Ergebnisse -->
         <div
           v-else-if="visibleEvents.length === 0"
-          class="text-center text-gray-500"
+          class="text-dimmed text-center"
         >
           Keine Wettkämpfe gefunden
         </div>

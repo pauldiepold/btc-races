@@ -119,7 +119,7 @@ const handleLADVSuccess = async () => {
         <div class="flex items-center justify-between">
           <p class="text-lg font-medium">{{ registration.member.name }}</p>
         </div>
-        <p v-if="registration.notes" class="mt-1 text-sm text-gray-400">
+        <p v-if="registration.notes" class="text-muted mt-1 text-sm">
           {{ registration.notes }}
         </p>
       </div>
@@ -135,7 +135,7 @@ const handleLADVSuccess = async () => {
           >
             {{ RegistrationStatusLabels[registration.status] }}
           </span>
-          <span class="text-xs text-gray-500">
+          <span class="text-dimmed text-xs">
             ({{
               new Date(registration.created_at).toLocaleDateString('de-DE')
             }})
@@ -157,7 +157,7 @@ const handleLADVSuccess = async () => {
               Bist du {{ registration.member.name }} und möchtest Dich selbst
               von diesem Wettkampf abmelden?
             </p>
-            <p class="mt-2 text-sm text-gray-500">
+            <p class="text-dimmed mt-2 text-sm">
               Du bekommst eine E-Mail mit einem Link zugesendet, über den du
               deine Abmeldung bestätigen musst.
             </p>

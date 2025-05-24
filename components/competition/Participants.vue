@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { useRepositories } from '~/composables/useRepositories'
+import type { Competition } from '~/types/models.types'
 
 const props = defineProps<{
-  competitionId: string
+  competition: Competition
 }>()
 
 const { registrations } = useRepositories()
 
 const { data: competitionRegistrations } = await useAsyncData(
-  `registrations-${props.competitionId}`,
+  `registrations-${props.competition.id}`,
   async () => {
-    const result = await registrations.findByCompetitionId(props.competitionId)
+    const result = await registrations.findByCompetitionId(props.competition.id)
     return result || []
   }
 )
@@ -62,6 +63,7 @@ const showCanceled = ref(true)
               v-for="registration in confirmedRegistrations"
               :key="registration.id"
               :registration="registration"
+              :competition="competition"
             />
           </div>
         </div>
@@ -76,6 +78,7 @@ const showCanceled = ref(true)
               v-for="registration in pendingRegistrations"
               :key="registration.id"
               :registration="registration"
+              :competition="competition"
             />
           </div>
         </div>
@@ -100,6 +103,7 @@ const showCanceled = ref(true)
               v-for="registration in canceledRegistrations"
               :key="registration.id"
               :registration="registration"
+              :competition="competition"
             />
           </div>
         </div>

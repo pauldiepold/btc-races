@@ -59,6 +59,9 @@ export class RegistrationsClientRepository extends ClientRepository<
         `
         id,
         status,
+        ladv_canceled_at,
+        ladv_registered_at,
+        ladv_registered_by,
         notes,
         created_at,
         member:members (

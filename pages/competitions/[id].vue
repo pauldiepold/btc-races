@@ -122,7 +122,7 @@ async function refreshCompetition() {
       <CompetitionDetails :competition="competition" />
 
       <!-- Teilnehmer:innen Komponente -->
-      <CompetitionParticipants :competition-id="competitionId" />
+      <CompetitionParticipants :competition="competition" />
     </div>
   </BasePage>
 </template>

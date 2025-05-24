@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import {
   RegistrationStatusLabels,
+  RegistrationStatuses,
+  RegistrationTypes,
   type RegistrationStatus,
 } from '~/types/enums'
-
+import type { Competition } from '~/types/models.types'
 const props = defineProps<{
   registration: {
     id: string
+    ladv_canceled_at: string | null
+    ladv_registered_at: string | null
+    ladv_registered_by: string | null
     member: {
       name: string
     }
@@ -14,28 +19,38 @@ const props = defineProps<{
     created_at: string
     notes?: string
   }
+  competition: Competition
 }>()
 
+const user = useSupabaseUser()
 // LADV Status (temporärer lokaler State)
 const isLADVRegistered = ref(false)
 
-// Simulierter Coach-Status (später durch echte Berechtigungsprüfung ersetzen)
-const isCoach = ref(true)
-
-const statusColor = computed(() => {
-  switch (props.registration.status) {
-    case 'confirmed':
+function getStatusColor(status: RegistrationStatus) {
+  switch (status) {
+    case RegistrationStatuses.CONFIRMED:
       return 'text-green-600'
-    case 'pending':
+    case RegistrationStatuses.PENDING:
       return 'text-yellow-600'
-    case 'canceled':
-      return 'text-red-600'
-    case 'pending_cancellation':
+    case RegistrationStatuses.CANCELED:
+      return 'text-muted'
+    case RegistrationStatuses.PENDING_CANCELLATION:
       return 'text-yellow-600'
     default:
       return ''
   }
-})
+}
+
+/* const isLADVRegistered = computed(() => {
+  if (
+    props.registration.ladv_registered_at &&
+    !props.registration.ladv_canceled_at
+  ) {
+    return true
+  } else {
+    return false
+  }
+}) */
 
 // Abmeldung-Funktionalität
 const isLoading = ref(false)
@@ -82,21 +97,6 @@ const cancelRegistration = async () => {
       <div class="relative">
         <div class="flex items-center justify-between">
           <p class="text-lg font-medium">{{ registration.member.name }}</p>
-          <USwitch
-            v-if="isCoach"
-            v-model="isLADVRegistered"
-            size="sm"
-            class="ml-2"
-          />
-        </div>
-        <div class="mt-1">
-          <UBadge
-            :color="isLADVRegistered ? 'success' : 'warning'"
-            variant="soft"
-            size="sm"
-          >
-            {{ isLADVRegistered ? 'LADV-gemeldet' : 'LADV ausstehend' }}
-          </UBadge>
         </div>
         <p v-if="registration.notes" class="mt-1 text-sm text-gray-400">
           {{ registration.notes }}
@@ -108,7 +108,10 @@ const cancelRegistration = async () => {
         class="flex items-center justify-between border-t border-gray-600 pt-3"
       >
         <div class="flex items-center gap-2">
-          <span class="text-sm font-medium" :class="statusColor">
+          <span
+            class="text-sm font-medium"
+            :class="getStatusColor(registration.status)"
+          >
             {{ RegistrationStatusLabels[registration.status] }}
           </span>
           <span class="text-xs text-gray-500">
@@ -152,6 +155,44 @@ const cancelRegistration = async () => {
             </div>
           </template>
         </UModal>
+      </div>
+
+      <!-- LADV Meldung -->
+      <div
+        v-if="
+          competition.registration_type === RegistrationTypes.LADV &&
+          registration.status !== RegistrationStatuses.PENDING
+        "
+        class="flex items-center justify-between border-t border-gray-600 pt-3"
+      >
+        <span
+          class="text-sm font-medium"
+          :class="isLADVRegistered ? 'text-green-600' : 'text-yellow-600'"
+        >
+          {{ isLADVRegistered ? 'LADV gemeldet' : 'LADV nicht gemeldet' }}
+        </span>
+        <template v-if="user">
+          <template v-if="isLADVRegistered">
+            <UButton
+              size="sm"
+              color="neutral"
+              variant="soft"
+              @click="isLADVRegistered = false"
+            >
+              LADV abmelden
+            </UButton>
+          </template>
+          <template v-else>
+            <UButton
+              size="sm"
+              color="neutral"
+              variant="soft"
+              @click="isLADVRegistered = true"
+            >
+              LADV melden
+            </UButton></template
+          >
+        </template>
       </div>
     </div>
   </div>

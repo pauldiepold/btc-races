@@ -48,6 +48,7 @@ export default defineNuxtConfig({
       callback: '/auth/callback',
       exclude: [
         '/',
+        '/api/cron',
         '/competitions/**',
         '/registrations/confirm',
         '/registrations/cancel',

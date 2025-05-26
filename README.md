@@ -80,7 +80,7 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
   - ✅ Register: Falls du keinen Startpass hast... --> rechts in der Sidebar evt. noch die Kurzinfos zum Wettkampf anzeigen
   - ✅ Ist die Startseite ausreichend?
 - ✅ LADV Meldung durch Coaches hinterlegen
-- ❌ Cronjobs ermöglichen
+- ✅ Cronjobs ermöglichen
 - ❌ E-Mails:
   - ❌ Erinnerungsmail an Mitglieder 5 Tage vor Meldefrist mit Abmeldelink
   - ❌ Erinnerungsmail für Meldung an Coaches 3 Tage vor Meldefrist
@@ -88,8 +88,11 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
   - ❌ Nachfrage-E-Mail nach 3 Tagen bei nicht bestätigten Anmeldungen
   - ❌ Nach LADV Meldung Info an Personen
   - ❌ wenn kurz vor Frist bei Anneldung;: Meldemail
-- ❌ Disziplinen bei Anmeldung angeben können
+- ❌ Disziplinen und Altersklassen bei Anmeldung angeben können
   - 🟡 Tabelle angelegt, noch nirgendwo verwendet --> Disziplincodes aus LADV verwenden
+- ❌ Anzahl der angemeldeten Personen anzeigen in Liste
+- ❌ wer hat wann gemeldet auf Participant.vue
+- ❌ direkte Navigation ohne SSR und Verzögerung --> lazy Daten + überall loading indicator
 
 ### Bonus:
 

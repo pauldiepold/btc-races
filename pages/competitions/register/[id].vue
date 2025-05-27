@@ -15,21 +15,19 @@ const competitionId = route.params.id as string
 const { competitions } = useRepositories()
 const { showError, showSuccess } = useToastMessages()
 
-const { data: competition } = await useAsyncData(
-  `competition-${competitionId}`,
+const { data: competition, pending } = await useLazyAsyncData(
+  `competition-register-${competitionId}`,
   async () => {
     const result = await competitions.findById(competitionId)
     if (!result) {
       showError('Wettkampf konnte nicht geladen werden')
+      setTimeout(() => {
+        navigateTo('/')
+      }, 500)
     }
     return result
   }
 )
-
-// Umleitung zur Übersichtsseite, wenn der Wettkampf nicht gefunden wurde
-if (!competition.value) {
-  navigateTo('/')
-}
 
 const memberStore = useMemberStore()
 
@@ -88,70 +86,80 @@ async function onError() {
     back-link-text="Zurück zum Wettkampf"
     max-width="max-w-3xl"
   >
-    <h2 class="mb-4 text-lg font-bold">Anmeldung</h2>
-    <BaseLayer>
-      <UForm
-        :schema="schema"
-        :state="state"
-        class="space-y-6"
-        @submit="onSubmit"
-        @error="onError"
-      >
-        <UFormField label="Name" name="member" size="lg" required>
-          <USelect
-            v-model="state.member_id"
-            :items="memberOptions"
-            option-attribute="label"
-            value-attribute="value"
-            placeholder="Bitte wählen"
-            class="w-full"
-          />
-          <template #help>
-            Für einen meldepflichtigen Wettkampf über LADV brauchst du einen
-            DLV-Startpass.
-          </template>
-        </UFormField>
+    <template v-if="pending">
+      <div class="flex flex-col gap-4">
+        <USkeleton class="h-10 w-full" />
+        <USkeleton class="h-32 w-full" />
+        <USkeleton class="h-20 w-full" />
+      </div>
+    </template>
 
-        <UFormField label="Anmerkungen" name="notes" size="lg">
-          <UTextarea
-            v-model="state.notes"
-            class="w-full"
-            placeholder="Hast du Anmerkungen zur Anmeldung? (Disziplin, Startblock, etc.)"
-          />
-        </UFormField>
-
-        <UFormField
-          v-if="state.member_id"
-          name="terms"
-          size="lg"
-          required
-          color="primary"
+    <template v-else-if="competition">
+      <h2 class="mb-4 text-lg font-bold">Anmeldung</h2>
+      <BaseLayer>
+        <UForm
+          :schema="schema"
+          :state="state"
+          class="space-y-6"
+          @submit="onSubmit"
+          @error="onError"
         >
-          <UCheckbox
-            v-model="state.terms_accepted"
+          <UFormField label="Name" name="member" size="lg" required>
+            <USelect
+              v-model="state.member_id"
+              :items="memberOptions"
+              option-attribute="label"
+              value-attribute="value"
+              placeholder="Bitte wählen"
+              class="w-full"
+            />
+            <template #help>
+              Für einen meldepflichtigen Wettkampf über LADV brauchst du einen
+              DLV-Startpass.
+            </template>
+          </UFormField>
+
+          <UFormField label="Anmerkungen" name="notes" size="lg">
+            <UTextarea
+              v-model="state.notes"
+              class="w-full"
+              placeholder="Hast du Anmerkungen zur Anmeldung? (Disziplin, Startblock, etc.)"
+            />
+          </UFormField>
+
+          <UFormField
+            v-if="state.member_id"
+            name="terms"
+            size="lg"
             required
-            :label="`Ich bestätige hiermit, dass ich ${memberStore.getMemberById(state.member_id)?.name} bin und am Wettkampf ${competition?.name} teilnehmen möchte.`"
-            :ui="{
-              base: 'dark:ring-(--ui-primary)',
-            }"
-          />
-        </UFormField>
+            color="primary"
+          >
+            <UCheckbox
+              v-model="state.terms_accepted"
+              required
+              :label="`Ich bestätige hiermit, dass ich ${memberStore.getMemberById(state.member_id)?.name} bin und am Wettkampf ${competition?.name} teilnehmen möchte.`"
+              :ui="{
+                base: 'dark:ring-(--ui-primary)',
+              }"
+            />
+          </UFormField>
 
-        <p class="text-muted text-sm">
-          Nach Absenden des Formulars erhältst du eine E-Mail an deine bei uns
-          hinterlegte E-Mail-Adresse mit einem Link, über den du deine Teilnahme
-          bestätigen musst.
-        </p>
+          <p class="text-muted text-sm">
+            Nach Absenden des Formulars erhältst du eine E-Mail an deine bei uns
+            hinterlegte E-Mail-Adresse mit einem Link, über den du deine
+            Teilnahme bestätigen musst.
+          </p>
 
-        <UButton type="submit" color="primary" :loading="isSubmitting">
-          Anmeldung absenden
-        </UButton>
-      </UForm>
-    </BaseLayer>
-    <template v-if="competition">
+          <UButton type="submit" color="primary" :loading="isSubmitting">
+            Anmeldung absenden
+          </UButton>
+        </UForm>
+      </BaseLayer>
+
       <h2 class="mt-8 mb-4 text-lg font-bold">
         Wettkampfdetails zu {{ competition.name }}
       </h2>
+
       <CompetitionDetails :competition="competition" />
     </template>
   </BasePage>

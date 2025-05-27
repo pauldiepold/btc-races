@@ -14,21 +14,20 @@ const competitionId = route.params.id as string
 const { competitions } = useRepositories()
 const { showError } = useToastMessages()
 
-const { data: competition, refresh } = await useAsyncData(
-  `competition-${competitionId}`,
-  async () => {
-    const result = await competitions.findById(competitionId)
-    if (!result) {
-      showError('Wettkampf konnte nicht geladen werden')
-    }
-    return result
+const {
+  data: competition,
+  refresh,
+  pending,
+} = await useLazyAsyncData(`competition-${competitionId}`, async () => {
+  const result = await competitions.findById(competitionId)
+  if (!result) {
+    showError('Wettkampf konnte nicht geladen werden')
+    setTimeout(() => {
+      navigateTo('/')
+    }, 500)
   }
-)
-
-// Umleitung zur Übersichtsseite, wenn der Wettkampf nicht gefunden wurde
-if (!competition.value) {
-  navigateTo('/')
-}
+  return result
+})
 
 const canRegister = computed(() => {
   if (!competition.value) return false
@@ -46,10 +45,10 @@ async function refreshCompetition() {
     back-link="/"
     back-link-text="Zurück zur Übersicht"
   >
-    <template #actions>
+    <template v-if="!pending && competition" #actions>
       <div class="flex flex-col gap-4 lg:flex-row">
         <UButton
-          v-if="competition && canRegister"
+          v-if="canRegister"
           :to="`/competitions/register/${competition.id}`"
           color="primary"
           icon="i-lucide-user-plus"
@@ -58,12 +57,14 @@ async function refreshCompetition() {
         >
           Anmelden
         </UButton>
+
         <CompetitionSyncButton
           :competition="competition"
           @sync-success="refreshCompetition"
         />
+
         <UButton
-          v-if="user && competition"
+          v-if="user"
           :to="`/admin/competitions/${competition.id}/edit`"
           color="neutral"
           icon="i-lucide-pencil"
@@ -75,6 +76,27 @@ async function refreshCompetition() {
         </UButton>
       </div>
     </template>
+
+    <template v-if="!pending && competition" #rightOfHeading>
+      <CompetitionStatus :competition="competition" />
+    </template>
+
+    <template v-if="pending">
+      <div class="flex flex-col gap-4">
+        <USkeleton class="h-10 w-full" />
+        <USkeleton class="h-32 w-full" />
+        <USkeleton class="h-20 w-full" />
+      </div>
+    </template>
+
+    <div v-else-if="competition" class="space-y-6">
+      <!-- Wettkampfdetails -->
+      <CompetitionDetails :competition="competition" />
+
+      <!-- Teilnehmer:innen Komponente -->
+      <CompetitionParticipants :competition="competition" />
+    </div>
+
     <template #sidebar>
       <div class="space-y-6">
         <!-- Ausschreibung -->
@@ -112,17 +134,5 @@ async function refreshCompetition() {
         </BaseLayer>
       </div>
     </template>
-
-    <template v-if="competition" #rightOfHeading>
-      <CompetitionStatus :competition="competition" />
-    </template>
-
-    <div v-if="competition" class="space-y-6">
-      <!-- Wettkampfdetails -->
-      <CompetitionDetails :competition="competition" />
-
-      <!-- Teilnehmer:innen Komponente -->
-      <CompetitionParticipants :competition="competition" />
-    </div>
   </BasePage>
 </template>

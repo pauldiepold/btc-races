@@ -51,7 +51,7 @@ const {
   data: competitions,
   pending: loading,
   error,
-} = await useAsyncData('competitions', () =>
+} = await useLazyAsyncData('competitions', () =>
   competitionsRepository.findAllOrderedByDate(true)
 )
 

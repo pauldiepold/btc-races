@@ -4,15 +4,15 @@ export default defineEventHandler(async (event) => {
   if (authHeader !== `Bearer ${process.env.NUXT_CRON_SECRET}`) {
     throw createError({
       statusCode: 401,
-      statusMessage: 'Unauthorized'
+      statusMessage: 'Unauthorized',
     })
   }
 
   console.log('Cron job ausgeführt um:', new Date().toISOString())
-    
+
   return {
     message: 'Cron job erfolgreich ausgeführt',
     timestamp: new Date().toISOString(),
-    statusCode: 200
+    statusCode: 200,
   }
 })

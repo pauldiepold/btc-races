@@ -24,6 +24,9 @@
     "source.organizeImports": "never"
   },
   "editor.formatOnSave": true,
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
   "eslint.rules.customizations": [
     {
       "fixable": true,

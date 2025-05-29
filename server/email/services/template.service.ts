@@ -115,7 +115,7 @@ export class TemplateService {
 
             <p style="margin-top: 30px;">Liebe Grüße,<br />Dein BTC</p>
           </div>
-          
+
 
           <div class="footer">
             <p class="disclaimer">Diese E-Mail wurde automatisch generiert. Bitte antworte nicht direkt auf diese Nachricht.</p>
@@ -128,40 +128,118 @@ export class TemplateService {
 
   private readonly registrationConfirmationTemplate = `
     <p>Hallo {{ firstName }},</p>
-    
+
     <p>Du hast Dich zum Wettkampf <strong>{{ competitionName }}</strong> am {{ competitionDate }} angemeldet.</p>
-    
+
     <p>Um deine Anmeldung zu bestätigen, klicke bitte auf den folgenden Link:</p>
-    
+
     <a href="{{ confirmationLink }}" class="button">Anmeldung bestätigen</a>
-    
+
     <p>Oder kopiere diese URL in deinen Browser:</p>
     <p class="url">{{ confirmationLink }}</p>
-    
+
     <p>Dieser Link ist gültig bis zum {{ expiryDate }}.</p>
-    
+
     <p>Falls du dich nicht zu diesem Wettkampf angemeldet hast, kannst du diese E-Mail ignorieren.</p>
-    
+
     <p>Bei Fragen stehen wir dir gerne zur Verfügung.</p>
   `
 
   private readonly registrationCancellationTemplate = `
     <p>Hallo {{ firstName }},</p>
-    
+
     <p>wir haben deine Anfrage erhalten, dich vom Wettkampf <strong>{{ competitionName }}</strong> am {{ competitionDate }} abzumelden.</p>
-    
+
     <p>Um deine Abmeldung zu bestätigen, klicke bitte auf den folgenden Link:</p>
-    
+
     <a href="{{ cancellationLink }}" class="button">Abmeldung bestätigen</a>
-    
+
     <p>Oder kopiere diese URL in deinen Browser:</p>
     <p class="url">{{ cancellationLink }}</p>
-    
+
     <p>Dieser Link ist gültig bis zum {{ expiryDate }}.</p>
-    
+
     <p>Falls du dich nicht abmelden möchtest, kannst du diese E-Mail ignorieren und bleibst für den Wettkampf angemeldet.</p>
-    
+
     <p>Bei Fragen stehen wir dir gerne zur Verfügung.</p>
+  `
+
+  // Geteiltes Template für Wettkampfdetails
+  private readonly competitionDetailsTemplate = `
+    <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 15px 0;">
+      <h3 style="margin: 0 0 10px 0; color: #333;">Wettkampfdetails:</h3>
+      <p style="margin: 5px 0;"><strong>Name:</strong> {{ competitionName }}</p>
+      <p style="margin: 5px 0;"><strong>Datum:</strong> {{ competitionDate }}</p>
+      <p style="margin: 5px 0;"><strong>Ort:</strong> {{ competitionLocation }}</p>
+      {{ if competitionVenue }}
+      <p style="margin: 5px 0;"><strong>Sportstätte:</strong> {{ competitionVenue }}</p>
+      {{ /if }}
+    </div>
+  `
+
+  // Neue Templates für LADV-Meldungen und Coach-Benachrichtigungen
+  private readonly ladvRegistrationByCoachTemplate = `
+    <p>Hallo {{ firstName }},</p>
+
+    <p>{{ coachName }} hat dich für den folgenden Wettkampf angemeldet:</p>
+
+    {{@ competitionDetails }}
+
+    <p>Du kannst dich auf der Wettkampfseite selbst wieder abmelden, falls gewünscht. Der Coach nimmt dann die Meldung in LADV zurück.</p>
+
+    <a href="{{ competitionLink }}" class="button">Zum Wettkampf</a>
+
+    <p>Oder kopiere diese URL in deinen Browser:</p>
+    <p class="url">{{ competitionLink }}</p>
+  `
+
+  private readonly ladvCancellationByCoachTemplate = `
+    <p>Hallo {{ firstName }},</p>
+
+    <p>{{ coachName }} hat dich vom folgenden Wettkampf abgemeldet:</p>
+
+    {{@ competitionDetails }}
+
+    <p>Falls du doch teilnehmen möchtest, wende dich bitte an {{ coachName }} oder melde dich auf der Wettkampfseite erneut an.</p>
+
+    <a href="{{ competitionLink }}" class="button">Zum Wettkampf</a>
+
+    <p>Oder kopiere diese URL in deinen Browser:</p>
+    <p class="url">{{ competitionLink }}</p>
+  `
+
+  private readonly coachUrgentRegistrationNotificationTemplate = `
+    <p>Hallo liebe Coaches,</p>
+
+    <p>{{ memberName }} hat sich kurzfristig zum folgenden Wettkampf angemeldet:</p>
+
+    {{@ competitionDetails }}
+
+    <p><strong>Bitte prüft:</strong> Kann diese Anmeldung noch rechtzeitig in LADV eingetragen werden?</p>
+
+    <a href="{{ competitionLink }}" class="button">Zum Wettkampf</a>
+
+    <p>Oder kopiere diese URL in deinen Browser:</p>
+    <p class="url">{{ competitionLink }}</p>
+  `
+
+  private readonly registrationConfirmationDetailsTemplate = `
+    <p>Hallo {{ firstName }},</p>
+
+    <p>deine Anmeldung zum folgenden Wettkampf wurde erfolgreich bestätigt:</p>
+
+    {{@ competitionDetails }}
+
+    <p><strong>Wichtige Hinweise:</strong></p>
+    <ul>
+      <li>Eine Abmeldung ist bis zur Meldefrist ({{ registrationDeadline }}) möglich</li>
+      <li>Danach sind keine Änderungen mehr möglich</li>
+    </ul>
+
+    <a href="{{ competitionLink }}" class="button">Zum Wettkampf</a>
+
+    <p>Oder kopiere diese URL in deinen Browser:</p>
+    <p class="url">{{ competitionLink }}</p>
   `
 
   // Kompilierte Template-Funktionen
@@ -188,6 +266,28 @@ export class TemplateService {
       'registration-cancellation',
       template.compile(this.registrationCancellationTemplate)
     )
+    // Neues Teil-Template für Wettkampfdetails
+    this.compiledTemplates.set(
+      'competition-details',
+      template.compile(this.competitionDetailsTemplate)
+    )
+    // Neue LADV und Coach-Templates
+    this.compiledTemplates.set(
+      'ladv-registration-by-coach',
+      template.compile(this.ladvRegistrationByCoachTemplate)
+    )
+    this.compiledTemplates.set(
+      'ladv-cancellation-by-coach',
+      template.compile(this.ladvCancellationByCoachTemplate)
+    )
+    this.compiledTemplates.set(
+      'coach-urgent-registration-notification',
+      template.compile(this.coachUrgentRegistrationNotificationTemplate)
+    )
+    this.compiledTemplates.set(
+      'registration-confirmation-details',
+      template.compile(this.registrationConfirmationDetailsTemplate)
+    )
   }
 
   /**
@@ -209,8 +309,15 @@ export class TemplateService {
       currentYear: new Date().getFullYear(),
     }
 
+    // Spezielle Behandlung für Templates mit competition-details
+    if (data.competitionDetails ||
+        ['ladv-registration-by-coach', 'ladv-cancellation-by-coach',
+         'coach-urgent-registration-notification', 'registration-confirmation-details'].includes(templateName)) {
+      (enhancedData as any).competitionDetails = await this.renderCompetitionDetails(data)
+    }
+
     // Wenn es ein E-Mail-Template ist, render es zuerst und dann in das Base-Layout einbetten
-    if (templateName !== 'base') {
+    if (templateName !== 'base' && templateName !== 'competition-details') {
       const content = renderTemplate(enhancedData)
       const renderBase = this.compiledTemplates.get('base')!
 
@@ -226,12 +333,24 @@ export class TemplateService {
   }
 
   /**
+   * Rendert das Competition-Details Teil-Template
+   */
+  private async renderCompetitionDetails(data: TemplateData): Promise<string> {
+    const renderCompetitionDetails = this.compiledTemplates.get('competition-details')!
+    return renderCompetitionDetails(data)
+  }
+
+  /**
    * Ermittelt den Titel für ein Template
    */
   private getTemplateTitle(templateName: string): string {
     const titles: Record<string, string> = {
       'registration-confirmation': 'Anmeldebestätigung',
       'registration-cancellation': 'Abmeldebestätigung',
+      'ladv-registration-by-coach': 'LADV-Anmeldung durch Coach',
+      'ladv-cancellation-by-coach': 'LADV-Abmeldung durch Coach',
+      'coach-urgent-registration-notification': 'Dringende Anmeldung',
+      'registration-confirmation-details': 'Bestätigungsdetails',
     }
 
     return titles[templateName] || 'BTC-Races'
@@ -293,6 +412,81 @@ export class TemplateService {
   }
 
   /**
+   * Bereitet Daten für LADV-Anmeldung durch Coach vor
+   */
+  prepareLadvRegistrationByCoachData(
+    registration: RegistrationWithDetailsView
+  ): TemplateData {
+    return {
+      firstName: this.extractFirstName(registration.member_name),
+      coachName: registration.ladv_registered_by || 'ein Coach',
+      competitionName: registration.competition_name,
+      competitionDate: this.formatDate(registration.competition_date),
+      competitionLocation: registration.competition_location || 'nicht angegeben',
+      competitionVenue: registration.sportstaette || undefined,
+      competitionLink: this.buildCompetitionLink(registration.competition_id?.toString() || ''),
+      headerTitle: 'LADV-Anmeldung',
+      headerColor: '#007acc',
+    }
+  }
+
+  /**
+   * Bereitet Daten für LADV-Abmeldung durch Coach vor
+   */
+  prepareLadvCancellationByCoachData(
+    registration: RegistrationWithDetailsView
+  ): TemplateData {
+    return {
+      firstName: this.extractFirstName(registration.member_name),
+      coachName: registration.ladv_canceled_by || 'ein Coach',
+      competitionName: registration.competition_name,
+      competitionDate: this.formatDate(registration.competition_date),
+      competitionLocation: registration.competition_location || 'nicht angegeben',
+      competitionVenue: registration.sportstaette || undefined,
+      competitionLink: this.buildCompetitionLink(registration.competition_id?.toString() || ''),
+      headerTitle: 'LADV-Abmeldung',
+      headerColor: '#007acc',
+    }
+  }
+
+  /**
+   * Bereitet Daten für Coach-Benachrichtigung bei dringender Anmeldung vor
+   */
+  prepareCoachUrgentRegistrationNotificationData(
+    registration: RegistrationWithDetailsView
+  ): TemplateData {
+    return {
+      memberName: registration.member_name,
+      competitionName: registration.competition_name,
+      competitionDate: this.formatDate(registration.competition_date),
+      competitionLocation: registration.competition_location || 'nicht angegeben',
+      competitionVenue: registration.sportstaette || undefined,
+      competitionLink: this.buildCompetitionLink(registration.competition_id?.toString() || ''),
+      headerTitle: 'Dringende Anmeldung',
+      headerColor: '#ff8c00',
+    }
+  }
+
+  /**
+   * Bereitet Daten für Anmeldebestätigung mit Details vor
+   */
+  prepareRegistrationConfirmationDetailsData(
+    registration: RegistrationWithDetailsView
+  ): TemplateData {
+    return {
+      firstName: this.extractFirstName(registration.member_name),
+      competitionName: registration.competition_name,
+      competitionDate: this.formatDate(registration.competition_date),
+      competitionLocation: registration.competition_location || 'nicht angegeben',
+      competitionVenue: registration.sportstaette || undefined,
+      competitionLink: this.buildCompetitionLink(registration.competition_id?.toString() || ''),
+      registrationDeadline: this.formatDate(registration.registration_deadline),
+      headerTitle: 'Bestätigungsdetails',
+      headerColor: '#28a745',
+    }
+  }
+
+  /**
    * Hilfsmethode: Extrahiert den Vornamen aus einem vollständigen Namen
    */
   private extractFirstName(fullName: string | null): string {
@@ -313,5 +507,12 @@ export class TemplateService {
    */
   private buildLink(path: string, token: string): string {
     return `${emailConfig.publicUrl}${path}?token=${token}`
+  }
+
+  /**
+   * Hilfsmethode: Erstellt einen Wettkampflink
+   */
+  private buildCompetitionLink(competitionId: string): string {
+    return `${emailConfig.publicUrl}/competitions/${competitionId}`
   }
 }

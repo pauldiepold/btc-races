@@ -84,14 +84,15 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
 - ✅ direkte Navigation ohne SSR und Verzögerung --> lazy Daten + überall loading indicator
 - ✅ Anzahl der angemeldeten Personen anzeigen in Liste
 - ✅ wer hat wann gemeldet auf Participant.vue
-- ❌ E-Mails:
-  - ❌ Erinnerungsmail an Mitglieder 5 Tage vor Meldefrist mit Abmeldelink
-  - ❌ Erinnerungsmail für Meldung an Coaches 3 Tage vor Meldefrist
-  - ❌ Erinnerungsmail an teilnehmende Mitglieder 2 Tage vor dem Wettkampf
-  - ❌ Nachfrage-E-Mail nach 3 Tagen bei nicht bestätigten Anmeldungen
-  - ❌ Nach LADV Meldung Info an Personen
-  - ❌ wenn kurz vor Frist bei Anneldung;: Meldemail
-  - ❌ Bestätigungsmail nach Bestätigung: Details und Link zum Wettkampf, Abmeldung möglich bis
+- ❌ Synchrone E-Mails:
+  - ❌ Nach LADV Meldung / Abmeldung durch Coach: Info an Person
+  - ❌ Bei Anmeldung kurz vor Meldefrist: Info an Coaches
+  - ❌ Bei Bestätigung der Anmeldung: Details und Link zum Wettkampf, Abmeldung möglich bis
+- ❌ Asynchrone Erinnerungs E-Mails:
+  - ❌ 5 Tage vor Meldefrist: Nachfrage bei Teilnehmer:innen mit Abmeldelink
+  - ❌ 3 Tage vor Meldefrist: Erinnerung an Coaches
+  - ❌ 2 Tage vor Wettkampf: Info an Teilnehmer:innen
+  - ❌ 3 Tage nach Anmeldung ohne Bestätigung: Nachfrage an Teilnehmer:in
 - ❌ Disziplinen und Altersklassen bei Anmeldung angeben können
   - 🟡 Tabelle angelegt, noch nirgendwo verwendet --> Disziplincodes aus LADV verwenden
 

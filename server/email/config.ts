@@ -28,6 +28,9 @@ export interface EmailConfig {
 
   /** Öffentliche URL der Anwendung für Links in E-Mails */
   publicUrl: string
+
+  /** Liste der Coach-E-Mail-Adressen */
+  coachEmails: string[]
 }
 
 /**
@@ -75,6 +78,7 @@ export function loadEmailConfig(): EmailConfig {
     testMode,
     testAddress,
     publicUrl,
+    coachEmails: [],
   }
 
   // Azure-spezifische Konfiguration
@@ -99,8 +103,14 @@ export function loadEmailConfig(): EmailConfig {
     config.senderAddress = senderAddress
   }
 
+  // Coach-E-Mail-Adressen aus Umgebungsvariablen
+  const coachEmails = process.env.NUXT_COACH_EMAILS
+  if (coachEmails) {
+    config.coachEmails = coachEmails.split(',').map(email => email.trim())
+  }
+
   console.log(
-    `[EmailConfig] Konfiguration geladen: Provider=${config.provider}, TestMode=${config.testMode}, PublicUrl=${config.publicUrl}`
+    `[EmailConfig] Konfiguration geladen: Provider=${config.provider}, TestMode=${config.testMode}, PublicUrl=${config.publicUrl}, CoachEmails=${config.coachEmails.length}`
   )
 
   return config

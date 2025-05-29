@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { RegistrationTypeLabelsShort, RaceTypeLabels } from '~/types/enums'
-import type { Competition } from '~/types/models.types'
+import type { CompetitionWithRegistrationsCount } from '~/types/models.types'
 
-defineProps<{ competition: Competition }>()
+defineProps<{ competition: CompetitionWithRegistrationsCount }>()
 </script>
 
 <template>
@@ -39,6 +39,15 @@ defineProps<{ competition: Competition }>()
           <span>{{
             new Date(competition.date).toLocaleDateString('de-DE')
           }}</span>
+        </div>
+
+        <!-- Teilnehmer Anzahl -->
+        <div
+          v-if="competition.registrations"
+          class="flex w-10 items-center gap-2"
+        >
+          <Icon name="i-lucide-users" class="text-muted h-4 w-4" />
+          <span>{{ competition.registrations[0].count }}</span>
         </div>
 
         <!-- Ort -->

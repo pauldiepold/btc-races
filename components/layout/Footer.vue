@@ -13,7 +13,7 @@ const { user } = useAuth()
           variant="soft"
           color="primary"
         >
-          Admin-Bereich
+          Admin-Login
         </UButton>
 
         <div class="text-center">

@@ -21,6 +21,7 @@ export default defineNuxtConfig({
     '@nuxtjs/supabase',
     '@nuxt/eslint',
     '@pinia/nuxt',
+    '@formkit/auto-animate',
   ],
 
   icon: {

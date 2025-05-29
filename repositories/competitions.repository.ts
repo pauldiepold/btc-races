@@ -3,6 +3,7 @@ import type {
   Competition,
   CompetitionInsert,
   CompetitionUpdate,
+  CompetitionWithRegistrationsCount,
 } from '~/types/models.types'
 
 export class CompetitionsClientRepository extends ClientRepository<
@@ -22,6 +23,31 @@ export class CompetitionsClientRepository extends ClientRepository<
     const { data, error } = await this.supabase
       .from(this.tableName)
       .select()
+      .order('date', { ascending })
+
+    if (error) {
+      console.error(`Fehler beim Laden der Wettbewerbe:`, error)
+      return []
+    }
+
+    return data || []
+  }
+
+  /**
+   * Alle Wettbewerbe sortiert nach Datum abrufen mit Anzahl der bestätigten Registrierungen
+   */
+  async findAllOrderedByDateWithRegistrationsCount(
+    ascending = true
+  ): Promise<CompetitionWithRegistrationsCount[]> {
+    const { data, error } = await this.supabase
+      .from(this.tableName)
+      .select(
+        `
+        *,
+        registrations!inner(count)
+      `
+      )
+      .in('registrations.status', ['confirmed', 'pending_cancellation'])
       .order('date', { ascending })
 
     if (error) {

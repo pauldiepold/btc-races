@@ -14,7 +14,7 @@ definePageMeta({
     max-width="max-w-lg"
   >
     <div class="bg-accented space-y-4 rounded-lg p-6 shadow-sm">
-      <h2 class="text-center text-2xl font-bold">Admin Login</h2>
+      <h2 class="text-center text-2xl font-bold">Admin-Login</h2>
 
       <div v-if="error" class="text-sm text-red-500">
         {{ error }}

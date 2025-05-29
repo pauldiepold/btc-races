@@ -135,7 +135,7 @@ const handleLADVSuccess = async () => {
           >
             {{ RegistrationStatusLabels[registration.status] }}
           </span>
-          <span class="text-dimmed text-xs">
+          <span class="text-muted text-xs">
             ({{
               new Date(registration.created_at).toLocaleDateString('de-DE')
             }})
@@ -194,12 +194,32 @@ const handleLADVSuccess = async () => {
         "
         class="flex items-center justify-between border-t border-gray-600 pt-3"
       >
-        <span
-          class="text-sm font-medium"
-          :class="isLADVRegistered ? 'text-green-600' : 'text-yellow-600'"
-        >
-          {{ isLADVRegistered ? 'LADV gemeldet' : 'LADV nicht gemeldet' }}
-        </span>
+        <p class="text-sm">
+          <span
+            :class="isLADVRegistered ? 'text-green-600' : 'text-yellow-600'"
+          >
+            {{
+              isLADVRegistered
+                ? 'LADV gemeldet'
+                : registration.ladv_canceled_at
+                  ? 'LADV abgemeldet'
+                  : 'LADV nicht gemeldet'
+            }}
+          </span>
+
+          <span class="text-muted text-xs">
+            <template v-if="isLADVRegistered">
+              ({{ registration.ladv_registered_by }} -
+              {{ formatDateShort(registration.ladv_registered_at) }})
+            </template>
+            <template
+              v-else-if="!isLADVRegistered && registration.ladv_canceled_at"
+            >
+              ({{ registration.ladv_canceled_by }} -
+              {{ formatDateShort(registration.ladv_canceled_at) }})
+            </template>
+          </span>
+        </p>
 
         <template v-if="user">
           <div class="flex items-center gap-4">

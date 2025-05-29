@@ -8,6 +8,11 @@ export type Competition = Tables['competitions']['Row']
 export type CompetitionInsert = Tables['competitions']['Insert']
 export type CompetitionUpdate = Tables['competitions']['Update']
 
+// Erweiterte Competition-Typen
+export type CompetitionWithRegistrationsCount = Competition & {
+  registrations: { count: number }[]
+}
+
 export type Member = Tables['members']['Row']
 export type MemberInsert = Tables['members']['Insert']
 export type MemberUpdate = Tables['members']['Update']

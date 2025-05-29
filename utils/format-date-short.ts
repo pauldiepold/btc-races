@@ -4,7 +4,7 @@ export default function (dateString: string | null): string {
   const date = new Date(dateString)
   return date.toLocaleDateString('de-DE', {
     day: 'numeric',
-    month: 'long',
+    month: 'numeric',
     year: 'numeric',
   })
 }

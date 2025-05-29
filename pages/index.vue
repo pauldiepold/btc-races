@@ -52,7 +52,7 @@ const {
   pending: loading,
   error,
 } = await useLazyAsyncData('competitions', () =>
-  competitionsRepository.findAllOrderedByDate(true)
+  competitionsRepository.findAllOrderedByDateWithRegistrationsCount(true)
 )
 
 // Gefilterte Events

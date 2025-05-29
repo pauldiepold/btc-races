@@ -81,6 +81,9 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
   - ✅ Ist die Startseite ausreichend?
 - ✅ LADV Meldung durch Coaches hinterlegen
 - ✅ Cronjobs ermöglichen
+- ✅ direkte Navigation ohne SSR und Verzögerung --> lazy Daten + überall loading indicator
+- ✅ Anzahl der angemeldeten Personen anzeigen in Liste
+- ✅ wer hat wann gemeldet auf Participant.vue
 - ❌ E-Mails:
   - ❌ Erinnerungsmail an Mitglieder 5 Tage vor Meldefrist mit Abmeldelink
   - ❌ Erinnerungsmail für Meldung an Coaches 3 Tage vor Meldefrist
@@ -88,18 +91,15 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
   - ❌ Nachfrage-E-Mail nach 3 Tagen bei nicht bestätigten Anmeldungen
   - ❌ Nach LADV Meldung Info an Personen
   - ❌ wenn kurz vor Frist bei Anneldung;: Meldemail
+  - ❌ Bestätigungsmail nach Bestätigung: Details und Link zum Wettkampf, Abmeldung möglich bis
 - ❌ Disziplinen und Altersklassen bei Anmeldung angeben können
   - 🟡 Tabelle angelegt, noch nirgendwo verwendet --> Disziplincodes aus LADV verwenden
-- ❌ Anzahl der angemeldeten Personen anzeigen in Liste
-- ❌ wer hat wann gemeldet auf Participant.vue
-- ❌ direkte Navigation ohne SSR und Verzögerung --> lazy Daten + überall loading indicator
 
 ### Bonus:
 
 - ✅ Register ist nicht breit genug mit Sidebar, Add Competition zu breit
 - ✅ User können selbst Wettkämpfe einstellen --> Freischaltung durch Admins notwendig?
 - ❌ Captcha für öffentliche Formulare
-- ❌ Bestätigungsmail nach Bestätigung: Details und Link zum Wettkampf, Abmeldung möglich bis
 - ❌ Light-Mode wieder aktivieren und Design etwas verbessern
 - ❌ Admin: Nachrichten an alle Teilnehmer:innen senden können
 - ❌ Datum für Erinnerungs-Mails einstellen können?

@@ -221,28 +221,28 @@ const handleLADVSuccess = async () => {
           </span>
         </p>
 
-        <template v-if="user">
-          <div class="flex items-center gap-4">
-            <!-- Warnung für LADV-Abmeldung durch Coaches -->
-            <div
-              v-if="needsLADVCancellationByCoach"
-              class="flex items-center gap-1 text-orange-500"
-              title="LADV-Abmeldung durch Coaches erforderlich"
-            >
-              <Icon name="mdi:exclamation-thick" class="h-4 w-4" />
-              <span class="text-xs">Abmeldung nötig</span>
-            </div>
+        <div class="flex items-center gap-4">
+          <!-- Warnung für LADV-Abmeldung durch Coaches -->
+          <div
+            v-if="needsLADVCancellationByCoach"
+            class="flex items-center gap-1 text-orange-500"
+            title="LADV-Abmeldung durch Coaches erforderlich"
+          >
+            <Icon name="mdi:exclamation-thick" class="h-4 w-4" />
+            <span class="text-xs">LADV-Abmeldung nötig</span>
+          </div>
 
-            <!-- Warnung für LADV-Anmeldung nötig -->
-            <div
-              v-if="needsLADVRegistrationByCoach"
-              class="flex items-center gap-1 text-orange-500"
-              title="LADV-Anmeldung durch Coaches erforderlich"
-            >
-              <Icon name="mdi:exclamation-thick" class="h-4 w-4" />
-              <span class="text-xs">Anmeldung nötig</span>
-            </div>
+          <!-- Warnung für LADV-Anmeldung nötig -->
+          <div
+            v-if="needsLADVRegistrationByCoach"
+            class="flex items-center gap-1 text-orange-500"
+            title="LADV-Anmeldung durch Coaches erforderlich"
+          >
+            <Icon name="mdi:exclamation-thick" class="h-4 w-4" />
+            <span class="text-xs">LADV-Meldung nötig</span>
+          </div>
 
+          <template v-if="user">
             <CompetitionLADVCancelButton
               v-if="isLADVRegistered"
               :registration-id="registration.id"
@@ -255,8 +255,8 @@ const handleLADVSuccess = async () => {
               :name="registration.member.name"
               @success="handleLADVSuccess"
             />
-          </div>
-        </template>
+          </template>
+        </div>
       </div>
     </div>
   </div>

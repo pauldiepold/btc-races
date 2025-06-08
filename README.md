@@ -84,14 +84,15 @@ Eine moderne Anwendung zur Verwaltung von Wettkampfanmeldungen für die BTC-Vere
 - ✅ direkte Navigation ohne SSR und Verzögerung --> lazy Daten + überall loading indicator
 - ✅ Anzahl der angemeldeten Personen anzeigen in Liste
 - ✅ wer hat wann gemeldet auf Participant.vue
-- ❌ E-Mails:
-  - ❌ Erinnerungsmail an Mitglieder 5 Tage vor Meldefrist mit Abmeldelink
-  - ❌ Erinnerungsmail für Meldung an Coaches 3 Tage vor Meldefrist
-  - ❌ Erinnerungsmail an teilnehmende Mitglieder 2 Tage vor dem Wettkampf
-  - ❌ Nachfrage-E-Mail nach 3 Tagen bei nicht bestätigten Anmeldungen
-  - ❌ Nach LADV Meldung Info an Personen
-  - ❌ wenn kurz vor Frist bei Anneldung;: Meldemail
-  - ❌ Bestätigungsmail nach Bestätigung: Details und Link zum Wettkampf, Abmeldung möglich bis
+- ✅ Synchrone E-Mails:
+  - ✅ Nach LADV Meldung / Abmeldung durch Coach: Info an Person
+  - ✅ Bei Anmeldung kurz vor Meldefrist: Info an Coaches
+  - ✅ Bei Bestätigung der Anmeldung: Details und Link zum Wettkampf, Abmeldung möglich bis
+- ❌ Asynchrone Erinnerungs E-Mails:
+  - ❌ 5 Tage vor Meldefrist: Nachfrage bei Teilnehmer:innen mit Abmeldelink
+  - ❌ 3 Tage vor Meldefrist: Erinnerung an Coaches
+  - ❌ 2 Tage vor Wettkampf: Info an Teilnehmer:innen
+  - ❌ 3 Tage nach Anmeldung ohne Bestätigung: Nachfrage an Teilnehmer:in
 - ❌ Disziplinen und Altersklassen bei Anmeldung angeben können
   - 🟡 Tabelle angelegt, noch nirgendwo verwendet --> Disziplincodes aus LADV verwenden
 
@@ -251,6 +252,56 @@ NUXT_LADV_API_KEY=your-key   # Nur für API-Modus erforderlich
 - **API-Dokumentation**: [LADV API V2 Dokumentation](https://html.ladv.de/api/2024-07-17-LADVAPIDokumentation-V2-014.pdf)
 - **Datenmodell**: Erweiterung der `competitions`-Tabelle um LADV-spezifische Felder
 - **Mock-Daten**: Realistische Testdaten für Entwicklung und Tests
+
+## E-Mail-System
+
+Die Anwendung verfügt über ein umfassendes E-Mail-Benachrichtigungssystem, das verschiedene automatisierte E-Mails an Teilnehmer und Coaches versendet.
+
+### E-Mail-Übersicht
+
+| E-Mail-Typ                     | Auslöser                              | Empfänger    | Endpunkt                             | Besonderheiten                     |
+| ------------------------------ | ------------------------------------- | ------------ | ------------------------------------ | ---------------------------------- |
+| **Anmeldebestätigung**         | Nach Anmeldung zu einem Wettkampf     | Teilnehmer   | `/api/registrations` (bei Anmeldung) | Mit Bestätigungslink               |
+| **Abmeldebestätigung**         | Bei Abmeldung von einem Wettkampf     | Teilnehmer   | `/api/registrations` (bei Abmeldung) | Mit Abmeldelink                    |
+| **LADV-Anmeldung durch Coach** | Coach meldet Teilnehmer in LADV an    | Teilnehmer   | `/api/registrations/ladv-register`   | Info über Coach-Aktion             |
+| **LADV-Abmeldung durch Coach** | Coach meldet Teilnehmer in LADV ab    | Teilnehmer   | `/api/registrations/ladv-cancel`     | Info über Coach-Aktion             |
+| **Dringende Anmeldung**        | Anmeldung kurz vor Meldefrist         | Alle Coaches | `/api/registrations/confirm`         | Nur wenn < 3 Tage bis Meldefrist   |
+| **Bestätigungsdetails**        | Nach erfolgreicher Anmeldebestätigung | Teilnehmer   | `/api/registrations/confirm`         | Mit Wettkampfdetails und Hinweisen |
+
+### E-Mail-Konfiguration
+
+Die E-Mail-Funktionalität wird über folgende Umgebungsvariablen konfiguriert:
+
+```env
+# E-Mail-Provider (azure oder local)
+NUXT_EMAIL_PROVIDER=azure
+
+# Azure-spezifische Konfiguration
+NUXT_EMAIL_AZURE_CONNECTION_STRING=your-connection-string
+NUXT_EMAIL_AZURE_SENDER_ADDRESS=noreply@btc-races.de
+NUXT_EMAIL_AZURE_SENDER_NAME="BTC Races"
+
+# Coach-E-Mails (kommagetrennt)
+NUXT_COACH_EMAILS=coach1@example.com,coach2@example.com
+
+# Test-Modus
+NUXT_EMAIL_TEST_MODE=false
+NUXT_EMAIL_TEST_ADDRESS=test@example.com
+
+# Öffentliche URL für Links
+NUXT_EMAIL_PUBLIC_URL=https://your-domain.com
+```
+
+### E-Mail-Templates
+
+Alle E-Mail-Templates verwenden ein einheitliches Design mit farbcodierten Headern:
+
+- **Standard-E-Mails**: Gelb (`#ffb700`)
+- **LADV-Aktionen**: Blau (`#007acc`)
+- **Coach-Benachrichtigungen**: Orange (`#ff8c00`)
+- **Bestätigungsdetails**: Grün (`#28a745`)
+
+Die Templates sind responsive und enthalten alle wichtigen Wettkampfinformationen sowie entsprechende Call-to-Action-Buttons.
 
 ### Verwendung
 

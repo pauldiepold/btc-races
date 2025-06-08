@@ -53,6 +53,12 @@ export const EmailTypes = {
   REGISTRATION_CONFIRMATION: 'registration_confirmation' as const,
   REGISTRATION_CANCELLATION: 'registration_cancellation' as const,
   COMPETITION_REMINDER: 'competition_reminder' as const,
+  LADV_REGISTRATION_BY_COACH: 'ladv_registration_by_coach' as const,
+  LADV_CANCELLATION_BY_COACH: 'ladv_cancellation_by_coach' as const,
+  COACH_URGENT_REGISTRATION_NOTIFICATION:
+    'coach_urgent_registration_notification' as const,
+  REGISTRATION_CONFIRMATION_DETAILS:
+    'registration_confirmation_details' as const,
 }
 
 export type EmailTypeKeys = keyof typeof EmailTypes
@@ -104,6 +110,11 @@ export const EmailTypeLabels: Record<EmailType, string> = {
   [EmailTypes.REGISTRATION_CONFIRMATION]: 'Anmeldebestätigung',
   [EmailTypes.REGISTRATION_CANCELLATION]: 'Abmeldebestätigung',
   [EmailTypes.COMPETITION_REMINDER]: 'Wettkampferinnerung',
+  [EmailTypes.LADV_REGISTRATION_BY_COACH]: 'LADV-Anmeldung durch Coach',
+  [EmailTypes.LADV_CANCELLATION_BY_COACH]: 'LADV-Abmeldung durch Coach',
+  [EmailTypes.COACH_URGENT_REGISTRATION_NOTIFICATION]:
+    'Dringende Anmeldung an Coaches',
+  [EmailTypes.REGISTRATION_CONFIRMATION_DETAILS]: 'Bestätigungsdetails',
 }
 
 export const RegistrationStatusLabels: Record<RegistrationStatusType, string> =
@@ -177,6 +188,10 @@ export const ZOD_EMAIL_TYPES = [
   EmailTypes.REGISTRATION_CONFIRMATION,
   EmailTypes.REGISTRATION_CANCELLATION,
   EmailTypes.COMPETITION_REMINDER,
+  EmailTypes.LADV_REGISTRATION_BY_COACH,
+  EmailTypes.LADV_CANCELLATION_BY_COACH,
+  EmailTypes.COACH_URGENT_REGISTRATION_NOTIFICATION,
+  EmailTypes.REGISTRATION_CONFIRMATION_DETAILS,
 ] as const
 
 export const ZOD_REGISTRATION_STATUS = [

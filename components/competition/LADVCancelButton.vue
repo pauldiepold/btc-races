@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RegistrationsClientRepository } from '~/repositories/registrations.repository'
+import type { ApiResponse } from '~/types/api.types'
 
 const props = defineProps<{
   registrationId: string | number
@@ -10,33 +10,35 @@ const emit = defineEmits<{
   success: []
 }>()
 
-const user = useSupabaseUser()
 const isModalOpen = ref(false)
 const isLoading = ref(false)
 const error = ref('')
 
-const registrationsRepo = new RegistrationsClientRepository()
-
 const confirmCancel = async () => {
-  if (!user.value?.user_metadata?.full_name) {
-    error.value = 'Benutzername nicht verfügbar'
-    return
-  }
-
   isLoading.value = true
   error.value = ''
 
   try {
-    const result = await registrationsRepo.cancelFromLADV(
-      props.registrationId,
-      user.value.user_metadata.full_name
-    )
+    const response = await $fetch<
+      ApiResponse<{
+        success: boolean
+        registrationId: number
+        coachName: string
+      }>
+    >('/api/registrations/ladv-cancel', {
+      method: 'POST',
+      body: {
+        registrationId: props.registrationId,
+      },
+    })
 
-    if (result.success) {
+    if (response.error) {
+      error.value = response.error.message || 'Fehler bei der LADV-Abmeldung'
+    } else if (response.data?.success) {
       isModalOpen.value = false
       emit('success')
     } else {
-      error.value = result.error || 'Fehler bei der LADV-Abmeldung'
+      error.value = 'Unerwartete Antwort vom Server'
     }
   } catch (e: any) {
     error.value = e.message || 'Fehler bei der LADV-Abmeldung'

@@ -1,4 +1,4 @@
-import { RegistrationEmailsService } from '~/server/email/services'
+import { NotificationEmailService } from '~/server/email/services'
 import type { ApiResponse } from '~/types/api.types'
 import { EmailTypes } from '~/types/enums'
 import { createRegistrationsRepository } from '~/server/repositories/registrations.repository'
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // E-Mail-Service erstellen
-    const emailService = await RegistrationEmailsService.create(event)
+    const emailService = await NotificationEmailService.create(event)
 
     // Token validieren mit TokenService
     const tokenService = emailService.getTokenService()
@@ -105,6 +105,33 @@ export default defineEventHandler(async (event) => {
       if (!tokenSuccess) {
         console.error('Fehler beim Markieren des Tokens als verifiziert')
         // Wir geben hier keinen Fehler zurück, da die Hauptaktion (Bestätigung) erfolgreich war
+      }
+
+      // Mail 2: Coach-Benachrichtigung bei kurzfristiger Anmeldung
+      // Prüfen, ob weniger als 3 Tage zwischen Anmeldung und Meldefrist liegen
+      if (registration.created_at && registration.registration_deadline) {
+        const registrationDate = new Date(registration.created_at)
+        const deadlineDate = new Date(registration.registration_deadline)
+        const daysDifference = Math.ceil((deadlineDate.getTime() - registrationDate.getTime()) / (1000 * 60 * 60 * 24))
+
+        if (daysDifference < 3) {
+          try {
+            await emailService.sendCoachUrgentRegistrationNotification(validationResult.registrationId)
+            console.log(`Coach-Benachrichtigung wegen kurzfristiger Anmeldung gesendet für Registrierung ${validationResult.registrationId}`)
+          } catch (emailError) {
+            console.error('Fehler beim Senden der Coach-Benachrichtigung:', emailError)
+            // Fehler wird nicht an den User weitergegeben, da die Hauptaktion erfolgreich war
+          }
+        }
+      }
+
+      // Mail 3: Bestätigungsdetails senden
+      try {
+        await emailService.sendRegistrationConfirmationDetails(validationResult.registrationId)
+        console.log(`Bestätigungsdetails gesendet für Registrierung ${validationResult.registrationId}`)
+      } catch (emailError) {
+        console.error('Fehler beim Senden der Bestätigungsdetails:', emailError)
+        // Fehler wird nicht an den User weitergegeben, da die Hauptaktion erfolgreich war
       }
     }
 

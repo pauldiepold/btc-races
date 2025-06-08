@@ -170,6 +170,7 @@ export class TemplateService {
       <h3 style="margin: 0 0 10px 0; color: #333;">Wettkampfdetails:</h3>
       <p style="margin: 5px 0;"><strong>Name:</strong> {{ competitionName }}</p>
       <p style="margin: 5px 0;"><strong>Datum:</strong> {{ competitionDate }}</p>
+      <p style="margin: 5px 0;"><strong>Meldefrist:</strong> {{ registrationDeadline }}</p>
       <p style="margin: 5px 0;"><strong>Ort:</strong> {{ competitionLocation }}</p>
       {{ if competitionVenue }}
       <p style="margin: 5px 0;"><strong>Sportstätte:</strong> {{ competitionVenue }}</p>
@@ -232,6 +233,7 @@ export class TemplateService {
 
     <p><strong>Wichtige Hinweise:</strong></p>
     <ul>
+      <li>Sobald unsere Coaches dich bei LADV gemeldet haben, wirst du eine weitere E-Mail erhalten.</li>
       <li>Eine Abmeldung ist bis zur Meldefrist ({{ registrationDeadline }}) möglich</li>
       <li>Danach sind keine Änderungen mehr möglich</li>
     </ul>
@@ -368,6 +370,7 @@ export class TemplateService {
       firstName: this.extractFirstName(registration.member_name),
       competitionName: registration.competition_name,
       competitionDate: this.formatDate(registration.competition_date),
+      registrationDeadline: this.formatDate(registration.registration_deadline),
       confirmationLink: this.buildLink('/registrations/confirm', token),
       expiryDate: this.formatDate(expiryDate.toISOString()),
       headerTitle: 'Anmeldebestätigung',
@@ -387,6 +390,7 @@ export class TemplateService {
       firstName: this.extractFirstName(registration.member_name),
       competitionName: registration.competition_name,
       competitionDate: this.formatDate(registration.competition_date),
+      registrationDeadline: this.formatDate(registration.registration_deadline),
       cancellationLink: this.buildLink('/registrations/cancel', token),
       expiryDate: this.formatDate(expiryDate.toISOString()),
       headerTitle: 'Abmeldebestätigung',
@@ -404,6 +408,7 @@ export class TemplateService {
       firstName: this.extractFirstName(registration.member_name),
       competitionName: registration.competition_name,
       competitionDate: this.formatDate(registration.competition_date),
+      registrationDeadline: this.formatDate(registration.registration_deadline),
       competitionLocation:
         registration.competition_location || 'nicht angegeben',
       headerTitle: 'Wettkampf-Erinnerung',
@@ -422,6 +427,7 @@ export class TemplateService {
       coachName: registration.ladv_registered_by || 'ein Coach',
       competitionName: registration.competition_name,
       competitionDate: this.formatDate(registration.competition_date),
+      registrationDeadline: this.formatDate(registration.registration_deadline),
       competitionLocation: registration.competition_location || 'nicht angegeben',
       competitionVenue: registration.sportstaette || undefined,
       competitionLink: this.buildCompetitionLink(registration.competition_id?.toString() || ''),
@@ -441,6 +447,7 @@ export class TemplateService {
       coachName: registration.ladv_canceled_by || 'ein Coach',
       competitionName: registration.competition_name,
       competitionDate: this.formatDate(registration.competition_date),
+      registrationDeadline: this.formatDate(registration.registration_deadline),
       competitionLocation: registration.competition_location || 'nicht angegeben',
       competitionVenue: registration.sportstaette || undefined,
       competitionLink: this.buildCompetitionLink(registration.competition_id?.toString() || ''),
@@ -459,6 +466,7 @@ export class TemplateService {
       memberName: registration.member_name,
       competitionName: registration.competition_name,
       competitionDate: this.formatDate(registration.competition_date),
+      registrationDeadline: this.formatDate(registration.registration_deadline),
       competitionLocation: registration.competition_location || 'nicht angegeben',
       competitionVenue: registration.sportstaette || undefined,
       competitionLink: this.buildCompetitionLink(registration.competition_id?.toString() || ''),

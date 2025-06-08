@@ -301,6 +301,11 @@ export class NotificationEmailService {
     // E-Mail senden an alle Coaches
     const subject = `Dringende Anmeldung: ${registration.member_name} - ${registration.competition_name}`
 
+    console.log(emailConfig.coachEmails.map(email => ({
+        address: email,
+        displayName: 'Coach',
+      })))
+
     await this.emailSenderService.sendEmail({
       to: emailConfig.coachEmails.map(email => ({
         address: email,

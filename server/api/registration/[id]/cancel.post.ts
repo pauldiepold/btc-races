@@ -1,5 +1,5 @@
 import type { ApiResponse } from '~/types/api.types'
-import { RegistrationEmailsService } from '~/server/email/services'
+import { NotificationEmailService  } from '~/server/email/services'
 import { createRegistrationsRepository } from '~/server/repositories/registrations.repository'
 import { RegistrationStatuses } from '~/types/enums'
 import type { RegistrationStatus } from '~/types/enums'
@@ -72,7 +72,7 @@ export default defineEventHandler(async (event) => {
     // Abmelde-E-Mail senden
     let emailSent = true
     try {
-      const emailService = await RegistrationEmailsService.create(event)
+      const emailService = await NotificationEmailService.create(event)
       await emailService.sendRegistrationCancellation(registrationId)
       console.log(
         `Abmeldebestätigung für Registrierung ${registrationId} wurde gesendet`

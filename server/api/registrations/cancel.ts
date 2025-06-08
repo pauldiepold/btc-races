@@ -1,4 +1,4 @@
-import { RegistrationEmailsService } from '~/server/email/services'
+import { NotificationEmailService } from '~/server/email/services'
 import type { ApiResponse } from '~/types/api.types'
 import { EmailTypes } from '~/types/enums'
 import { createRegistrationsRepository } from '~/server/repositories/registrations.repository'
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // E-Mail-Service erstellen
-    const emailService = await RegistrationEmailsService.create(event)
+    const emailService = await NotificationEmailService.create(event)
 
     // Token validieren mit TokenService
     const tokenService = emailService.getTokenService()

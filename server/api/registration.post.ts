@@ -1,7 +1,7 @@
 import type { ApiResponse } from '~/types/api.types'
 import { registrationSchema } from '~/composables/useRegistrationSchema'
 import { useCompetitionRegistration } from '~/composables/useCompetitionRegistration'
-import { RegistrationEmailsService } from '~/server/email/services'
+import { NotificationEmailService  } from '~/server/email/services'
 import { createRegistrationsRepository } from '~/server/repositories/registrations.repository'
 import { createCompetitionsRepository } from '~/server/repositories/competitions.repository'
 import { createMembersRepository } from '~/server/repositories/members.repository'
@@ -176,7 +176,7 @@ export default defineEventHandler(async (event) => {
 
     // Bestätigungsmail mit dem neuen E-Mail-Service senden
     try {
-      const emailService = await RegistrationEmailsService.create(event)
+      const emailService = await NotificationEmailService .create(event)
       await emailService.sendRegistrationConfirmation(data.id)
       console.log(
         `Bestätigungsmail für Registrierung ${data.id} wurde gesendet`

@@ -275,7 +275,9 @@ export class NotificationEmailService {
   /**
    * Sendet eine dringende Benachrichtigung an alle Coaches über eine kurzfristige Anmeldung
    */
-  async sendCoachUrgentRegistrationNotification(registrationId: number): Promise<void> {
+  async sendCoachUrgentRegistrationNotification(
+    registrationId: number
+  ): Promise<void> {
     const registration =
       await this.registrationsRepo.findWithDetails(registrationId)
 
@@ -284,13 +286,17 @@ export class NotificationEmailService {
     }
 
     if (emailConfig.coachEmails.length === 0) {
-      console.warn('Keine Coach-E-Mail-Adressen konfiguriert. E-Mail wird nicht gesendet.')
+      console.warn(
+        'Keine Coach-E-Mail-Adressen konfiguriert. E-Mail wird nicht gesendet.'
+      )
       return
     }
 
     // Bereite Template-Daten vor
     const templateData =
-      this.templateService.prepareCoachUrgentRegistrationNotificationData(registration)
+      this.templateService.prepareCoachUrgentRegistrationNotificationData(
+        registration
+      )
 
     // Template rendern
     const renderedTemplate = await this.templateService.renderTemplate(
@@ -301,13 +307,15 @@ export class NotificationEmailService {
     // E-Mail senden an alle Coaches
     const subject = `Dringende Anmeldung: ${registration.member_name} - ${registration.competition_name}`
 
-    console.log(emailConfig.coachEmails.map(email => ({
+    console.log(
+      emailConfig.coachEmails.map((email) => ({
         address: email,
         displayName: 'Coach',
-      })))
+      }))
+    )
 
     await this.emailSenderService.sendEmail({
-      to: emailConfig.coachEmails.map(email => ({
+      to: emailConfig.coachEmails.map((email) => ({
         address: email,
         displayName: 'Coach',
       })),
@@ -328,7 +336,9 @@ export class NotificationEmailService {
   /**
    * Sendet detaillierte Bestätigungsinformationen nach einer Anmeldung
    */
-  async sendRegistrationConfirmationDetails(registrationId: number): Promise<void> {
+  async sendRegistrationConfirmationDetails(
+    registrationId: number
+  ): Promise<void> {
     const registration =
       await this.registrationsRepo.findWithDetails(registrationId)
 
@@ -344,7 +354,9 @@ export class NotificationEmailService {
 
     // Bereite Template-Daten vor
     const templateData =
-      this.templateService.prepareRegistrationConfirmationDetailsData(registration)
+      this.templateService.prepareRegistrationConfirmationDetailsData(
+        registration
+      )
 
     // Template rendern
     const renderedTemplate = await this.templateService.renderTemplate(

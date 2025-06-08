@@ -197,11 +197,11 @@ export class TemplateService {
   private readonly ladvCancellationByCoachTemplate = `
     <p>Hallo {{ firstName }},</p>
 
-    <p>{{ coachName }} hat dich vom folgenden Wettkampf abgemeldet:</p>
+    <p>{{ coachName }} hat deine Meldung für den folgenden Wettkampf in LADV zurückgenommen:</p>
 
     {{@ competitionDetails }}
 
-    <p>Falls du doch teilnehmen möchtest, wende dich bitte an {{ coachName }} oder melde dich auf der Wettkampfseite erneut an.</p>
+    <p>Falls du doch teilnehmen möchtest, wende dich bitte an {{ coachName }}.</p>
 
     <a href="{{ competitionLink }}" class="button">Zum Wettkampf</a>
 
@@ -312,10 +312,17 @@ export class TemplateService {
     }
 
     // Spezielle Behandlung für Templates mit competition-details
-    if (data.competitionDetails ||
-        ['ladv-registration-by-coach', 'ladv-cancellation-by-coach',
-         'coach-urgent-registration-notification', 'registration-confirmation-details'].includes(templateName)) {
-      (enhancedData as any).competitionDetails = await this.renderCompetitionDetails(data)
+    if (
+      data.competitionDetails ||
+      [
+        'ladv-registration-by-coach',
+        'ladv-cancellation-by-coach',
+        'coach-urgent-registration-notification',
+        'registration-confirmation-details',
+      ].includes(templateName)
+    ) {
+      ;(enhancedData as any).competitionDetails =
+        await this.renderCompetitionDetails(data)
     }
 
     // Wenn es ein E-Mail-Template ist, render es zuerst und dann in das Base-Layout einbetten
@@ -338,7 +345,9 @@ export class TemplateService {
    * Rendert das Competition-Details Teil-Template
    */
   private async renderCompetitionDetails(data: TemplateData): Promise<string> {
-    const renderCompetitionDetails = this.compiledTemplates.get('competition-details')!
+    const renderCompetitionDetails = this.compiledTemplates.get(
+      'competition-details'
+    )!
     return renderCompetitionDetails(data)
   }
 
@@ -428,9 +437,12 @@ export class TemplateService {
       competitionName: registration.competition_name,
       competitionDate: this.formatDate(registration.competition_date),
       registrationDeadline: this.formatDate(registration.registration_deadline),
-      competitionLocation: registration.competition_location || 'nicht angegeben',
+      competitionLocation:
+        registration.competition_location || 'nicht angegeben',
       competitionVenue: registration.sportstaette || undefined,
-      competitionLink: this.buildCompetitionLink(registration.competition_id?.toString() || ''),
+      competitionLink: this.buildCompetitionLink(
+        registration.competition_id?.toString() || ''
+      ),
       headerTitle: 'LADV-Anmeldung',
       headerColor: '#007acc',
     }
@@ -448,9 +460,12 @@ export class TemplateService {
       competitionName: registration.competition_name,
       competitionDate: this.formatDate(registration.competition_date),
       registrationDeadline: this.formatDate(registration.registration_deadline),
-      competitionLocation: registration.competition_location || 'nicht angegeben',
+      competitionLocation:
+        registration.competition_location || 'nicht angegeben',
       competitionVenue: registration.sportstaette || undefined,
-      competitionLink: this.buildCompetitionLink(registration.competition_id?.toString() || ''),
+      competitionLink: this.buildCompetitionLink(
+        registration.competition_id?.toString() || ''
+      ),
       headerTitle: 'LADV-Abmeldung',
       headerColor: '#007acc',
     }
@@ -467,9 +482,12 @@ export class TemplateService {
       competitionName: registration.competition_name,
       competitionDate: this.formatDate(registration.competition_date),
       registrationDeadline: this.formatDate(registration.registration_deadline),
-      competitionLocation: registration.competition_location || 'nicht angegeben',
+      competitionLocation:
+        registration.competition_location || 'nicht angegeben',
       competitionVenue: registration.sportstaette || undefined,
-      competitionLink: this.buildCompetitionLink(registration.competition_id?.toString() || ''),
+      competitionLink: this.buildCompetitionLink(
+        registration.competition_id?.toString() || ''
+      ),
       headerTitle: 'Dringende Anmeldung',
       headerColor: '#ff8c00',
     }
@@ -485,9 +503,12 @@ export class TemplateService {
       firstName: this.extractFirstName(registration.member_name),
       competitionName: registration.competition_name,
       competitionDate: this.formatDate(registration.competition_date),
-      competitionLocation: registration.competition_location || 'nicht angegeben',
+      competitionLocation:
+        registration.competition_location || 'nicht angegeben',
       competitionVenue: registration.sportstaette || undefined,
-      competitionLink: this.buildCompetitionLink(registration.competition_id?.toString() || ''),
+      competitionLink: this.buildCompetitionLink(
+        registration.competition_id?.toString() || ''
+      ),
       registrationDeadline: this.formatDate(registration.registration_deadline),
       headerTitle: 'Bestätigungsdetails',
       headerColor: '#28a745',

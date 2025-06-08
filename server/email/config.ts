@@ -106,7 +106,7 @@ export function loadEmailConfig(): EmailConfig {
   // Coach-E-Mail-Adressen aus Umgebungsvariablen
   const coachEmails = process.env.NUXT_COACH_EMAILS
   if (coachEmails) {
-    config.coachEmails = coachEmails.split(',').map(email => email.trim())
+    config.coachEmails = coachEmails.split(',').map((email) => email.trim())
   }
 
   console.log(

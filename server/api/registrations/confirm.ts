@@ -112,14 +112,24 @@ export default defineEventHandler(async (event) => {
       if (registration.created_at && registration.registration_deadline) {
         const registrationDate = new Date(registration.created_at)
         const deadlineDate = new Date(registration.registration_deadline)
-        const daysDifference = Math.ceil((deadlineDate.getTime() - registrationDate.getTime()) / (1000 * 60 * 60 * 24))
+        const daysDifference = Math.ceil(
+          (deadlineDate.getTime() - registrationDate.getTime()) /
+            (1000 * 60 * 60 * 24)
+        )
 
         if (daysDifference < 3) {
           try {
-            await emailService.sendCoachUrgentRegistrationNotification(validationResult.registrationId)
-            console.log(`Coach-Benachrichtigung wegen kurzfristiger Anmeldung gesendet für Registrierung ${validationResult.registrationId}`)
+            await emailService.sendCoachUrgentRegistrationNotification(
+              validationResult.registrationId
+            )
+            console.log(
+              `Coach-Benachrichtigung wegen kurzfristiger Anmeldung gesendet für Registrierung ${validationResult.registrationId}`
+            )
           } catch (emailError) {
-            console.error('Fehler beim Senden der Coach-Benachrichtigung:', emailError)
+            console.error(
+              'Fehler beim Senden der Coach-Benachrichtigung:',
+              emailError
+            )
             // Fehler wird nicht an den User weitergegeben, da die Hauptaktion erfolgreich war
           }
         }
@@ -127,8 +137,12 @@ export default defineEventHandler(async (event) => {
 
       // Mail 3: Bestätigungsdetails senden
       try {
-        await emailService.sendRegistrationConfirmationDetails(validationResult.registrationId)
-        console.log(`Bestätigungsdetails gesendet für Registrierung ${validationResult.registrationId}`)
+        await emailService.sendRegistrationConfirmationDetails(
+          validationResult.registrationId
+        )
+        console.log(
+          `Bestätigungsdetails gesendet für Registrierung ${validationResult.registrationId}`
+        )
       } catch (emailError) {
         console.error('Fehler beim Senden der Bestätigungsdetails:', emailError)
         // Fehler wird nicht an den User weitergegeben, da die Hauptaktion erfolgreich war

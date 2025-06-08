@@ -163,6 +163,87 @@ export class RegistrationsRepository extends BaseRepository<
 
     return true
   }
+
+  /**
+   * LADV-Anmeldung für eine Registrierung
+   * @param registrationId ID der Registrierung
+   * @param coachName Vollständiger Name des Coaches
+   * @returns Erfolg der Operation
+   */
+  async registerToLADV(
+    registrationId: number,
+    coachName: string
+  ): Promise<boolean> {
+    // Namen abkürzen: "Max Mustermann" -> "Max M."
+    const abbreviatedName = this.abbreviateName(coachName)
+
+    const { error } = await this.supabase
+      .from(this.tableName)
+      .update({
+        ladv_registered_at: new Date().toISOString(),
+        ladv_registered_by: abbreviatedName,
+        ladv_canceled_at: null,
+        ladv_canceled_by: null,
+      })
+      .eq('id', registrationId)
+
+    if (error) {
+      console.error(
+        `Fehler bei LADV-Anmeldung für Registrierung ${registrationId}:`,
+        error
+      )
+      return false
+    }
+
+    return true
+  }
+
+  /**
+   * LADV-Abmeldung für eine Registrierung
+   * @param registrationId ID der Registrierung
+   * @param coachName Vollständiger Name des Coaches
+   * @returns Erfolg der Operation
+   */
+  async cancelFromLADV(
+    registrationId: number,
+    coachName: string
+  ): Promise<boolean> {
+    // Namen abkürzen: "Max Mustermann" -> "Max M."
+    const abbreviatedName = this.abbreviateName(coachName)
+
+    const { error } = await this.supabase
+      .from(this.tableName)
+      .update({
+        ladv_canceled_at: new Date().toISOString(),
+        ladv_canceled_by: abbreviatedName,
+      })
+      .eq('id', registrationId)
+
+    if (error) {
+      console.error(
+        `Fehler bei LADV-Abmeldung für Registrierung ${registrationId}:`,
+        error
+      )
+      return false
+    }
+
+    return true
+  }
+
+  /**
+   * Hilfsmethode: Kürzt einen Namen ab
+   * "Max Mustermann" -> "Max M."
+   */
+  private abbreviateName(fullName: string): string {
+    const parts = fullName.trim().split(' ')
+    if (parts.length <= 1) {
+      return fullName
+    }
+
+    const firstName = parts[0]
+    const lastNameInitial = parts[parts.length - 1].charAt(0).toUpperCase()
+    return `${firstName} ${lastNameInitial}.`
+  }
 }
 
 /**

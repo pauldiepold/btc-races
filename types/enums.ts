@@ -55,8 +55,10 @@ export const EmailTypes = {
   COMPETITION_REMINDER: 'competition_reminder' as const,
   LADV_REGISTRATION_BY_COACH: 'ladv_registration_by_coach' as const,
   LADV_CANCELLATION_BY_COACH: 'ladv_cancellation_by_coach' as const,
-  COACH_URGENT_REGISTRATION_NOTIFICATION: 'coach_urgent_registration_notification' as const,
-  REGISTRATION_CONFIRMATION_DETAILS: 'registration_confirmation_details' as const,
+  COACH_URGENT_REGISTRATION_NOTIFICATION:
+    'coach_urgent_registration_notification' as const,
+  REGISTRATION_CONFIRMATION_DETAILS:
+    'registration_confirmation_details' as const,
 }
 
 export type EmailTypeKeys = keyof typeof EmailTypes
@@ -110,7 +112,8 @@ export const EmailTypeLabels: Record<EmailType, string> = {
   [EmailTypes.COMPETITION_REMINDER]: 'Wettkampferinnerung',
   [EmailTypes.LADV_REGISTRATION_BY_COACH]: 'LADV-Anmeldung durch Coach',
   [EmailTypes.LADV_CANCELLATION_BY_COACH]: 'LADV-Abmeldung durch Coach',
-  [EmailTypes.COACH_URGENT_REGISTRATION_NOTIFICATION]: 'Dringende Anmeldung an Coaches',
+  [EmailTypes.COACH_URGENT_REGISTRATION_NOTIFICATION]:
+    'Dringende Anmeldung an Coaches',
   [EmailTypes.REGISTRATION_CONFIRMATION_DETAILS]: 'Bestätigungsdetails',
 }
 

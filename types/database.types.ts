@@ -285,6 +285,7 @@ export type Database = {
           email_type: string
           error: string | null
           id: number
+          recipients: Json | null
           registration_id: number | null
           retry_count: number | null
           sent_at: string | null
@@ -300,6 +301,7 @@ export type Database = {
           email_type: string
           error?: string | null
           id?: number
+          recipients?: Json | null
           registration_id?: number | null
           retry_count?: number | null
           sent_at?: string | null
@@ -315,6 +317,7 @@ export type Database = {
           email_type?: string
           error?: string | null
           id?: number
+          recipients?: Json | null
           registration_id?: number | null
           retry_count?: number | null
           sent_at?: string | null
@@ -434,6 +437,7 @@ export type Database = {
           member_id: number | null
           member_name: string | null
           recipient_email: string | null
+          recipients: Json | null
           registration_id: number | null
           retry_count: number | null
           sent_at: string | null

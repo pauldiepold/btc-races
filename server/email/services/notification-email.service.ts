@@ -105,6 +105,7 @@ export class NotificationEmailService {
       token_expires_at: expiryDate.toISOString(),
       status: 'sent',
       sent_at: new Date().toISOString(),
+      recipients: [registration.member_email],
     })
   }
 
@@ -167,6 +168,7 @@ export class NotificationEmailService {
       token_expires_at: expiryDate.toISOString(),
       status: 'sent',
       sent_at: new Date().toISOString(),
+      recipients: [registration.member_email],
     })
   }
 
@@ -218,6 +220,7 @@ export class NotificationEmailService {
       subject,
       status: 'sent',
       sent_at: new Date().toISOString(),
+      recipients: [registration.member_email],
     })
   }
 
@@ -269,6 +272,7 @@ export class NotificationEmailService {
       subject,
       status: 'sent',
       sent_at: new Date().toISOString(),
+      recipients: [registration.member_email],
     })
   }
 
@@ -330,6 +334,7 @@ export class NotificationEmailService {
       subject,
       status: 'sent',
       sent_at: new Date().toISOString(),
+      recipients: emailConfig.coachEmails,
     })
   }
 
@@ -385,6 +390,7 @@ export class NotificationEmailService {
       subject,
       status: 'sent',
       sent_at: new Date().toISOString(),
+      recipients: [registration.member_email],
     })
   }
 

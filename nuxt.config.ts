@@ -16,15 +16,21 @@ export default defineNuxtConfig({
       title: 'BTC Wettkampfanmeldung',
     },
   },
-  // css: ['~/assets/css/main.css'],
+  css: ['~/assets/css/main.css'],
   compatibilityDate: '2025-07-15',
+
+  nitro: {
+    experimental: {
+      tasks: true,
+    },
+  },
 
   hub: {
     db: {
       dialect: 'sqlite',
       casing: 'snake_case',
-      driver: 'd1',
-      connection: { databaseId: '377c148c-ff3e-486f-b0a6-866e3de24e1d' },
+      // driver: 'd1',
+      // connection: { databaseId: '377c148c-ff3e-486f-b0a6-866e3de24e1d' },
     },
   },
   typescript: {

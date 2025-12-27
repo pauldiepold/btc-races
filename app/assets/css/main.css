@@ -1,6 +1,20 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+@theme static {
+    --color-yellow-50: #fffeea;
+    --color-yellow-100: #fff9c5;
+    --color-yellow-200: #fff485;
+    --color-yellow-300: #ffe846;
+    --color-yellow-400: #ffd71b;
+    --color-yellow-500: #ffb700;
+    --color-yellow-600: #e28c00;
+    --color-yellow-700: #bb6302;
+    --color-yellow-800: #984c08;
+    --color-yellow-900: #7c3e0b;
+    --color-yellow-950: #481f00;
+}
+
 body {
     font-family: 'Raleway', sans-serif;
 }

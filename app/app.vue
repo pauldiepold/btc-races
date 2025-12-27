@@ -7,11 +7,11 @@ useSeoMeta({
   ogTitle: 'BTC Wettkampfanmeldung',
   ogDescription:
       'Die LADV-Wettkampf-Anmeldung für Mitglieder des Berlin Track Clubs.',
-  ogImage: '/logo-yellow-padding.png',
+  ogImage: '/logo-yellow.svg',
   twitterTitle: 'BTC Wettkampfanmeldung',
   twitterDescription:
       'Die LADV-Wettkampf-Anmeldung für Mitglieder des Berlin Track Clubs.',
-  twitterImage: '/logo-yellow-padding.png',
+  twitterImage: '/logo-yellow.svg',
   twitterCard: 'summary',
 })
 
@@ -27,10 +27,10 @@ useHead({
   },
 })
 
-async function logout() {
-  await $fetch('/api/auth/logout', { method: 'POST' })
-  await clear()
-}
+// async function logout() {
+//   await $fetch('/api/auth/logout', { method: 'POST' })
+//   await clear()
+// }
 </script>
 
 <template>
@@ -49,11 +49,11 @@ async function logout() {
           to="/"
           class="group flex items-center gap-6"
         >
-          <img
-            src="/logo-yellow.png"
+          <UIcon
+            name="i-custom-btc"
             alt="BTC Logo"
-            class="h-12 p-1 w-auto transform transition-transform duration-300 group-hover:scale-110"
-          >
+            class="size-14 text-yellow-500 transform transition-transform duration-300 group-hover:scale-110"
+          />
           <p class="font-normal">BTC Events</p>
         </NuxtLink>
       </template>
@@ -69,12 +69,13 @@ async function logout() {
     </UMain>
 
     <USeparator
-      icon="i-simple-icons-nuxtdotjs"
-      type="dashed"
-      class="h-px"
+      icon="i-custom-btc"
+      type="dotted"
+      size="sm"
+      :ui="{ icon: 'size-14' }"
     />
 
-    <UFooter>
+    <UFooter class="mb-4">
       <template #left>
         <UColorModeButton />
       </template>

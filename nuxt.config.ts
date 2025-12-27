@@ -42,4 +42,13 @@ export default defineNuxtConfig({
       stylistic: true,
     },
   },
+
+  icon: {
+    mode: 'css',
+    cssLayer: 'base',
+    customCollections: [{
+      prefix: 'custom',
+      dir: './app/assets/icons'
+    }]
+  }
 })

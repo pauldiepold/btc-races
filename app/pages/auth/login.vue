@@ -8,7 +8,6 @@ const message = ref('')
 
 definePageMeta({
   title: 'Login',
-  colorMode: 'dark',
 })
 
 // Weiterleitung zur Homepage, wenn bereits eingeloggt
@@ -32,27 +31,18 @@ const schema = z.object({
 
 type Schema = z.output<typeof schema>
 
-const state = reactive<Partial<Schema>>({
-  email: undefined,
-})
-
 const toast = useToast()
 
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
   loading.value = true
   message.value = ''
   try {
-    const res = await $fetch('/api/auth/login', {
+    await $fetch('/auth/login', {
       method: 'POST',
       body: { email: payload.data.email },
     })
-    message.value = res.message
-    toast.add({
-      title: 'Magic Link gesendet',
-      description: res.message,
-      color: 'success',
-    })
-    state.email = ''
+    console.log('hallo welt')
+    navigateTo('/auth/link-gesendet')
   }
   catch {
     const errorMessage = 'Ein Fehler ist aufgetreten.'

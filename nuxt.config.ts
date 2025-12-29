@@ -23,6 +23,8 @@ export default defineNuxtConfig({
     cronToken: '',
   },
 
+  compatibilityDate: '2025-12-29',
+
   nitro: {
     experimental: {
       tasks: true,

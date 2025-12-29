@@ -31,7 +31,7 @@ useHead({
 
 async function logout() {
   await clear()
-  await navigateTo('/login')
+  await navigateTo('/auth/login')
 }
 </script>
 
@@ -64,7 +64,8 @@ async function logout() {
           >
             <UButton
               v-if="loggedIn"
-              icon="i-heroicons-arrow-right-on-rectangle"
+              icon="i-lucide-log-out"
+              class="cursor-pointer"
               label="Logout"
               color="neutral"
               variant="ghost"

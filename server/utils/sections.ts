@@ -1,6 +1,18 @@
 import type { H3Event } from 'h3'
 import type { User } from '#auth-utils'
 
+export const ADMIN_SECTIONS = [
+  'Vorstand',
+  'Geschäftsstelle',
+]
+
+/**
+ * Prüft ob eine Section Admin-Rechte verleiht
+ */
+export function isAdminSection(section: string): boolean {
+  return ADMIN_SECTIONS.includes(section)
+}
+
 /**
  * Prüft, ob ein User eine bestimmte Section hat
  */

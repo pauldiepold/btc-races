@@ -1,7 +1,7 @@
 import { db, schema } from 'hub:db'
 import { eq, and, isNotNull, notInArray } from 'drizzle-orm'
 import { CampaiContactsService } from '../external-apis/campai-contacts/contacts.service'
-import { isAdminSection } from '../config/admin-sections'
+import { isAdminSection } from '../utils/sections'
 
 export default defineTask({
   meta: {

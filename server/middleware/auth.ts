@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
 
   // Pfade, die NICHT geschützt werden sollen
   const publicPaths = [
-    '/api/auth/',
+    '/auth/',
     '/api/cron/',
     '/api/_nuxt_icon',
     '/api/_auth/',
@@ -16,8 +16,6 @@ export default defineEventHandler(async (event) => {
     return
   }
 
-  // Alle anderen API-Routen müssen authentifiziert sein
-  if (path.startsWith('/api/')) {
-    await requireUserSession(event)
-  }
+  // Alle anderen Routen müssen authentifiziert sein
+  await requireUserSession(event)
 })

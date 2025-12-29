@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "btc-races",
   "pages_build_output_dir": "dist",
-  "compatibility_date": "2025-07-15",
+  "compatibility_date": "2025-12-29",
   "compatibility_flags": [
     "nodejs_compat"
   ],
@@ -13,5 +13,5 @@
       "database_id": "377c148c-ff3e-486f-b0a6-866e3de24e1d",
       "migrations_dir": "./server/db/migrations/sqlite"
     }
-  ],
+  ]
 }

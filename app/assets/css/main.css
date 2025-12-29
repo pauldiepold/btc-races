@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+body {
+    font-family: 'Raleway', sans-serif;
+}
+
 @theme static {
     --color-yellow-50: #fffeea;
     --color-yellow-100: #fff9c5;
@@ -15,6 +19,10 @@
     --color-yellow-950: #481f00;
 }
 
-body {
-    font-family: 'Raleway', sans-serif;
+@layer base {
+    button,
+    [role="button"] {
+        @apply cursor-pointer;
+        @apply disabled:cursor-not-allowed;
+    }
 }

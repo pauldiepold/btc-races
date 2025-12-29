@@ -2,17 +2,14 @@ export default defineEventHandler(async (event) => {
   const path = getRequestURL(event).pathname
 
   // Pfade, die NICHT geschützt werden sollen
-  const publicPaths = [
-    '/auth/',
-    '/api/cron/',
-    '/api/_nuxt_icon',
-    '/api/_auth/',
+  const protectedPaths = [
+    '/events/',
   ]
 
   // Prüfen, ob der Pfad öffentlich ist
-  const isPublicPath = publicPaths.some(publicPath => path.startsWith(publicPath))
+  const isProtectedPath = protectedPaths.some(protectedPath => path.startsWith(protectedPath))
 
-  if (isPublicPath) {
+  if (!isProtectedPath) {
     return
   }
 

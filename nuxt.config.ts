@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     'nuxt-auth-utils',
     '@pinia/nuxt',
     '@pinia/colada-nuxt',
+    '@nuxt/image',
   ],
 
   devtools: { enabled: true },
@@ -21,6 +22,10 @@ export default defineNuxtConfig({
     campaiApiKeyContacts: '',
     campaiOrgId: '',
     cronToken: '',
+    session: {
+      password: '',
+      maxAge: 2678400,
+    },
   },
 
   compatibilityDate: '2025-12-29',
@@ -54,5 +59,9 @@ export default defineNuxtConfig({
       prefix: 'btc',
       dir: './app/assets/icons',
     }],
+  },
+
+  image: {
+    domains: ['api.campai.com'],
   },
 })

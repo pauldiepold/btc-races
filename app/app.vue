@@ -30,6 +30,7 @@ useHead({
 })
 
 async function logout() {
+  await $fetch('/auth/logout', { method: 'POST' })
   await clear()
   await navigateTo('/auth/login')
 }
@@ -65,7 +66,6 @@ async function logout() {
             <UButton
               v-if="loggedIn"
               icon="i-lucide-log-out"
-              class="cursor-pointer"
               label="Logout"
               color="neutral"
               variant="ghost"

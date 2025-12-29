@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@libsql/client": "^0.15.15",
+    "@nuxt/image": "2.0.0",
     "@nuxt/ui": "^4.3.0",
     "@nuxthub/core": "^0.10.4",
     "@pinia/colada": "^0.20.0",

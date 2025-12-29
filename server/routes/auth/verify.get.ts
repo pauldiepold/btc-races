@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
     loggedInAt: new Date().toISOString(),
   })
 
-  // 4. Token löschen (Single-Use)
+  // 4. Token löschen
   await db.delete(schema.authTokens).where(eq(schema.authTokens.token, token))
 
   // 5. Weiterleiten

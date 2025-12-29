@@ -4,7 +4,7 @@ export default defineTask({
     description: 'Seed database with initial users',
   },
   async run() {
-    console.log('Seeding database...')
+    console.log('Seeding database...',)
 
     /* const testUsers = [
       {
@@ -41,6 +41,6 @@ export default defineTask({
 
     await db.insert(schema.users).values(testUsers).onConflictDoNothing() */
 
-    return { result: 'Database seeded successfully' }
+    return { result: 'Database seeded successfully', }
   },
-})
+},)

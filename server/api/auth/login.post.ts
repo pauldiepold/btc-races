@@ -1,59 +1,59 @@
-import { db, schema } from 'hub:db'
-import { eq } from 'drizzle-orm'
-import { randomBytes } from 'node:crypto'
-import { z } from 'zod'
+import { db, schema, } from 'hub:db'
+import { eq, } from 'drizzle-orm'
+import { randomBytes, } from 'node:crypto'
+import { z, } from 'zod'
 
 const loginSchema = z.object({
-  email: z.email('Bitte gib eine gültige E-Mail-Adresse ein'),
-})
+  email: z.email('Bitte gib eine gültige E-Mail-Adresse ein',),
+},)
 
-export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
+export default defineEventHandler(async (event,) => {
+  const body = await readBody(event,)
 
   // Validierung mit Zod
-  const result = loginSchema.safeParse(body)
+  const result = loginSchema.safeParse(body,)
 
   if (!result.success) {
     throw createError({
       statusCode: 400,
       statusMessage: result.error.message,
-    })
+    },)
   }
 
-  const { email } = result.data
+  const { email, } = result.data
 
   // 1. Prüfen, ob der User existiert
   const user = await db.query.users.findFirst({
-    where: eq(schema.users.email, email.toLowerCase()),
-  })
+    where: eq(schema.users.email, email.toLowerCase(),),
+  },)
 
   if (!user) {
     // Sicherheitshalber geben wir keine Fehlermeldung aus, um User-Enumeration zu verhindern,
     // aber in diesem speziellen Fall (nur registrierte User) loggen wir es intern.
-    console.log(`Login attempt for non-existent user: ${email}`)
-    return { message: 'Wenn die E-Mail existiert, wurde ein Magic Link gesendet.' }
+    console.log(`Login attempt for non-existent user: ${email}`,)
+    return { message: 'Wenn die E-Mail existiert, wurde ein Magic Link gesendet.', }
   }
 
   // 2. Token generieren
-  const token = randomBytes(32).toString('hex')
-  const expiresAt = new Date(Date.now() + 15 * 60 * 1000) // 15 Minuten
+  const token = randomBytes(32,).toString('hex',)
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000,) // 15 Minuten
 
   // 3. Token in DB speichern
-  await db.insert(schema.authTokens).values({
+  await db.insert(schema.authTokens,).values({
     token,
     userId: user.id,
     expiresAt,
-  })
+  },)
 
   // 4. Magic Link ausgeben (Console für Dev)
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
-  const host = getRequestHost(event)
+  const host = getRequestHost(event,)
   const magicLink = `${protocol}://${host}/api/auth/verify?token=${token}`
 
-  console.log('---------------------------------------')
-  console.log(`MAGIC LINK FÜR ${email}:`)
-  console.log(magicLink)
-  console.log('---------------------------------------')
+  console.log('---------------------------------------',)
+  console.log(`MAGIC LINK FÜR ${email}:`,)
+  console.log(magicLink,)
+  console.log('---------------------------------------',)
 
-  return { message: 'Wenn die E-Mail existiert, wurde ein Magic Link gesendet.' }
-})
+  return { message: 'Wenn die E-Mail existiert, wurde ein Magic Link gesendet.', }
+},)

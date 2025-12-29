@@ -30,7 +30,7 @@ export class CampaiContactsService {
     this.orgId = config.campaiOrgId
 
     if (!this.apiKey || !this.orgId) {
-      throw new Error('Campai API Konfiguration fehlt (Key oder OrgID).')
+      throw new Error('Campai API Konfiguration fehlt (Key oder OrgID).',)
     }
   }
 
@@ -38,42 +38,41 @@ export class CampaiContactsService {
    * Holt alle aktiven Mitglieder (Dedupliziert)
    */
   async getActiveMembers(): Promise<CampaiContact[]> {
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T',)[0]
 
     // Parallelabfrage beider Szenarien (unbefristet & befristet aktiv)
-    const [res1, res2] = await Promise.all([
+    const [res1, res2,] = await Promise.all([
       this.fetchAllPages({
         'membership.enterDate': `lte:${today}`,
         'membership.leaveDate': 'null',
-      }),
+      },),
       this.fetchAllPages({
         'membership.enterDate': `lte:${today}`,
         'membership.leaveDate': `gte:${today}`,
-      }),
-    ])
+      },),
+    ],)
 
     // Ergebnisse zusammenführen und nach _id deduplizieren
-    const all = [...res1, ...res2]
-    return Array.from(new Map(all.map(c => [c._id, c])).values())
+    const all = [...res1, ...res2,]
+    return Array.from(new Map(all.map(c => [c._id, c,],),).values(),)
   }
 
   /**
    * Iteriert durch alle Datensätze mittels skip/limit
    */
-  private async fetchAllPages(filters: Record<string, string>): Promise<CampaiContact[]> {
+  private async fetchAllPages(filters: Record<string, string>,): Promise<CampaiContact[]> {
     const results: CampaiContact[] = []
     const limit = 100
     let skip = 0
     let keepFetching = true
 
     while (keepFetching) {
-      const chunk = await this.fetchPage(filters, skip, limit)
-      results.push(...chunk)
+      const chunk = await this.fetchPage(filters, skip, limit,)
+      results.push(...chunk,)
 
       if (chunk.length < limit) {
         keepFetching = false
-      }
-      else {
+      } else {
         skip += limit // Erhöhe skip für den nächsten "Batch"
       }
     }
@@ -84,7 +83,7 @@ export class CampaiContactsService {
   /**
    * Führt den API-Call mit skip statt page aus
    */
-  private async fetchPage(filters: Record<string, string>, skip: number, limit: number): Promise<CampaiContact[]> {
+  private async fetchPage(filters: Record<string, string>, skip: number, limit: number,): Promise<CampaiContact[]> {
     try {
       return await $fetch<CampaiContact[]>(this.baseUrl, {
         headers: {
@@ -100,10 +99,9 @@ export class CampaiContactsService {
           ...filters,
         },
         retry: 2,
-      })
-    }
-    catch (error) {
-      console.error(`Campai API Fehler bei skip ${skip}:`, error)
+      },)
+    } catch (error) {
+      console.error(`Campai API Fehler bei skip ${skip}:`, error,)
       return []
     }
   }

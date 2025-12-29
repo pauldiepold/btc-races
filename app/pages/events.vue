@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePageMeta({
   title: 'Events',
-})
+},)
 </script>
 
 <template>

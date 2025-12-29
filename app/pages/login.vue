@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
+import type { FormSubmitEvent, AuthFormField, } from '@nuxt/ui'
 import * as z from 'zod'
 
-const { loggedIn } = useUserSession()
-const loading = ref(false)
-const message = ref('')
+const { loggedIn, } = useUserSession()
+const loading = ref(false,)
+const message = ref('',)
 
 definePageMeta({
   title: 'Login',
   colorMode: 'dark',
-})
+},)
 
 // Weiterleitung zur Homepage, wenn bereits eingeloggt
-watch(loggedIn, (isLoggedIn) => {
+watch(loggedIn, (isLoggedIn,) => {
   if (isLoggedIn) {
-    navigateTo('/')
+    navigateTo('/',)
   }
-}, { immediate: true })
+}, { immediate: true, },)
 
 const fields: AuthFormField[] = [{
   name: 'email',
@@ -24,46 +24,44 @@ const fields: AuthFormField[] = [{
   label: 'E-Mail-Adresse',
   placeholder: '',
   required: true,
-}]
+},]
 
 const schema = z.object({
-  email: z.email('Bitte gib eine gültige E-Mail-Adresse ein'),
-})
+  email: z.email('Bitte gib eine gültige E-Mail-Adresse ein',),
+},)
 
 type Schema = z.output<typeof schema>
 
 const state = reactive<Partial<Schema>>({
   email: undefined,
-})
+},)
 
 const toast = useToast()
 
-async function onSubmit(payload: FormSubmitEvent<Schema>) {
+async function onSubmit(payload: FormSubmitEvent<Schema>,) {
   loading.value = true
   message.value = ''
   try {
     const res = await $fetch('/api/auth/login', {
       method: 'POST',
-      body: { email: payload.data.email },
-    })
+      body: { email: payload.data.email, },
+    },)
     message.value = res.message
     toast.add({
       title: 'Magic Link gesendet',
       description: res.message,
       color: 'success',
-    })
+    },)
     state.email = ''
-  }
-  catch {
+  } catch {
     const errorMessage = 'Ein Fehler ist aufgetreten.'
     message.value = errorMessage
     toast.add({
       title: 'Fehler',
       description: errorMessage,
       color: 'error',
-    })
-  }
-  finally {
+    },)
+  } finally {
     loading.value = false
   }
 }

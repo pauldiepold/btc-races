@@ -9,14 +9,14 @@ export default defineNuxtConfig({
     '@pinia/colada-nuxt',
   ],
 
-  devtools: { enabled: true },
+  devtools: { enabled: true, },
 
   app: {
     head: {
       title: 'BTC Wettkampfanmeldung',
     },
   },
-  css: ['~/assets/css/main.css'],
+  css: ['~/assets/css/main.css',],
   runtimeConfig: {
     campaiApiKeyContacts: '',
     campaiOrgId: '',
@@ -39,8 +39,6 @@ export default defineNuxtConfig({
     db: {
       dialect: 'sqlite',
       casing: 'snake_case',
-      // driver: 'd1',
-      // connection: { databaseId: '377c148c-ff3e-486f-b0a6-866e3de24e1d' },
     },
   },
   typescript: {
@@ -49,10 +47,7 @@ export default defineNuxtConfig({
 
   eslint: {
     config: {
-      stylistic: {
-        commaDangle: 'never',
-        braceStyle: '1tbs',
-      },
+      stylistic: true,
     },
   },
 
@@ -65,6 +60,6 @@ export default defineNuxtConfig({
     customCollections: [{
       prefix: 'btc',
       dir: './app/assets/icons',
-    }],
+    },],
   },
-})
+},)

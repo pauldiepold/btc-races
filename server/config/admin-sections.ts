@@ -12,6 +12,6 @@ export const ADMIN_SECTIONS = [
 /**
  * Prüft ob eine Section Admin-Rechte verleiht
  */
-export function isAdminSection(section: string): boolean {
-  return ADMIN_SECTIONS.includes(section)
+export function isAdminSection(section: string,): boolean {
+  return ADMIN_SECTIONS.includes(section,)
 }

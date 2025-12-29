@@ -1,5 +1,3 @@
-import { db, schema } from 'hub:db'
-
 export default defineTask({
   meta: {
     name: 'db:seed',
@@ -8,7 +6,7 @@ export default defineTask({
   async run() {
     console.log('Seeding database...')
 
-    const testUsers = [
+    /* const testUsers = [
       {
         id: crypto.randomUUID(),
         name: 'Alice Admin',
@@ -41,8 +39,8 @@ export default defineTask({
       },
     ]
 
-    await db.insert(schema.users).values(testUsers).onConflictDoNothing()
+    await db.insert(schema.users).values(testUsers).onConflictDoNothing() */
 
-    return { result: 'Database seeded successfully with 5 users' }
+    return { result: 'Database seeded successfully' }
   },
 })

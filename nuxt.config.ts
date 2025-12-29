@@ -17,6 +17,10 @@ export default defineNuxtConfig({
     },
   },
   css: ['~/assets/css/main.css'],
+  runtimeConfig: {
+    campaiApiKeyContacts: '',
+    campaiOrgId: '',
+  },
   compatibilityDate: '2025-07-15',
 
   nitro: {
@@ -48,7 +52,7 @@ export default defineNuxtConfig({
     cssLayer: 'base',
     customCollections: [{
       prefix: 'custom',
-      dir: './app/assets/icons'
-    }]
-  }
+      dir: './app/assets/icons',
+    }],
+  },
 })

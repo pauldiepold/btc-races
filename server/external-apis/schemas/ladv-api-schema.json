@@ -1,0 +1,167 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LADV PUBLIC API",
+    "version": "2.014",
+    "description": "Vollständiges Schema der LADV API basierend auf der PDF-Dokumentation (Stand 17.07.2024) und der ladv-12.xsd.",
+    "contact": {
+      "name": "LADV Entwickler",
+      "url": "https://ladv.de/entwickler"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://ladv.de/api/{apikey}",
+      "variables": {
+        "apikey": {
+          "default": "DEMO_KEY",
+          "description": "Persönlicher API Key. Registrierung auf ladv.de erforderlich."
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/athletQuery": {
+      "get": {
+        "summary": "Suche nach Athleten",
+        "parameters": [
+          { "name": "query", "in": "query", "required": true, "schema": { "type": "string", "minLength": 2 } },
+          { "name": "Iv", "in": "query", "schema": { "type": "string", "description": "Landesverband (z.B. BA, WÜ)" } },
+          { "name": "datayear", "in": "query", "schema": { "type": "integer" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 10, "maximum": 50 } },
+          { "$ref": "#/components/parameters/format" }
+        ],
+        "responses": { "200": { "description": "Ergebnisliste", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Athlete" } } } } } }
+      }
+    },
+    "/athletDetail": {
+      "get": {
+        "summary": "Details zu Athleten",
+        "parameters": [
+          { "name": "id", "in": "query", "required": true, "schema": { "type": "string" }, "description": "IDs kommagetrennt (max 10)" },
+          { "name": "meld", "in": "query", "schema": { "type": "boolean" } },
+          { "name": "leistung", "in": "query", "schema": { "type": "boolean" } },
+          { "name": "best", "in": "query", "schema": { "type": "boolean" } },
+          { "$ref": "#/components/parameters/format" }
+        ],
+        "responses": { "200": { "description": "Detaillierte Athletendaten", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/AthleteDetail" } } } } } }
+      }
+    },
+    "/ausList": {
+      "get": {
+        "summary": "Liste von Ausschreibungen",
+        "parameters": [
+          { "name": "Iv", "in": "query", "schema": { "type": "string" } },
+          { "name": "datayear", "in": "query", "schema": { "type": "integer" } },
+          { "name": "wrc", "in": "query", "schema": { "type": "boolean" }, "description": "World Ranking Competitions" },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20 } },
+          { "$ref": "#/components/parameters/format" }
+        ],
+        "responses": { "200": { "description": "Ausschreibungsübersicht" } }
+      }
+    },
+    "/ausDetail": {
+      "get": {
+        "summary": "Detaillierte Ausschreibungsinformationen",
+        "parameters": [
+          { "name": "id", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "all", "in": "query", "schema": { "type": "boolean" } },
+          { "$ref": "#/components/parameters/format" }
+        ],
+        "responses": { "200": { "description": "Vollständige Ausschreibung" } }
+      }
+    },
+    "/vedList": {
+      "get": {
+        "summary": "Veranstaltungsliste (Ergebnisse)",
+        "parameters": [
+          { "name": "Iv", "in": "query", "schema": { "type": "string" } },
+          { "name": "datayear", "in": "query", "schema": { "type": "integer" } },
+          { "name": "monat", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 12 } },
+          { "$ref": "#/components/parameters/format" }
+        ],
+        "responses": { "200": { "description": "Liste der Veranstaltungen" } }
+      }
+    },
+    "/meldList": {
+      "get": {
+        "summary": "Meldeliste für einen Verein",
+        "parameters": [
+          { "name": "vereinId", "in": "query", "required": true, "schema": { "type": "integer" } },
+          { "name": "datayear", "in": "query", "schema": { "type": "integer" } },
+          { "$ref": "#/components/parameters/format" }
+        ],
+        "responses": { "200": { "description": "Anstehende Meldungen" } }
+      }
+    },
+    "/vereinList": {
+      "get": {
+        "summary": "Vereinssuche",
+        "parameters": [
+          { "name": "query", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "Iv", "in": "query", "schema": { "type": "string" } },
+          { "$ref": "#/components/parameters/format" }
+        ],
+        "responses": { "200": { "description": "Liste der Vereine", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Club" } } } } } }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "format": {
+        "name": "format",
+        "in": "query",
+        "schema": { "type": "string", "enum": ["json", "xml", "javascript"], "default": "json" }
+      }
+    },
+    "schemas": {
+      "Athlete": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "forename": { "type": "string" },
+          "surname": { "type": "string" },
+          "yearofbirth": { "type": "integer" },
+          "sex": { "$ref": "#/components/schemas/Sex" },
+          "athletnumber": { "type": "string" }
+        }
+      },
+      "AthleteDetail": {
+        "allOf": [
+          { "$ref": "#/components/schemas/Athlete" },
+          {
+            "type": "object",
+            "properties": {
+              "leistungen": { "type": "array", "items": { "$ref": "#/components/schemas/Performance" } },
+              "vereinname": { "type": "string" }
+            }
+          }
+        ]
+      },
+      "Club": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "number": { "type": "string" },
+          "Iv": { "type": "string" }
+        }
+      },
+      "Performance": {
+        "type": "object",
+        "properties": {
+          "leistung": { "type": "string" },
+          "disciplinecode": { "type": "string" },
+          "datum": { "type": "string" },
+          "ort": { "type": "string" },
+          "wind": { "type": "string", "nullable": true },
+          "indoor": { "type": "boolean" }
+        }
+      },
+      "Sex": {
+        "type": "string",
+        "enum": ["M", "W"]
+      }
+    }
+  }
+}

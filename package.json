@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "db:generate": "npx nuxt db generate",
-    "db:migrate": "npx nuxt db migrate"
+    "db:migrate": "npx nuxt db migrate",
+    "api:generate": "openapi-typescript server/external-apis/schemas/ladv-api-schema.json -o server/external-apis/ladv/generated/types.ts && openapi-typescript server/external-apis/schemas/campai-api-schema.json -o server/external-apis/campai/generated/types.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.15.15",
@@ -33,6 +34,8 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
+    "openapi-fetch": "^0.15.0",
+    "openapi-typescript": "^7.10.1",
     "typescript": "^5.9.3",
     "vue-tsc": "^3.2.1"
   }

@@ -12,7 +12,7 @@ definePageMeta({
       <div class="space-y-6">
         <BaseLayer>
           <h2 class="text-xl font-semibold mb-4">
-            Hallo{{ loggedIn && user ? `, ${user.name || user.email}` : '' }}!
+            Hallo{{ loggedIn && user ? `, ${user.firstName || user.email}` : '' }}!
           </h2>
           <p>
             Dies ist die Wettkampfanmeldung des Berlin Track Clubs.

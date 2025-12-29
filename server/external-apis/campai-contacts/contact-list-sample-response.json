@@ -1,0 +1,169 @@
+{
+  "_id": "694fd69391092f08ff45e629",
+  "createdAt": "2025-12-27T12:52:35.408Z",
+  "createdBy": null,
+  "updatedAt": "2025-12-27T12:52:35.409Z",
+  "updatedBy": null,
+  "mergeTags": {},
+  "organisation": "694fd69391092f08ff45e62a",
+  "type": null,
+  "billing": {
+    "billingMethod": null,
+    "invoiceSendMethod": null,
+    "sepaAccountOwner": null,
+    "sepaIBAN": null,
+    "sepaBIC": null,
+    "sepaMandateId": null,
+    "sepaMandateSignatureDate": null,
+    "balance": 0,
+    "payer": null,
+    "payerName": null,
+    "previousPayer": null,
+    "payerOf": [],
+    "debtor": null,
+    "debtorName": null,
+    "debtorNumber": null
+  },
+  "subscriptions": [],
+  "previousSubscriptions": [],
+  "subscriptionUpdatedAt": null,
+  "documents": [],
+  "tags": [],
+  "previousTags": [],
+  "personal": {
+    "avatar": {
+      "isResourceModel": true,
+      "type": null,
+      "filename": null,
+      "filesize": null,
+      "path": null,
+      "previewPath": null,
+      "uploadData": null,
+      "deleteData": null
+    },
+    "type": null,
+    "isPerson": true,
+    "isOrganisation": false,
+    "name": "",
+    "humanName": "",
+    "humanNameShort": "",
+    "addressName": "",
+    "greetings": "",
+    "salutation": null,
+    "personTitle": null,
+    "personFirstName": null,
+    "personLastName": null,
+    "organisationName": null,
+    "personBirthday": null,
+    "personBirthdayOfYear": null,
+    "personYearOfBirth": null,
+    "personAge": null
+  },
+  "alternateContacts": [],
+  "previousAlternateContacts": [],
+  "alternateContactOf": [],
+  "address": {
+    "street": null,
+    "details": null,
+    "zip": null,
+    "city": null,
+    "country": null,
+    "state": null,
+    "careOf": null,
+    "address": "",
+    "letterAddress": ""
+  },
+  "communication": {
+    "email": null,
+    "mobilePhone": null,
+    "regularPhone": null,
+    "defaultSendMethod": "",
+    "noMailing": null
+  },
+  "receivers": [],
+  "notes": [],
+  "membership": {
+    "number": null,
+    "numberSort": null,
+    "enterDate": null,
+    "leaveDate": null,
+    "previousLeaveDate": null,
+    "terminationDate": null,
+    "sections": [],
+    "sectionEntries": [],
+    "status": null
+  },
+  "custom": {},
+  "previousCustom": {},
+  "removalGroup": null,
+  "eventim": {
+    "tixxId": null,
+    "tixxCustomerNo": null,
+    "communication": {
+      "mobilePhoneId": null,
+      "regularPhoneId": null
+    }
+  },
+  "updateGroup": null,
+  "automatedMessages": null,
+  "passTemplates": {},
+  "previousPassTemplates": null,
+  "portalSync": {
+    "synchronized": false,
+    "syncError": null,
+    "userId": null,
+    "lastSeenAtPortal": null,
+    "portalPlatformApp": null,
+    "userStatus": null,
+    "preventSync": null,
+    "userFailedReason": null
+  },
+  "groups": [],
+  "previousGroups": [],
+  "integrations": {
+    "nav": {
+      "synchronized": null,
+      "syncType": null,
+      "error": null,
+      "identifier": null,
+      "outgoingSync": {
+        "date": null,
+        "success": null,
+        "error": null
+      },
+      "incomingSync": {
+        "date": null,
+        "success": null,
+        "error": null
+      }
+    }
+  },
+  "mandate": null,
+  "parentOrganizations": [],
+  "synchronizations": {
+    "portal": {
+      "status": null,
+      "externalId": null,
+      "failedReason": null,
+      "ignore": null,
+      "lastSynchronizedAt": null,
+      "lastSeenAt": null
+    },
+    "entra": {
+      "status": null,
+      "externalId": null,
+      "failedReason": null,
+      "ignore": null,
+      "lastSynchronizedAt": null,
+      "lastSeenAt": null
+    },
+    "blueid": {
+      "status": null,
+      "externalId": null,
+      "failedReason": null,
+      "ignore": null,
+      "lastSynchronizedAt": null,
+      "lastSeenAt": null
+    }
+  }
+}

@@ -23,15 +23,9 @@ export default defineNuxtConfig({
     cronToken: '',
   },
 
-  compatibilityDate: '2025-07-15',
-
   nitro: {
     experimental: {
       tasks: true,
-    },
-    cloudflare: {
-      deployConfig: true,
-      nodeCompat: true,
     },
   },
 

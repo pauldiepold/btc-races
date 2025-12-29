@@ -50,7 +50,7 @@ useHead({
           class="group flex items-center gap-6"
         >
           <UIcon
-            name="i-custom-btc"
+            name="i-btc-logo"
             alt="BTC Logo"
             class="size-14 text-yellow-500 transform transition-transform duration-300 group-hover:scale-110"
           />
@@ -69,7 +69,7 @@ useHead({
     </UMain>
 
     <USeparator
-      icon="i-custom-btc"
+      icon="i-btc-logo"
       type="dotted"
       size="sm"
       :ui="{ icon: 'size-14' }"

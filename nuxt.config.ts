@@ -57,7 +57,7 @@ export default defineNuxtConfig({
     mode: 'css',
     cssLayer: 'base',
     customCollections: [{
-      prefix: 'custom',
+      prefix: 'btc',
       dir: './app/assets/icons',
     }],
   },

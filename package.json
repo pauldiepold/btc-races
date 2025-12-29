@@ -11,8 +11,9 @@
     "typecheck": "nuxi typecheck",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "db:generate": "npx nuxt db generate",
-    "db:migrate": "npx nuxt db migrate",
+    "db:generate": "nuxt db generate",
+    "db:migrate": "nuxt db migrate",
+    "db:migrate:remote": "wrangler d1 migrations list btc-races-prod --remote",
     "api:generate": "openapi-typescript server/external-apis/schemas/ladv-api-schema.json -o server/external-apis/ladv/generated/types.ts && openapi-typescript server/external-apis/schemas/campai-api-schema.json -o server/external-apis/campai/generated/types.ts"
   },
   "dependencies": {

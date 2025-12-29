@@ -41,7 +41,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
       method: 'POST',
       body: { email: payload.data.email },
     })
-    console.log('hallo welt')
+
     navigateTo('/auth/link-gesendet')
   }
   catch {

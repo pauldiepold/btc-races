@@ -1,6 +1,8 @@
 export default defineEventHandler(async (event) => {
   const path = getRequestURL(event).pathname
 
+  return
+
   // Pfade, die NICHT geschützt werden sollen
   const publicPaths = [
     '/auth/',

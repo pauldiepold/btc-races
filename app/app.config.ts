@@ -12,4 +12,4 @@ export default defineAppConfig({
     cssLayer: 'base',
     size: '20px',
   },
-},)
+})

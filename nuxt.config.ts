@@ -9,14 +9,14 @@ export default defineNuxtConfig({
     '@pinia/colada-nuxt',
   ],
 
-  devtools: { enabled: true, },
+  devtools: { enabled: true },
 
   app: {
     head: {
       title: 'BTC Wettkampfanmeldung',
     },
   },
-  css: ['~/assets/css/main.css',],
+  css: ['~/assets/css/main.css'],
   runtimeConfig: {
     campaiApiKeyContacts: '',
     campaiOrgId: '',
@@ -41,9 +41,6 @@ export default defineNuxtConfig({
       casing: 'snake_case',
     },
   },
-  typescript: {
-    typeCheck: true,
-  },
 
   eslint: {
     config: {
@@ -60,6 +57,6 @@ export default defineNuxtConfig({
     customCollections: [{
       prefix: 'btc',
       dir: './app/assets/icons',
-    },],
+    }],
   },
-},)
+})

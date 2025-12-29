@@ -1,9 +1,9 @@
 <script setup lang="ts">
-const { loggedIn, user, } = useUserSession()
+const { loggedIn, user } = useUserSession()
 
 definePageMeta({
   title: 'Startseite',
-},)
+})
 </script>
 
 <template>

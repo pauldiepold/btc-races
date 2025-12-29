@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { de, } from '@nuxt/ui/locale'
+import { de } from '@nuxt/ui/locale'
 
-const { clear, } = useUserSession()
+const { clear } = useUserSession()
 
 useSeoMeta({
   description:
@@ -15,23 +15,23 @@ useSeoMeta({
       'Die LADV-Wettkampf-Anmeldung für Mitglieder des Berlin Track Clubs.',
   twitterImage: '/logo-yellow.svg',
   twitterCard: 'summary',
-},)
+})
 
 useHead({
   meta: [
-    { name: 'viewport', content: 'width=device-width, initial-scale=1', },
+    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
   ],
   link: [
-    { rel: 'icon', href: '/favicon.ico', },
+    { rel: 'icon', href: '/favicon.ico' },
   ],
   htmlAttrs: {
     lang: 'de',
   },
-},)
+})
 
 async function logout() {
   await clear()
-  await navigateTo('/login',)
+  await navigateTo('/login')
 }
 </script>
 
@@ -60,7 +60,7 @@ async function logout() {
       <template #right>
         <div>
           <AuthState
-            v-slot="{ loggedIn, }"
+            v-slot="{ loggedIn }"
           >
             <UButton
               v-if="loggedIn"
@@ -88,7 +88,7 @@ async function logout() {
       icon="i-btc-logo"
       type="dotted"
       size="sm"
-      :ui="{ icon: 'size-14', }"
+      :ui="{ icon: 'size-14' }"
     />
 
     <UFooter class="mb-4">

@@ -9,16 +9,4 @@
       "migrations_dir": "./server/db/migrations/sqlite"
     }
   ],
-  "env": {
-    "preview": {
-      "d1_databases": [
-        {
-          "binding": "DB",
-          "database_name": "btc-races-preview",
-          "database_id": "c32f04a4-6773-409d-bb5e-181042db9b2a",
-          "migrations_dir": "./server/db/migrations/sqlite"
-        }
-      ]
-    }
-  }
 }

@@ -1,5 +1,5 @@
-export default defineEventHandler(async (event,) => {
-  const path = getRequestURL(event,).pathname
+export default defineEventHandler(async (event) => {
+  const path = getRequestURL(event).pathname
 
   // Pfade, die NICHT geschützt werden sollen
   const publicPaths = [
@@ -10,14 +10,14 @@ export default defineEventHandler(async (event,) => {
   ]
 
   // Prüfen, ob der Pfad öffentlich ist
-  const isPublicPath = publicPaths.some(publicPath => path.startsWith(publicPath,),)
+  const isPublicPath = publicPaths.some(publicPath => path.startsWith(publicPath))
 
   if (isPublicPath) {
     return
   }
 
   // Alle anderen API-Routen müssen authentifiziert sein
-  if (path.startsWith('/api/',)) {
-    await requireUserSession(event,)
+  if (path.startsWith('/api/')) {
+    await requireUserSession(event)
   }
-},)
+})

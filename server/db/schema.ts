@@ -3,16 +3,29 @@ import { sql } from 'drizzle-orm'
 
 // Zentrales User-Modell
 export const users = sqliteTable('users', {
-  id: text('id').primaryKey(), // UUID
-  email: text('email').notNull().unique(),
-  name: text('name'),
-  role: text('role').$type<'admin' | 'member'>().default('member'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  id: text().primaryKey(), // UUID
+  email: text().notNull().unique(),
+  firstName: text(),
+  lastName: text(),
+  role: text().$type<'admin' | 'member'>().default('member'),
+
+  // Campai-Sync-Felder
+  campaiId: text().unique(),
+  membershipNumber: text(),
+  membershipStatus: text().$type<'active' | 'inactive'>().default('inactive'),
+  membershipEnterDate: integer({ mode: 'timestamp' }),
+  membershipLeaveDate: integer({ mode: 'timestamp' }),
+  sections: text({ mode: 'json' }).$type<string[]>(),
+  lastSyncedAt: integer({ mode: 'timestamp' }),
+
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
 })
 
 // Tokens für Magic Links
 export const authTokens = sqliteTable('auth_tokens', {
-  token: text('token').primaryKey(),
-  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+  token: text().primaryKey(),
+  userId: text().notNull().references(() => users.id, { onDelete: 'cascade' }),
+  expiresAt: integer({ mode: 'timestamp' }).notNull(),
 })

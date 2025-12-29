@@ -17,6 +17,7 @@ export const users = sqliteTable('users', {
   membershipLeaveDate: integer({ mode: 'timestamp' }),
   sections: text({ mode: 'json' }).$type<string[]>(),
   lastSyncedAt: integer({ mode: 'timestamp' }),
+  avatarUrl: text(),
 
   createdAt: integer({ mode: 'timestamp' })
     .notNull()

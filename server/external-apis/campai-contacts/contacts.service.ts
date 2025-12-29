@@ -1,8 +1,11 @@
 export interface CampaiContact {
   _id: string
   personal: {
-    firstName?: string
-    lastName?: string
+    avatar?: {
+      path?: string
+    }
+    personFirstName?: string
+    personLastName?: string
     email?: string
     [key: string]: unknown
   }

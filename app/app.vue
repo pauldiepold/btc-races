@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { de } from '@nuxt/ui/locale'
 
-const { clear } = useUserSession()
-
 useSeoMeta({
   description:
       'Die LADV-Wettkampf-Anmeldung für Mitglieder des Berlin Track Clubs.',
@@ -28,12 +26,6 @@ useHead({
     lang: 'de',
   },
 })
-
-async function logout() {
-  await $fetch('/auth/logout', { method: 'POST' })
-  await clear()
-  await navigateTo('/auth/login')
-}
 </script>
 
 <template>
@@ -59,20 +51,11 @@ async function logout() {
       </template>
 
       <template #right>
-        <div>
-          <AuthState
-            v-slot="{ loggedIn }"
-          >
-            <UButton
-              v-if="loggedIn"
-              icon="i-lucide-log-out"
-              label="Logout"
-              color="neutral"
-              variant="ghost"
-              @click="logout"
-            />
-          </AuthState>
-        </div>
+        <UserMenu class="hidden lg:block" />
+      </template>
+
+      <template #body>
+        <UserMenu />
       </template>
     </UHeader>
 

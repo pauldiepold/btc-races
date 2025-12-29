@@ -38,12 +38,13 @@ export default defineTask({
 
         const sections = contact.membership.sections || []
         const role = sections.some(s => isAdminSection(s)) ? 'admin' as const : 'member' as const
+        const avatarUrl = contact.personal?.avatar?.path !== null ? `https://api.campai.com/storage/download/${contact.personal?.avatar?.path}` : ''
 
         // Vorbereitung der Daten (für Insert und Update identisch)
         const userData = {
           email,
-          firstName: contact.personal.firstName || '',
-          lastName: contact.personal.lastName || '',
+          firstName: contact.personal.personFirstName || '',
+          lastName: contact.personal.personLastName || '',
           role,
           campaiId,
           membershipNumber: contact.membership.number || null,
@@ -51,29 +52,28 @@ export default defineTask({
           membershipEnterDate: contact.membership.enterDate ? new Date(contact.membership.enterDate) : null,
           membershipLeaveDate: contact.membership.leaveDate ? new Date(contact.membership.leaveDate) : null,
           sections,
+          avatarUrl,
           lastSyncedAt: syncTimestamp,
         }
 
-        // prüfen, ob der User existiert, nur für die Statistik
+        // prüfen, ob der User existiert
         const existing = await db.query.users.findFirst({
           where: eq(schema.users.campaiId, campaiId),
           columns: { id: true },
         })
 
         if (existing) {
+          await db.update(schema.users)
+            .set(userData)
+            .where(eq(schema.users.campaiId, campaiId))
+
           updated++
         }
         else {
+          await db.insert(schema.users)
+            .values({ id: crypto.randomUUID(), ...userData })
           created++
         }
-
-        // Der Upsert: Erstellt den User oder aktualisiert ihn bei campaiId-Konflikt
-        await db.insert(schema.users)
-          .values({ id: crypto.randomUUID(), ...userData })
-          .onConflictDoUpdate({
-            target: schema.users.campaiId,
-            set: userData,
-          })
       }
 
       // 3. Deaktivierung mit sauberen Drizzle-Helpern

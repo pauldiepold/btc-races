@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "btc-races",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "btc-races-prod",
+      "database_id": "377c148c-ff3e-486f-b0a6-866e3de24e1d",
+      "migrations_dir": "./server/db/migrations/sqlite"
+    }
+  ],
+  "env": {
+    "preview": {
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "btc-races-preview",
+          "database_id": "c32f04a4-6773-409d-bb5e-181042db9b2a",
+          "migrations_dir": "./server/db/migrations/sqlite"
+        }
+      ]
+    }
+  }
+}

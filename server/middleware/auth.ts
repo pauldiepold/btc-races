@@ -6,6 +6,7 @@ export default defineEventHandler(async (event) => {
     '/api/auth/',
     '/api/cron/',
     '/api/_nuxt_icon',
+    '/api/_auth/',
   ]
 
   // Prüfen, ob der Pfad öffentlich ist

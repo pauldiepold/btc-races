@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { de } from '@nuxt/ui/locale'
 
+const { clear } = useUserSession()
+
 useSeoMeta({
   description:
       'Die LADV-Wettkampf-Anmeldung für Mitglieder des Berlin Track Clubs.',
@@ -27,10 +29,10 @@ useHead({
   },
 })
 
-// async function logout() {
-//   await $fetch('/api/auth/logout', { method: 'POST' })
-//   await clear()
-// }
+async function logout() {
+  await clear()
+  await navigateTo('/login')
+}
 </script>
 
 <template>
@@ -45,17 +47,31 @@ useHead({
       title="BTC Events"
     >
       <template #title>
-        <NuxtLink
-          to="/"
-          class="group flex items-center gap-6"
-        >
+        <div class="group flex items-center gap-6">
           <UIcon
             name="i-btc-logo"
             alt="BTC Logo"
             class="size-14 text-yellow-500 transform transition-transform duration-300 group-hover:scale-110"
           />
-          <p class="font-normal">BTC Events</p>
-        </NuxtLink>
+          <span class="font-normal">BTC Events</span>
+        </div>
+      </template>
+
+      <template #right>
+        <div>
+          <AuthState
+            v-slot="{ loggedIn }"
+          >
+            <UButton
+              v-if="loggedIn"
+              icon="i-heroicons-arrow-right-on-rectangle"
+              label="Logout"
+              color="neutral"
+              variant="ghost"
+              @click="logout"
+            />
+          </AuthState>
+        </div>
       </template>
     </UHeader>
 

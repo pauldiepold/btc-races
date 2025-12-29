@@ -49,13 +49,19 @@ export default defineNuxtConfig({
 
   eslint: {
     config: {
-      stylistic: true,
+      stylistic: {
+        commaDangle: 'never',
+        braceStyle: '1tbs',
+      },
     },
   },
 
   icon: {
     mode: 'css',
     cssLayer: 'base',
+    clientBundle: {
+      scan: true,
+    },
     customCollections: [{
       prefix: 'btc',
       dir: './app/assets/icons',

@@ -2,6 +2,7 @@ import { db, schema } from 'hub:db'
 import { eq } from 'drizzle-orm'
 import { randomBytes } from 'node:crypto'
 import { z } from 'zod'
+import { emailService } from '~~/server/email/service'
 
 const loginSchema = z.object({
   email: z.email('Bitte gib eine gültige E-Mail-Adresse ein'),
@@ -35,11 +36,11 @@ export default defineEventHandler(async (event) => {
   }
 
   // 2. Token generieren
-  const token = randomBytes(32).toString('hex')
+  const token = randomBytes(16).toString('hex')
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000) // 15 Minuten
 
   // 3. Alte Tokens des Users löschen und neues Token speichern
-  await db.delete(schema.authTokens).where(eq(schema.authTokens.userId, user.id))
+  // await db.delete(schema.authTokens).where(eq(schema.authTokens.userId, user.id))
 
   await db.insert(schema.authTokens).values({
     token,
@@ -50,10 +51,31 @@ export default defineEventHandler(async (event) => {
   // 4. Magic Link ausgeben (Console für Dev)
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
   const host = getRequestHost(event)
-  const magicLink = `${protocol}://${host}/auth/verify?token=${token}`
+  const magicLink = `${protocol}://${host}/verify?token=${token}`
+
+  const html = await renderEmailComponent(
+    'LoginEmail',
+    { firstName: user.firstName, magicLink, expiryMinutes: 15 },
+    { pretty: true },
+  )
+
+  const text = await renderEmailComponent(
+    'LoginEmail',
+    { firstName: user.firstName, magicLink, expiryMinutes: 15 },
+    { plainText: true },
+  )
+
+  const emailMessage: EmailMessage = {
+    to: [{ address: user.email, displayName: `${user.firstName} ${user.lastName}` }],
+    subject: 'Anmeldelink - BTC-Events',
+    html,
+    text,
+  }
+
+  await emailService.sendEmail(emailMessage)
 
   console.log('---------------------------------------')
-  console.log(`MAGIC LINK FÜR ${email}:`)
+  console.log(`Anmeldelink für ${email}:`)
   console.log(magicLink)
   console.log('---------------------------------------')
 

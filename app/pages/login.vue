@@ -37,12 +37,12 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
   loading.value = true
   message.value = ''
   try {
-    await $fetch('/auth/login', {
+    await $fetch('/api/auth/login', {
       method: 'POST',
       body: { email: payload.data.email },
     })
 
-    navigateTo('/auth/link-gesendet')
+    navigateTo('/link-gesendet')
   }
   catch {
     const errorMessage = 'Ein Fehler ist aufgetreten.'

@@ -13,10 +13,12 @@
     "lint:fix": "eslint . --fix",
     "db:generate": "nuxt db generate",
     "db:migrate": "nuxt db migrate",
-    "db:migrate:remote": "wrangler d1 migrations list btc-races-prod --remote",
+    "db:remote": "wrangler d1 migrations list btc-races-prod --remote",
+    "db:remote:migrate": "wrangler d1 migrations apply btc-races-prod --remote",
     "api:generate": "openapi-typescript server/external-apis/schemas/ladv-api-schema.json -o server/external-apis/ladv/generated/types.ts && openapi-typescript server/external-apis/schemas/campai-api-schema.json -o server/external-apis/campai/generated/types.ts"
   },
   "dependencies": {
+    "@azure/communication-email": "^1.1.0",
     "@libsql/client": "^0.15.15",
     "@nuxt/image": "2.0.0",
     "@nuxt/ui": "^4.3.0",
@@ -28,6 +30,7 @@
     "drizzle-orm": "^0.45.1",
     "nuxt": "^4.2.2",
     "nuxt-auth-utils": "^0.5.26",
+    "nuxt-email-renderer": "2.1.2",
     "openapi-fetch": "^0.15.0",
     "openapi-typescript": "^7.10.1",
     "pinia": "^3.0.4",

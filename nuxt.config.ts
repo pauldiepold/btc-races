@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@pinia/colada-nuxt',
     '@nuxt/image',
+    'nuxt-email-renderer',
   ],
 
   devtools: { enabled: true },
@@ -26,6 +27,12 @@ export default defineNuxtConfig({
       password: '',
       maxAge: 2678400,
     },
+    // E-Mail-Konfiguration
+    emailProvider: 'local',
+    emailAzureString: '',
+    emailSenderAddress: '',
+    emailTestMode: false,
+    emailTestAddress: '',
   },
 
   compatibilityDate: '2025-12-29',

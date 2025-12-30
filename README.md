@@ -87,11 +87,11 @@ Dieses Dokument dient als Master-Leitfaden für die Migration der bestehenden An
 * [x] **User Bootstrap:** Variable `NUXT_ADMIN_EMAILS` in den Cloudflare/Vercel ENV-Settings hinterlegen.
 * [x] **Login-Logik:** `POST /api/login` erstellen (Prüfung gegen `users`-Tabelle, Token-Generierung, E-Mail-Versand via Azure).
 * [x] **Verify-Logik:** `GET /api/auth/verify` erstellen (Token-Validierung und Session-Erstellung via `setUserSession`).
-* [ ] **E-Mail Service:** Bestehende Azure-Integration portieren (Secrets in Cloudflare ENV hinterlegen).
+* [x] **E-Mail Service:** Bestehende Azure-Integration portieren (Secrets in Cloudflare ENV hinterlegen).
 
 ### Phase 3: Core Domain & UI
 
-* [ ] **Admin-Schutz:** `defineAdminHandler` Utility implementieren (siehe Code-Snippet).
+* [x] **Admin-Schutz:** `defineAdminHandler` Utility implementieren (siehe Code-Snippet).
 * [ ] **Wettkampf-CRUD:** API-Endpunkte für die Verwaltung von Wettkämpfen migrieren.
 * [ ] **Anmeldeprozess:** Logik für `registrations` auf Drizzle umstellen.
 * [ ] **Frontend-Portierung:** Bestehende Nuxt UI Komponenten übernehmen und an die neuen API-Schnittstellen anbinden.

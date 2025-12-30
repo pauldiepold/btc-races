@@ -31,10 +31,10 @@ export class AzureFetchEmailProvider extends BaseEmailProvider {
     this.accessKey = parts.accessKey
     this.senderAddress = senderAddress
 
-    console.log('Azure Fetch Provider initialized:', {
+    /* console.log('Azure Fetch Provider initialized:', {
       endpoint: this.endpoint,
       senderAddress: this.senderAddress,
-    })
+    }) */
   }
 
   /**

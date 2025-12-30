@@ -43,39 +43,6 @@ export default defineNuxtConfig({
   nitro: {
     experimental: {
       tasks: true,
-      wasm: true, // NEU: Hilft manchmal bei binären Modulen
-    },
-
-    externals: {
-      inline: [
-        // Alle Azure-Pakete explizit inlinen
-        '@azure/communication-email',
-        '@azure/core-client',
-        '@azure/core-rest-pipeline',
-        '@azure/core-auth',
-        '@azure/core-util',
-        '@azure/abort-controller',
-      ],
-    },
-
-    // NEU: Node.js Alias erzwingen
-    alias: {
-      'node:buffer': 'node:buffer',
-      'node:process': 'node:process',
-      'node:crypto': 'node:crypto',
-      'node:stream': 'node:stream',
-      'node:util': 'node:util',
-    },
-
-    // NEU: Rollup Config für externe Module
-    rollupConfig: {
-      external: [
-        'node:buffer',
-        'node:process',
-        'node:crypto',
-        'node:stream',
-        'node:util',
-      ],
     },
   },
 

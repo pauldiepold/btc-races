@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
   console.log(`runtimeConfig: ${runtimeConfig.public.siteUrl}`)
   const magicLink = `${runtimeConfig.public.siteUrl}/verify?token=${token}`
 
-  /* const html = await renderEmailComponent(
+  const html = await renderEmailComponent(
     'LoginEmail',
     { firstName: user.firstName, magicLink, expiryMinutes: 15 },
     { pretty: true },
@@ -68,13 +68,13 @@ export default defineEventHandler(async (event) => {
     'LoginEmail',
     { firstName: user.firstName, magicLink, expiryMinutes: 15 },
     { plainText: true },
-  ) */
+  )
 
   const emailMessage: EmailMessage = {
     to: [{ address: user.email, displayName: `${user.firstName} ${user.lastName}` }],
     subject: 'Anmeldelink - BTC-Events',
-    html: `<p>${magicLink}</p>`,
-    text: magicLink,
+    html,
+    text,
   }
 
   await emailService.sendEmail(emailMessage)

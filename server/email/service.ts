@@ -4,6 +4,7 @@ import type {
 } from '~~/server/email/email.types'
 import { AzureEmailProvider } from './providers/azure'
 import { LocalEmailProvider } from './providers/console'
+import { AzureFetchEmailProvider } from '~~/server/email/providers/azure-fetch'
 
 /**
  * Service für den Versand von E-Mails
@@ -43,6 +44,13 @@ class EmailService {
         config.emailSenderAddress,
       )
       console.log('ℹ E-Mail: using Azure provider')
+    }
+    else if (config.emailProvider === 'azure-fetch') {
+      this.provider = new AzureFetchEmailProvider(
+        config.emailAzureString,
+        config.emailSenderAddress,
+      )
+      console.log('ℹ E-Mail: using Azure native fetch provider')
     }
     else {
       this.provider = new LocalEmailProvider()

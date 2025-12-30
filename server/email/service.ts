@@ -8,20 +8,6 @@ import { AzureFetchEmailProvider } from '~~/server/email/providers/azure-fetch'
 
 /**
  * Service für den Versand von E-Mails
- *
- * Verwendung in Nuxt Server Endpoints:
- * ```typescript
- * import { emailService } from '~/server/email/service'
- *
- * export default defineEventHandler(async (event) => {
- *   await emailService.sendEmail({
- *     to: [{ address: 'user@example.com', displayName: 'Max Mustermann' }],
- *     subject: 'Willkommen',
- *     html: '<p>Hallo Max!</p>',
- *     text: 'Hallo Max!'
- *   })
- * })
- * ```
  */
 class EmailService {
   private provider: EmailProvider

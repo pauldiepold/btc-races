@@ -10,6 +10,7 @@ const loginSchema = z.object({
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
+  const runtimeConfig = useRuntimeConfig()
 
   // Validierung mit Zod
   const result = loginSchema.safeParse(body)
@@ -51,7 +52,10 @@ export default defineEventHandler(async (event) => {
   // 4. Magic Link ausgeben (Console für Dev)
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
   const host = getRequestHost(event)
-  const magicLink = `${protocol}://${host}/verify?token=${token}`
+  console.log(`getRequestHost: ${host}`)
+  console.log(`protocol: ${protocol}`)
+  console.log(`runtimeConfig: ${runtimeConfig.public.siteUrl}`)
+  const magicLink = `${runtimeConfig.public.siteUrl}/verify?token=${token}`
 
   const html = await renderEmailComponent(
     'LoginEmail',

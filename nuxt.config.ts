@@ -23,16 +23,19 @@ export default defineNuxtConfig({
     campaiApiKeyContacts: '',
     campaiOrgId: '',
     cronToken: '',
-    session: {
-      password: '',
-      maxAge: 2678400,
-    },
     // E-Mail-Konfiguration
     emailProvider: 'local',
     emailAzureString: '',
     emailSenderAddress: '',
     emailTestMode: false,
     emailTestAddress: '',
+    session: {
+      password: '',
+      maxAge: 2678400,
+    },
+    public: {
+      siteUrl: process.env.CF_PAGES_URL || 'http://localhost:3000',
+    },
   },
 
   compatibilityDate: '2025-12-29',

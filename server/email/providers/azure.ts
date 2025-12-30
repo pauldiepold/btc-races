@@ -1,10 +1,13 @@
+/*
+Funktioniert nicht auf Cloudflare. Das Azure Package basiert auf node Funktionen, die nicht verfügbar sind.
+
 import { EmailClient } from '@azure/communication-email'
 import type { EmailMessage } from '~~/server/email/email.types'
 import { BaseEmailProvider } from './base'
 
-/**
+/!**
  * E-Mail-Provider-Implementierung, die Azure Communication Services verwendet
- */
+ *!/
 export class AzureEmailProvider extends BaseEmailProvider {
   private client: EmailClient
   private senderAddress: string
@@ -59,3 +62,4 @@ export class AzureEmailProvider extends BaseEmailProvider {
     })
   }
 }
+*/

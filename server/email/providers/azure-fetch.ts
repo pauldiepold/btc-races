@@ -136,12 +136,7 @@ export class AzureFetchEmailProvider extends BaseEmailProvider {
    * Konvertiert ArrayBuffer zu Base64 String
    */
   private arrayBufferToBase64(buffer: ArrayBuffer): string {
-    const bytes = new Uint8Array(buffer)
-    let binary = ''
-    for (let i = 0; i < bytes.length; i++) {
-      binary += String.fromCharCode(bytes[i])
-    }
-    return btoa(binary)
+    return btoa(String.fromCharCode(...new Uint8Array(buffer)))
   }
 
   protected async sendEmailInternal(emailMessage: EmailMessage): Promise<void> {

@@ -71,7 +71,9 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
         :submit="{
           label: 'Anmelde-Link senden',
           variant: 'subtle',
+          loading: loading,
         }"
+        :loading="loading"
         @submit="onSubmit"
       />
     </UPageCard>

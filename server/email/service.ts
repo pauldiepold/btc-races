@@ -1,7 +1,7 @@
 import type {
   EmailMessage,
   EmailProvider,
-} from '#shared/types/email'
+} from '~~/server/email/email.types'
 import { AzureEmailProvider } from './providers/azure'
 import { LocalEmailProvider } from './providers/console'
 

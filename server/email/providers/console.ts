@@ -1,5 +1,5 @@
 import { BaseEmailProvider } from './base'
-import type { EmailMessage } from '#shared/types/email'
+import type { EmailMessage } from '~~/server/email/email.types'
 
 /**
  * Lokaler E-Mail-Provider für Entwicklungs- und Testzwecke

@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm'
 import { randomBytes } from 'node:crypto'
 import { z } from 'zod'
 import { emailService } from '~~/server/email/service'
+import type { EmailMessage } from '~~/server/email/email.types'
 
 const loginSchema = z.object({
   email: z.email('Bitte gib eine gültige E-Mail-Adresse ein'),
@@ -57,7 +58,7 @@ export default defineEventHandler(async (event) => {
   console.log(`runtimeConfig: ${runtimeConfig.public.siteUrl}`)
   const magicLink = `${runtimeConfig.public.siteUrl}/verify?token=${token}`
 
-  const html = await renderEmailComponent(
+  /* const html = await renderEmailComponent(
     'LoginEmail',
     { firstName: user.firstName, magicLink, expiryMinutes: 15 },
     { pretty: true },
@@ -67,13 +68,13 @@ export default defineEventHandler(async (event) => {
     'LoginEmail',
     { firstName: user.firstName, magicLink, expiryMinutes: 15 },
     { plainText: true },
-  )
+  ) */
 
   const emailMessage: EmailMessage = {
     to: [{ address: user.email, displayName: `${user.firstName} ${user.lastName}` }],
     subject: 'Anmeldelink - BTC-Events',
-    html,
-    text,
+    html: `<p>${magicLink}</p>`,
+    text: magicLink,
   }
 
   await emailService.sendEmail(emailMessage)

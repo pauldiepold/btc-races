@@ -1,4 +1,4 @@
-import type { EmailMessage, EmailProvider } from '#shared/types/email'
+import type { EmailMessage, EmailProvider } from '~~/server/email/email.types'
 
 /**
  * Basisklasse für alle E-Mail-Provider

@@ -1,5 +1,5 @@
 import { EmailClient } from '@azure/communication-email'
-import type { EmailMessage } from '#shared/types/email'
+import type { EmailMessage } from '~~/server/email/email.types'
 import { BaseEmailProvider } from './base'
 
 /**

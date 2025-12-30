@@ -44,6 +44,9 @@ export default defineNuxtConfig({
     experimental: {
       tasks: true,
     },
+    externals: {
+      inline: ['@azure/communication-email'],
+    },
   },
 
   hub: {

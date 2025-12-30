@@ -1,6 +1,7 @@
 import { EmailClient } from '@azure/communication-email'
 import type { EmailMessage } from '~~/server/email/email.types'
 import { BaseEmailProvider } from './base'
+import { Buffer } from 'node:buffer'
 
 /**
  * E-Mail-Provider-Implementierung, die Azure Communication Services verwendet

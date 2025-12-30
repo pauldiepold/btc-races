@@ -4,9 +4,9 @@ import type { DropdownMenuItem } from '@nuxt/ui'
 const { clear, user } = useUserSession()
 
 async function logout() {
-  await $fetch('/auth/logout', { method: 'POST' })
+  await $fetch('/api/auth/logout', { method: 'POST' })
   await clear()
-  await navigateTo('/auth/login')
+  await navigateTo('/login')
 }
 
 const colorMode = useColorMode()

@@ -31,7 +31,7 @@ watch(loggedIn, (isLoggedIn) => {
           Der Link ist 15 Minuten gültig.
         </p>
         <UButton
-          to="/auth/login"
+          to="/login"
           variant="subtle"
           class="mt-4"
         >

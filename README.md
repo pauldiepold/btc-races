@@ -78,20 +78,20 @@ Dieses Dokument dient als Master-Leitfaden für die Migration der bestehenden An
 ### Phase 1: Foundation (Das Fundament)
 
 * [x] **Initialisierung:** Neues Projekt mit `npx nuxi@latest init`.
-* [ ] **Module:** NuxtHub und Nuxt-Auth-Utils installieren (`npx nuxi@latest module add hub auth`).
-* [ ] **Cloudflare Bindung:** D1 Datenbank erstellen und in der `nuxt.config.ts` unter `hub.database` verknüpfen.
-* [ ] **Drizzle Setup:** Schema-Datei unter `server/database/schema.ts` anlegen und erste Migration generieren (`npx nuxthub db generate`).
+* [x] **Module:** NuxtHub und Nuxt-Auth-Utils installieren (`npx nuxi@latest module add hub auth`).
+* [x] **Cloudflare Bindung:** D1 Datenbank erstellen und in der `nuxt.config.ts` unter `hub.database` verknüpfen.
+* [x] **Drizzle Setup:** Schema-Datei unter `server/database/schema.ts` anlegen und erste Migration generieren (`npx nuxthub db generate`).
 
 ### Phase 2: Identity & Auth (Magic Link)
 
-* [ ] **User Bootstrap:** Variable `NUXT_ADMIN_EMAILS` in den Cloudflare/Vercel ENV-Settings hinterlegen.
-* [ ] **Login-Logik:** `POST /api/auth/login` erstellen (Prüfung gegen `users`-Tabelle, Token-Generierung, E-Mail-Versand via Azure).
-* [ ] **Verify-Logik:** `GET /api/auth/verify` erstellen (Token-Validierung und Session-Erstellung via `setUserSession`).
-* [ ] **E-Mail Service:** Bestehende Azure-Integration portieren (Secrets in Cloudflare ENV hinterlegen).
+* [x] **User Bootstrap:** Variable `NUXT_ADMIN_EMAILS` in den Cloudflare/Vercel ENV-Settings hinterlegen.
+* [x] **Login-Logik:** `POST /api/login` erstellen (Prüfung gegen `users`-Tabelle, Token-Generierung, E-Mail-Versand via Azure).
+* [x] **Verify-Logik:** `GET /api/auth/verify` erstellen (Token-Validierung und Session-Erstellung via `setUserSession`).
+* [x] **E-Mail Service:** Bestehende Azure-Integration portieren (Secrets in Cloudflare ENV hinterlegen).
 
 ### Phase 3: Core Domain & UI
 
-* [ ] **Admin-Schutz:** `defineAdminHandler` Utility implementieren (siehe Code-Snippet).
+* [x] **Admin-Schutz:** `defineAdminHandler` Utility implementieren (siehe Code-Snippet).
 * [ ] **Wettkampf-CRUD:** API-Endpunkte für die Verwaltung von Wettkämpfen migrieren.
 * [ ] **Anmeldeprozess:** Logik für `registrations` auf Drizzle umstellen.
 * [ ] **Frontend-Portierung:** Bestehende Nuxt UI Komponenten übernehmen und an die neuen API-Schnittstellen anbinden.

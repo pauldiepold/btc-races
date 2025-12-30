@@ -17,7 +17,10 @@ export class AzureEmailProvider extends BaseEmailProvider {
     if (!senderAddress) {
       throw new Error('Sender Email Address ist nicht konfiguriert')
     }
-    this.client = new EmailClient(connectionString)
+    this.client = new EmailClient(
+      connectionString,
+      { proxyOptions: undefined },
+    )
     this.senderAddress = senderAddress
   }
 

@@ -53,17 +53,20 @@ export default defineEventHandler(async (event) => {
   // 4. Magic Link ausgeben (Console für Dev)
   const magicLink = `${runtimeConfig.public.siteUrl}/verify?token=${token}`
 
-  const html = await renderEmailComponent(
+  const htmlResult = await renderEmailComponent(
     'LoginEmail',
     { firstName: user.firstName, magicLink, expiryMinutes: 15 },
     { pretty: true },
   )
 
-  const text = await renderEmailComponent(
+  const textResult = await renderEmailComponent(
     'LoginEmail',
     { firstName: user.firstName, magicLink, expiryMinutes: 15 },
     { plainText: true },
   )
+
+  const html = typeof htmlResult === 'string' ? htmlResult : htmlResult.html
+  const text = typeof textResult === 'string' ? textResult : textResult.html
 
   const emailMessage: EmailMessage = {
     to: [{ address: user.email, displayName: `${user.firstName} ${user.lastName}` }],

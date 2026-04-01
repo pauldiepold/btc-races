@@ -1,28 +1,99 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+/* ------------------------------------------------------------------ */
+/* Fonts                                                                */
+/* ------------------------------------------------------------------ */
+
 body {
-    font-family: 'Raleway', sans-serif;
+  font-family: 'Raleway', sans-serif;
 }
+
+h1, h2, h3, h4, .font-display {
+  font-family: 'Space Grotesk', 'Raleway', sans-serif;
+}
+
+/* ------------------------------------------------------------------ */
+/* Custom color scales                                                  */
+/* ------------------------------------------------------------------ */
 
 @theme static {
-    --color-yellow-50: #fffeea;
-    --color-yellow-100: #fff9c5;
-    --color-yellow-200: #fff485;
-    --color-yellow-300: #ffe846;
-    --color-yellow-400: #ffd71b;
-    --color-yellow-500: #ffb700;
-    --color-yellow-600: #e28c00;
-    --color-yellow-700: #bb6302;
-    --color-yellow-800: #984c08;
-    --color-yellow-900: #7c3e0b;
-    --color-yellow-950: #481f00;
+  /* BTC Yellow — Primärfarbe #ffb700 */
+  --color-yellow-50: #fffeea;
+  --color-yellow-100: #fff9c5;
+  --color-yellow-200: #fff485;
+  --color-yellow-300: #ffe846;
+  --color-yellow-400: #ffd71b;
+  --color-yellow-500: #ffb700;
+  --color-yellow-600: #e28c00;
+  --color-yellow-700: #bb6302;
+  --color-yellow-800: #984c08;
+  --color-yellow-900: #7c3e0b;
+  --color-yellow-950: #481f00;
 }
 
+/* ------------------------------------------------------------------ */
+/* Design tokens — Light mode (default)                                */
+/* ------------------------------------------------------------------ */
+
+:root {
+  --ui-radius: 0.25rem;
+
+  --ui-primary: var(--ui-color-primary-500);
+
+  --ui-bg: var(--color-white);
+  --ui-bg-muted: var(--color-zinc-50);
+  --ui-bg-elevated: var(--color-white);
+  --ui-bg-accented: var(--color-zinc-100);
+  --ui-bg-inverted: var(--color-zinc-950);
+
+  --ui-text: var(--color-zinc-900);
+  --ui-text-muted: var(--color-zinc-500);
+  --ui-text-toned: var(--color-zinc-700);
+  --ui-text-highlighted: var(--color-zinc-950);
+  --ui-text-dimmed: var(--color-zinc-400);
+  --ui-text-inverted: var(--color-white);
+
+  --ui-border: var(--color-zinc-200);
+  --ui-border-muted: var(--color-zinc-100);
+  --ui-border-accented: var(--color-zinc-300);
+  --ui-border-inverted: var(--color-zinc-950);
+}
+
+/* ------------------------------------------------------------------ */
+/* Design tokens — Dark mode                                           */
+/* ------------------------------------------------------------------ */
+
+.dark {
+  --ui-primary: var(--ui-color-primary-500);
+
+  --ui-bg: var(--color-zinc-950);
+  --ui-bg-muted: var(--color-zinc-900);
+  --ui-bg-elevated: var(--color-zinc-900);
+  --ui-bg-accented: var(--color-zinc-800);
+  --ui-bg-inverted: var(--color-white);
+
+  --ui-text: var(--color-zinc-50);
+  --ui-text-muted: var(--color-zinc-400);
+  --ui-text-toned: var(--color-zinc-300);
+  --ui-text-highlighted: var(--color-white);
+  --ui-text-dimmed: var(--color-zinc-500);
+  --ui-text-inverted: var(--color-zinc-950);
+
+  --ui-border: var(--color-zinc-800);
+  --ui-border-muted: var(--color-zinc-900);
+  --ui-border-accented: var(--color-zinc-700);
+  --ui-border-inverted: var(--color-white);
+}
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                 */
+/* ------------------------------------------------------------------ */
+
 @layer base {
-    button,
-    [role="button"] {
-        @apply cursor-pointer;
-        @apply disabled:cursor-not-allowed;
-    }
+  button,
+  [role="button"] {
+    @apply cursor-pointer;
+    @apply disabled:cursor-not-allowed;
+  }
 }

@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     '@pinia/colada-nuxt',
     '@nuxt/image',
     'nuxt-email-renderer',
+    '@nuxt/fonts',
   ],
 
   devtools: { enabled: true },
@@ -19,6 +20,10 @@ export default defineNuxtConfig({
     },
   },
   css: ['~/assets/css/main.css'],
+
+  colorMode: {
+    preference: 'dark',
+  },
   runtimeConfig: {
     campaiApiKeyContacts: '',
     campaiOrgId: '',
@@ -52,11 +57,26 @@ export default defineNuxtConfig({
       casing: 'snake_case',
     },
   },
+  vite: {
+    optimizeDeps: {
+      include: [
+        '@vue/devtools-core',
+        '@vue/devtools-kit',
+      ],
+    },
+  },
 
   eslint: {
     config: {
       stylistic: true,
     },
+  },
+
+  fonts: {
+    families: [
+      { name: 'Raleway', provider: 'google', weights: [400, 500, 600, 700] },
+      { name: 'Space Grotesk', provider: 'google', weights: [500, 600, 700] },
+    ],
   },
 
   icon: {

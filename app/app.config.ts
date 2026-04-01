@@ -1,11 +1,14 @@
 export default defineAppConfig({
   ui: {
     colors: {
-      secondary: 'purple',
+      primary: 'yellow',
+      neutral: 'zinc',
     },
-  },
-  theme: {
-    dark: true,
+    header: {
+      slots: {
+        title: 'shrink-0 font-semibold text-xl text-highlighted flex items-end gap-1.5 font-display',
+      },
+    },
   },
   icon: {
     mode: 'css',

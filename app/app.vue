@@ -46,16 +46,18 @@ useHead({
             alt="BTC Logo"
             class="size-14 text-yellow-500 transform transition-transform duration-300 group-hover:scale-110"
           />
-          <span class="font-normal">BTC Events</span>
+          <span class="font-display font-semibold">BTC Events</span>
         </div>
       </template>
 
       <template #right>
-        <UserMenu class="hidden lg:block" />
+        <div class="hidden lg:flex items-center">
+          <UserMenu />
+        </div>
       </template>
 
       <template #body>
-        <UserMenu />
+        <UserMenu :expanded="true" />
       </template>
     </UHeader>
 
@@ -68,14 +70,7 @@ useHead({
       <NuxtPage />
     </UMain>
 
-    <USeparator
-      icon="i-btc-logo"
-      type="dotted"
-      size="sm"
-      :ui="{ icon: 'size-14' }"
-    />
-
-    <UFooter class="mb-4">
+    <UFooter class="mb-4 border-t border-default">
       <template #left>
         <UColorModeButton />
       </template>

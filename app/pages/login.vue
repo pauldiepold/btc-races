@@ -34,7 +34,6 @@ const toast = useToast()
 
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
   loading.value = true
-  message.value = ''
   try {
     await $fetch('/api/auth/login', {
       method: 'POST',
@@ -43,10 +42,11 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 
     navigateTo('/link-gesendet')
   }
-  catch {
+  catch (e) {
+    const description = e instanceof Error ? e.message : 'Ein unbekannter Fehler ist aufgetreten.'
     toast.add({
       title: 'Fehler',
-      description: errorMessage,
+      description,
       color: 'error',
     })
   }

@@ -4,7 +4,6 @@ import * as z from 'zod'
 
 const { loggedIn } = useUserSession()
 const loading = ref(false)
-const message = ref('')
 
 definePageMeta({
   title: 'Login',
@@ -45,8 +44,6 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
     navigateTo('/link-gesendet')
   }
   catch {
-    const errorMessage = 'Ein Fehler ist aufgetreten.'
-    message.value = errorMessage
     toast.add({
       title: 'Fehler',
       description: errorMessage,
@@ -78,48 +75,4 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
       />
     </UPageCard>
   </div>
-<!--  <UContainer class="py-10"> -->
-<!--    <UCard class="max-w-md mx-auto"> -->
-<!--      <template #header> -->
-<!--        <h3 class="text-xl font-bold"> -->
-<!--          Login -->
-<!--        </h3> -->
-<!--      </template> -->
-
-<!--      <UForm -->
-<!--        :schema="schema" -->
-<!--        :state="state" -->
-<!--        class="space-y-4" -->
-<!--        @submit="onSubmit" -->
-<!--      > -->
-<!--        <UFormField -->
-<!--          label="E-Mail Adresse" -->
-<!--          name="email" -->
-<!--          required -->
-<!--        > -->
-<!--          <UInput -->
-<!--            v-model="state.email" -->
-<!--            type="email" -->
-<!--            placeholder="deine@email.de" -->
-<!--            :disabled="loading" -->
-<!--          /> -->
-<!--        </UFormField> -->
-
-<!--        <UButton -->
-<!--          type="submit" -->
-<!--          block -->
-<!--          :loading="loading" -->
-<!--        > -->
-<!--          Anmelde-Link senden -->
-<!--        </UButton> -->
-<!--      </UForm> -->
-
-<!--      <p -->
-<!--        v-if="message" -->
-<!--        class="mt-4 text-sm text-center text-gray-600" -->
-<!--      > -->
-<!--        {{ message }} -->
-<!--      </p> -->
-<!--    </UCard> -->
-<!--  </UContainer> -->
 </template>

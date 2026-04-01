@@ -86,13 +86,4 @@ Nitro-Task `server/tasks/sync-members.ts`: Synct aktive Mitglieder von der Campa
 
 ## Umgebungsvariablen
 
-Wichtig für lokale Entwicklung (`.env`):
-```
-NUXT_SESSION_PASSWORD=<32+ Zeichen>
-NUXT_CAMPAI_API_KEY_CONTACTS=...
-NUXT_CAMPAI_ORG_ID=...
-NUXT_CRON_TOKEN=...
-NUXT_EMAIL_PROVIDER=local         # 'local' oder 'azure-fetch'
-NUXT_EMAIL_TEST_MODE=true
-NUXT_EMAIL_TEST_ADDRESS=...
-```
+Siehe (`.env.example`)

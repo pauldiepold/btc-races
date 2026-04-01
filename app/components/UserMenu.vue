@@ -16,14 +16,12 @@ async function logout() {
 <template>
   <AuthState v-slot="{ loggedIn }">
     <div v-if="loggedIn">
-
-      <!-- ── Mobile / Drawer: inline panel ─────────────────────────── -->
       <template v-if="expanded">
         <div class="flex items-center gap-4 pb-4 border-b border-default">
           <UAvatar
             :src="user?.avatarUrl"
             size="2xl"
-            :ui="{ root: 'ring-2 ring-primary shrink-0' }"
+            :ui="{ root: 'ring ring-primary shrink-0' }"
           />
           <div class="min-w-0">
             <p class="font-display font-semibold text-highlighted text-lg leading-snug truncate">
@@ -35,8 +33,25 @@ async function logout() {
           </div>
         </div>
 
+        <div class="py-4 border-b border-default">
+          <NuxtLink
+            to="/meine-anmeldungen"
+            class="flex items-center gap-3 text-sm text-default hover:text-primary transition-colors"
+            @click="isOpen = false"
+          >
+            <UIcon
+              name="i-lucide-calendar-check"
+              class="size-5 text-muted shrink-0"
+            />
+            Meine Anmeldungen
+          </NuxtLink>
+        </div>
+
         <div class="flex items-center gap-3 py-4 border-b border-default">
-          <UIcon name="i-lucide-sun-moon" class="size-5 text-muted shrink-0" />
+          <UIcon
+            name="i-lucide-sun-moon"
+            class="size-5 text-muted shrink-0"
+          />
           <span class="text-sm text-default flex-1">Darstellung</span>
           <div class="flex items-center rounded-[--ui-radius] bg-accented p-0.5">
             <button
@@ -61,7 +76,10 @@ async function logout() {
             class="flex items-center gap-3 text-sm text-muted hover:text-error transition-colors cursor-pointer"
             @click="logout"
           >
-            <UIcon name="i-lucide-log-out" class="size-5 shrink-0" />
+            <UIcon
+              name="i-lucide-log-out"
+              class="size-5 shrink-0"
+            />
             Ausloggen
           </button>
         </div>
@@ -120,9 +138,29 @@ async function logout() {
 
             <div class="h-px bg-border mx-4" />
 
+            <!-- Meine Anmeldungen -->
+            <div class="p-2">
+              <NuxtLink
+                to="/meine-anmeldungen"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-[--ui-radius] text-sm text-default hover:text-primary hover:bg-primary/10 transition-colors"
+                @click="isOpen = false"
+              >
+                <UIcon
+                  name="i-lucide-calendar-check"
+                  class="size-4 shrink-0"
+                />
+                Meine Anmeldungen
+              </NuxtLink>
+            </div>
+
+            <div class="h-px bg-border mx-4" />
+
             <!-- Color mode toggle -->
             <div class="px-4 py-3 flex items-center gap-3">
-              <UIcon name="i-lucide-sun-moon" class="size-4 text-muted shrink-0" />
+              <UIcon
+                name="i-lucide-sun-moon"
+                class="size-4 text-muted shrink-0"
+              />
               <span class="text-sm text-default flex-1">Darstellung</span>
               <div class="flex items-center rounded-[--ui-radius] bg-accented p-0.5">
                 <button
@@ -150,14 +188,16 @@ async function logout() {
                 class="w-full flex items-center gap-3 px-3 py-2.5 rounded-[--ui-radius] text-sm text-default hover:text-error hover:bg-error/10 transition-colors cursor-pointer"
                 @click="logout"
               >
-                <UIcon name="i-lucide-log-out" class="size-4 shrink-0" />
+                <UIcon
+                  name="i-lucide-log-out"
+                  class="size-4 shrink-0"
+                />
                 Ausloggen
               </button>
             </div>
           </div>
         </template>
       </UPopover>
-
     </div>
   </AuthState>
 </template>

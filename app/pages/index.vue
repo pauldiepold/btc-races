@@ -26,10 +26,8 @@ const skeletonLocWidths = ['w-32', 'w-40', 'w-28', 'w-36', 'w-44']
 <template>
   <UContainer class="py-10 lg:py-14">
     <div class="flex flex-col gap-14 lg:flex-row lg:gap-16 lg:items-start">
-
       <!-- ── Events (Hauptinhalt) ──────────────────────────────────── -->
       <div class="flex-1 min-w-0">
-
         <!-- Abschnittsheader -->
         <div class="flex items-end justify-between mb-8 pb-5 border-b border-default">
           <div>
@@ -79,12 +77,10 @@ const skeletonLocWidths = ['w-32', 'w-40', 'w-28', 'w-36', 'w-44']
             </div>
           </div>
         </div>
-
       </div>
 
       <!-- ── Sidebar: Erklärung ────────────────────────────────────── -->
       <aside class="lg:w-64 xl:w-72 lg:shrink-0 lg:sticky lg:top-[calc(var(--ui-header-height)+2rem)]">
-
         <div class="pb-5 mb-6 border-b border-default">
           <p class="text-xs font-medium text-muted uppercase tracking-widest mb-2">
             So funktioniert's
@@ -131,7 +127,6 @@ const skeletonLocWidths = ['w-32', 'w-40', 'w-28', 'w-36', 'w-44']
             BTC Community
           </UButton>
         </div>
-
       </aside>
     </div>
   </UContainer>

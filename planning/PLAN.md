@@ -20,26 +20,6 @@ Jeder Schritt wird in einem **eigenen Chat-Kontext** gestartet — frischer Star
 
 ## Aktive Schritte
 
-### Schritt 4 — Design System & Main Layout `[laufend]`
-
-**Ziel:** Ein konsistentes visuelles Fundament etablieren, auf dem alle späteren Feature-Screens aufgebaut werden. Der Main Layout-Shell (AppHeader, Navigation, UserMenu, Inhaltsbereich) ist fertig und alle zentralen Design-Tokens sind in der App verankert.
-
-**Was hier gemacht werden sollte:**
-- `.impeccable.md` als Leitfaden nutzen (Yellow/Zinc, Space Grotesk + Raleway, Dark default)
-- AppLayout-Komponente mit Header, Navigation und Slot für Page-Content
-- Navigation: welche Links für Mitglied vs. Admin (Guard-Logik vorbereiten, aber noch keine Routes implementieren)
-- UserMenu: Avatar, Name, Logout — bereits vorhanden, ggf. finalisieren
-- Leere States und Page-Header-Muster definieren (wird auf jeder Seite gebraucht)
-- Farbtoken-Nutzung dokumentieren: welche `color`-Werte für welche semantischen Zustände (z.B. Status-Badges: `registered` → grün, `canceled` → rot, `maybe` → gelb)
-
-**Vorschlag:** Einen kurzen `planning/04-design-notes.md` anlegen — nicht für fremde, sondern als Gedankenstütze für zukünftige KI-Sessions: "Warum sieht Komponente X so aus?"
-
-**Kontext-Files:** `.impeccable.md`, `app/components/UserMenu.vue`, `app/app.vue`
-
-**Output:** Funktionierendes Main Layout, Design-Tokens verankert
-
----
-
 ### Schritt 5 — E-Mail-Inventar
 
 **Ziel:** Alle E-Mails die das System verschickt vollständig dokumentieren, bevor Templates implementiert werden. Basis für die spätere Implementierung der Vue-E-Mail-Templates und des Email-Service.
@@ -153,6 +133,12 @@ Wird nach Schritt 9 in mehrere Einzel-Sessions aufgeteilt, wie im Implementierun
 ### Schritt 3 — Feature Spec, Priorisierung & Kevin-Review ✅
 
 **Output:** `planning/03-feature-spec.md` — vollständige Feature Spec mit MoSCoW-Priorisierung, Status-Modell, E-Mail-Trigger-Matrix und Kevin-Briefing.
+
+---
+
+### Schritt 4 — Design System & Main Layout ✅
+
+**Output:** Funktionierendes Main Layout, Design-Tokens verankert. UserMenu mit "Meine Anmeldungen"-Link (Desktop + Mobile), Admin-Link im Footer (nur für `role === 'admin'`), `BasePage`/`BaseLayer` entfernt, `events.vue` bereinigt. Details: `planning/04-design-notes.md`.
 
 ---
 

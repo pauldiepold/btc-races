@@ -37,7 +37,7 @@ h1, h2, h3, h4, .font-display {
 /* ------------------------------------------------------------------ */
 
 :root {
-  --ui-radius: 0.25rem;
+  --ui-radius: 0.15rem;
 
   --ui-primary: var(--ui-color-primary-500);
 
@@ -91,6 +91,29 @@ h1, h2, h3, h4, .font-display {
 /* ------------------------------------------------------------------ */
 
 @layer base {
+  /* Heading scale — konservativ, mobile-first */
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+  }
+  h1 {
+    @apply text-2xl font-bold tracking-tight leading-tight;
+  }
+  h2 {
+    @apply text-xl font-semibold tracking-tight leading-snug;
+  }
+  h3 {
+    @apply text-lg font-semibold leading-snug;
+  }
+  h4 {
+    @apply text-base font-semibold;
+  }
+  h5 {
+    @apply text-sm font-semibold;
+  }
+  h6 {
+    @apply text-sm font-medium;
+  }
+
   button,
   [role="button"] {
     @apply cursor-pointer;

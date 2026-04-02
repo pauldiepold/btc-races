@@ -10,9 +10,9 @@ _Abgestimmt am 2026-03-31_
 
 ### ADR-001: Event-Typen — eine Tabelle
 
-**Entscheidung:** Eine `events`-Tabelle mit `type`-Feld (`ladv` | `competition` | `training`). Typ-spezifische Felder sind nullable.
+**Entscheidung:** Eine `events`-Tabelle mit `type`-Feld (`ladv` | `competition` | `training` | `social`). Typ-spezifische Felder sind nullable.
 
-Es gibt vier konzeptuelle Event-Typen: LADV-Wettkampf, normaler Wettkampf, Training und sonstige Teamevents (Ausflüge etc.). Training und Teamevents verhalten sich identisch (freiwillige Teilnahme, kein Admin-Bestätigungsschritt) und werden vorerst unter `training` zusammengefasst. Spätere Feindifferenzierung ist möglich — das `type`-Feld ist ein Text-Feld, weitere Werte können jederzeit ergänzt werden.
+Es gibt vier Event-Typen: LADV-Wettkampf, normaler Wettkampf, Training und soziale Teamevents (Ausflüge etc.). `training` und `social` verhalten sich identisch (freiwillige Teilnahme, initialer Status `yes`, kein Admin-Bestätigungsschritt, keine Meldefrist). `social` wurde in Schritt 6 als eigener Typ ergänzt um spätere Filterung/UI-Differenzierung zu ermöglichen — das `type`-Feld ist ein Text-Feld, weitere Werte können jederzeit ergänzt werden.
 
 **Begründung:** Die Überschneidung zwischen den Typen ist groß (name, date, location, registrations). Separate Tabellen würden alle Queries verkomplizieren. SQLite hat kein Table-Inheritance. `training` als Can-Feature — vorbereiten ohne aufzublähen.
 
@@ -40,15 +40,11 @@ Es gibt vier konzeptuelle Event-Typen: LADV-Wettkampf, normaler Wettkampf, Train
 
 ---
 
-### ADR-004: Disziplinen & Altersklassen
+### ADR-004: Disziplinen & Altersklassen _(aktualisiert durch ADR-007)_
 
-**Entscheidung:** Keine eigene `event_disciplines`-Tabelle. Die `wettbewerbe`-Liste aus `ladv_data` wird zur Laufzeit gelesen und als Select im Anmeldeformular gerendert. Der Athlet wählt immer eine Kombination (`disziplinNew` + `klasseNew`). In `registrations` werden `discipline` und `age_class` als separate nullable Text-Spalten gespeichert.
+~~Ursprüngliche Entscheidung: `discipline` + `age_class` als nullable Spalten direkt in `registrations`.~~
 
-Für nicht-LADV-Events: `discipline` und `age_class` sind nullable. Manuelle Disziplin-Listen bei normalen Wettkämpfen sind optional — bei Bedarf als `disciplines` JSON-Feld an `events` ergänzbar, kein Aufwand jetzt.
-
-**Begründung:** `wettbewerbe` wird nur einmal pro Anmeldevorgang gelesen, kein Queryingbedarf. Altersklassen kommen immer aus der LADV-Kombination — kein Freitext, kein Auto-Calc aus Geburtsdatum (zu komplex für v2).
-
-**Konsequenzen:** Bei LADV-Events: beide Felder required (App-Validierung). Bei Training: beide null.
+Ersetzt durch ADR-007 — siehe unten.
 
 ---
 
@@ -64,6 +60,25 @@ Gültige Status-Werte je Typ:
 **Begründung:** User-Intent und LADV-Operationsstatus sind konzeptuell getrennt. `pending_cancellation` entfällt: User setzt `canceled`, Kevin sieht das und protokolliert die LADV-Abmeldung via `ladv_canceled_at/by`. Ob jemand bei LADV gemeldet ist, ergibt sich aus `ladv_registered_at IS NOT NULL`. `maybe` gilt für competition + training — nur bei LADV ist eine eindeutige Meldung erforderlich.
 
 **Konsequenzen:** Gültige Status-Werte je Event-Typ werden in der App-Logik validiert.
+
+---
+
+### ADR-007: Multi-Disziplin-Anmeldung — `registration_disciplines`-Tabelle
+
+_Ergänzt in Schritt 6.5_
+
+**Entscheidung:** Neue Tabelle `registration_disciplines`. Jede Disziplin-Wahl eines Mitglieds bei einem LADV-Event ist ein eigener Datensatz. Die LADV-Operationsfelder (`ladv_registered_at/by`, `ladv_canceled_at/by`) wandern von `registrations` auf diese Ebene, da Kevin pro Disziplin separat auf der LADV-Website anmeldet bzw. abmeldet.
+
+Die Felder `discipline`, `age_class` sowie die LADV-Operationsfelder werden aus `registrations` entfernt.
+
+**Begründung:** Ein Mitglied kann sich für mehrere Disziplinen (z.B. 100m + 200m) anmelden. LADV-Protokollierung erfolgt je Disziplin separat. Die `registration_disciplines`-Tabelle existiert ausschließlich für `type = 'ladv'`-Events — für alle anderen Typen gibt es keine Disziplin-Einträge.
+
+**UNIQUE Constraint:** `(registration_id, discipline)` — dieselbe Disziplin kann pro Anmeldung nur einmal eingetragen werden. (AK kommt immer fest mit der Disziplin aus `wettbewerbe`, braucht keinen separaten Constraint.)
+
+**Konsequenzen:**
+- Bei LADV-Events: mindestens ein Eintrag in `registration_disciplines` required (App-Validierung)
+- LADV-Operationsstatus wird pro Disziplin abgelesen, nicht pro Anmeldung
+- `registrations.status` (`registered` | `canceled`) bleibt auf Anmeldungsebene
 
 ---
 
@@ -84,7 +99,7 @@ Gültige Status-Werte je Typ:
 | Spalte                | Typ                              | Beschreibung                                      |
 |-----------------------|----------------------------------|---------------------------------------------------|
 | id                    | text PK                          | UUID                                              |
-| type                  | text NOT NULL                    | `ladv` \| `competition` \| `training`             |
+| type                  | text NOT NULL                    | `ladv` \| `competition` \| `training` \| `social` |
 | name                  | text NOT NULL                    |                                                   |
 | date                  | integer (timestamp) NOT NULL     |                                                   |
 | location              | text                             |                                                   |
@@ -100,22 +115,31 @@ Gültige Status-Werte je Typ:
 
 ### `registrations`
 
-| Spalte              | Typ                          | Beschreibung                                           |
-|---------------------|------------------------------|--------------------------------------------------------|
-| id                  | text PK                      | UUID                                                   |
-| event_id            | text FK → events.id          |                                                        |
-| user_id             | text FK → users.id           |                                                        |
-| status              | text NOT NULL                | `registered`\|`canceled`\|`maybe` (ladv+competition), `yes`\|`no`\|`maybe` (training) |
-| discipline          | text                         | aus wettbewerbe.disziplinNew; null bei training        |
-| age_class           | text                         | aus wettbewerbe.klasseNew; null bei training           |
-| notes               | text                         | Freitext-Hinweis des Mitglieds an Admins               |
-| ladv_registered_at  | integer (timestamp)          | wann Kevin bei LADV angemeldet hat                     |
-| ladv_registered_by  | text                         | Coach-Name                                             |
-| ladv_canceled_at    | integer (timestamp)          | wann Kevin bei LADV abgemeldet hat                     |
-| ladv_canceled_by    | text                         | Coach-Name                                             |
-| createdAt           | integer (timestamp) NOT NULL |                                                        |
-| updatedAt           | integer (timestamp) NOT NULL |                                                        |
-| UNIQUE              |                              | (event_id, user_id)                                    |
+| Spalte    | Typ                          | Beschreibung                                                                           |
+|-----------|------------------------------|----------------------------------------------------------------------------------------|
+| id        | text PK                      | UUID                                                                                   |
+| event_id  | text FK → events.id          |                                                                                        |
+| user_id   | text FK → users.id           |                                                                                        |
+| status    | text NOT NULL                | `registered`\|`canceled`\|`maybe` (ladv+competition), `yes`\|`no`\|`maybe` (training\|social) |
+| notes     | text                         | Freitext-Hinweis des Mitglieds an Admins; öffentlich für alle Mitglieder sichtbar      |
+| createdAt | integer (timestamp) NOT NULL |                                                                                        |
+| updatedAt | integer (timestamp) NOT NULL |                                                                                        |
+| UNIQUE    |                              | (event_id, user_id)                                                                    |
+
+### `registration_disciplines` _(nur bei `type = 'ladv'`)_
+
+| Spalte             | Typ                              | Beschreibung                                          |
+|--------------------|----------------------------------|-------------------------------------------------------|
+| id                 | text PK                          | UUID                                                  |
+| registration_id    | text FK → registrations.id       | CASCADE DELETE                                        |
+| discipline         | text NOT NULL                    | aus `wettbewerbe.disziplinNew`                        |
+| age_class          | text NOT NULL                    | aus `wettbewerbe.klasseNew`                           |
+| ladv_registered_at | integer (timestamp)              | wann Kevin diese Disziplin bei LADV angemeldet hat    |
+| ladv_registered_by | text                             | Coach-Name                                            |
+| ladv_canceled_at   | integer (timestamp)              | wann Kevin diese Disziplin bei LADV abgemeldet hat    |
+| ladv_canceled_by   | text                             | Coach-Name                                            |
+| createdAt          | integer (timestamp) NOT NULL     |                                                       |
+| UNIQUE             |                                  | (registration_id, discipline)                         |
 
 ### `event_comments`
 
@@ -142,7 +166,32 @@ Gültige Status-Werte je Typ:
 
 ---
 
-## Bereits vorhandene Tabellen (unverändert)
+### `users`
 
-- `users` — Campai-Sync, Magic-Link-Auth, `role`-Feld für Admin
-- `auth_tokens` — Magic-Link-Tokens
+| Spalte               | Typ                              | Beschreibung                                                   |
+|----------------------|----------------------------------|----------------------------------------------------------------|
+| id                   | text PK                          | UUID                                                           |
+| email                | text NOT NULL UNIQUE             |                                                                |
+| firstName            | text                             |                                                                |
+| lastName             | text                             |                                                                |
+| role                 | text DEFAULT `member`            | `member` \| `admin` \| `superuser`                            |
+| campaiId             | text UNIQUE                      | Campai-interne ID                                              |
+| membershipNumber     | text                             |                                                                |
+| membershipStatus     | text DEFAULT `inactive`          | `active` \| `inactive`                                        |
+| membershipEnterDate  | integer (timestamp)              |                                                                |
+| membershipLeaveDate  | integer (timestamp)              |                                                                |
+| sections             | text (JSON → string[])           | Abteilungszugehörigkeit aus Campai                             |
+| lastSyncedAt         | integer (timestamp)              | letzter Campai-Sync                                            |
+| avatarUrl            | text                             |                                                                |
+| has_ladv_startpass   | integer (boolean) DEFAULT 0      | aus Campai-Sync (F-21); required für LADV-Event-Anmeldung      |
+| createdAt            | integer (timestamp) NOT NULL     |                                                                |
+
+_Anmerkung: `has_ladv_startpass` ist noch nicht im Schema — wird mit F-21 ergänzt._
+
+### `auth_tokens`
+
+| Spalte    | Typ                          | Beschreibung                                     |
+|-----------|------------------------------|--------------------------------------------------|
+| token     | text PK                      | zufälliger UUID-Token, per E-Mail versandt        |
+| userId    | text FK → users.id           | CASCADE DELETE                                   |
+| expiresAt | integer (timestamp) NOT NULL | 15 Minuten TTL                                   |

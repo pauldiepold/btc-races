@@ -84,7 +84,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 
 <template>
   <div class="flex flex-col items-center justify-center gap-4 p-4">
-    <UPageCard class="w-full max-w-md">
+    <UPageCard class="w-full max-w-md anim-card">
       <UAuthForm
         :schema="schema"
         title="Login"
@@ -121,9 +121,26 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 </template>
 
 <style scoped>
-.loading-container-enter-active,
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.anim-card {
+  animation: card-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.loading-container-enter-active {
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
 .loading-container-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.2s cubic-bezier(0.7, 0, 0.84, 0), transform 0.2s cubic-bezier(0.7, 0, 0.84, 0);
 }
 .loading-container-enter-from,
 .loading-container-leave-to {
@@ -131,9 +148,11 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
   transform: translateY(6px);
 }
 
-.loading-msg-enter-active,
+.loading-msg-enter-active {
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
 .loading-msg-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition: opacity 0.18s cubic-bezier(0.7, 0, 0.84, 0), transform 0.18s cubic-bezier(0.7, 0, 0.84, 0);
 }
 .loading-msg-enter-from {
   opacity: 0;
@@ -142,5 +161,18 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 .loading-msg-leave-to {
   opacity: 0;
   transform: translateY(-5px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-card {
+    animation-duration: 0.01ms !important;
+  }
+
+  .loading-container-enter-active,
+  .loading-container-leave-active,
+  .loading-msg-enter-active,
+  .loading-msg-leave-active {
+    transition-duration: 0.01ms !important;
+  }
 }
 </style>

@@ -11,7 +11,6 @@ Jeder Schritt wird in einem **eigenen Chat-Kontext** gestartet — frischer Star
 
 **Status-Legende:**
 - `[laufend]` — in Arbeit
-- `[nach Kevin]` — blockiert bis Feature-Scope feststeht
 - ✅ — abgeschlossen (archiviert am Ende dieses Dokuments)
 
 **Faustregel:** Abgeschlossene Outputs sind Entscheidungen — nicht nochmal erarbeiten, nur referenzieren.
@@ -39,34 +38,10 @@ Jeder Schritt wird in einem **eigenen Chat-Kontext** gestartet — frischer Star
 
 ---
 
-### Schritt 6 — Kevin-Meeting & Feature-Finalisierung `[extern]`
+## Geplante Schritte
 
-**Ziel:** Offene Entscheidungen aus `03-feature-spec.md` (OE-1 bis OE-4, F-K1 bis F-K3) klären und den Feature-Scope verbindlich festlegen.
 
-**Nach dem Meeting:**
-- `03-feature-spec.md` mit Kevins Entscheidungen aktualisieren (oder separates `03b-kevin-entscheidungen.md`)
-- Schritte 7–9 freigeben
-
----
-
-## Geplante Schritte (nach Kevin-Meeting)
-
-### Schritt 7 — Route Map / API Surface `[nach Kevin]`
-
-**Ziel:** Alle Pages und API-Endpunkte einmalig definieren — als strukturierte Karte für alle späteren Implementierungs-Sessions. Jede KI-Session kann damit sofort verstehen, was wo hingehört.
-
-**Was zu dokumentieren ist:**
-- Alle Frontend-Routes (`/`, `/events/[id]`, `/admin/...`) mit Zugriffs-Rolle
-- Alle API-Endpunkte (`GET/POST /api/events`, etc.) mit Methode, Auth-Anforderung, kurzer Beschreibung
-- Nitro-Tasks und Cron-Endpunkte
-
-**Kontext-Files:** Finalisierte `03-feature-spec.md`, `CLAUDE.md`
-
-**Output:** `planning/07-route-map.md`
-
----
-
-### Schritt 8 — Deployment & Ops dokumentieren `[nach Kevin]`
+### Schritt 8 — Deployment & Ops dokumentieren
 
 **Ziel:** Das bereits fertige Deployment (Cloudflare Pages, NuxtHub, D1, Cron-Setup, Env-Vars) vollständig dokumentieren — sowohl als Referenz für KI-Sessions als auch als Ops-Handbuch.
 
@@ -82,35 +57,23 @@ Jeder Schritt wird in einem **eigenen Chat-Kontext** gestartet — frischer Star
 
 ---
 
-### Schritt 9 — Implementierungsplan `[nach Kevin]`
-
-**Ziel:** Auf Basis des finalisierten Feature-Scopes und der Route Map eine konkrete Implementierungsreihenfolge festlegen — unter Berücksichtigung von Feature-Abhängigkeiten.
-
-**Grobe Orientierung (wird hier detailliert):**
-1. DB-Schema final (Drizzle) + Migrations
-2. Auth-Vollständigkeit prüfen / absichern
-3. Event-CRUD (Backend + einfaches Admin-UI)
-4. Registrierungs-Flow (Backend + Mitglieder-UI)
-5. Admin-Workflows (LADV-Status, Kommentare)
-6. E-Mail-Templates + Trigger verdrahten
-7. Cron-Jobs (Reminder-Mails)
-8. Polish & Edge Cases
-
-**Kontext-Files:** `07-route-map.md`, finalisierte `03-feature-spec.md`, `02b-datenmodell-entwurf.md`
-
-**Output:** `planning/09-implementierungsplan.md`
-
----
-
 ### Schritt 10 — Implementierung
 
-Wird nach Schritt 9 in mehrere Einzel-Sessions aufgeteilt, wie im Implementierungsplan festgelegt.
+Sessions 9.1–9.11 gemäß `planning/09-implementierungsplan.md`.
+
+---
 
 ---
 
 ---
 
 ## Abgeschlossen
+
+### Schritt 9 — Implementierungsplan ✅
+
+**Output:** `planning/09-implementierungsplan.md` — 11 Sessions (9.1–9.11) mit Abhängigkeitsreihenfolge, Feature-Coverage-Übersicht und Session-spezifischen Kontext-Files.
+
+---
 
 ### Schritt 1 — Analyse der alten App (`btc-races-v1`) ✅
 
@@ -139,6 +102,24 @@ Wird nach Schritt 9 in mehrere Einzel-Sessions aufgeteilt, wie im Implementierun
 ### Schritt 4 — Design System & Main Layout ✅
 
 **Output:** Funktionierendes Main Layout, Design-Tokens verankert. UserMenu mit "Meine Anmeldungen"-Link (Desktop + Mobile), Admin-Link im Footer (nur für `role === 'admin'`), `BasePage`/`BaseLayer` entfernt, `events.vue` bereinigt. Details: `planning/04-design-notes.md`.
+
+---
+
+### Schritt 6 — Feature-Finalisierung ✅
+
+**Output:** `03-feature-spec.md` finalisiert. Entscheidungen: OE-1 (Campai-Sync für Startpass), OE-2/OE-4 (Backlog). Neue Features: Superuser-Rolle (F-24 Admin-Seite), Multi-Disziplin-Anmeldung bei LADV-Events. F-04 zur State-Machine-Übersicht zusammengefasst. F-12 Sichtbarkeit korrigiert. Kevin-Briefing abgeschlossen. Offener Folgeschritt: Datenmodell-Update (→ Schritt 6.5).
+
+---
+
+### Schritt 7 — Route Map / API Surface ✅
+
+**Output:** `planning/07-route-map.md` — alle Frontend-Routes (deutsch), API-Endpunkte (englisch), Nitro-Tasks und Middleware vollständig dokumentiert.
+
+---
+
+### Schritt 6.5 — Datenmodell-Update: Multi-Disziplin ✅
+
+**Output:** `02b-datenmodell-entwurf.md` aktualisiert. ADR-007 (Multi-Disziplin) ergänzt, ADR-004 als ersetzt markiert. Neue Tabelle `registration_disciplines` mit UNIQUE `(registration_id, discipline)`. LADV-Operationsfelder von `registrations` auf Disziplin-Ebene verschoben. ADR-001 um `social`-Typ erweitert. Auth-Tabellen (`users`, `auth_tokens`) vollständig dokumentiert.
 
 ---
 

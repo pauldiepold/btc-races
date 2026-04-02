@@ -23,13 +23,14 @@ _Stand: 2026-03-31_
 
 ### Rollen
 
-| Rolle  | Beschreibung                                                          | Anzahl |
-|--------|-----------------------------------------------------------------------|--------|
-| Mitglied | Eingeloggtes BTC-Mitglied, kann sich anmelden und Events anlegen   | ~100+  |
-| Admin  | Kevin + Vereinsverantwortliche, verwalten Events und LADV-Workflow   | ~10    |
-| System | Automatische Prozesse (Campai-Sync, E-Mail-Cronjobs, Push)          | —      |
+| Rolle      | Beschreibung                                                                                      | Anzahl |
+|------------|---------------------------------------------------------------------------------------------------|--------|
+| Mitglied   | Eingeloggtes BTC-Mitglied, kann sich anmelden und Events anlegen                                 | ~100+  |
+| Admin      | Kevin + Vereinsverantwortliche, verwalten Events und LADV-Workflow                               | ~10    |
+| Superuser  | Technischer Administrator (Paul) — hat alle Admin-Rechte + kann Systemoperationen ausführen (Campai-Sync manuell anstoßen, künftig mehr) | 1 |
+| System     | Automatische Prozesse (Campai-Sync, E-Mail-Cronjobs, Push)                                       | —      |
 
-Admins sind reguläre User mit `role = 'admin'` in der `users`-Tabelle. Die Verwaltung der Admin-Rolle erfolgt in v2 direkt in der DB (kein Admin-UI dafür vorgesehen, bei ~10 Personen vertretbar).
+Admins sind reguläre User mit `role = 'admin'` in der `users`-Tabelle. Superuser hat `role = 'superuser'`. Die Verwaltung dieser Rollen erfolgt in v2 direkt in der DB (kein Admin-UI dafür vorgesehen).
 
 ### Event-Typen im Überblick
 
@@ -106,50 +107,46 @@ Admins sind reguläre User mit `role = 'admin'` in der `users`-Tabelle. Die Verw
 
 **Priorität:** Must
 
-**Beschreibung:** Mitglied meldet sich zu einem Event an.
+**Beschreibung:** Mitglied meldet sich erstmalig zu einem Event an.
 
 **Akzeptanzkriterien:**
-- Bei `ladv`-Events: Disziplin + Altersklasse aus der `wettbewerbe`-Liste in `ladv_data` als Dropdown wählbar, beide Felder required
+- Bei `ladv`-Events: Mitglied wählt mindestens eine Disziplin aus der `wettbewerbe`-Liste in `ladv_data`. Pro Disziplin wird die zugehörige Altersklasse (`klasseNew`) aus derselben Liste gewählt — beide Felder required. **Mehrere Disziplinen pro Anmeldung möglich** (z.B. 100m + 200m), jede Disziplin ist ein eigener Eintrag in `registration_disciplines` (→ ADR-004 Update).
 - Bei `competition`-Events: nur optionales Notiz-Feld
 - Bei `training`- und `social`-Events: nur optionales Notiz-Feld; initialer Status ist `yes` (nicht `registered`)
+- **Notiz-Feld** (alle Event-Typen, optional): für alle eingeloggten Mitglieder öffentlich sichtbar — das muss im UI klar kommuniziert werden (z.B. "Öffentliche Notiz — für alle Mitglieder sichtbar")
 - Anmeldung nach abgelaufener Meldefrist gesperrt (bei `ladv` + `competition`); `training` und `social` haben keine Frist
 - Anmeldung bei abgesagtem Event gesperrt
+- Doppelte Anmeldung nicht möglich (UNIQUE constraint `event_id + user_id`)
 - Nach Anmeldung: E-Mail-Bestätigung an Mitglied (→ E-01)
 - Bei Anmeldung weniger als 3 Tage vor Meldefrist: E-Mail an alle Admins (→ E-05)
-- Doppelte Anmeldung nicht möglich (UNIQUE constraint `event_id + user_id`)
 
 **Abhängigkeiten:** F-02
 
 ---
 
-#### F-04: Anmeldung stornieren
+#### F-04: Anmeldung bearbeiten
 
 **Priorität:** Must
 
-**Beschreibung:** Mitglied kann seine eigene aktive Anmeldung stornieren.
+**Beschreibung:** Mitglied ändert eine bestehende Anmeldung — Status, Disziplinen oder Notiz. Deckt alle Übergänge der State Machine ab (ersetzt frühere F-04 Stornierung + F-05 Vielleicht).
+
+**State Machine — Status-Übergänge je Event-Typ:**
+
+| Event-Typ     | Mögliche Status                         | Zeitregel                          |
+|---------------|-----------------------------------------|------------------------------------|
+| `ladv`        | `registered` ↔ `canceled`              | Vor Meldefrist (Storno immer möglich) |
+| `competition` | `registered` ↔ `maybe` ↔ `canceled`   | Vor Meldefrist (Storno immer möglich) |
+| `training`    | `yes` ↔ `maybe` ↔ `no`                 | Jederzeit                          |
+| `social`      | `yes` ↔ `maybe` ↔ `no`                 | Jederzeit                          |
 
 **Akzeptanzkriterien:**
-- Nur möglich wenn Status nicht bereits `canceled` oder `no`
-- Status wird auf `canceled` (bei `ladv`/`competition`) bzw. `no` (bei `training`/`social`) gesetzt
-- Bei `ladv`-Events mit bereits gesetztem `ladv_registered_at` (d.h. Kevin hat die Person schon bei LADV angemeldet): sichtbarer Hinweis dass Kevin die LADV-Abmeldung noch manuell nachpflegen muss
-- Nach Stornierung: E-Mail-Bestätigung an Mitglied (→ E-02)
-- Stornierung bleibt auch nach abgelaufener Meldefrist möglich — Admin entscheidet dann selbst über die LADV-Abmeldung
-
-**Abhängigkeiten:** F-03
-
----
-
-#### F-05: "Vielleicht"-Interesse signalisieren
-
-**Priorität:** Should
-
-**Beschreibung:** Für `competition`, `training` und `social`: Mitglied signalisiert unverbindliches Interesse.
-
-**Akzeptanzkriterien:**
-- Status `maybe` ist bei `competition`, `training` und `social` wählbar, **nicht** bei `ladv`
-- Wechsel zwischen `maybe`, `registered`/`yes` und `canceled`/`no` jederzeit möglich (bei `competition` vor Meldefrist)
+- Statusänderung jederzeit möglich solange Meldefrist nicht abgelaufen (bei `ladv` + `competition`); Ausnahme: Storno (`canceled`/`no`) bleibt immer möglich
+- Keine E-Mail bei `maybe`-Status
+- Bei Stornierung: E-Mail-Bestätigung an Mitglied (→ E-02)
+- Bei `ladv`-Events mit gesetztem `ladv_registered_at` für eine Disziplin: deutlicher Hinweis im UI — "Diese Disziplin ist bereits bei LADV angemeldet — Admin informieren"
+- **Disziplinen ändern (nur `ladv`, vor Meldefrist):** Disziplinen hinzufügen und entfernen möglich. Mindestens eine Disziplin muss verbleiben.
+- **Notiz-Feld:** jederzeit editierbar (auch nach Fristablauf)
 - `maybe`-Anmeldungen erscheinen in der Teilnehmerliste mit eigenem Badge
-- Keine E-Mail bei `maybe`-Status (kein Trigger)
 
 **Abhängigkeiten:** F-03
 
@@ -162,10 +159,12 @@ Admins sind reguläre User mit `role = 'admin'` in der `users`-Tabelle. Die Verw
 **Beschreibung:** Mitglied hat eine Übersicht aller eigenen Anmeldungen.
 
 **Akzeptanzkriterien:**
-- Eigene Seite oder Profil-Tab mit allen eigenen Anmeldungen
+- Seite `/profil` mit allen eigenen Anmeldungen
 - Sortierung nach Datum, neueste zuerst
 - Zeigt: Event-Name, Datum, Typ, eigener Status, LADV-Status (bei `ladv`-Events: ob bei LADV angemeldet)
 - Direktlink zur Event-Detailseite
+
+**Offene Frage (bei Implementierung klären):** Soll `/profil` nur die Anmeldungsübersicht enthalten, oder wird daraus eine vollständige Profilseite (Avatar, Stammdaten, Abteilungen aus Campai)? Falls Letzteres: Anmeldungen als Tab oder eigenständiger Bereich?
 
 **Abhängigkeiten:** F-03
 
@@ -266,13 +265,24 @@ Admins sind reguläre User mit `role = 'admin'` in der `users`-Tabelle. Die Verw
 
 **Priorität:** Must
 
-**Beschreibung:** Admin sieht alle Anmeldungen zu einem Event.
+**Beschreibung:** Alle eingeloggten Mitglieder sehen wer sich angemeldet hat. Admins sehen zusätzlich den LADV-Operationsstatus.
+
+**Sichtbarkeit:**
+
+| Feld                                  | Mitglied       | Admin          |
+|---------------------------------------|----------------|----------------|
+| Name + Anmeldestatus                  | ✅              | ✅              |
+| Disziplin + Altersklasse (bei `ladv`) | ✅              | ✅              |
+| Notiz                                 | ✅ (öffentlich) | ✅              |
+| LADV-Operationsstatus (alle User)     | ❌              | ✅              |
+| Eigener LADV-Operationsstatus         | ✅              | ✅              |
 
 **Akzeptanzkriterien:**
-- Tabelle mit: Name des Mitglieds, Anmeldestatus, Disziplin + Altersklasse (bei `ladv`), Notiz, LADV-Operationsstatus
-- LADV-Operationsstatus zeigt: "Noch nicht bei LADV gemeldet" / "Bei LADV angemeldet am [Datum] von [Coach]" / "Bei LADV abgemeldet am [Datum] von [Coach]"
-- Filterbar nach Anmeldestatus
-- CSV-Export oder mindestens copy-paste-freundliche Darstellung: **Could**
+- Grundlegende Teilnehmerliste (Name, Status, Disziplin, Notiz) für alle eingeloggten Mitglieder sichtbar — auch auf der Detailseite (F-02)
+- Admins sehen zusätzlich: LADV-Operationsstatus aller Angemeldeten — "Noch nicht bei LADV gemeldet" / "Bei LADV angemeldet am [Datum] von [Coach]" / "Bei LADV abgemeldet am [Datum] von [Coach]"
+- Jedes Mitglied sieht den eigenen LADV-Operationsstatus
+- Admin-Ansicht: filterbar nach Anmeldestatus
+- CSV-Export oder copy-paste-freundliche Darstellung: **Could**
 
 **Abhängigkeiten:** F-03
 
@@ -282,14 +292,14 @@ Admins sind reguläre User mit `role = 'admin'` in der `users`-Tabelle. Die Verw
 
 **Priorität:** Must
 
-**Beschreibung:** Admin protokolliert, dass er einen Teilnehmer manuell auf der LADV-Website angemeldet hat.
+**Beschreibung:** Admin protokolliert, dass er einen Teilnehmer manuell auf der LADV-Website angemeldet hat. Protokollierung erfolgt **pro Disziplin** (da Kevin je Disziplin separat auf LADV anmeldet).
 
 **Akzeptanzkriterien:**
-- Setzt `ladv_registered_at` (Zeitstempel) und `ladv_registered_by` (standardmäßig Name aus der Session, editierbar falls ein anderer Coach gemeldet hat)
+- Setzt `ladv_registered_at` (Zeitstempel) und `ladv_registered_by` (standardmäßig Name aus der Session, editierbar falls ein anderer Coach gemeldet hat) — **auf Disziplin-Ebene** (`registration_disciplines`, → ADR-004 Update)
 - Aktion nur möglich wenn `registration.status = 'registered'`
-- Aktion nur möglich wenn `ladv_registered_at` noch nicht gesetzt (kein versehentliches Überschreiben)
-- Nach Protokollierung: E-Mail-Bestätigung an Teilnehmer (→ E-03)
-- Wenn `ladv_registered_at` bereits gesetzt: nur Anzeige, kein Button
+- Aktion nur möglich wenn `ladv_registered_at` für diese Disziplin noch nicht gesetzt (kein versehentliches Überschreiben)
+- Nach Protokollierung der ersten / aller Disziplinen: E-Mail-Bestätigung an Teilnehmer (→ E-03)
+- Wenn `ladv_registered_at` für eine Disziplin bereits gesetzt: nur Anzeige, kein Button
 
 **Abhängigkeiten:** F-12
 
@@ -299,11 +309,11 @@ Admins sind reguläre User mit `role = 'admin'` in der `users`-Tabelle. Die Verw
 
 **Priorität:** Must
 
-**Beschreibung:** Admin protokolliert, dass er einen Teilnehmer manuell auf der LADV-Website abgemeldet hat.
+**Beschreibung:** Admin protokolliert, dass er einen Teilnehmer manuell auf der LADV-Website abgemeldet hat. Protokollierung erfolgt **pro Disziplin**.
 
 **Akzeptanzkriterien:**
-- Setzt `ladv_canceled_at` + `ladv_canceled_by`
-- Aktion nur möglich wenn `ladv_registered_at` gesetzt (man kann nur abmelden was angemeldet wurde)
+- Setzt `ladv_canceled_at` + `ladv_canceled_by` auf Disziplin-Ebene
+- Aktion nur möglich wenn `ladv_registered_at` für diese Disziplin gesetzt (man kann nur abmelden was angemeldet wurde)
 - Nach Protokollierung: E-Mail-Bestätigung an Teilnehmer (→ E-04)
 
 **Abhängigkeiten:** F-13
@@ -432,16 +442,16 @@ Admins sind reguläre User mit `role = 'admin'` in der `users`-Tabelle. Die Verw
 
 #### F-22: LADV-Startpass via Campai
 
-**Priorität:** Offen — **Entscheidung ausstehend (→ OE-1, F-K1)**
+**Priorität:** Must
 
-**Beschreibung:** In v1 wurde `has_ladv_startpass` manuell gepflegt und blockierte die Anmeldung bei LADV-Events ohne Startpass. Das Feld soll in Campai vorhanden sein.
+**Beschreibung:** `has_ladv_startpass` wird beim Campai-Sync übernommen und blockiert die Anmeldung bei LADV-Events ohne gültigen Startpass.
 
-**Optionen:**
+**Entscheidung:** Option A — Campai-Sync. Daten in Campai sind sauber gepflegt.
 
-| Option | Beschreibung | Vorteil | Nachteil |
-|--------|-------------|---------|----------|
-| **A — Campai-Sync** | Feld bei Sync aus Campai übernehmen, Anmeldung ohne Startpass bei LADV-Events sperren | Selbstständige Prüfung, kein manueller Aufwand | Hängt von Datenqualität in Campai ab |
-| **B — Weglassen** | Kevin prüft selbst beim LADV-Anmelden ob jemand einen Startpass hat | Kein Implementierungsaufwand | Fehlerpotenzial bei großen Gruppen |
+**Akzeptanzkriterien:**
+- `has_ladv_startpass`-Feld wird beim Campai-Sync aus Campai übernommen
+- Anmeldung bei `ladv`-Events ist nur möglich wenn `has_ladv_startpass = true`
+- Mitglied ohne Startpass sieht klare Fehlermeldung mit Hinweis (z.B. "Du hast keinen gültigen LADV-Startpass — wende dich an den Vorstand")
 
 **Abhängigkeiten:** F-21, F-03
 
@@ -472,6 +482,126 @@ Admins sind reguläre User mit `role = 'admin'` in der `users`-Tabelle. Die Verw
 
 ---
 
+#### F-24: Superuser Admin-Seite
+
+**Priorität:** Must
+
+**Beschreibung:** Superuser hat eine geschützte Admin-Seite für Systemoperationen. Erster Use-Case: Campai-Sync manuell anstoßen. Seite ist erweiterbar für künftige Systemoperationen.
+
+**Akzeptanzkriterien:**
+- Route `/admin` (oder `/admin/system`) — ausschließlich zugänglich mit `role = 'superuser'`
+- Button "Campai-Sync anstoßen" — ruft den bestehenden `POST /api/cron/sync-members`-Endpunkt auf
+- Feedback nach dem Sync: Erfolg / Fehler anzeigen (Anzahl synchronisierter Mitglieder o.ä.)
+- Seite ist bewusst minimal gehalten — kein Feature-Bloat, nur was gebraucht wird
+
+**Abhängigkeiten:** F-21
+
+---
+
+#### F-25: Dev-Seeding
+
+**Priorität:** Must (Dev-Only)
+
+**Beschreibung:** Ein einzelner Befehl (`pnpm db:seed`) baut die lokale Entwicklungs-Datenbank mit realistischen Testdaten auf. Ziel: alle Features direkt explorierbar, alle Edge Cases abgedeckt, alle Rollen testbar.
+
+**Auslösung:** `pnpm db:seed` — manuell, separat vom Dev-Server. Nicht Teil des automatischen `pnpm dev`-Starts.
+
+**Strategie:** Vor dem Seed wird die DB vollständig geleert (`DELETE FROM` aller Tabellen in Abhängigkeitsreihenfolge). Dann werden alle Daten neu aufgebaut — deterministisch, keine Merge-Logik.
+
+---
+
+**Schritt 1 — Echte Mitglieder (Campai-Sync)**
+
+Der bestehende Nitro-Task `sync-members` wird direkt aufgerufen. Damit sind ~100 echte BTC-Mitglieder in der `users`-Tabelle.
+
+---
+
+**Schritt 2 — Test-User (hardcoded, per Upsert)**
+
+4 feste Accounts werden nach dem Sync per Upsert eingetragen bzw. ihre Rolle gesetzt:
+
+| Account | Rolle | Zweck |
+|---------|-------|-------|
+| paul@… (eigene E-Mail) | `superuser` | Alle Rechte, Systemoperationen |
+| testadmin@btc-berlin.de | `admin` | Admin-Workflows testen (LADV-Protokollierung etc.) |
+| testmember1@btc-berlin.de | `member` | Reguläres Mitglied mit Startpass |
+| testmember2@btc-berlin.de | `member` | Reguläres Mitglied ohne Startpass (→ F-22 testen) |
+
+Login im Dev-Modus: Magic-Link landet im Terminal (Console-Provider). Kein Dev-Bypass notwendig.
+
+---
+
+**Schritt 3 — LADV-Events (echte API)**
+
+Ein Placeholder-Array mit Ausschreibungs-IDs wird hardcoded in der Seed-Datei abgelegt:
+
+```ts
+const LADV_IDS = [
+  // Ausschreibungs-IDs hier eintragen
+]
+```
+
+Pro ID wird die echte LADV-API aufgerufen (identisch zu F-08). Bei nicht erreichbarer API fällt der Seed auf eine gecachte JSON-Fixture-Datei pro ID zurück (`server/db/seed/ladv-fixtures/`), damit das Seeding auch offline funktioniert.
+
+Ziel: **~8 LADV-Events**, davon:
+- ~5 in der Zukunft (mit Meldefrist, verschiedene Zeitabstände)
+- ~3 in der Vergangenheit
+
+---
+
+**Schritt 4 — Generierte Events (Faker)**
+
+`@faker-js/faker` mit `de`-Locale generiert realistische Daten für die übrigen Event-Typen:
+
+| Typ | Anzahl | Details |
+|-----|--------|---------|
+| `competition` | 8 | Mel­defrist mal abgelaufen, mal noch offen, mal weit in der Zukunft |
+| `training` | 10 | Mix aus vergangenen und zukünftigen |
+| `social` | 9 | Mix, ein Event ohne Datum (tbd) |
+
+Zeitliche Verteilung gesamt: ~60 % Zukunft, ~40 % Vergangenheit.
+
+`created_by` wird zufällig einem der 4 Test-User zugewiesen.
+
+---
+
+**Schritt 5 — Anmeldungen**
+
+Zufällige Anmeldungen von Mitgliedern aus dem Campai-Pool + Test-Usern. Pro Event werden zwischen 3 und 15 Mitglieder angemeldet.
+
+Explizit abgedeckte Szenarien (hardcoded, nicht zufällig):
+
+| Szenario | Beschreibung |
+|----------|--------------|
+| `registered` + `ladv_registered_at` gesetzt | Kevin hat bereits bei LADV angemeldet |
+| `canceled` + `ladv_registered_at` gesetzt | Abgesagt nach LADV-Meldung — Grenzfall aus Status-Modell |
+| `canceled` + `ladv_registered_at` + `ladv_canceled_at` gesetzt | Vollständiger LADV-Abmelde-Flow |
+| Anmeldung < 3 Tage vor Meldefrist | E-05-Trigger testbar |
+| `maybe` bei Competition | Badge-Darstellung testbar |
+| Mitglied ohne Startpass versucht LADV-Anmeldung | Soll im UI geblockt werden (→ F-22) |
+| `testmember2` (kein Startpass) hat trotzdem eine alte Anmeldung | Migration-Edge-Case |
+
+---
+
+**Schritt 6 — Kommentare und Announcements**
+
+Pro Event mit Anmeldungen werden 0–3 zufällige Mitglieder-Kommentare generiert. Zusätzlich:
+- 2–3 Events erhalten eine Admin-Announcement (gepinnt, Type `announcement`)
+- Inhalte: kurze Faker-Sätze auf Deutsch
+
+---
+
+**Technische Umsetzung**
+
+- Seed-Logik: `server/db/seed/index.ts` — aufgerufen via Nitro-Task `db:seed`
+- `pnpm db:seed` in `package.json` als Script-Alias
+- LADV-Fixture-Fallback: `server/db/seed/ladv-fixtures/<id>.json`
+- Faker als `devDependency`
+
+**Abhängigkeiten:** F-21, F-03, F-13, F-14, F-15, F-16
+
+---
+
 ## Status-Modell
 
 ### Registrierungs-Status je Event-Typ
@@ -489,6 +619,7 @@ Admins sind reguläre User mit `role = 'admin'` in der `users`-Tabelle. Die Verw
 - Übergänge sind in alle Richtungen frei möglich, solange die Meldefrist nicht abgelaufen ist (bei `ladv` und `competition`)
 - Stornierung (`canceled`/`no`) bleibt auch nach Fristablauf möglich — Admin entscheidet dann selbst über die LADV-Abmeldung
 - Initiale Anmeldung ist immer `registered` (bei ladv/competition) bzw. `yes` (bei training/social)
+- Vollständige State Machine inkl. Disziplin-Änderungen: → F-04
 
 ### LADV-Operationsstatus (separates Tracking, admin-kontrolliert)
 
@@ -514,7 +645,9 @@ Admins sind reguläre User mit `role = 'admin'` in der `users`-Tabelle. Die Verw
 | E-04 | Admin protokolliert LADV-Abmeldung                    | Mitglied               |
 | E-05 | Anmeldung weniger als 3 Tage vor Meldefrist           | Alle Admins            |
 
-### Asynchron / Cronjob (Could — Kevin-Input erbeten, → F-K3)
+### Asynchron / Cronjob `[Backlog]`
+
+_Nicht für MVP — kein Mehrwert für Kernfunktionalität. Wird nach dem Launch priorisiert._
 
 | ID   | Auslöser                                              | Empfänger              |
 |------|-------------------------------------------------------|------------------------|
@@ -524,18 +657,22 @@ Admins sind reguläre User mit `role = 'admin'` in der `users`-Tabelle. Die Verw
 
 **Kein E-Mail-Trigger bei:** `maybe`-Status, Kommentaren, Event-Erstellung
 
-**Offene Frage:** Soll bei manueller Event-Absage (F-11) automatisch eine Massen-Mail an alle Angemeldeten gehen? → OE-4
+### Massen-Mail bei Event-Absage `[Backlog]`
+
+Wenn ein Event abgesagt wird (F-11, F-10): automatische Mail an alle Angemeldeten. Nicht für MVP — Admin kommuniziert das vorerst manuell. Wird nach dem Launch umgesetzt.
 
 ---
 
 ## Offene Entscheidungen
 
-| ID   | Frage                                                       | Empfehlung                                          | Input von  |
-|------|-------------------------------------------------------------|-----------------------------------------------------|------------|
-| OE-1 | LADV-Startpass: Campai-Sync oder weglassen?                 | Option A wenn Campai-Daten zuverlässig              | Kevin      |
-| OE-2 | Asynchrone E-Mails: welche davon wirklich gebraucht?        | Could — Kevin priorisiert                           | Kevin      |
-| OE-3 | Disziplinen bei normalen Wettkämpfen (`competition`)        | Won't für v2; Schema vorbereitet (ADR-004)          | —          |
-| OE-4 | Massen-Mail bei Event-Absage                                | Wahrscheinlich sinnvoll, aber explizite Entscheidung nötig | Kevin |
+Alle offenen Entscheidungen sind geklärt. Keine ausstehenden Punkte.
+
+| ID   | Frage                                            | Entscheidung                                                  |
+|------|--------------------------------------------------|---------------------------------------------------------------|
+| OE-1 | LADV-Startpass: Campai-Sync oder weglassen?      | ✅ Option A — Campai-Sync, Daten sind sauber (→ F-22)         |
+| OE-2 | Asynchrone E-Mails: welche davon gebraucht?      | ✅ Backlog — nicht MVP, nach Launch priorisieren               |
+| OE-3 | Disziplinen bei normalen Wettkämpfen             | ✅ Won't für v2; Schema vorbereitet (ADR-004)                  |
+| OE-4 | Massen-Mail bei Event-Absage                     | ✅ Backlog — Admin kommuniziert vorerst manuell (→ E-Mail-Trigger-Matrix) |
 
 ---
 
@@ -580,38 +717,4 @@ Du und die anderen Admins habt zusätzliche Funktionen: alle Events verwalten un
 4. Du trägst das in der App nach (ein Klick pro Athlet) → Bestätigungs-Mail geht automatisch raus
 5. Bei Abmeldung: gleicher Ablauf → ein Klick → Abmelde-Mail raus
 
----
-
-### Fragen für dich, Kevin
-
-#### F-K1 — LADV-Startpass
-
-In v1 war hinterlegt ob ein Mitglied einen LADV-Startpass hat — ohne Startpass war die Anmeldung bei LADV-Events gesperrt. Dieses Feld soll auch in Campai vorhanden sein.
-
-**Zwei Optionen:**
-- **A)** Die App übernimmt das Feld automatisch beim Campai-Sync und sperrt Anmeldungen ohne Startpass → Mitglied sieht eine klare Fehlermeldung, du sparst die manuelle Prüfung
-- **B)** Das Feld wird in v2 weggelassen → du checkst selbst beim Anmelden auf der LADV-Website
-
-Ist das Feld in Campai zuverlässig gepflegt? Bitte sag mir, welche Option du bevorzugst.
-
----
-
-#### F-K2 — Automatische Erinnerungs-Mails
-
-Geplant sind zeitgesteuerte E-Mails (Cronjob). Bitte sag kurz ob du die folgenden drei für sinnvoll hältst:
-
-| Mail | Wann | An wen |
-|------|------|--------|
-| Erinnerung Meldefrist | 5 Tage vor Meldefrist | Angemeldete Mitglieder |
-| Hinweis Meldefrist | 3 Tage vor Meldefrist | Alle Admins |
-| Event steht bevor | 2 Tage vor Event | Angemeldete Mitglieder |
-
-Welche davon hätten in der Praxis Mehrwert — und welche würden eher nerven?
-
----
-
-#### F-K3 — Massen-Mail bei Event-Absage
-
-Wenn ein LADV-Event abgesagt wird (erkannt beim nächsten Sync oder von dir manuell gesetzt):
-
-**Frage:** Soll die App automatisch alle angemeldeten Mitglieder per Mail informieren? Oder willst du das manuell kontrollieren (erst schauen, dann entscheiden ob du Bescheid gibst)?
+_Alle Fragen wurden besprochen. Kevin-Briefing abgeschlossen._

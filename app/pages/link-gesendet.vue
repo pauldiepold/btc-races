@@ -1,6 +1,7 @@
 <script setup lang="ts">
 definePageMeta({
   title: 'Anmelde-Link gesendet',
+  colorMode: 'dark',
 })
 
 const { loggedIn } = useUserSession()
@@ -18,21 +19,22 @@ watch(loggedIn, (isLoggedIn) => {
     <UPageCard class="w-full max-w-md">
       <div class="flex flex-col items-center gap-4 text-center">
         <UIcon
-          name="i-lucide-mail-check"
+          name="i-ph-paper-plane-tilt-bold"
           class="size-16 text-primary"
         />
-        <h2 class="text-2xl font-bold">
+        <h2 class="text-2xl font-bold font-display">
           Anmelde-Link gesendet
         </h2>
-        <p class="text-gray-400">
+        <p class="text-muted">
           Wir haben dir einen Anmelde-Link per E-Mail zugeschickt. Klicke auf den Link in der E-Mail, um dich anzumelden.
         </p>
-        <p class="text-sm text-gray-500">
+        <p class="text-sm text-dimmed">
           Der Link ist 15 Minuten gültig.
         </p>
         <UButton
           to="/login"
-          variant="subtle"
+          color="neutral"
+          variant="outline"
           class="mt-4"
         >
           Zurück zum Login

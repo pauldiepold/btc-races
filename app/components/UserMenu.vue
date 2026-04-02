@@ -3,6 +3,10 @@ const { clear, user } = useUserSession()
 const colorMode = useColorMode()
 const isOpen = ref(false)
 
+const colorModeIcon = computed(() =>
+  colorMode.value === 'dark' ? 'i-ph-moon-bold' : 'i-ph-sun-bold',
+)
+
 withDefaults(defineProps<{ expanded?: boolean }>(), { expanded: false })
 
 async function logout() {
@@ -40,7 +44,7 @@ async function logout() {
             @click="isOpen = false"
           >
             <UIcon
-              name="i-lucide-calendar-check"
+              name="i-ph-calendar-check-bold"
               class="size-5 text-muted shrink-0"
             />
             Meine Anmeldungen
@@ -49,7 +53,7 @@ async function logout() {
 
         <div class="flex items-center gap-3 py-4 border-b border-default">
           <UIcon
-            name="i-lucide-sun-moon"
+            :name="colorModeIcon"
             class="size-5 text-muted shrink-0"
           />
           <span class="text-sm text-default flex-1">Darstellung</span>
@@ -77,7 +81,7 @@ async function logout() {
             @click="logout"
           >
             <UIcon
-              name="i-lucide-log-out"
+              name="i-ph-sign-out-bold"
               class="size-5 shrink-0"
             />
             Ausloggen
@@ -101,15 +105,14 @@ async function logout() {
             <UAvatar
               :src="user?.avatarUrl"
               size="md"
-              :ui="{ root: 'ring-2 ring-primary' }"
+              :ui="{ root: 'ring ring-primary' }"
             />
           </template>
           <span class="font-display font-semibold tracking-tight">{{ user?.firstName }}</span>
           <template #trailing>
             <UIcon
-              name="i-lucide-chevron-down"
-              class="size-4 text-primary transition-transform duration-200"
-              :class="{ 'rotate-180': isOpen }"
+              :name="isOpen ? 'i-ph-caret-up-bold' : 'i-ph-caret-down-bold'"
+              class="size-5 text-primary transition-transform duration-200"
             />
           </template>
         </UButton>
@@ -146,8 +149,8 @@ async function logout() {
                 @click="isOpen = false"
               >
                 <UIcon
-                  name="i-lucide-calendar-check"
-                  class="size-4 shrink-0"
+                  name="i-ph-calendar-check-bold"
+                  class="size-5 shrink-0"
                 />
                 Meine Anmeldungen
               </NuxtLink>
@@ -158,8 +161,8 @@ async function logout() {
             <!-- Color mode toggle -->
             <div class="px-4 py-3 flex items-center gap-3">
               <UIcon
-                name="i-lucide-sun-moon"
-                class="size-4 text-muted shrink-0"
+                :name="colorModeIcon"
+                class="size-5 text-muted shrink-0"
               />
               <span class="text-sm text-default flex-1">Darstellung</span>
               <div class="flex items-center rounded-[--ui-radius] bg-accented p-0.5">
@@ -189,8 +192,8 @@ async function logout() {
                 @click="logout"
               >
                 <UIcon
-                  name="i-lucide-log-out"
-                  class="size-4 shrink-0"
+                  name="i-ph-sign-out-bold"
+                  class="size-5 shrink-0"
                 />
                 Ausloggen
               </button>

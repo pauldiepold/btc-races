@@ -7,6 +7,7 @@ const loading = ref(false)
 
 definePageMeta({
   title: 'Login',
+  colorMode: 'dark',
 })
 
 // Weiterleitung zur Homepage, wenn bereits eingeloggt
@@ -31,6 +32,31 @@ const schema = z.object({
 type Schema = z.output<typeof schema>
 
 const toast = useToast()
+
+const loadingMessages = [
+  'Link wird generiert...',
+  'E-Mail wird gesendet...',
+  'Gleich da...',
+]
+const loadingMessageIndex = ref(0)
+let messageInterval: ReturnType<typeof setInterval> | null = null
+
+watch(loading, (isLoading) => {
+  if (isLoading) {
+    loadingMessageIndex.value = 0
+    messageInterval = setInterval(() => {
+      if (loadingMessageIndex.value < loadingMessages.length - 1) {
+        loadingMessageIndex.value++
+      }
+    }, 900)
+  }
+  else {
+    if (messageInterval) {
+      clearInterval(messageInterval)
+      messageInterval = null
+    }
+  }
+})
 
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
   loading.value = true
@@ -63,16 +89,58 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
         :schema="schema"
         title="Login"
         description="Gib deine beim BTC hinterlegte E-Mail-Adresse an."
-        icon="i-lucide-user"
+        icon="i-btc-logo"
         :fields="fields"
         :submit="{
           label: 'Anmelde-Link senden',
-          variant: 'subtle',
-          loading: loading,
+          block: true,
         }"
         :loading="loading"
         @submit="onSubmit"
       />
+      <Transition name="loading-container">
+        <div
+          v-if="loading"
+          class="text-center mt-4"
+        >
+          <Transition
+            name="loading-msg"
+            mode="out-in"
+          >
+            <span
+              :key="loadingMessageIndex"
+              class="text-sm text-zinc-400"
+            >
+              {{ loadingMessages[loadingMessageIndex] }}
+            </span>
+          </Transition>
+        </div>
+      </Transition>
     </UPageCard>
   </div>
 </template>
+
+<style scoped>
+.loading-container-enter-active,
+.loading-container-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.loading-container-enter-from,
+.loading-container-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.loading-msg-enter-active,
+.loading-msg-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.loading-msg-enter-from {
+  opacity: 0;
+  transform: translateY(5px);
+}
+.loading-msg-leave-to {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+</style>

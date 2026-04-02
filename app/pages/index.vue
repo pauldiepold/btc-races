@@ -121,7 +121,7 @@ const skeletonLocWidths = ['w-32', 'w-40', 'w-28', 'w-36', 'w-44']
             color="neutral"
             variant="outline"
             size="sm"
-            trailing-icon="i-lucide-arrow-up-right"
+            trailing-icon="i-ph-arrow-up-right-bold"
             block
           >
             BTC Community

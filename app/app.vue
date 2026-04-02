@@ -72,13 +72,12 @@ useHead({
       <NuxtPage />
     </UMain>
 
-    <UFooter class="mb-4 border-t border-yellow-500/20">
+    <UFooter class="mb-4 border-t border-yellow-500/30">
       <template #left>
-        <UColorModeButton v-if="!user" />
         <UButton
           v-if="user?.role === 'admin'"
           to="/admin"
-          icon="i-lucide-shield"
+          icon="i-ph-shield-check-bold"
           label="Admin"
           color="primary"
           variant="soft"
@@ -87,10 +86,10 @@ useHead({
       </template>
 
       <template #default>
-        <div class="flex flex-col items-center gap-1.5">
+        <div class="flex flex-col items-center gap-2">
           <UIcon
             name="i-btc-logo"
-            class="size-7 text-yellow-500"
+            class="size-12 text-yellow-500"
           />
           <ULink
             href="https://berlin-track-club.de"

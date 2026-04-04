@@ -12,7 +12,12 @@ Abgeschlossene Sessions werden hier als ✅ markiert.
 
 **Kontext-Files für alle Sessions:** `CLAUDE.md`, `planning/02b-datenmodell-entwurf.md`, `planning/03-feature-spec.md`, `planning/07-route-map.md`
 
-**Nach jeder Session:** Abschnitt im Plan mit ✅ markieren, Inhalt erhalten, kurze Abschluss-Notiz (`**Abschluss:**`) am Ende des Abschnitts ergänzen.
+**Nach jeder Session:**
+1. Tests ausführen: `/test` (Claude Code) bzw. `@.cursor/rules/testing.mdc` (Cursor) aufrufen
+2. Wenn Tests grün: committen (alle Änderungen der Session in einem Commit)
+3. Abschnitt im Plan mit ✅ markieren, Inhalt erhalten, kurze Abschluss-Notiz (`**Abschluss:**`) am Ende des Abschnitts ergänzen
+
+**Branch:** Alle Arbeiten auf `develop`. Kein Feature-Branch-Workflow nötig.
 
 ---
 

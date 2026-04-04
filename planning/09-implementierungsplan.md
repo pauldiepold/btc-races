@@ -167,7 +167,7 @@ Der bestehende `server/utils/sections.ts` enthält ein Guard-Pattern (`requireSe
 
 ---
 
-### 9.3 — LADV-API-Client
+### ✅ 9.3 — LADV-API-Client
 
 **Ziel:** Wiederverwendbarer Service für LADV-API-Zugriffe. Wird vom Seeding (9.4) und vom Event-Backend (9.5/9.7) genutzt.
 
@@ -189,6 +189,8 @@ Der bestehende `server/utils/sections.ts` enthält ein Guard-Pattern (`requireSe
 
 **Output:** `server/external-apis/ladv/ladv.service.ts` einsatzbereit, Typen generiert  
 **Kontext-Files:** `server/external-apis/schemas/ladv-api-schema.json`, `server/external-apis/campai-contacts/contacts.service.ts` (als Referenz für Service-Muster)
+
+**Abschluss (2026-04-04):** `LadvService` als schlanke Klasse (analog Campai-Pattern), `normalizeLadvData` + `parseLadvIdFromUrl` als testbare pure Funktionen in `server/utils/ladv.ts`. Interfaces gegen echte API-Response (ID 45980) geprüft. `openapi-typescript` + `openapi-fetch` komplett entfernt (Deps, Script, generated-Ordner, OpenAPI-Schemas) — generierter Output war unvollständig und verursachte Typ-Fehler. `ladvApiKey` in `runtimeConfig` ergänzt. TypeCheck sauber (Exit 0).
 
 ---
 

@@ -20,8 +20,6 @@ pnpm db:generate      # Migrationen aus Schema-Änderungen generieren
 pnpm db:migrate       # Migrationen lokal anwenden
 pnpm db:remote:migrate # Migrationen auf Cloudflare D1 (Produktion) anwenden
 
-# Externe API-Typen
-pnpm api:generate     # TypeScript-Typen aus OpenAPI-Schemas generieren (LADV & Campai)
 ```
 
 ## Architecture
@@ -82,7 +80,7 @@ Nitro-Task `server/tasks/sync-members.ts`: Synct aktive Mitglieder von der Campa
 
 - **Campai**: Mitgliederverwaltung — `server/external-apis/campai-contacts/`
 - **LADV**: Wettkampf-Daten (Schema vorhanden, noch nicht vollständig implementiert)
-- OpenAPI-Schemas in `server/external-apis/schemas/`, Typen via `pnpm api:generate`
+- Typen manuell in `server/utils/ladv.ts` (LADV) und `server/external-apis/campai-contacts/contacts.service.ts` (Campai) definiert
 
 ## Testing
 

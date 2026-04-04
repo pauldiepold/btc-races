@@ -506,7 +506,7 @@ Ausgetretene Mitglieder (nicht mehr in Campai aktiv) erhalten `membershipStatus 
 **Beschreibung:** Superuser hat eine geschützte Admin-Seite für Systemoperationen. Erster Use-Case: Campai-Sync manuell anstoßen. Seite ist erweiterbar für künftige Systemoperationen.
 
 **Akzeptanzkriterien:**
-- Route `/admin` (oder `/admin/system`) — ausschließlich zugänglich mit `role = 'superuser'`
+- Route `/superuser/system` — ausschließlich zugänglich mit `role = 'superuser'` (allgemeiner `/admin`-Bereich ist für `admin` + `superuser`; Systemoperationen liegen unter `/superuser`)
 - Button "Campai-Sync anstoßen" — ruft den bestehenden `POST /api/cron/sync-members`-Endpunkt auf
 - Feedback nach dem Sync: Erfolg / Fehler anzeigen (Anzahl synchronisierter Mitglieder o.ä.)
 - Seite ist bewusst minimal gehalten — kein Feature-Bloat, nur was gebraucht wird

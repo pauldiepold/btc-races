@@ -4,7 +4,7 @@ declare module '#auth-utils' {
     firstName: string
     lastName: string
     email: string
-    role: string
+    role: 'member' | 'admin' | 'superuser'
     sections: string[]
     avatarUrl: string
   }

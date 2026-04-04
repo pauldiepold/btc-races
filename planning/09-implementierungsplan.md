@@ -111,7 +111,7 @@ Abgeschlossene Sessions werden hier als ✅ markiert.
 
 ---
 
-### 9.2.2 — Auth-Middleware & Rollenprüfung
+### ✅ 9.2.2 — Auth-Middleware & Rollenprüfung
 
 **Ziel:** Vollständige, konsistente Auth-Absicherung aller API-Routen. Wiederverwendbare Role-Guard-Utilities für alle weiteren Sessions.
 
@@ -133,16 +133,12 @@ Der bestehende `server/utils/sections.ts` enthält ein Guard-Pattern (`requireSe
    ```
    Datei liegt unter `shared/types/auth.d.ts`, `declare module '#auth-utils'`-Block.
 
-2. **`server/middleware/auth.ts`** — alle member-geschützten API-Präfixe ergänzen:
+2. **`server/middleware/auth.ts`** — ~~Whitelist-Ansatz~~ → **Blacklist-Ansatz** (Abweichung vom ursprünglichen Plan, Begründung: Whitelist müsste bei jeder neuen Route manuell gepflegt werden; Blacklist schützt neue Routen automatisch):
    ```ts
-   const protectedPaths = [
-     '/api/events',
-     '/api/registrations',
-     '/api/comments',
-     '/api/me',
-   ]
+   const publicPaths = ['/api/auth/', '/api/cron/']
+   // Alles andere unter /api/ → requireUserSession()
    ```
-   Prüfung mit `path.startsWith(protectedPath)`. Nur Session-Präsenz prüfen (`requireUserSession`), keine Rollen-Prüfung hier.
+   Nur Session-Präsenz prüfen (`requireUserSession`), keine Rollen-Prüfung hier.
 
 3. **`server/utils/auth.ts`** (neu anlegen) — drei Guards:
    - `requireAdmin(event)` — wirft 403 wenn `role !== 'admin' && role !== 'superuser'`
@@ -166,6 +162,8 @@ Der bestehende `server/utils/sections.ts` enthält ein Guard-Pattern (`requireSe
 
 **Output:** Alle API-Routen session-geschützt, Role-Utilities einsatzbereit, Frontend-Routen rollen-gesichert, inaktive Member können sich nicht einloggen  
 **Kontext-Files:** `server/middleware/auth.ts`, `server/utils/sections.ts` (als Muster), `app/middleware/auth.global.ts`, `shared/types/auth.d.ts`, `server/api/auth/login.post.ts`, `planning/07-route-map.md`
+
+**Abschluss (2026-04-04):** Alle 6 Punkte umgesetzt. `role` in `auth.d.ts` auf Union-Type. Server-Middleware auf Blacklist-Ansatz umgestellt (statt Whitelist — neue Routen sind automatisch geschützt). `server/utils/auth.ts` mit `requireAdmin`, `requireSuperuser`, `requireOwnerOrAdmin` neu angelegt. Frontend-Middleware um Rollen-Redirects für `/admin` und `/superuser` erweitert. Login-Sperre und Verify-Sperre für inaktive Mitglieder implementiert. TypeCheck sauber (Exit 0). Kleiner Fix: `user.role ?? ''` in `verify.get.ts` auf `?? 'member'` geändert, da `''` nicht mehr zum Union-Type passt.
 
 ---
 

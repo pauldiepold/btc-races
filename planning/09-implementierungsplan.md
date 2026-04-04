@@ -194,7 +194,7 @@ Der bestehende `server/utils/sections.ts` enthält ein Guard-Pattern (`requireSe
 
 ---
 
-### 9.4 — Dev-Seeding (F-25)
+### ✅ 9.4 — Dev-Seeding (F-25)
 
 **Ziel:** Einziger Befehl (`pnpm db:seed`) baut vollständige lokale Entwicklungs-DB mit realistischen Testdaten auf. Alle Features sofort testbar, alle Rollen verfügbar, alle Edge Cases abgedeckt.
 
@@ -240,14 +240,17 @@ Zufällige Anmeldungen von Campai-Pool + Test-Usern (3–15 pro Event). Explizit
 
 | Szenario | Beschreibung |
 |----------|--------------|
+| `registered` + `ladv_registered_at` null | Paul angemeldet, Disziplin gewählt, noch nicht bei LADV eingereicht (E-03-Ausgangszustand) |
 | `registered` + `ladv_registered_at` gesetzt | Kevin hat bereits bei LADV angemeldet |
 | `canceled` + `ladv_registered_at` gesetzt | Abgesagt nach LADV-Meldung |
-| `canceled` + `ladv_registered_at` + `ladv_canceled_at` | Vollständiger LADV-Abmelde-Flow |
+| `canceled` + `ladv_registered_at` + `ladv_canceled_at` | Vollständiger LADV-Abmelde-Flow (Admin) |
 | Anmeldung < 3 Tage vor Meldefrist | E-05-Trigger testbar |
 | Anmeldung ohne Startpass bei LADV-Event | F-22-Flow testbar |
 
 **Output:** `pnpm db:seed` läuft durch, alle Features explorierbar  
 **Kontext-Files:** `server/tasks/sync-members.ts`, `server/external-apis/ladv/ladv.service.ts`, `02b-datenmodell-entwurf.md`
+
+**Abschluss (2026-04-04):** `@faker-js/faker` (de-Locale) als Dev-Dependency ergänzt. `pnpm db:seed` via `nuxi task:run seed` in package.json. Fixture-Ansatz umgekehrt zum Plan: JSONs in `server/db/seed/ladv-fixtures/[id].json` sind Primary, LADV-API ist Fallback — beim ersten Lauf werden Fixtures automatisch gespeichert. 13 LADV-IDs aktiv, 6 auskommentiert (jede 3.). Alle 6 Seeding-Schritte implementiert inkl. aller hardcodierten Szenarien: E-03 (ausstehend + bereits eingereicht), E-04, E-05, F-22. Campai-User-Check (min. 50) als Abbruchbedingung.
 
 ---
 

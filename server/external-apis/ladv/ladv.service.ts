@@ -18,7 +18,7 @@ export class LadvService {
   async fetchAusschreibung(ladvId: number): Promise<NormalizedLadvData> {
     const data = await $fetch<LadvAusschreibung[]>(
       `${BASE_URL}/${this.apiKey}/ausDetail`,
-      { query: { id: ladvId, all: true } },
+      { query: { id: ladvId, all: true, wettbewerbe: true } },
     )
 
     const raw = data[0]

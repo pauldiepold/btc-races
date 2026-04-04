@@ -87,3 +87,10 @@ Nitro-Task `server/tasks/sync-members.ts`: Synct aktive Mitglieder von der Campa
 ## Umgebungsvariablen
 
 Siehe (`.env.example`)
+
+## Implementierungsplan-Pflege
+
+Der Implementierungsplan liegt in `planning/09-implementierungsplan.md`. Nach jeder abgeschlossenen Session:
+1. Überschrift mit `✅` markieren (z.B. `### ✅ 9.1 — ...`)
+2. Inhalt der Session erhalten — nichts löschen
+3. `**Abschluss (DATUM):**`-Notiz direkt vor dem abschließenden `---` ergänzen — kurzes Fazit: was geklappt hat, ob es Schwierigkeiten gab

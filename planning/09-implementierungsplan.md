@@ -12,14 +12,17 @@ Abgeschlossene Sessions werden hier als ✅ markiert.
 
 **Kontext-Files für alle Sessions:** `CLAUDE.md`, `planning/02b-datenmodell-entwurf.md`, `planning/03-feature-spec.md`, `planning/07-route-map.md`
 
+**Nach jeder Session:** Abschnitt im Plan mit ✅ markieren, Inhalt erhalten, kurze Abschluss-Notiz (`**Abschluss:**`) am Ende des Abschnitts ergänzen.
+
 ---
 
 ## Abhängigkeitsübersicht
 
 ```
 9.1 Schema
-  └── 9.2 Auth-Middleware
-        └── 9.3 LADV-Client
+  └── 9.2.1 Campai-Sync Rollen
+        └── 9.2.2 Auth-Middleware
+              └── 9.3 LADV-Client
               └── 9.4 Seeding
                     └── 9.5 Event-Anlegen + Liste
                           └── 9.6 Event-Detail
@@ -37,7 +40,7 @@ Abgeschlossene Sessions werden hier als ✅ markiert.
 
 ---
 
-### 9.1 — DB-Schema finalisieren
+### ✅ 9.1 — DB-Schema finalisieren
 
 **Ziel:** Alle Tabellen im Drizzle-Schema ergänzen, Migration generieren, Shared Types anlegen.
 
@@ -61,31 +64,101 @@ Abgeschlossene Sessions werden hier als ✅ markiert.
 **Output:** Schema vollständig, Migration applied, Shared Types verfügbar  
 **Kontext-Files:** `02b-datenmodell-entwurf.md`, `server/db/schema.ts`, `server/tasks/sync-members.ts`
 
+**Abschluss (2026-04-04):** Alles reibungslos durchgelaufen. Migration `0002_thick_micromacro.sql` generiert und angewendet (8 Tabellen). `shared/types/db.ts` mit allen `$inferSelect`-Typen angelegt. `has_ladv_startpass` aus Campai-Feld `custom.1EAOnH99nXTTRrmreBYuF` befüllt, Typ im Service ergänzt. TypeCheck sauber (Exit 0).
+
 ---
 
-### 9.2 — Auth-Middleware & Rollenprüfung
+### 9.2.1 — Campai-Sync: Rollen-Zuweisung erweitern
 
-**Ziel:** Vollständige, konsistente Auth-Absicherung aller API-Routen. Wiederverwendbare Role-Guard-Utilities für alle weiteren Sessions.
+**Ziel:** Der Campai-Sync-Task setzt die `role` auf Basis der Campai-Sections korrekt. Admin-Section ist `"Coaches"`. Superuser wird per E-Mail hartcodiert.
+
+**Hintergrund / Kontext:**
+
+- `role` ist das authorative Feld in der `users`-Tabelle: `'member' | 'admin' | 'superuser'`
+- Die Zuordnung erfolgt ausschließlich beim Campai-Sync — nie manuell über die UI
+- `sections` bleibt als Array im User erhalten (wird in der Session mitgeführt), ist aber nicht mehr die Quelle für Zugriffsrechte
+- `server/utils/sections.ts` enthält `ADMIN_SECTIONS = ['Vorstand', 'Geschäftsstelle']` — das ist veraltet und muss auf `['Coaches']` geändert werden
 
 **Was zu tun ist:**
 
-1. `server/middleware/auth.ts` erweitern: alle zu schützenden Präfixe absichern:
-   - `/api/events/` — member
-   - `/api/registrations/` — member
-   - `/api/comments/` — member
-   - `/api/me/` — member
-   - `/api/cron/` — Bearer-Token-Check (bereits vorhanden, prüfen ob vollständig)
+1. **`server/utils/sections.ts`** — `ADMIN_SECTIONS` auf `['Coaches']` ändern:
+   ```ts
+   export const ADMIN_SECTIONS = ['Coaches']
+   ```
 
-2. Server-Utilities in `server/utils/auth.ts` (oder ähnlich) anlegen:
+2. **`server/tasks/sync-members.ts`** — Superuser-Logik ergänzen. Nach der bestehenden `isAdminSection`-Prüfung:
+   ```ts
+   // Bestehende Zeile (bleibt):
+   const role = sections.some(s => isAdminSection(s)) ? 'admin' as const : 'member' as const
+   // Danach überschreiben wenn Superuser-E-Mail:
+   const finalRole = email === 'paul@diepold.de' ? 'superuser' as const : role
+   ```
+   `finalRole` statt `role` in `userData` verwenden.
+
+3. **`planning/07-route-map.md`** — Abschnitt „Rollen-Zuweisung" ergänzen (dokumentiert die Logik für zukünftige Entwickler)
+
+**Hinweis zu `membershipStatus`:** Der Sync setzt bereits korrekt `membershipStatus: 'inactive'` für ausgetretene Mitglieder. Die Login-Sperre dafür folgt in 9.2.2.
+
+**Output:** Campai-Sync setzt `role` korrekt (`member` / `admin` / `superuser`)  
+**Kontext-Files:** `server/tasks/sync-members.ts`, `server/utils/sections.ts`, `planning/07-route-map.md`
+
+---
+
+### 9.2.2 — Auth-Middleware & Rollenprüfung
+
+**Ziel:** Vollständige, konsistente Auth-Absicherung aller API-Routen. Wiederverwendbare Role-Guard-Utilities für alle weiteren Sessions.
+
+**Hintergrund / Kontext:**
+
+Es gibt zwei separate Auth-Schichten:
+- **Server-Middleware** (`server/middleware/auth.ts`): prüft nur *ob* eine Session vorhanden ist. Momentan schützt sie nur `/events/` — das ist unvollständig.
+- **In-Route-Guards** (`server/utils/auth.ts`, neu): prüfen die *Rolle*. Werden direkt in API-Routen aufgerufen.
+
+`/api/cron/` wird **nicht** in der globalen Middleware abgesichert — der Bearer-Token-Check bleibt im Route-Handler (`server/api/cron/sync-members.ts`), weil Cron-Aufrufe keine Session haben.
+
+Der bestehende `server/utils/sections.ts` enthält ein Guard-Pattern (`requireSection` etc.) als Referenz — die neuen Guards folgen demselben Muster, basieren aber auf `role` statt `sections`.
+
+**Was zu tun ist:**
+
+1. **`shared/types/auth.d.ts`** — `role: string` auf Union-Type ändern:
+   ```ts
+   role: 'member' | 'admin' | 'superuser'
+   ```
+   Datei liegt unter `shared/types/auth.d.ts`, `declare module '#auth-utils'`-Block.
+
+2. **`server/middleware/auth.ts`** — alle member-geschützten API-Präfixe ergänzen:
+   ```ts
+   const protectedPaths = [
+     '/api/events',
+     '/api/registrations',
+     '/api/comments',
+     '/api/me',
+   ]
+   ```
+   Prüfung mit `path.startsWith(protectedPath)`. Nur Session-Präsenz prüfen (`requireUserSession`), keine Rollen-Prüfung hier.
+
+3. **`server/utils/auth.ts`** (neu anlegen) — drei Guards:
    - `requireAdmin(event)` — wirft 403 wenn `role !== 'admin' && role !== 'superuser'`
    - `requireSuperuser(event)` — wirft 403 wenn `role !== 'superuser'`
-   - `requireOwnerOrAdmin(event, ownerId)` — wirft 403 wenn weder Owner noch Admin/Superuser
+   - `requireOwnerOrAdmin(event, ownerId: string)` — wirft 403 wenn `session.user.id !== ownerId` und nicht admin/superuser
+   
+   Alle drei rufen intern `requireUserSession(event)` auf und lesen `session.user.role`.
 
-3. Client-Middleware prüfen/ergänzen (`app/middleware/auth.global.ts`):
-   - Routen `/admin` und `/superuser` auf Rolle prüfen (redirect bei unzureichender Rolle)
+4. **`app/middleware/auth.global.ts`** — Rollen-Redirects ergänzen:
+   - `/admin` und alles darunter → redirect zu `/` wenn `role !== 'admin' && role !== 'superuser'`
+   - `/superuser` und alles darunter → redirect zu `/` wenn `role !== 'superuser'`
+   - Session-Objekt via `useUserSession()` verfügbar, `user.role` lesen
 
-**Output:** Alle API-Routen abgesichert, Role-Utilities einsatzbereit  
-**Kontext-Files:** `server/middleware/auth.ts`, `app/middleware/auth.global.ts`, `07-route-map.md`
+5. **`server/api/auth/login.post.ts`** — Login-Sperre für inaktive Mitglieder:
+   - Nach dem `user`-Lookup: wenn `user.membershipStatus !== 'active'` → gleiche Response wie "User nicht gefunden" zurückgeben (kein Status-Leak nach außen)
+   - Die Datei liegt in `server/api/auth/login.post.ts`, der relevante Block beginnt nach `if (!user) { ... }`
+
+6. **`/verify`-Route** — ebenfalls Inactive-Check:
+   - Route liegt unter `server/routes/verify.get.ts` oder ähnlich (vor der Session mit `setUserSession` aufrufen)
+   - Wenn Token valid aber `user.membershipStatus !== 'active'` → 403 mit sprechender Fehlermeldung
+
+**Output:** Alle API-Routen session-geschützt, Role-Utilities einsatzbereit, Frontend-Routen rollen-gesichert, inaktive Member können sich nicht einloggen  
+**Kontext-Files:** `server/middleware/auth.ts`, `server/utils/sections.ts` (als Muster), `app/middleware/auth.global.ts`, `shared/types/auth.d.ts`, `server/api/auth/login.post.ts`, `planning/07-route-map.md`
 
 ---
 

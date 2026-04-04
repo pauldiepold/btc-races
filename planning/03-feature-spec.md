@@ -30,7 +30,15 @@ _Stand: 2026-03-31_
 | Superuser  | Technischer Administrator (Paul) — hat alle Admin-Rechte + kann Systemoperationen ausführen (Campai-Sync manuell anstoßen, künftig mehr) | 1 |
 | System     | Automatische Prozesse (Campai-Sync, E-Mail-Cronjobs, Push)                                       | —      |
 
-Admins sind reguläre User mit `role = 'admin'` in der `users`-Tabelle. Superuser hat `role = 'superuser'`. Die Verwaltung dieser Rollen erfolgt in v2 direkt in der DB (kein Admin-UI dafür vorgesehen).
+Admins sind reguläre User mit `role = 'admin'` in der `users`-Tabelle. Superuser hat `role = 'superuser'`. **Rollen werden ausschließlich beim Campai-Sync gesetzt** — kein manuelles Admin-UI:
+
+| Rolle | Bedingung beim Campai-Sync |
+|-------|---------------------------|
+| `superuser` | E-Mail `paul@diepold.de` (hartcodiert) |
+| `admin` | Campai-Section `"Coaches"` |
+| `member` | alle anderen aktiven Mitglieder |
+
+Ausgetretene Mitglieder (nicht mehr in Campai aktiv) erhalten `membershipStatus = 'inactive'` und können sich **nicht mehr einloggen**. Ihre Daten (Anmeldungen, Kommentare) bleiben erhalten.
 
 ### Event-Typen im Überblick
 
@@ -432,11 +440,20 @@ Admins sind reguläre User mit `role = 'admin'` in der `users`-Tabelle. Superuse
 
 #### F-21: Campai-Sync
 
-**Priorität:** Must — **bereits implementiert**
+**Priorität:** Must — **teilweise implementiert** (Rollen-Zuweisung + Inactive-Login-Block fehlen noch, → 9.2.1)
 
 **Beschreibung:** Automatischer Abgleich aktiver Vereinsmitglieder aus Campai in die `users`-Tabelle.
 
-**Status:** Implementiert. Auslösung via `POST /api/cron/sync-members` (Bearer-Token).
+**Was der Sync tut:**
+- Aktive Mitglieder: upsert in `users` mit allen Feldern inkl. `role` und `hasLadvStartpass`
+- Rollen-Zuweisung: `superuser` wenn E-Mail `paul@diepold.de`; `admin` wenn Section `"Coaches"`; sonst `member`
+- Nicht mehr aktive Mitglieder: `membershipStatus = 'inactive'` setzen (Daten bleiben erhalten)
+
+**Login-Sperre für inaktive Member:**
+- `POST /api/auth/login`: wenn User existiert aber `membershipStatus = 'inactive'` → gleiche Response wie "User nicht gefunden" (kein Hinweis auf Status nach außen)
+- `GET /verify`: wenn Token valid aber User inaktiv → 403
+
+**Status:** Sync-Logik implementiert. Rollen-Zuweisung (Coaches-Section, Superuser-Hardcode) und Login-Sperre für inaktive User stehen noch aus (→ 9.2.1 + 9.2.2).
 
 ---
 

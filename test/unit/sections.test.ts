@@ -1,49 +1,28 @@
 import { describe, expect, it } from 'vitest'
-import { ADMIN_SECTIONS, hasAnySection, hasSection, isAdminSection } from '../../server/utils/sections'
+import { resolveRole } from '../../server/utils/sections'
 
-describe('isAdminSection', () => {
-  it('returns true for known admin sections', () => {
-    for (const section of ADMIN_SECTIONS) {
-      expect(isAdminSection(section)).toBe(true)
-    }
+describe('resolveRole', () => {
+  it('returns superuser for the hardcoded superuser email', () => {
+    expect(resolveRole('paul@diepold.de', [])).toBe('superuser')
   })
 
-  it('returns false for regular sections', () => {
-    expect(isAdminSection('Laufen')).toBe(false)
-    expect(isAdminSection('Sprung')).toBe(false)
-    expect(isAdminSection('')).toBe(false)
-  })
-})
-
-describe('hasSection', () => {
-  const user = { sections: ['Laufen', 'Vorstand'] } as any
-
-  it('returns true if user has the section', () => {
-    expect(hasSection(user, 'Laufen')).toBe(true)
-    expect(hasSection(user, 'Vorstand')).toBe(true)
+  it('returns superuser even when superuser email is also in Coaches section', () => {
+    expect(resolveRole('paul@diepold.de', ['Coaches'])).toBe('superuser')
   })
 
-  it('returns false if user does not have the section', () => {
-    expect(hasSection(user, 'Sprung')).toBe(false)
+  it('returns admin when member of Coaches section', () => {
+    expect(resolveRole('coach@btc-berlin.de', ['Coaches'])).toBe('admin')
   })
 
-  it('returns false for empty sections list', () => {
-    expect(hasSection({ sections: [] } as any, 'Laufen')).toBe(false)
-  })
-})
-
-describe('hasAnySection', () => {
-  const user = { sections: ['Laufen'] } as any
-
-  it('returns true if user has at least one of the sections', () => {
-    expect(hasAnySection(user, ['Laufen', 'Sprung'])).toBe(true)
+  it('returns admin when Coaches is one of multiple sections', () => {
+    expect(resolveRole('coach@btc-berlin.de', ['Laufen', 'Coaches', 'Sprung'])).toBe('admin')
   })
 
-  it('returns false if user has none of the sections', () => {
-    expect(hasAnySection(user, ['Sprung', 'Vorstand'])).toBe(false)
+  it('returns member for regular email with no relevant sections', () => {
+    expect(resolveRole('member@btc-berlin.de', ['Laufen'])).toBe('member')
   })
 
-  it('returns false for empty check list', () => {
-    expect(hasAnySection(user, [])).toBe(false)
+  it('returns member for empty sections', () => {
+    expect(resolveRole('member@btc-berlin.de', [])).toBe('member')
   })
 })

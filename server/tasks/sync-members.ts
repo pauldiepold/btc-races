@@ -1,7 +1,7 @@
 import { db, schema } from 'hub:db'
 import { eq, and, isNotNull, notInArray } from 'drizzle-orm'
 import { CampaiContactsService } from '../external-apis/campai-contacts/contacts.service'
-import { isAdminSection } from '../utils/sections'
+import { resolveRole } from '../utils/sections'
 
 export default defineTask({
   meta: {
@@ -37,7 +37,7 @@ export default defineTask({
         activeCampaiIds.push(campaiId)
 
         const sections = contact.membership.sections || []
-        const role = sections.some(s => isAdminSection(s)) ? 'admin' as const : 'member' as const
+        const role = resolveRole(email, sections)
         const avatarUrl = contact.personal?.avatar?.path !== null ? `https://api.campai.com/storage/download/${contact.personal?.avatar?.path}` : ''
 
         // Vorbereitung der Daten (für Insert und Update identisch)

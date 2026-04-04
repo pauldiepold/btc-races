@@ -73,7 +73,7 @@ Abgeschlossene Sessions werden hier als ✅ markiert.
 
 ---
 
-### 9.2.1 — Campai-Sync: Rollen-Zuweisung erweitern
+### ✅ 9.2.1 — Campai-Sync: Rollen-Zuweisung erweitern
 
 **Ziel:** Der Campai-Sync-Task setzt die `role` auf Basis der Campai-Sections korrekt. Admin-Section ist `"Coaches"`. Superuser wird per E-Mail hartcodiert.
 
@@ -106,6 +106,8 @@ Abgeschlossene Sessions werden hier als ✅ markiert.
 
 **Output:** Campai-Sync setzt `role` korrekt (`member` / `admin` / `superuser`)  
 **Kontext-Files:** `server/tasks/sync-members.ts`, `server/utils/sections.ts`, `planning/07-route-map.md`
+
+**Abschluss (2026-04-04):** `ADMIN_SECTIONS` auf `['Coaches']` geändert, Superuser-Logik (`paul@diepold.de`) im Sync-Task ergänzt. Abschnitt „Rollen-Zuweisung" in `07-route-map.md` war bereits vollständig vorhanden. TypeCheck sauber.
 
 ---
 
@@ -182,6 +184,10 @@ Der bestehende `server/utils/sections.ts` enthält ein Guard-Pattern (`requireSe
    - Fehlerbehandlung: API nicht erreichbar → sprechenden Fehler werfen (wird im Seeding als Fallback-Signal genutzt)
 
 3. (Optional) Fixture-Format festlegen: gecachte LADV-Response als JSON unter `server/db/seed/ladv-fixtures/[id].json`
+
+**Testbare Logik (→ `/test` nach der Session):**
+- `parseLadvIdFromUrl` — pure Funktion, gehört in `server/utils/ladv.ts` (nicht ins Service), damit sie importierbar und testbar ist. Test-Cases: gültige URL mit ID, ungültige URL, `null`-Rückgabe.
+- Normalisierungslogik (LADV-Felder → App-Felder) — wenn als eigene Funktion `normalizeLadvData(raw)` extrahiert, ebenfalls testbar.
 
 **Output:** `server/external-apis/ladv/ladv.service.ts` einsatzbereit, Typen generiert  
 **Kontext-Files:** `server/external-apis/schemas/ladv-api-schema.json`, `server/external-apis/campai-contacts/contacts.service.ts` (als Referenz für Service-Muster)
@@ -308,6 +314,9 @@ Zufällige Anmeldungen von Campai-Pool + Test-Usern (3–15 pro Event). Explizit
   - Diff-Hinweis: wenn `name`, `date`, `location` oder `registration_deadline` von `ladv_data` abweichen → visueller Hinweis pro Feld mit "Übernehmen"-Button
   - Absagen-Button mit Bestätigungsdialog
 
+**Testbare Logik (→ `/test` nach der Session):**
+- LADV-Diff-Erkennung — `detectLadvDiff(event, ladvData)` als pure Funktion in `shared/utils/ladv.ts` extrahieren (wird sowohl im Frontend für den Diff-Hinweis als auch ggf. im Backend genutzt). Gibt ein Objekt mit abweichenden Feldern zurück. Test-Cases: keine Abweichung, einzelne Felder abweichend, alle Felder gleich trotz unterschiedlicher Typen (z.B. Date vs. String).
+
 **Output:** Event-Verwaltung vollständig  
 **Kontext-Files:** `03-feature-spec.md` (F-09, F-10, F-11), `server/external-apis/ladv/ladv.service.ts`
 
@@ -339,6 +348,10 @@ Zufällige Anmeldungen von Campai-Pool + Test-Usern (3–15 pro Event). Explizit
   - Hinweis wenn Disziplin bereits `ladv_registered_at` gesetzt hat
   - F-22: Fehlermeldung bei fehlendem Startpass
 - `/profil` — eigene Anmeldungsübersicht: Event-Name, Datum, Typ, Status, LADV-Status (bei ladv-Events), Link zur Detailseite
+
+**Testbare Logik (→ `/test` nach der Session):**
+- State Machine — `getValidNextStatuses(currentStatus, eventType)` in `shared/utils/registration.ts` extrahieren. Wird im Frontend (welche Buttons anzeigen) und im Backend (Validierung beim PATCH) gleichermaßen gebraucht. Test-Cases: alle Kombinationen aus `03-feature-spec.md`, ungültige Übergänge.
+- Fristprüfung — `isDeadlineExpired(deadline: Date | null, now?: Date): boolean` in `shared/utils/deadlines.ts`. Test-Cases: abgelaufene Frist, noch offene Frist, `null` (kein Deadline-Check nötig), exakte Grenze.
 
 **Output:** Anmeldungs-Flow vollständig, `/profil` nutzbar  
 **Kontext-Files:** `03-feature-spec.md` (F-03, F-04, F-06, F-22), `02b-datenmodell-entwurf.md` (ADR-005, ADR-007)

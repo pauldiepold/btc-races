@@ -9,6 +9,8 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "typecheck": "nuxi typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "db:generate": "nuxt db generate",
@@ -45,6 +47,7 @@
     "@nuxt/eslint": "^1.15.2",
     "eslint": "^10.1.0",
     "typescript": "^6.0.2",
+    "vitest": "^4.1.2",
     "vue-tsc": "^3.2.6"
   }
 }

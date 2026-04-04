@@ -84,6 +84,30 @@ Nitro-Task `server/tasks/sync-members.ts`: Synct aktive Mitglieder von der Campa
 - **LADV**: Wettkampf-Daten (Schema vorhanden, noch nicht vollständig implementiert)
 - OpenAPI-Schemas in `server/external-apis/schemas/`, Typen via `pnpm api:generate`
 
+## Testing
+
+Setup: `vitest` — nur Unit Tests für pure Business-Logik.
+
+```bash
+pnpm test        # einmalig ausführen
+pnpm test:watch  # watch mode
+```
+
+Tests liegen in `test/unit/`. Nach einer Feature-Session: `/test` aufrufen.
+
+### Was getestet wird
+- Pure Funktionen in `server/utils/` (kein DB-Zugriff, kein HTTP)
+- Daten-Mapping und Transformations-Logik
+- Zod-Schema-Validierungen und Business-Rules
+
+### Was NICHT getestet wird
+- Nitro Event Handler / API-Routen
+- Drizzle-Queries / Datenbankzugriffe
+- Vue-Komponenten
+
+### Hinweis beim Implementieren
+Am Ende jeder Feature-Session prüfen: Enthält der neue Code pure, testbare Logik? Falls ja, kurz darauf hinweisen und `/test` anbieten.
+
 ## Umgebungsvariablen
 
 Siehe (`.env.example`)

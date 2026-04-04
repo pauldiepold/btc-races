@@ -1,0 +1,35 @@
+---
+description: Unit Tests schreiben — Konventionen, was getestet wird, wie vorzugehen ist. Aktivieren wenn der User Tests schreiben möchte oder nach einer Feature-Implementierung.
+alwaysApply: false
+---
+
+## Unit Tests schreiben
+
+### Vorgehen
+
+1. `git diff --name-only HEAD` + `git status` lesen
+2. Geänderte `.ts`-Dateien auf pure Logik prüfen
+3. Existierende Tests in `test/unit/` prüfen — was fehlt?
+4. Fehlende Tests schreiben
+5. `pnpm test` ausführen und Ergebnis berichten
+
+### Was getestet wird
+- Pure Funktionen in `server/utils/` — kein DB-Zugriff, kein HTTP
+- Daten-Mapping und Transformations-Logik (z.B. API-Response → DB-Objekt)
+- Zod-Schema-Validierungen und Business-Rules
+
+### Was NICHT getestet wird
+- Nitro Event Handler / API-Routen direkt
+- Datenbankzugriffe (Drizzle-Queries)
+- Nuxt-Composables (außer bei echter isolierter Logik)
+- Vue-Komponenten
+
+### Konventionen
+- Ablage: `test/unit/<name>.test.ts`
+- Imports: relative Pfade (z.B. `../../server/utils/sections`)
+- Kein Mocking externer Services — nur pure Einheiten testen
+- `describe`/`it`-Namen auf Englisch
+
+### Hinweis beim Implementieren
+Am Ende jeder Feature-Session prüfen: Enthält der neue Code pure, testbare Logik?
+Falls ja: kurz darauf hinweisen und anbieten Tests zu schreiben.

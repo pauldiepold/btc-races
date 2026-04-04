@@ -53,6 +53,7 @@ export default defineTask({
           membershipLeaveDate: contact.membership.leaveDate ? new Date(contact.membership.leaveDate) : null,
           sections,
           avatarUrl,
+          hasLadvStartpass: contact.custom?.['1EAOnH99nXTTRrmreBYuF'] === true ? 1 : 0,
           lastSyncedAt: syncTimestamp,
         }
 

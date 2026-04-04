@@ -20,10 +20,15 @@ export interface CampaiContact {
     sections?: string[]
     [key: string]: unknown
   }
+  custom?: {
+    '1EAOnH99nXTTRrmreBYuF'?: boolean
+    [key: string]: unknown
+  }
 }
 
 export class CampaiContactsService {
   private readonly baseUrl = 'https://api.campai.com/contacts'
+  private readonly debug = false
   private readonly apiKey: string
   private readonly orgId: string
 
@@ -88,8 +93,20 @@ export class CampaiContactsService {
    * Führt den API-Call mit skip statt page aus
    */
   private async fetchPage(filters: Record<string, string>, skip: number, limit: number): Promise<CampaiContact[]> {
+    if (this.debug) {
+      const query = new URLSearchParams({
+        mode: 'query',
+        organisation: this.orgId,
+        sort: 'membership.numberSort',
+        limit: limit.toString(),
+        skip: skip.toString(),
+        ...filters,
+      })
+      console.log(`[Campai] GET ${this.baseUrl}?${query.toString()}`)
+    }
+
     try {
-      return await $fetch<CampaiContact[]>(this.baseUrl, {
+      const response = await $fetch<CampaiContact[]>(this.baseUrl, {
         headers: {
           Authorization: this.apiKey,
           Accept: 'application/json',
@@ -104,6 +121,10 @@ export class CampaiContactsService {
         },
         retry: 2,
       })
+      if (this.debug) {
+        console.log(`[Campai] Response (skip=${skip}):`, JSON.stringify(response, null, 2))
+      }
+      return response
     }
     catch (error) {
       console.error(`Campai API Fehler bei skip ${skip}:`, error)

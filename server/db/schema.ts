@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, unique } from 'drizzle-orm/sqlite-core'
 import { sql } from 'drizzle-orm'
 
 // Zentrales User-Modell
@@ -7,7 +7,7 @@ export const users = sqliteTable('users', {
   email: text().notNull().unique(),
   firstName: text(),
   lastName: text(),
-  role: text().$type<'admin' | 'member'>().default('member'),
+  role: text().$type<'member' | 'admin' | 'superuser'>().default('member'),
 
   // Campai-Sync-Felder
   campaiId: text().unique(),
@@ -18,6 +18,7 @@ export const users = sqliteTable('users', {
   sections: text({ mode: 'json' }).$type<string[]>(),
   lastSyncedAt: integer({ mode: 'timestamp' }),
   avatarUrl: text(),
+  hasLadvStartpass: integer().default(0),
 
   createdAt: integer({ mode: 'timestamp' })
     .notNull()
@@ -29,4 +30,116 @@ export const authTokens = sqliteTable('auth_tokens', {
   token: text().primaryKey(),
   userId: text().notNull().references(() => users.id, { onDelete: 'cascade' }),
   expiresAt: integer({ mode: 'timestamp' }).notNull(),
+})
+
+// Events (alle Typen in einer Tabelle)
+export const events = sqliteTable('events', {
+  id: text().primaryKey(), // UUID
+  type: text().notNull().$type<'ladv' | 'competition' | 'training' | 'social'>(),
+  name: text().notNull(),
+  date: integer({ mode: 'timestamp' }),
+  location: text(),
+  registrationDeadline: integer({ mode: 'timestamp' }),
+  announcementLink: text(),
+  cancelledAt: integer({ mode: 'timestamp' }),
+
+  // LADV-spezifische Felder
+  ladvId: integer(),
+  ladvData: text({ mode: 'json' }),
+  ladvLastSync: integer({ mode: 'timestamp' }),
+
+  createdBy: text().references(() => users.id, { onDelete: 'set null' }),
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+})
+
+// Anmeldungen zu Events
+export const registrations = sqliteTable('registrations', {
+  id: text().primaryKey(), // UUID
+  eventId: text().notNull().references(() => events.id, { onDelete: 'cascade' }),
+  userId: text().notNull().references(() => users.id, { onDelete: 'cascade' }),
+  status: text().notNull().$type<'registered' | 'canceled' | 'maybe' | 'yes' | 'no'>(),
+  notes: text(),
+
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+}, t => [
+  unique().on(t.eventId, t.userId),
+])
+
+// Disziplin-Einträge pro Anmeldung (nur bei type=ladv)
+export const registrationDisciplines = sqliteTable('registration_disciplines', {
+  id: text().primaryKey(), // UUID
+  registrationId: text().notNull().references(() => registrations.id, { onDelete: 'cascade' }),
+  discipline: text().notNull(),
+  ageClass: text().notNull(),
+
+  // LADV-Operationsfelder (pro Disziplin)
+  ladvRegisteredAt: integer({ mode: 'timestamp' }),
+  ladvRegisteredBy: text(),
+  ladvCanceledAt: integer({ mode: 'timestamp' }),
+  ladvCanceledBy: text(),
+
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+}, t => [
+  unique().on(t.registrationId, t.discipline),
+])
+
+// Kommentare & Ankündigungen zu Events
+export const eventComments = sqliteTable('event_comments', {
+  id: text().primaryKey(), // UUID
+  eventId: text().notNull().references(() => events.id, { onDelete: 'cascade' }),
+  userId: text().notNull().references(() => users.id, { onDelete: 'cascade' }),
+  type: text().notNull().$type<'comment' | 'announcement'>(),
+  body: text().notNull(),
+
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+})
+
+// Emoji-Reaktionen auf Kommentare (Schema only, kein UI in v2)
+export const reactions = sqliteTable('reactions', {
+  id: text().primaryKey(), // UUID
+  commentId: text().notNull().references(() => eventComments.id, { onDelete: 'cascade' }),
+  userId: text().notNull().references(() => users.id, { onDelete: 'cascade' }),
+  emoji: text().notNull(),
+
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+}, t => [
+  unique().on(t.commentId, t.userId, t.emoji),
+])
+
+// E-Mail-Log (F-19)
+export const sentEmails = sqliteTable('sent_emails', {
+  id: text().primaryKey(), // UUID
+  eventId: text().references(() => events.id, { onDelete: 'set null' }),
+  userId: text().references(() => users.id, { onDelete: 'set null' }),
+  type: text().notNull().$type<
+    'registration'
+    | 'cancellation'
+    | 'ladv_registered'
+    | 'ladv_canceled'
+    | 'urgent_registration'
+    | 'reminder_athlete'
+    | 'reminder_admin'
+    | 'event_reminder'
+  >(),
+  sentAt: integer({ mode: 'timestamp' }),
+  error: text(),
 })

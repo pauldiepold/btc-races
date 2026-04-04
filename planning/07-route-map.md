@@ -115,5 +115,24 @@ _Stand: 2026-04-02_
 
 | Middleware | Typ | Beschreibung |
 |------------|-----|--------------|
-| `app/middleware/auth.global.ts` | Client (global) | Alle Routen außer `/login` und `/link-gesendet` erfordern Session |
-| `server/middleware/auth.ts` | Server | Schützt `/api/events/...` und weitere API-Routen |
+| `app/middleware/auth.global.ts` | Client (global) | Session-Pflicht für alle Routen außer `/login` + `/link-gesendet`; Rollen-Redirect für `/admin` (→ admin/superuser) und `/superuser` (→ superuser) |
+| `server/middleware/auth.ts` | Server | Session-Pflicht für `/api/events`, `/api/registrations`, `/api/comments`, `/api/me` |
+
+---
+
+## Rollen-Zuweisung
+
+Rollen werden ausschließlich beim Campai-Sync (`server/tasks/sync-members.ts`) gesetzt — nie manuell.
+
+| Rolle | Bedingung |
+|-------|-----------|
+| `superuser` | E-Mail `paul@diepold.de` (hartcodiert) |
+| `admin` | Campai-Section `"Coaches"` |
+| `member` | alle anderen aktiven Mitglieder |
+
+**Priorität:** superuser > admin > member (wird in dieser Reihenfolge geprüft).
+
+Server-seitige Guards liegen in `server/utils/auth.ts`:
+- `requireAdmin(event)` — admin oder superuser
+- `requireSuperuser(event)` — nur superuser
+- `requireOwnerOrAdmin(event, ownerId)` — eigener Datensatz oder admin/superuser

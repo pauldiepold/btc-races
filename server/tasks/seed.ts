@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { LadvService } from '../external-apis/ladv/ladv.service'
 import { normalizeLadvData } from '../utils/ladv'
-import type { LadvAusschreibung } from '../utils/ladv'
+import type { LadvAusschreibung } from '~~/shared/types/ladv'
 
 // LADV-Ausschreibungs-IDs — jeden 3. auskommentiert
 const LADV_IDS: Array<{ id: number, label: string }> = [

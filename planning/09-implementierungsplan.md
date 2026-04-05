@@ -497,7 +497,7 @@ Hinweis: `$fetch` bei 4xx/5xx wirft einen `FetchError` mit `.status`, `.statusMe
 
 ---
 
-### 9.6 — Event-Detail (F-02)
+### ✅ 9.6 — Event-Detail (F-02)
 
 **Ziel:** Die zentrale Seite der App. Zeigt alle Event-Informationen inkl. Teilnehmerliste (noch ohne Anmeldeformular) und Kommentare (Placeholder).
 
@@ -518,6 +518,8 @@ Hinweis: `$fetch` bei 4xx/5xx wirft einen `FetchError` mit `.status`, `.statusMe
 
 **Output:** `/events/[id]` rendert vollständige Event-Infos + Teilnehmerliste  
 **Kontext-Files:** `03-feature-spec.md` (F-02, F-12), `02b-datenmodell-entwurf.md`
+
+**Abschluss (2026-04-05):** LADV-Interfaces in `shared/types/ladv.ts` extrahiert (server/utils/ladv.ts importiert von dort). `GET /api/events/[id]`: 3 separate Queries + JS-Merge, rollensensitive LADV-Felder (member sieht nur eigene, admin alle). `shared/types/events.ts` um `EventDetail`, `RegistrationDetail`, `DisciplineDetail` erweitert. `/events/[id].vue`: Header mit Datum-Block/Badges/Meta-Zeile, Abgesagt-Banner (UAlert), LADV-Metadaten-Block mit Wettbewerbe-Tabelle + Beschreibung, Anmelde-Placeholder (dashed border), Teilnehmerliste mit Avatar-Initialen/Status-Badges/Disziplinen, abgemeldete kompakt darunter, Kommentar-Skeletons als Placeholder für 9.10. Typecheck Exit 0.
 
 ---
 

@@ -5,42 +5,12 @@ const props = defineProps<{
   event: EventListItem
 }>()
 
-function toDate(val: Date | string | null | undefined): Date | null {
-  if (!val) return null
-  return val instanceof Date ? val : new Date(val as string)
-}
-
 const eventDate = computed(() => toDate(props.event.date))
 
 const day = computed(() => eventDate.value?.toLocaleDateString('de-DE', { day: '2-digit' }) ?? null)
 const month = computed(() => eventDate.value?.toLocaleDateString('de-DE', { month: 'short' }).replace('.', '') ?? null)
 
-const typeLabel: Record<string, string> = {
-  ladv: 'LADV',
-  competition: 'Wettkampf',
-  training: 'Training',
-  social: 'Social',
-}
-
 type BadgeColor = 'error' | 'info' | 'primary' | 'secondary' | 'success' | 'warning' | 'neutral'
-
-const typeColor: Record<string, BadgeColor> = {
-  ladv: 'info',
-  competition: 'primary',
-  training: 'success',
-  social: 'neutral',
-}
-
-const championshipLabel: Record<string, string> = {
-  bbm: 'BBM',
-  ndm: 'NDM',
-  dm: 'DM',
-}
-
-const raceTypeLabel: Record<string, string> = {
-  track: 'Bahn',
-  road: 'Straße',
-}
 
 const showDeadline = computed(() =>
   (props.event.type === 'competition' || props.event.type === 'ladv') && !!props.event.registrationDeadline,
@@ -126,14 +96,14 @@ const ownRegistration = computed(() =>
         </span>
         <UBadge
           v-if="event.raceType"
-          :label="raceTypeLabel[event.raceType]"
+          :label="eventRaceTypeLabels[event.raceType]"
           color="neutral"
           variant="outline"
           size="xs"
         />
         <UBadge
           v-if="event.championshipType && event.championshipType !== 'none'"
-          :label="championshipLabel[event.championshipType]"
+          :label="eventChampionshipLabels[event.championshipType]"
           color="neutral"
           variant="subtle"
           size="xs"
@@ -141,7 +111,7 @@ const ownRegistration = computed(() =>
         <span
           v-if="showDeadline"
           class="text-xs flex items-center gap-1"
-          :class="deadlineExpired ? 'text-red-400' : 'text-muted'"
+          :class="deadlineExpired ? 'text-red-600 dark:text-red-400' : 'text-muted'"
         >
           <UIcon
             name="i-ph-clock"
@@ -163,8 +133,8 @@ const ownRegistration = computed(() =>
         size="xs"
       />
       <UBadge
-        :label="typeLabel[event.type]"
-        :color="typeColor[event.type]"
+        :label="eventTypeLabels[event.type]"
+        :color="eventTypeColors[event.type]"
         variant="subtle"
         size="sm"
       />

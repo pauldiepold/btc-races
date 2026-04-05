@@ -1,4 +1,4 @@
-import type { LadvAusschreibung, NormalizedLadvData } from '../../utils/ladv'
+import type { LadvAusschreibung, NormalizedLadvData } from '~~/shared/types/ladv'
 import { normalizeLadvData } from '../../utils/ladv'
 
 const BASE_URL = 'https://ladv.de/api'

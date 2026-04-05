@@ -42,11 +42,13 @@ const typeItems = [
 ]
 
 const raceTypeItems = [
+  { label: 'Keine Angabe', value: undefined },
   { label: 'Bahn', value: 'track' },
   { label: 'Straße', value: 'road' },
 ]
 
 const championshipItems = [
+  { label: 'Keine Meisterschaft', value: undefined },
   { label: 'BBM', value: 'bbm' },
   { label: 'NDM', value: 'ndm' },
   { label: 'DM', value: 'dm' },

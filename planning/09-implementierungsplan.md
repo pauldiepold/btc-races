@@ -524,29 +524,54 @@ Hinweis: `$fetch` bei 4xx/5xx wirft einen `FetchError` mit `.status`, `.statusMe
 
 ---
 
-### 9.7 — Event-Bearbeitung & Admin-Aktionen (F-09, F-10, F-11)
+### ✅ 9.6.1 — EventRegistrationList: Tab-basiertes Redesign
+
+**Ziel:** Anmeldungsliste von einer flachen Karten-Liste auf eine tab-basierte, kompakte Zeilen-Ansicht umstellen.
+
+**Was getan wurde:**
+
+- `app/components/event/EventRegistrationList.vue` vollständig umgeschrieben: UTabs mit `eventType`-Prop, kompakte Zeilen statt Karten-Boxen, kein Status-Badge mehr pro Zeile, Leer-Zustand pro Tab
+- `app/pages/events/[id].vue`: `event-type`-Prop an `EventRegistrationList` übergeben
+
+**Kontext-File:** `planning/ux/9.6.1-registration-list-redesign.md`
+
+**Abschluss (2026-04-05):** Vollständig umgesetzt gemäß UX-Spec. `UTabs` mit `value`-Prop, Zähler im Tab-Label, `divide-y divide-default` Zeilen, Avatar-Initiale, Disziplin-Badges, Notiz-Italic. Kein Status-Badge mehr pro Zeile. `eventType`-Prop in Detail-Seite ergänzt. Typecheck sauber.
+
+---
+
+### ✅ 9.7 — Event-Bearbeitung & Admin-Aktionen (F-09, F-10, F-11)
 
 **Ziel:** Admins und Ersteller können Events bearbeiten. Admin kann absagen und LADV-Daten synchronisieren.
 
 **Was zu tun ist:**
 
 **Backend:**
-- `PATCH /api/events/[id]` — Felder editieren (Name, Datum, Ort, Meldefrist, Ausschreibungslink). Auth: `requireOwnerOrAdmin()`. Typ-Änderung nicht erlaubt.
-- `POST /api/events/[id]/cancel` — `cancelled_at` setzen. Auth: `requireAdmin()`.
-- `POST /api/events/[id]/sync` — LADV-Service aufrufen, nur `ladv_data` + `ladv_last_sync` aktualisieren, ggf. `cancelled_at` setzen (wenn LADV `abgesagt: true`). Auth: `requireAdmin()`.
+- `PATCH /api/events/[id]` — Felder editieren (Name, Datum, Ort, Meldefrist, Ausschreibungslink, Beschreibung, Rennart, Meisterschaft). Auth: `requireOwnerOrAdmin()`. Typ-Änderung nicht erlaubt.
+- `POST /api/events/[id]/cancel` — `cancelled_at` setzen. Auth: `requireAdmin()`. Idempotent.
+- `POST /api/events/[id]/uncancel` — `cancelled_at` auf null zurücksetzen (reversibel). Auth: `requireAdmin()`.
+- `POST /api/events/[id]/sync` — LADV-Service aufrufen, nur `ladv_data` + `ladv_last_sync` aktualisieren, ggf. `cancelled_at` setzen (wenn LADV `abgesagt: true`). Auth: `requireAdmin()`. Gibt volles EventDetail zurück.
+
+**Shared Utils:**
+- `shared/utils/ladv.ts` — `detectLadvDiff(event, ladvData): LadvDiff` als pure Funktion. Vergleicht name, date, location, registrationDeadline, raceType, championshipType. `raceType` wird aus `ladvData.kategorien` abgeleitet; `championshipType` LADV = always null.
 
 **Frontend:**
-- `/events/[id]/bearbeiten` — Formular mit existierenden Werten vorbelegt. Zugriff: Admin oder Ersteller.
-- Event-Detailseite (`/events/[id]`) erweitern (admin-only Bereiche):
-  - Sync-Button + letzter Sync-Zeitpunkt (bei LADV-Events)
-  - Diff-Hinweis: wenn `name`, `date`, `location` oder `registration_deadline` von `ladv_data` abweichen → visueller Hinweis pro Feld mit "Übernehmen"-Button
-  - Absagen-Button mit Bestätigungsdialog
+- `app/pages/events/[id].vue` → NuxtPage-Wrapper (Nested-Route-Umstellung); Inhalt nach `[id]/index.vue`
+- `/events/[id]` (index.vue) — Edit-Button (Admin/Creator), Sync-Button (Admin, LADV), Cancel/Uncancel mit UModal-Bestätigung
+- `/events/[id]/bearbeiten` — Formular mit Vorab-Befüllung, Zugriffsschutz client-seitig, LADV-Diff-Hinweise pro Feld via `LadvDiffHint`-Komponente mit "Übernehmen"-Button (reaktiv, kein extra API-Call). `raceType` für competition+ladv, `championshipType` nur für ladv.
+
+**Design-Entscheidungen:**
+- Sync schreibt nur `ladv_data` + `ladv_last_sync` (ADR-003). Normalisierte Felder bleiben unberührt.
+- Diff-Hinweise erscheinen im Edit-Formular (nicht auf der Detailseite) — saubere Trennung Read/Write.
+- Nach Sync: Toast; bei erkannten Diffs: Toast mit Link "Bearbeiten".
+- Absagen ist reversibel (`uncancel`-Endpunkt).
 
 **Testbare Logik (→ `/test` nach der Session):**
-- LADV-Diff-Erkennung — `detectLadvDiff(event, ladvData)` als pure Funktion in `shared/utils/ladv.ts` extrahieren (wird sowohl im Frontend für den Diff-Hinweis als auch ggf. im Backend genutzt). Gibt ein Objekt mit abweichenden Feldern zurück. Test-Cases: keine Abweichung, einzelne Felder abweichend, alle Felder gleich trotz unterschiedlicher Typen (z.B. Date vs. String).
+- `detectLadvDiff` — Test-Cases: kein Diff, einzelne Felder abweichend, Date-Typ-Vergleich (Date vs. string), championshipType manuell gesetzt.
 
 **Output:** Event-Verwaltung vollständig  
 **Kontext-Files:** `03-feature-spec.md` (F-09, F-10, F-11), `server/external-apis/ladv/ladv.service.ts`
+
+**Abschluss (2026-04-05):** 4 Backend-Endpunkte implementiert (PATCH, cancel, uncancel, sync). `shared/utils/ladv.ts` mit `detectLadvDiff` + `LadvDiff`-Typ angelegt. `[id].vue` zu NuxtPage-Wrapper umgebaut, Inhalt nach `[id]/index.vue`. Edit/Sync/Cancel/Uncancel-Buttons in Detailseite. `bearbeiten.vue` mit Zod-Formular, Vorab-Befüllung, LADV-Diff-Hinweisen. `LadvDiffHint`-Komponente extrahiert. `9.6.1`-Abschlussnotiz ergänzt. TypeCheck Exit 0.
 
 ---
 
@@ -673,9 +698,9 @@ Hinweis: `$fetch` bei 4xx/5xx wirft einen `FetchError` mit `.status`, `.statusMe
 | F-06 Profil / Anmeldungsübersicht | 9.8 | |
 | F-07 Event manuell anlegen | 9.5 | ✅ |
 | F-08 LADV-Import | 9.5 | ✅ |
-| F-09 Event bearbeiten | 9.7 | |
-| F-10 LADV-Sync + Diff | 9.7 | |
-| F-11 Event absagen | 9.7 | |
+| F-09 Event bearbeiten | 9.7 | ✅ |
+| F-10 LADV-Sync + Diff | 9.7 | ✅ |
+| F-11 Event absagen | 9.7 | ✅ |
 | F-12 Anmeldungen einsehen (member) | 9.8 | |
 | F-12 Anmeldungen einsehen (admin) | 9.9 | |
 | F-13 LADV-Anmeldung protokollieren | 9.9 | |

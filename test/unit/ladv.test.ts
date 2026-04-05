@@ -78,4 +78,37 @@ describe('normalizeLadvData', () => {
   it('includes the raw ladv_data object', () => {
     expect(normalizeLadvData(BASE_RAW).ladv_data).toBe(BASE_RAW)
   })
+
+  it('sets race_type to "track" when "bahn" is in kategorien', () => {
+    const raw = { ...BASE_RAW, kategorien: ['bahn', 'freiluft'] }
+    expect(normalizeLadvData(raw).race_type).toBe('track')
+  })
+
+  it('sets race_type to "road" when "bahn" is not in kategorien', () => {
+    const raw = { ...BASE_RAW, kategorien: ['straße'] }
+    expect(normalizeLadvData(raw).race_type).toBe('road')
+  })
+
+  it('sets race_type to "road" when kategorien is empty', () => {
+    expect(normalizeLadvData(BASE_RAW).race_type).toBe('road')
+  })
+
+  it('sets is_wrc to 1 when wrc is true', () => {
+    const raw = { ...BASE_RAW, wrc: true }
+    expect(normalizeLadvData(raw).is_wrc).toBe(1)
+  })
+
+  it('sets is_wrc to 0 when wrc is false', () => {
+    const raw = { ...BASE_RAW, wrc: false }
+    expect(normalizeLadvData(raw).is_wrc).toBe(0)
+  })
+
+  it('sets is_wrc to 0 when wrc is undefined', () => {
+    const { wrc: _, ...rawWithoutWrc } = BASE_RAW
+    expect(normalizeLadvData(rawWithoutWrc as LadvAusschreibung).is_wrc).toBe(0)
+  })
+
+  it('sets championship_type to null', () => {
+    expect(normalizeLadvData(BASE_RAW).championship_type).toBeNull()
+  })
 })

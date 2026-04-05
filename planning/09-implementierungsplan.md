@@ -323,7 +323,7 @@ Bei LADV-Events: `raceType` und `isWrc` kommen automatisch aus `normalizeLadvDat
 
 ---
 
-### 9.5 — Event-Anlegen + Liste (F-01, F-07, F-08)
+### ✅ 9.5 — Event-Anlegen + Liste (F-01, F-07, F-08)
 
 **Ziel:** Events anlegen (manuell + LADV-Import) und als Liste anzeigen. Erste vollständige Seite der App mit echten Daten aus dem Seed.
 
@@ -334,13 +334,164 @@ Bei LADV-Events: `raceType` und `isWrc` kommen automatisch aus `normalizeLadvDat
 - `POST /api/events` — Neues Event anlegen (`competition`, `training`, `social`). Pflichtfelder validieren, `created_by` setzen.
 - `POST /api/events/ladv-import` — LADV-ID aus URL parsen (LADV-Service), Duplikat-Check (`ladv_id` bereits vorhanden?), normalisierte Felder + `ladv_data` speichern. Redirect-URL in Response zurückgeben.
 
-**Frontend:**
-- `/events` — Listenansicht: Typ-Badge, Datum, Ort, Meldefrist, eigener Anmeldestatus. Filter-UI (Typ, Zeitraum). Abgesagte Events mit Badge. Vergangene Events standardmäßig ausgeblendet.
-- `/events/neu` — Formular: Name, Datum, Typ, Ort, Meldefrist (wenn `competition`), Ausschreibungslink. Typ `ladv` nicht wählbar.
-- `/events/ladv-importieren` — URL-Eingabe, Duplikat-Hinweis mit Link, bei Erfolg Redirect zur Detailseite.
+**Backend-Abschluss (2026-04-05):**
+- `GET /api/events` — Query-Params: `?type=ladv|competition|training|social` (optional), `?timeRange=upcoming|past|all` (default: `upcoming`). Einzel-Query mit LEFT JOIN + SQL-Aggregation: `participantCount` (non-canceled), `ownRegistrationStatus`, `ownRegistrationId`. `ladvData` nicht in der Liste. Sortierung: `date ASC`, Events ohne Datum am Ende.
+- `POST /api/events` — Body: `{ type, name, date?, location?, description?, registrationDeadline?, announcementLink?, raceType?, championshipType? }`. Dates als YYYY-MM-DD-String. Response: erstelltes Event-Objekt.
+- `POST /api/events/ladv-import` — Body: `{ url }`. Duplikat → HTTP 409 mit `data: { existingEventId }`. LADV-API-Fehler → HTTP 502. Success → 201 mit vollem Event-Objekt (inkl. `ladvData`).
+
+---
+
+**Frontend (nächster Chat):**
+
+**Voraussetzungen:**
+- `app/pages/events.vue` existiert bereits als Stub (nur Placeholder-Text)
+- Nuxt UI v4, Primary: `yellow`, Neutral: `zinc`, Dark Mode, Font: Space Grotesk (`font-display`)
+- Auth-Pattern: `useUserSession()` → `session.user` für Rolle/ID; `$fetch` für API-Calls (wie in `login.vue`)
+- Toast-Pattern: `const toast = useToast()` → `toast.add({ title, description, color })`
+- Navigation: `navigateTo('/events/[id]')`
+- Error-Handling aus `$fetch`: `FetchError` mit `.data.existingEventId` für 409-Fälle
+
+**Shared Type anlegen (`shared/types/events.ts`):**
+
+```ts
+import type { Event } from './db'
+
+// Erweiterter Typ für die Listen-Response (ohne ladvData, mit aggregierten Feldern)
+export type EventListItem = Omit<Event, 'ladvData'> & {
+  participantCount: number
+  ownRegistrationStatus: string | null
+  ownRegistrationId: string | null
+}
+```
+
+---
+
+**Seite 1: `/events` — `app/pages/events.vue`**
+
+Datenabruf:
+```ts
+// Server-seitige Filter an die API übergeben
+const typeFilter = ref<string | undefined>(undefined)
+const timeRange = ref<'upcoming' | 'past' | 'all'>('upcoming')
+
+const { data: events } = await useFetch<EventListItem[]>('/api/events', {
+  query: computed(() => ({
+    type: typeFilter.value,
+    timeRange: timeRange.value,
+  })),
+})
+```
+
+Client-seitige Filter (auf dem geladenen Array):
+```ts
+const raceTypeFilter = ref<'track' | 'road' | undefined>(undefined)
+const championshipTypeFilter = ref<string | undefined>(undefined)
+const isWrcOnly = ref(false)
+const searchQuery = ref('')
+
+const filteredEvents = computed(() => {
+  return (events.value ?? []).filter(e => {
+    if (raceTypeFilter.value && e.raceType !== raceTypeFilter.value) return false
+    if (championshipTypeFilter.value && e.championshipType !== championshipTypeFilter.value) return false
+    if (isWrcOnly.value && !e.isWrc) return false
+    if (searchQuery.value) {
+      const q = searchQuery.value.toLowerCase()
+      return e.name.toLowerCase().includes(q) || e.location?.toLowerCase().includes(q) || e.description?.toLowerCase().includes(q)
+    }
+    return true
+  })
+})
+```
+
+Filter-UI-Logik:
+- `type`-Filter und `timeRange` → Änderung triggert neuen API-Call (via `useFetch` mit reactive `query`)
+- `raceType`, `championshipType`, `isWrc`, Freitextsuche → client-seitig auf `events.value`
+- Filter für `raceType`/`championshipType` nur anzeigen wenn mind. ein Event mit gesetztem Wert vorhanden ist (sonst sinnlos)
+- Vergangene Events: `timeRange`-Toggle "Vergangene anzeigen" (setzt `timeRange = 'past'`)
+
+Event-Card pro Event (Inline oder als `app/components/EventCard.vue`):
+- Typ-Badge: `ladv` → blau, `competition` → gelb, `training` → grün, `social` → lila (Nuxt UI `UBadge` mit `color`)
+- WRC-Badge: kleines `i-ph-trophy` Icon + "WRC" wenn `isWrc === 1`
+- Meldefrist: nur bei `competition` und `ladv` anzeigen; rot wenn abgelaufen (`registrationDeadline < now`)
+- Abgesagt-Overlay: halbtransparentes Badge "Abgesagt" wenn `cancelledAt` gesetzt
+- Eigener Anmeldestatus: Icon/Badge wenn `ownRegistrationStatus` nicht null
+- `participantCount` anzeigen (z.B. "5 Anmeldungen")
+- Link → `/events/[id]`
+
+Aktions-Buttons (oben rechts):
+- "LADV importieren" → `/events/ladv-importieren`
+- "Event erstellen" → `/events/neu`
+
+---
+
+**Seite 2: `/events/neu` — `app/pages/events/neu.vue`**
+
+Formular mit Nuxt UI `UForm` + Zod-Schema (client-seitig spiegelt Server-Schema):
+```ts
+const schema = z.object({
+  type: z.enum(['competition', 'training', 'social']),
+  name: z.string().min(1),
+  date: z.string().date().optional(),
+  location: z.string().optional(),
+  description: z.string().optional(),
+  registrationDeadline: z.string().date().optional(),
+  announcementLink: z.string().url().optional().or(z.literal('')),
+  raceType: z.enum(['track', 'road']).optional(),
+  championshipType: z.enum(['none', 'bbm', 'ndm', 'dm']).optional(),
+})
+```
+
+Felder:
+- `type` — `USelect` mit Optionen: Competition / Training / Social (ladv nicht wählbar)
+- `name` — `UInput`, required
+- `date` — `UInput type="date"` (YYYY-MM-DD, browser date picker)
+- `location` — `UInput`, optional
+- `description` — `UTextarea`, optional
+- `registrationDeadline` — `UInput type="date"`, nur anzeigen wenn `type === 'competition'`
+- `announcementLink` — `UInput type="url"`, optional
+- `raceType` — `USelect` (Bahn / Straße), nur bei `competition`
+- `championshipType` — `USelect` (Keine / BBM / NDM / DM), nur bei `competition`
+
+Submit:
+```ts
+async function onSubmit() {
+  const created = await $fetch('/api/events', { method: 'POST', body: formData })
+  await navigateTo(`/events/${created.id}`)
+}
+```
+Fehler → Toast.
+
+---
+
+**Seite 3: `/events/ladv-importieren` — `app/pages/events/ladv-importieren.vue`**
+
+Einfaches Formular: ein URL-Input + Submit-Button.
+
+Fehlerbehandlung bei 409 (Duplikat):
+```ts
+try {
+  const created = await $fetch('/api/events/ladv-import', { method: 'POST', body: { url } })
+  await navigateTo(`/events/${created.id}`)
+} catch (err) {
+  if (err.status === 409 && err.data?.existingEventId) {
+    toast.add({ title: 'Event bereits vorhanden', description: 'Du wirst zur bestehenden Veranstaltung weitergeleitet.', color: 'warning' })
+    await navigateTo(`/events/${err.data.existingEventId}`)
+  } else if (err.status === 502) {
+    toast.add({ title: 'LADV nicht erreichbar', description: err.statusMessage, color: 'error' })
+  } else {
+    toast.add({ title: 'Fehler', description: err.message, color: 'error' })
+  }
+}
+```
+
+Hinweis: `$fetch` bei 4xx/5xx wirft einen `FetchError` mit `.status`, `.statusMessage` und `.data` — kein zusätzliches try-catch nötig für den Erfolgsfall.
 
 **Output:** Events anlegen und listen funktioniert  
-**Kontext-Files:** `03-feature-spec.md` (F-01, F-07, F-08), `07-route-map.md`, `server/external-apis/ladv/ladv.service.ts`
+**Kontext-Files:** `03-feature-spec.md` (F-01, F-07, F-08), `07-route-map.md`, `shared/types/db.ts`, `app/pages/login.vue` (Pattern-Referenz), `app/app.config.ts` (Design-System)
+
+**Abschluss Backend (2026-04-05):** Drei Endpunkte implementiert. `GET /api/events`: LEFT JOIN + SQL-Aggregation in einem Query, 2 server-seitige Params (`type`, `timeRange`). `POST /api/events`: Zod-Validierung, YYYY-MM-DD → Date, alle neuen Schema-Felder berücksichtigt. `POST /api/events/ladv-import`: parseLadvIdFromUrl, Duplikat-Check mit 409+existingEventId, LadvService-Fehler als 502. TypeCheck Exit 0. Frontend folgt im nächsten Chat.
+
+**Abschluss Review (2026-04-05):** POST-Routen nach Review vereinfacht: beide geben nur `{ id }` + 201 zurück statt vollem Event-Objekt — Frontend navigiert zur Detailseite und fetcht selbst. CLAUDE.md um Typecheck-Hinweis (Exit-Code) ergänzt.
 
 ---
 

@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 pnpm dev              # Dev-Server starten (localhost:3000, wendet Migrationen automatisch an)
 pnpm build            # Production build
-pnpm typecheck        # TypeScript-Typen prüfen
+pnpm typecheck        # TypeScript-Typen prüfen — immer mit Exit-Code prüfen: `pnpm typecheck 2>&1; echo "Exit: $?"`
 pnpm lint             # ESLint
 pnpm lint:fix         # ESLint mit Auto-Fix
 

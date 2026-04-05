@@ -94,7 +94,7 @@ export default defineTask({
     console.log('👤 Upserting test users...')
     const testUsers = [
       {
-        id: crypto.randomUUID(),
+        id: 'a1b2c3d4-0001-0001-0001-000000000001',
         email: 'paul@diepold.de',
         firstName: 'Paul',
         lastName: 'Diepold',
@@ -103,7 +103,7 @@ export default defineTask({
         hasLadvStartpass: 1,
       },
       {
-        id: crypto.randomUUID(),
+        id: 'a1b2c3d4-0002-0002-0002-000000000002',
         email: 'testadmin@btc-berlin.de',
         firstName: 'Test',
         lastName: 'Admin',
@@ -112,7 +112,7 @@ export default defineTask({
         hasLadvStartpass: 1,
       },
       {
-        id: crypto.randomUUID(),
+        id: 'a1b2c3d4-0003-0003-0003-000000000003',
         email: 'testmember1@btc-berlin.de',
         firstName: 'Kevin',
         lastName: 'Testmitglied',
@@ -121,7 +121,7 @@ export default defineTask({
         hasLadvStartpass: 1, // hat Startpass → LADV-Anmeldung möglich
       },
       {
-        id: crypto.randomUUID(),
+        id: 'a1b2c3d4-0004-0004-0004-000000000004',
         email: 'testmember2@btc-berlin.de',
         firstName: 'Lisa',
         lastName: 'Testmitglied',
@@ -138,9 +138,8 @@ export default defineTask({
         columns: { id: true },
       })
       if (existing) {
-        const { id: _id, ...updateData } = u
-        await db.update(schema.users).set(updateData).where(eq(schema.users.email, u.email))
-        testUserIds[u.email] = existing.id
+        await db.update(schema.users).set(u).where(eq(schema.users.email, u.email))
+        testUserIds[u.email] = u.id
       }
       else {
         await db.insert(schema.users).values(u)

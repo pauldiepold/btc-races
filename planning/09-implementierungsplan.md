@@ -493,6 +493,8 @@ Hinweis: `$fetch` bei 4xx/5xx wirft einen `FetchError` mit `.status`, `.statusMe
 
 **Abschluss Review (2026-04-05):** POST-Routen nach Review vereinfacht: beide geben nur `{ id }` + 201 zurück statt vollem Event-Objekt — Frontend navigiert zur Detailseite und fetcht selbst. CLAUDE.md um Typecheck-Hinweis (Exit-Code) ergänzt.
 
+**Abschluss Frontend (2026-04-05):** Events-Liste in `app/pages/index.vue` (statt eigenem `/events`-Route — `events.vue` ist jetzt nur ein `<NuxtPage />`-Wrapper mit Redirect-Guard). `shared/types/events.ts` mit `EventListItem` angelegt. `app/components/EventCard.vue` extrahiert: Datum-Block, Typ-Badge, WRC-Badge, Meldefrist (rot wenn abgelaufen), Abgesagt-Overlay, Teilnehmerzahl, eigener Anmeldestatus. Filter-UI: Freitextsuche + Typ/Zeitraum (server-seitig), Rennart/Meisterschaften (client-seitig, nur wenn Events mit gesetzten Werten vorhanden). Skeleton-Loader und Leer-Zustand implementiert. Sidebar mit 3-Schritt-Erklärung. `/events/neu` und `/events/ladv-importieren` als vollständige Formulare mit Zod-Validierung, Error-Handling (409-Redirect, 502-Toast). Seed mit `server/tasks/seed.ts` angepasst.
+
 ---
 
 ### 9.6 — Event-Detail (F-02)

@@ -1,9 +1,7 @@
 <script setup lang="ts">
-definePageMeta({
-  title: 'Events',
-})
+definePageMeta({ redirect: '/' })
 </script>
 
 <template>
-  <div>Events (kommt bald)</div>
+  <NuxtPage />
 </template>

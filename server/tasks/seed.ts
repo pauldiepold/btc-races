@@ -43,6 +43,13 @@ function saveFixture(id: number, data: LadvAusschreibung): void {
   writeFileSync(path, JSON.stringify(data, null, 2), 'utf-8')
 }
 
+function deriveChampionshipType(name: string): 'bbm' | 'ndm' | 'dm' | null {
+  if (name.includes('BBM')) return 'bbm'
+  if (name.includes('NDM')) return 'ndm'
+  if (name.includes('DM')) return 'dm'
+  return null
+}
+
 function randomPastDate(daysAgo: { min: number, max: number }): Date {
   return faker.date.recent({ days: faker.number.int(daysAgo) })
 }
@@ -200,6 +207,9 @@ export default defineTask({
         location: normalized.location,
         registrationDeadline: normalized.registration_deadline ? new Date(normalized.registration_deadline) : null,
         announcementLink: normalized.announcement_link,
+        raceType: normalized.race_type,
+        isWrc: normalized.is_wrc,
+        championshipType: deriveChampionshipType(normalized.name),
         ladvId: id,
         ladvData: normalized.ladv_data,
         ladvLastSync: new Date(),
@@ -237,6 +247,8 @@ export default defineTask({
         date: eventDate,
         location: faker.location.city(),
         registrationDeadline: deadline,
+        raceType: faker.helpers.arrayElement(['track', 'road'] as const),
+        championshipType: faker.helpers.arrayElement(['none', 'bbm', 'ndm', 'dm'] as const),
         createdBy: faker.helpers.arrayElement(allCreatedByPool),
       })
       competitionEventIds.push(eventId)

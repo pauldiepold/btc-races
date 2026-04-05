@@ -1,0 +1,200 @@
+{
+  "id": 45511,
+  "name": "52. Winterlaufserie",
+  "sportstaette": "Stadion Wilmersdorf",
+  "meldAdresse": "Carsten Römer, Scheelestr. 127, 12209 Berlin,",
+  "meldEmail": "winterserie@bsv1892-leichtathletik.de",
+  "veranstalter": "Berliner SV 1892",
+  "ausrichter": "Berliner SV 1892",
+  "beschreibung": "",
+  "datum": 1769295600000,
+  "datumText": "25.01.2026",
+  "meldDatum": 1768950000000,
+  "meldDatumText": "21.01.2026",
+  "abgesagt": false,
+  "url": "https://ladv.de/ausschreibung/detail/45511/52.-Winterlaufserie-Berlin-Wilmersdorf.htm",
+  "tags": "jugend,masters,aktive",
+  "kategorien": [
+    "jugend",
+    "masters",
+    "aktive"
+  ],
+  "ort": {
+    "id": 2025,
+    "name": "Berlin-Wilmersdorf",
+    "lv": "BE",
+    "land": "DEU",
+    "lng": 13.3167,
+    "lat": 52.4833
+  },
+  "veranstaltungen": [
+    {
+      "id": 35052,
+      "name": "52. Winterlaufserie",
+      "url": "https://ladv.de/veranstaltung/detail/35052/52.-Winterlaufserie-Berlin-Wilmersdorf.htm"
+    }
+  ],
+  "lvs": "BE",
+  "landesverband": [
+    "BE"
+  ],
+  "links": [],
+  "attachements": [
+    {
+      "name": "Ausschreibung",
+      "extension": ".pdf",
+      "url": "https://ladv.de/ausschreibung/datei/452154"
+    },
+    {
+      "name": "Streckenplan",
+      "extension": ".pdf",
+      "url": "https://ladv.de/ausschreibung/datei/452155"
+    }
+  ],
+  "wettbewerbe": [
+    {
+      "disziplin": "HAL",
+      "klasse": "W75",
+      "disziplinNew": "SHAL",
+      "klasseNew": "W75"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "M35",
+      "disziplinNew": "SHAL",
+      "klasseNew": "M35"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "MJA",
+      "disziplinNew": "SHAL",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "W55",
+      "disziplinNew": "SHAL",
+      "klasseNew": "W55"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "MJB",
+      "disziplinNew": "SHAL",
+      "klasseNew": "MJU18"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "M55",
+      "disziplinNew": "SHAL",
+      "klasseNew": "M55"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "WJB",
+      "disziplinNew": "SHAL",
+      "klasseNew": "WJU18"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "M50",
+      "disziplinNew": "SHAL",
+      "klasseNew": "M50"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "M65",
+      "disziplinNew": "SHAL",
+      "klasseNew": "M65"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "W50",
+      "disziplinNew": "SHAL",
+      "klasseNew": "W50"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "M40",
+      "disziplinNew": "SHAL",
+      "klasseNew": "M40"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "W45",
+      "disziplinNew": "SHAL",
+      "klasseNew": "W45"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "W65",
+      "disziplinNew": "SHAL",
+      "klasseNew": "W65"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "WJA",
+      "disziplinNew": "SHAL",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "W",
+      "disziplinNew": "SHAL",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "M",
+      "disziplinNew": "SHAL",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "M45",
+      "disziplinNew": "SHAL",
+      "klasseNew": "M45"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "W60",
+      "disziplinNew": "SHAL",
+      "klasseNew": "W60"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "W35",
+      "disziplinNew": "SHAL",
+      "klasseNew": "W35"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "M75",
+      "disziplinNew": "SHAL",
+      "klasseNew": "M75"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "W40",
+      "disziplinNew": "SHAL",
+      "klasseNew": "W40"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "M70",
+      "disziplinNew": "SHAL",
+      "klasseNew": "M70"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "M60",
+      "disziplinNew": "SHAL",
+      "klasseNew": "M60"
+    },
+    {
+      "disziplin": "HAL",
+      "klasse": "W70",
+      "disziplinNew": "SHAL",
+      "klasseNew": "W70"
+    }
+  ]
+}

@@ -39,9 +39,15 @@ export const events = sqliteTable('events', {
   name: text().notNull(),
   date: integer({ mode: 'timestamp' }),
   location: text(),
+  description: text(),
   registrationDeadline: integer({ mode: 'timestamp' }),
   announcementLink: text(),
   cancelledAt: integer({ mode: 'timestamp' }),
+
+  // Wettkampf-Metadaten (competition + ladv)
+  raceType: text('race_type').$type<'track' | 'road'>(),
+  championshipType: text('championship_type').$type<'none' | 'bbm' | 'ndm' | 'dm'>(),
+  isWrc: integer('is_wrc').notNull().default(0),
 
   // LADV-spezifische Felder
   ladvId: integer(),

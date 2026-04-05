@@ -85,6 +85,9 @@ Ausgetretene Mitglieder (nicht mehr in Campai aktiv) erhalten `membershipStatus 
 **Akzeptanzkriterien:**
 - Events sind standardmäßig nach Datum aufsteigend sortiert (nächstes zuerst)
 - Filterbar nach Typ (`ladv`, `competition`, `training`, `social`) und Zeitraum
+- Zusätzliche Filter (hauptsächlich für `competition` + `ladv`-Events mit gesetzten Werten):
+  - `raceType`: `track` \| `road`
+  - `championshipType`: `none` \| `bbm` \| `ndm` \| `dm`
 - Pro Event sichtbar: Name, Datum, Ort, Typ-Badge, Meldefrist (falls gesetzt), eigener Anmeldestatus
 - Abgesagte Events (`cancelled_at IS NOT NULL`) werden angezeigt, aber als "Abgesagt" markiert — nicht ausgeblendet
 - Vergangene Events standardmäßig ausgeblendet, über Filter einblendbar

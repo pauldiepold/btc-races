@@ -1,0 +1,587 @@
+{
+  "id": 46947,
+  "name": "1. Abendsportfest des Berliner SV 1892 & oBBM 4x400m",
+  "sportstaette": "Stadion Wilmersdorf",
+  "meldAdresse": null,
+  "meldEmail": "wettkampf@bsv1892-leichtathletik.de",
+  "veranstalter": "Berliner SV 1892",
+  "ausrichter": "Berliner SV 1892",
+  "beschreibung": "",
+  "datum": 1778623200000,
+  "datumText": "13.05.2026",
+  "meldDatum": 1778191200000,
+  "meldDatumText": "08.05.2026",
+  "abgesagt": false,
+  "url": "https://ladv.de/ausschreibung/detail/46947/1.-Abendsportfest-des-Berliner-SV-1892-%26-oBBM-4x400m-Berlin-Wilmersdorf.htm",
+  "wrc": true,
+  "tags": "jugend,aktive,masters,kinder,bahn",
+  "kategorien": [
+    "jugend",
+    "aktive",
+    "masters",
+    "kinder",
+    "bahn"
+  ],
+  "ort": {
+    "id": 2025,
+    "name": "Berlin-Wilmersdorf",
+    "lv": "BE",
+    "land": "DEU",
+    "lng": 13.3167,
+    "lat": 52.4833
+  },
+  "veranstaltungen": [],
+  "lvs": "BE",
+  "landesverband": [
+    "BE"
+  ],
+  "links": [],
+  "attachements": [
+    {
+      "name": "Ausschreibung",
+      "extension": ".pdf",
+      "url": "https://ladv.de/ausschreibung/datei/487747"
+    },
+    {
+      "name": "vorläufiger Zeitplan",
+      "extension": ".pdf",
+      "url": "https://ladv.de/ausschreibung/datei/488926"
+    }
+  ],
+  "wettbewerbe": [
+    {
+      "disziplin": "DIS",
+      "klasse": "MJA",
+      "disziplinNew": "TDIS_1750",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "2K0H",
+      "klasse": "MJA",
+      "disziplinNew": "H2K0_0914",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "MJA",
+      "disziplinNew": "X4X4",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "MJA",
+      "disziplinNew": "L100",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "3K0",
+      "klasse": "MJA",
+      "disziplinNew": "L3K0",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "MJA",
+      "disziplinNew": "L800",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "MJA",
+      "disziplinNew": "THOC",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "W30",
+      "disziplinNew": "X4X4",
+      "klasseNew": "W30"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "W14",
+      "disziplinNew": "TDIS_1000",
+      "klasseNew": "W14"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "W14",
+      "disziplinNew": "L100",
+      "klasseNew": "W14"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "W14",
+      "disziplinNew": "L800",
+      "klasseNew": "W14"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "W14",
+      "disziplinNew": "THOC",
+      "klasseNew": "W14"
+    },
+    {
+      "disziplin": "75",
+      "klasse": "W13",
+      "disziplinNew": "L75",
+      "klasseNew": "W13"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "W13",
+      "disziplinNew": "TDIS_0750",
+      "klasseNew": "W13"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "W13",
+      "disziplinNew": "L800",
+      "klasseNew": "W13"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "W13",
+      "disziplinNew": "THOC",
+      "klasseNew": "W13"
+    },
+    {
+      "disziplin": "2K0H",
+      "klasse": "M",
+      "disziplinNew": "H2K0_0914",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "M",
+      "disziplinNew": "X4X4",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "M",
+      "disziplinNew": "L100",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "3K0",
+      "klasse": "M",
+      "disziplinNew": "L3K0",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "M",
+      "disziplinNew": "L800",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "M",
+      "disziplinNew": "TDIS_2000",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "M",
+      "disziplinNew": "THOC",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "M30",
+      "disziplinNew": "X4X4",
+      "klasseNew": "M30"
+    },
+    {
+      "disziplin": "50",
+      "klasse": "W10",
+      "disziplinNew": "L50",
+      "klasseNew": "W10"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "W10",
+      "disziplinNew": "L800",
+      "klasseNew": "W10"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "W10",
+      "disziplinNew": "THOC",
+      "klasseNew": "W10"
+    },
+    {
+      "disziplin": "75",
+      "klasse": "M13",
+      "disziplinNew": "L75",
+      "klasseNew": "M13"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "M13",
+      "disziplinNew": "TDIS_0750",
+      "klasseNew": "M13"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "M13",
+      "disziplinNew": "L800",
+      "klasseNew": "M13"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "M13",
+      "disziplinNew": "THOC",
+      "klasseNew": "M13"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "W70",
+      "disziplinNew": "X4X4",
+      "klasseNew": "W70"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "XJA",
+      "disziplinNew": "X4X4",
+      "klasseNew": "XJU20"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "M40",
+      "disziplinNew": "X4X4",
+      "klasseNew": "M40"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "W50",
+      "disziplinNew": "X4X4",
+      "klasseNew": "W50"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "M60",
+      "disziplinNew": "X4X4",
+      "klasseNew": "M60"
+    },
+    {
+      "disziplin": "75",
+      "klasse": "W12",
+      "disziplinNew": "L75",
+      "klasseNew": "W12"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "W12",
+      "disziplinNew": "TDIS_0750",
+      "klasseNew": "W12"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "W12",
+      "disziplinNew": "L800",
+      "klasseNew": "W12"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "W12",
+      "disziplinNew": "THOC",
+      "klasseNew": "W12"
+    },
+    {
+      "disziplin": "50",
+      "klasse": "W11",
+      "disziplinNew": "L50",
+      "klasseNew": "W11"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "W11",
+      "disziplinNew": "L800",
+      "klasseNew": "W11"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "W11",
+      "disziplinNew": "THOC",
+      "klasseNew": "W11"
+    },
+    {
+      "disziplin": "50",
+      "klasse": "M11",
+      "disziplinNew": "L50",
+      "klasseNew": "M11"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "M11",
+      "disziplinNew": "L800",
+      "klasseNew": "M11"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "M11",
+      "disziplinNew": "THOC",
+      "klasseNew": "M11"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "WJA",
+      "disziplinNew": "TDIS_1000",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "WJA",
+      "disziplinNew": "X4X4",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "WJA",
+      "disziplinNew": "L100",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "3K0",
+      "klasse": "WJA",
+      "disziplinNew": "L3K0",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "WJA",
+      "disziplinNew": "L800",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "2K0H",
+      "klasse": "WJA",
+      "disziplinNew": "H2K0_0762",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "WJA",
+      "disziplinNew": "THOC",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "75",
+      "klasse": "M12",
+      "disziplinNew": "L75",
+      "klasseNew": "M12"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "M12",
+      "disziplinNew": "TDIS_0750",
+      "klasseNew": "M12"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "M12",
+      "disziplinNew": "L800",
+      "klasseNew": "M12"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "M12",
+      "disziplinNew": "THOC",
+      "klasseNew": "M12"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "M14",
+      "disziplinNew": "TDIS_1000",
+      "klasseNew": "M14"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "M14",
+      "disziplinNew": "L100",
+      "klasseNew": "M14"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "M14",
+      "disziplinNew": "L800",
+      "klasseNew": "M14"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "M14",
+      "disziplinNew": "THOC",
+      "klasseNew": "M14"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "W60",
+      "disziplinNew": "X4X4",
+      "klasseNew": "W60"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "M15",
+      "disziplinNew": "TDIS_1000",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "1K5H",
+      "klasse": "M15",
+      "disziplinNew": "H1K5_0762",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "M15",
+      "disziplinNew": "L100",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "M15",
+      "disziplinNew": "L800",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "M15",
+      "disziplinNew": "THOC",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "M80",
+      "disziplinNew": "X4X4",
+      "klasseNew": "M80"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "M70",
+      "disziplinNew": "X4X4",
+      "klasseNew": "M70"
+    },
+    {
+      "disziplin": "50",
+      "klasse": "M10",
+      "disziplinNew": "L50",
+      "klasseNew": "M10"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "M10",
+      "disziplinNew": "L800",
+      "klasseNew": "M10"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "M10",
+      "disziplinNew": "THOC",
+      "klasseNew": "M10"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "W15",
+      "disziplinNew": "TDIS_1000",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "1K5H",
+      "klasse": "W15",
+      "disziplinNew": "H1K5_0762",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "W15",
+      "disziplinNew": "L100",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "W15",
+      "disziplinNew": "L800",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "W15",
+      "disziplinNew": "THOC",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "W80",
+      "disziplinNew": "X4X4",
+      "klasseNew": "W80"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "W40",
+      "disziplinNew": "X4X4",
+      "klasseNew": "W40"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "W",
+      "disziplinNew": "TDIS_1000",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "W",
+      "disziplinNew": "X4X4",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "W",
+      "disziplinNew": "L100",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "3K0",
+      "klasse": "W",
+      "disziplinNew": "L3K0",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "W",
+      "disziplinNew": "L800",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "2K0H",
+      "klasse": "W",
+      "disziplinNew": "H2K0_0762",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "W",
+      "disziplinNew": "THOC",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "MJB",
+      "disziplinNew": "TDIS_1500",
+      "klasseNew": "MJU18"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "X",
+      "disziplinNew": "X4X4",
+      "klasseNew": "X"
+    },
+    {
+      "disziplin": "4X4",
+      "klasse": "M50",
+      "disziplinNew": "X4X4",
+      "klasseNew": "M50"
+    }
+  ]
+}

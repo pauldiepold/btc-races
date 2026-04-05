@@ -49,6 +49,9 @@ export interface NormalizedLadvData {
   location: string
   registration_deadline: string // YYYY-MM-DD (Berliner Ortszeit)
   announcement_link: string
+  race_type: 'track' | 'road' // 'bahn' in kategorien → 'track', sonst 'road'
+  is_wrc: 0 | 1
+  championship_type: null // nicht in der LADV-API verfügbar
   ladv_data: LadvAusschreibung
 }
 
@@ -75,6 +78,9 @@ export function normalizeLadvData(raw: LadvAusschreibung): NormalizedLadvData {
     location: raw.ort.name,
     registration_deadline: timestampToDate(raw.meldDatum),
     announcement_link: raw.url,
+    race_type: raw.kategorien.includes('bahn') ? 'track' : 'road',
+    is_wrc: (raw.wrc ?? false) ? 1 : 0,
+    championship_type: null,
     ladv_data: raw,
   }
 }

@@ -1,0 +1,735 @@
+{
+  "id": 46212,
+  "name": "17. Berliner Läufermeeting und Bahneröffnung",
+  "sportstaette": "Sportplatz Allee der Kosmonauten 131",
+  "meldAdresse": null,
+  "meldEmail": "wettkampfwart-leichtathletik@vfl-fortuna-marzahn.de",
+  "veranstalter": "1. VfL FORTUNA Marzahn",
+  "ausrichter": "1. VfL FORTUNA Marzahn",
+  "beschreibung": "WRC Wettbewerbe: 150m, 300m, 600m, 1000m in allen Altersklassen",
+  "datum": 1777068000000,
+  "datumText": "25.04.2026",
+  "meldDatum": 1776549600000,
+  "meldDatumText": "19.04.2026",
+  "abgesagt": false,
+  "url": "https://ladv.de/ausschreibung/detail/46212/17.-Berliner-L%C3%A4ufermeeting-und-Bahner%C3%B6ffnung-Berlin-Marzahn.htm",
+  "wrc": true,
+  "tags": "jugend,aktive,kinder",
+  "kategorien": [
+    "jugend",
+    "aktive",
+    "kinder"
+  ],
+  "ort": {
+    "id": 1252,
+    "name": "Berlin-Marzahn",
+    "lv": "BE",
+    "land": "DEU",
+    "lng": 13.55,
+    "lat": 52.55
+  },
+  "veranstaltungen": [],
+  "lvs": "BE",
+  "landesverband": [
+    "BE"
+  ],
+  "links": [],
+  "attachements": [
+    {
+      "name": "Ausschreibung",
+      "extension": ".pdf",
+      "url": "https://ladv.de/ausschreibung/datei/490416"
+    },
+    {
+      "name": "Zeitplan",
+      "extension": ".pdf",
+      "url": "https://ladv.de/ausschreibung/datei/490417"
+    }
+  ],
+  "wettbewerbe": [
+    {
+      "disziplin": "150",
+      "klasse": "WJB",
+      "disziplinNew": "L150",
+      "klasseNew": "WJU18"
+    },
+    {
+      "disziplin": "600",
+      "klasse": "WJB",
+      "disziplinNew": "L600",
+      "klasseNew": "WJU18"
+    },
+    {
+      "disziplin": "1K0",
+      "klasse": "WJB",
+      "disziplinNew": "L1K0",
+      "klasseNew": "WJU18"
+    },
+    {
+      "disziplin": "80",
+      "klasse": "WJB",
+      "disziplinNew": "L80",
+      "klasseNew": "WJU18"
+    },
+    {
+      "disziplin": "300",
+      "klasse": "WJB",
+      "disziplinNew": "L300",
+      "klasseNew": "WJU18"
+    },
+    {
+      "disziplin": "150",
+      "klasse": "WJA",
+      "disziplinNew": "L150",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "600",
+      "klasse": "WJA",
+      "disziplinNew": "L600",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "1K0",
+      "klasse": "WJA",
+      "disziplinNew": "L1K0",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "80",
+      "klasse": "WJA",
+      "disziplinNew": "L80",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "300",
+      "klasse": "WJA",
+      "disziplinNew": "L300",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "W14",
+      "disziplinNew": "L100",
+      "klasseNew": "W14"
+    },
+    {
+      "disziplin": "80H",
+      "klasse": "W14",
+      "disziplinNew": "H80_0762",
+      "klasseNew": "W14"
+    },
+    {
+      "disziplin": "WEI",
+      "klasse": "W14",
+      "disziplinNew": "TWEI",
+      "klasseNew": "W14"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "W14",
+      "disziplinNew": "THOC",
+      "klasseNew": "W14"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "W14",
+      "disziplinNew": "TDIS_1000",
+      "klasseNew": "W14"
+    },
+    {
+      "disziplin": "SPE",
+      "klasse": "W14",
+      "disziplinNew": "TSPE_0500",
+      "klasseNew": "W14"
+    },
+    {
+      "disziplin": "KUG",
+      "klasse": "W14",
+      "disziplinNew": "TKUG_3000",
+      "klasseNew": "W14"
+    },
+    {
+      "disziplin": "150",
+      "klasse": "W",
+      "disziplinNew": "L150",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "600",
+      "klasse": "W",
+      "disziplinNew": "L600",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "1K0",
+      "klasse": "W",
+      "disziplinNew": "L1K0",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "80",
+      "klasse": "W",
+      "disziplinNew": "L80",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "300",
+      "klasse": "W",
+      "disziplinNew": "L300",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "60H",
+      "klasse": "M13",
+      "disziplinNew": "H60_0762",
+      "klasseNew": "M13"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "M13",
+      "disziplinNew": "L800",
+      "klasseNew": "M13"
+    },
+    {
+      "disziplin": "WEI",
+      "klasse": "M13",
+      "disziplinNew": "TWEI",
+      "klasseNew": "M13"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "M13",
+      "disziplinNew": "THOC",
+      "klasseNew": "M13"
+    },
+    {
+      "disziplin": "SPE",
+      "klasse": "M13",
+      "disziplinNew": "TSPE_0400",
+      "klasseNew": "M13"
+    },
+    {
+      "disziplin": "KUG",
+      "klasse": "M13",
+      "disziplinNew": "TKUG_3000",
+      "klasseNew": "M13"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "M13",
+      "disziplinNew": "TDIS_0750",
+      "klasseNew": "M13"
+    },
+    {
+      "disziplin": "75",
+      "klasse": "M13",
+      "disziplinNew": "L75",
+      "klasseNew": "M13"
+    },
+    {
+      "disziplin": "60H",
+      "klasse": "M12",
+      "disziplinNew": "H60_0762",
+      "klasseNew": "M12"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "M12",
+      "disziplinNew": "L800",
+      "klasseNew": "M12"
+    },
+    {
+      "disziplin": "WEI",
+      "klasse": "M12",
+      "disziplinNew": "TWEI",
+      "klasseNew": "M12"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "M12",
+      "disziplinNew": "THOC",
+      "klasseNew": "M12"
+    },
+    {
+      "disziplin": "SPE",
+      "klasse": "M12",
+      "disziplinNew": "TSPE_0400",
+      "klasseNew": "M12"
+    },
+    {
+      "disziplin": "KUG",
+      "klasse": "M12",
+      "disziplinNew": "TKUG_3000",
+      "klasseNew": "M12"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "M12",
+      "disziplinNew": "TDIS_0750",
+      "klasseNew": "M12"
+    },
+    {
+      "disziplin": "75",
+      "klasse": "M12",
+      "disziplinNew": "L75",
+      "klasseNew": "M12"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "W11",
+      "disziplinNew": "L800",
+      "klasseNew": "W11"
+    },
+    {
+      "disziplin": "WEI",
+      "klasse": "W11",
+      "disziplinNew": "TWEI",
+      "klasseNew": "W11"
+    },
+    {
+      "disziplin": "50",
+      "klasse": "W11",
+      "disziplinNew": "L50",
+      "klasseNew": "W11"
+    },
+    {
+      "disziplin": "SCH",
+      "klasse": "W11",
+      "disziplinNew": "TSBAL_0080",
+      "klasseNew": "W11"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "M10",
+      "disziplinNew": "L800",
+      "klasseNew": "M10"
+    },
+    {
+      "disziplin": "WEI",
+      "klasse": "M10",
+      "disziplinNew": "TWEI",
+      "klasseNew": "M10"
+    },
+    {
+      "disziplin": "50",
+      "klasse": "M10",
+      "disziplinNew": "L50",
+      "klasseNew": "M10"
+    },
+    {
+      "disziplin": "SCH",
+      "klasse": "M10",
+      "disziplinNew": "TSBAL_0080",
+      "klasseNew": "M10"
+    },
+    {
+      "disziplin": "150",
+      "klasse": "MJA",
+      "disziplinNew": "L150",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "600",
+      "klasse": "MJA",
+      "disziplinNew": "L600",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "1K0",
+      "klasse": "MJA",
+      "disziplinNew": "L1K0",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "80",
+      "klasse": "MJA",
+      "disziplinNew": "L80",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "300",
+      "klasse": "MJA",
+      "disziplinNew": "L300",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "W10",
+      "disziplinNew": "L800",
+      "klasseNew": "W10"
+    },
+    {
+      "disziplin": "WEI",
+      "klasse": "W10",
+      "disziplinNew": "TWEI",
+      "klasseNew": "W10"
+    },
+    {
+      "disziplin": "50",
+      "klasse": "W10",
+      "disziplinNew": "L50",
+      "klasseNew": "W10"
+    },
+    {
+      "disziplin": "SCH",
+      "klasse": "W10",
+      "disziplinNew": "TSBAL_0080",
+      "klasseNew": "W10"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "M11",
+      "disziplinNew": "L800",
+      "klasseNew": "M11"
+    },
+    {
+      "disziplin": "WEI",
+      "klasse": "M11",
+      "disziplinNew": "TWEI",
+      "klasseNew": "M11"
+    },
+    {
+      "disziplin": "50",
+      "klasse": "M11",
+      "disziplinNew": "L50",
+      "klasseNew": "M11"
+    },
+    {
+      "disziplin": "SCH",
+      "klasse": "M11",
+      "disziplinNew": "TSBAL_0080",
+      "klasseNew": "M11"
+    },
+    {
+      "disziplin": "150",
+      "klasse": "M",
+      "disziplinNew": "L150",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "600",
+      "klasse": "M",
+      "disziplinNew": "L600",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "1K0",
+      "klasse": "M",
+      "disziplinNew": "L1K0",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "80",
+      "klasse": "M",
+      "disziplinNew": "L80",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "300",
+      "klasse": "M",
+      "disziplinNew": "L300",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "150",
+      "klasse": "MJB",
+      "disziplinNew": "L150",
+      "klasseNew": "MJU18"
+    },
+    {
+      "disziplin": "600",
+      "klasse": "MJB",
+      "disziplinNew": "L600",
+      "klasseNew": "MJU18"
+    },
+    {
+      "disziplin": "1K0",
+      "klasse": "MJB",
+      "disziplinNew": "L1K0",
+      "klasseNew": "MJU18"
+    },
+    {
+      "disziplin": "80",
+      "klasse": "MJB",
+      "disziplinNew": "L80",
+      "klasseNew": "MJU18"
+    },
+    {
+      "disziplin": "300",
+      "klasse": "MJB",
+      "disziplinNew": "L300",
+      "klasseNew": "MJU18"
+    },
+    {
+      "disziplin": "80H",
+      "klasse": "M15",
+      "disziplinNew": "H80_0838",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "M15",
+      "disziplinNew": "L100",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "WEI",
+      "klasse": "M15",
+      "disziplinNew": "TWEI",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "BLL",
+      "klasse": "M15",
+      "disziplinNew": "MBLL",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "BLS",
+      "klasse": "M15",
+      "disziplinNew": "MBLS",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "BLW",
+      "klasse": "M15",
+      "disziplinNew": "MBLW",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "M15",
+      "disziplinNew": "THOC",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "KUG",
+      "klasse": "M15",
+      "disziplinNew": "TKUG_4000",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "SPE",
+      "klasse": "M15",
+      "disziplinNew": "TSPE_0600",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "M15",
+      "disziplinNew": "TDIS_1000",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "60H",
+      "klasse": "W13",
+      "disziplinNew": "H60_0762",
+      "klasseNew": "W13"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "W13",
+      "disziplinNew": "L800",
+      "klasseNew": "W13"
+    },
+    {
+      "disziplin": "WEI",
+      "klasse": "W13",
+      "disziplinNew": "TWEI",
+      "klasseNew": "W13"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "W13",
+      "disziplinNew": "THOC",
+      "klasseNew": "W13"
+    },
+    {
+      "disziplin": "SPE",
+      "klasse": "W13",
+      "disziplinNew": "TSPE_0400",
+      "klasseNew": "W13"
+    },
+    {
+      "disziplin": "KUG",
+      "klasse": "W13",
+      "disziplinNew": "TKUG_3000",
+      "klasseNew": "W13"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "W13",
+      "disziplinNew": "TDIS_0750",
+      "klasseNew": "W13"
+    },
+    {
+      "disziplin": "75",
+      "klasse": "W13",
+      "disziplinNew": "L75",
+      "klasseNew": "W13"
+    },
+    {
+      "disziplin": "60H",
+      "klasse": "W12",
+      "disziplinNew": "H60_0762",
+      "klasseNew": "W12"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "W12",
+      "disziplinNew": "L800",
+      "klasseNew": "W12"
+    },
+    {
+      "disziplin": "WEI",
+      "klasse": "W12",
+      "disziplinNew": "TWEI",
+      "klasseNew": "W12"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "W12",
+      "disziplinNew": "THOC",
+      "klasseNew": "W12"
+    },
+    {
+      "disziplin": "SPE",
+      "klasse": "W12",
+      "disziplinNew": "TSPE_0400",
+      "klasseNew": "W12"
+    },
+    {
+      "disziplin": "KUG",
+      "klasse": "W12",
+      "disziplinNew": "TKUG_3000",
+      "klasseNew": "W12"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "W12",
+      "disziplinNew": "TDIS_0750",
+      "klasseNew": "W12"
+    },
+    {
+      "disziplin": "75",
+      "klasse": "W12",
+      "disziplinNew": "L75",
+      "klasseNew": "W12"
+    },
+    {
+      "disziplin": "80H",
+      "klasse": "M14",
+      "disziplinNew": "H80_0838",
+      "klasseNew": "M14"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "M14",
+      "disziplinNew": "L100",
+      "klasseNew": "M14"
+    },
+    {
+      "disziplin": "WEI",
+      "klasse": "M14",
+      "disziplinNew": "TWEI",
+      "klasseNew": "M14"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "M14",
+      "disziplinNew": "THOC",
+      "klasseNew": "M14"
+    },
+    {
+      "disziplin": "KUG",
+      "klasse": "M14",
+      "disziplinNew": "TKUG_4000",
+      "klasseNew": "M14"
+    },
+    {
+      "disziplin": "SPE",
+      "klasse": "M14",
+      "disziplinNew": "TSPE_0600",
+      "klasseNew": "M14"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "M14",
+      "disziplinNew": "TDIS_1000",
+      "klasseNew": "M14"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "W15",
+      "disziplinNew": "L100",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "80H",
+      "klasse": "W15",
+      "disziplinNew": "H80_0762",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "WEI",
+      "klasse": "W15",
+      "disziplinNew": "TWEI",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "BLL",
+      "klasse": "W15",
+      "disziplinNew": "MBLL",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "BLS",
+      "klasse": "W15",
+      "disziplinNew": "MBLS",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "BLW",
+      "klasse": "W15",
+      "disziplinNew": "MBLW",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "HOC",
+      "klasse": "W15",
+      "disziplinNew": "THOC",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "DIS",
+      "klasse": "W15",
+      "disziplinNew": "TDIS_1000",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "SPE",
+      "klasse": "W15",
+      "disziplinNew": "TSPE_0500",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "KUG",
+      "klasse": "W15",
+      "disziplinNew": "TKUG_3000",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "BAL",
+      "klasse": "M15",
+      "disziplinNew": "TBAL_0200",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "BAL",
+      "klasse": "W15",
+      "disziplinNew": "TBAL_0200",
+      "klasseNew": "W15"
+    }
+  ]
+}

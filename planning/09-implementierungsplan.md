@@ -254,6 +254,75 @@ Zufällige Anmeldungen von Campai-Pool + Test-Usern (3–15 pro Event). Explizit
 
 ---
 
+### ✅ 9.5.1 — Schema-Erweiterung: Zusätzliche Event-Felder
+
+**Ziel:** Fehlende Felder aus v1-Analyse in Schema + Feature-Spec + Datenmodell nachziehen, bevor 9.5 implementiert wird.
+
+**Hintergrund / Kontext:**
+
+Beim Vergleich mit v1 und der LADV-API-Antwort wurden folgende fehlende Felder identifiziert. Diese müssen vor der API-Implementierung (9.5 Backend) im Schema vorhanden sein, damit Validierungsschemas, Normalisierung und Tests in einem Zug geschrieben werden können.
+
+**Entschiedene Nicht-Normalisierungen:**
+- Altersklassen (`jugend`, `aktive`, `masters` aus `ladv_data.kategorien`) werden **nicht** als eigene Spalten gespeichert. Die Info ist über `ladv_data.wettbewerbe` abrufbar und nur für LADV-Events relevant. Ein entsprechender Filter kann in einer späteren Version nachgezogen werden.
+- `race_type` wird **nicht** aus `ladv_data.kategorien` automatisch für alle Events gesetzt — nur beim LADV-Import (s.u.).
+
+**Was zu tun ist:**
+
+**1. `server/db/schema.ts` — 4 Spalten zur `events`-Tabelle ergänzen:**
+
+```ts
+description: text('description'),                 // nullable — Freitext für alle Event-Typen
+raceType: text('race_type'),                       // nullable — 'track' | 'road'
+championshipType: text('championship_type'),       // nullable — 'none' | 'bbm' | 'ndm' | 'dm'
+isWrc: integer('is_wrc').notNull().default(0),     // Boolean-Flag (World Ranking Competition)
+```
+
+**2. Migration generieren und anwenden:**
+```bash
+pnpm db:generate
+pnpm db:migrate
+```
+
+**3. `server/utils/ladv.ts` — `normalizeLadvData` anpassen:**
+
+`NormalizedLadvData` um die neuen Felder erweitern und beim Import befüllen:
+
+```ts
+// race_type: 'bahn' in raw.kategorien → 'track', sonst 'road'
+race_type: raw.kategorien.includes('bahn') ? 'track' : 'road',
+// is_wrc: aus raw.wrc (boolean → 0|1)
+is_wrc: raw.wrc ? 1 : 0,
+// championship_type: bei LADV nicht in der API — bleibt null
+championship_type: null,
+```
+
+`isWrc` im Interface ist `wrc?: boolean` (optional, da nicht immer vorhanden) → mit `?? false` absichern.
+
+**4. `planning/02b-datenmodell-entwurf.md` — Events-Tabelle aktualisieren:**
+
+Die 4 neuen Spalten in der Tabellendokumentation ergänzen, inkl. kurzer Beschreibung wann sie gesetzt werden.
+
+**5. `planning/03-feature-spec.md` — Filter-Dokumentation ergänzen:**
+
+In F-01 (Event-Liste): Filter um `raceType` und `championshipType` ergänzen. Vermerken dass diese Filter nur für Events mit gesetzten Werten relevant sind (hauptsächlich `competition` und `ladv`).
+
+**6. Seed anpassen (`server/tasks/seed.ts`):**
+
+Bei den generierten `competition`-Events (Schritt 5 im Seeder) `raceType` und `championshipType` mit Faker-Werten befüllen, damit die Filter lokal testbar sind. Beispiel:
+```ts
+raceType: faker.helpers.arrayElement(['track', 'road']),
+championshipType: faker.helpers.arrayElement(['none', 'bbm', 'ndm', 'dm']),
+```
+
+Bei LADV-Events: `raceType` und `isWrc` kommen automatisch aus `normalizeLadvData` — kein manueller Seeder-Eingriff nötig.
+
+**Output:** Schema migriert, `normalizeLadvData` befüllt neue Felder, Seed funktioniert, Doku aktuell  
+**Kontext-Files:** `server/db/schema.ts`, `server/utils/ladv.ts`, `server/tasks/seed.ts`, `planning/02b-datenmodell-entwurf.md`, `planning/03-feature-spec.md`
+
+**Abschluss (2026-04-05):** Migration `0003_amused_siren.sql` generiert und angewendet (events-Tabelle jetzt 18 Spalten). `NormalizedLadvData` um `race_type`, `is_wrc`, `championship_type` erweitert; `normalizeLadvData` befüllt diese aus `raw.kategorien` bzw. `raw.wrc`. Seed: LADV-Insert übergibt die neuen Felder, competition-Events erhalten Faker-Werte für `raceType`/`championshipType`. Doku in `02b-datenmodell-entwurf.md` und F-01 in `03-feature-spec.md` aktualisiert. TypeCheck sauber (Exit 0).
+
+---
+
 ### 9.5 — Event-Anlegen + Liste (F-01, F-07, F-08)
 
 **Ziel:** Events anlegen (manuell + LADV-Import) und als Liste anzeigen. Erste vollständige Seite der App mit echten Daten aus dem Seed.

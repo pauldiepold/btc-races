@@ -1,0 +1,225 @@
+{
+  "id": 46970,
+  "name": "BBM Langstrecke",
+  "sportstaette": "Sportplatz Allee der Kosmonautern",
+  "meldAdresse": "BLV, Hanns-Braun-Straße, 14053",
+  "meldEmail": "info@leichtathletik-berlin.de",
+  "veranstalter": "Berliner Leichtathletik-Verband",
+  "ausrichter": "1. VfL FORTUNA Marzahn",
+  "beschreibung": "5000m der Masters keine Meisterschaftswertung, Qualiwettkampf zur DM Langstrecke",
+  "datum": 1774047600000,
+  "datumText": "21.03.2026",
+  "meldDatum": 1773529200000,
+  "meldDatumText": "15.03.2026",
+  "abgesagt": false,
+  "url": "https://ladv.de/ausschreibung/detail/46970/BBM-Langstrecke-Berlin-Marzahn.htm",
+  "tags": "jugend,masters,aktive",
+  "kategorien": [
+    "jugend",
+    "masters",
+    "aktive"
+  ],
+  "ort": {
+    "id": 1252,
+    "name": "Berlin-Marzahn",
+    "lv": "BE",
+    "land": "DEU",
+    "lng": 13.55,
+    "lat": 52.55
+  },
+  "veranstaltungen": [
+    {
+      "id": 35509,
+      "name": "BBM Langstrecke",
+      "url": "https://ladv.de/veranstaltung/detail/35509/BBM-Langstrecke-Berlin-Marzahn.htm"
+    }
+  ],
+  "lvs": "BE",
+  "landesverband": [
+    "BE"
+  ],
+  "links": [],
+  "attachements": [
+    {
+      "name": "Ausschreibung",
+      "extension": ".pdf",
+      "url": "https://ladv.de/ausschreibung/datei/485643"
+    }
+  ],
+  "wettbewerbe": [
+    {
+      "disziplin": "3K0",
+      "klasse": "W15",
+      "disziplinNew": "L3K0",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "2K0",
+      "klasse": "M13",
+      "disziplinNew": "L2K0",
+      "klasseNew": "M13"
+    },
+    {
+      "disziplin": "2K0",
+      "klasse": "W12",
+      "disziplinNew": "L2K0",
+      "klasseNew": "W12"
+    },
+    {
+      "disziplin": "3K0",
+      "klasse": "M14",
+      "disziplinNew": "L3K0",
+      "klasseNew": "M14"
+    },
+    {
+      "disziplin": "2K0",
+      "klasse": "W13",
+      "disziplinNew": "L2K0",
+      "klasseNew": "W13"
+    },
+    {
+      "disziplin": "10K",
+      "klasse": "W",
+      "disziplinNew": "L10K",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "10K",
+      "klasse": "M",
+      "disziplinNew": "L10K",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "3K0",
+      "klasse": "W14",
+      "disziplinNew": "L3K0",
+      "klasseNew": "W14"
+    },
+    {
+      "disziplin": "2K0",
+      "klasse": "M12",
+      "disziplinNew": "L2K0",
+      "klasseNew": "M12"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "MJA",
+      "disziplinNew": "L5K0",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "M35",
+      "disziplinNew": "L5K0",
+      "klasseNew": "M35"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "M40",
+      "disziplinNew": "L5K0",
+      "klasseNew": "M40"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "M45",
+      "disziplinNew": "L5K0",
+      "klasseNew": "M45"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "W70",
+      "disziplinNew": "L5K0",
+      "klasseNew": "W70"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "M75",
+      "disziplinNew": "L5K0",
+      "klasseNew": "M75"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "W35",
+      "disziplinNew": "L5K0",
+      "klasseNew": "W35"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "W65",
+      "disziplinNew": "L5K0",
+      "klasseNew": "W65"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "W60",
+      "disziplinNew": "L5K0",
+      "klasseNew": "W60"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "M70",
+      "disziplinNew": "L5K0",
+      "klasseNew": "M70"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "M50",
+      "disziplinNew": "L5K0",
+      "klasseNew": "M50"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "M55",
+      "disziplinNew": "L5K0",
+      "klasseNew": "M55"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "M60",
+      "disziplinNew": "L5K0",
+      "klasseNew": "M60"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "M65",
+      "disziplinNew": "L5K0",
+      "klasseNew": "M65"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "W40",
+      "disziplinNew": "L5K0",
+      "klasseNew": "W40"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "W45",
+      "disziplinNew": "L5K0",
+      "klasseNew": "W45"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "W55",
+      "disziplinNew": "L5K0",
+      "klasseNew": "W55"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "W50",
+      "disziplinNew": "L5K0",
+      "klasseNew": "W50"
+    },
+    {
+      "disziplin": "3K0",
+      "klasse": "M15",
+      "disziplinNew": "L3K0",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "5K0",
+      "klasse": "WJA",
+      "disziplinNew": "L5K0",
+      "klasseNew": "WJU20"
+    }
+  ]
+}

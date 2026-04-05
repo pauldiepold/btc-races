@@ -1,0 +1,262 @@
+{
+  "id": 46897,
+  "name": "oBBM 5 KM Straßenlauf",
+  "sportstaette": "Britzer Garten",
+  "meldAdresse": "Berliner Leichtathletik-Verband",
+  "meldEmail": "info@leichtathletik-berlin.de",
+  "veranstalter": "Berliner Leichtathletik-Verband",
+  "ausrichter": "Polizei SV Berlin",
+  "beschreibung": "",
+  "datum": 1778882400000,
+  "datumText": "16.05.2026",
+  "meldDatum": 1778191200000,
+  "meldDatumText": "08.05.2026",
+  "abgesagt": false,
+  "url": "https://ladv.de/ausschreibung/detail/46897/oBBM-5-KM-Stra%C3%9Fenlauf-Berlin-Britz.htm",
+  "wrc": true,
+  "tags": "jugend,masters,aktive",
+  "kategorien": [
+    "jugend",
+    "masters",
+    "aktive"
+  ],
+  "ort": {
+    "id": 1123,
+    "name": "Berlin-Britz",
+    "lv": "BE",
+    "land": "DEU",
+    "lng": 13.4333,
+    "lat": 52.45
+  },
+  "veranstaltungen": [],
+  "lvs": "BE",
+  "landesverband": [
+    "BE"
+  ],
+  "links": [],
+  "attachements": [
+    {
+      "name": "Ausschreibung",
+      "extension": ".pdf",
+      "url": "https://ladv.de/ausschreibung/datei/490656"
+    }
+  ],
+  "wettbewerbe": [
+    {
+      "disziplin": "5S",
+      "klasse": "MJB",
+      "disziplinNew": "S5K",
+      "klasseNew": "MJU18"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "MJA",
+      "disziplinNew": "S5K",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M",
+      "disziplinNew": "S5K",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M30",
+      "disziplinNew": "S5K",
+      "klasseNew": "M30"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M35",
+      "disziplinNew": "S5K",
+      "klasseNew": "M35"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M40",
+      "disziplinNew": "S5K",
+      "klasseNew": "M40"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M75",
+      "disziplinNew": "S5K",
+      "klasseNew": "M75"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M45",
+      "disziplinNew": "S5K",
+      "klasseNew": "M45"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M50",
+      "disziplinNew": "S5K",
+      "klasseNew": "M50"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M55",
+      "disziplinNew": "S5K",
+      "klasseNew": "M55"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M60",
+      "disziplinNew": "S5K",
+      "klasseNew": "M60"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M65",
+      "disziplinNew": "S5K",
+      "klasseNew": "M65"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M70",
+      "disziplinNew": "S5K",
+      "klasseNew": "M70"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M80",
+      "disziplinNew": "S5K",
+      "klasseNew": "M80"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "W75",
+      "disziplinNew": "S5K",
+      "klasseNew": "W75"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "W70",
+      "disziplinNew": "S5K",
+      "klasseNew": "W70"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "W65",
+      "disziplinNew": "S5K",
+      "klasseNew": "W65"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M85",
+      "disziplinNew": "S5K",
+      "klasseNew": "M85"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "WJB",
+      "disziplinNew": "S5K",
+      "klasseNew": "WJU18"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "WJA",
+      "disziplinNew": "S5K",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "W",
+      "disziplinNew": "S5K",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "W30",
+      "disziplinNew": "S5K",
+      "klasseNew": "W30"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "W35",
+      "disziplinNew": "S5K",
+      "klasseNew": "W35"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "W40",
+      "disziplinNew": "S5K",
+      "klasseNew": "W40"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "W45",
+      "disziplinNew": "S5K",
+      "klasseNew": "W45"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "W50",
+      "disziplinNew": "S5K",
+      "klasseNew": "W50"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "W55",
+      "disziplinNew": "S5K",
+      "klasseNew": "W55"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "W60",
+      "disziplinNew": "S5K",
+      "klasseNew": "W60"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M14",
+      "disziplinNew": "S5K",
+      "klasseNew": "M14"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M15",
+      "disziplinNew": "S5K",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M13",
+      "disziplinNew": "S5K",
+      "klasseNew": "M13"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "M12",
+      "disziplinNew": "S5K",
+      "klasseNew": "M12"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "W12",
+      "disziplinNew": "S5K",
+      "klasseNew": "W12"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "W13",
+      "disziplinNew": "S5K",
+      "klasseNew": "W13"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "W14",
+      "disziplinNew": "S5K",
+      "klasseNew": "W14"
+    },
+    {
+      "disziplin": "5S",
+      "klasse": "W15",
+      "disziplinNew": "S5K",
+      "klasseNew": "W15"
+    }
+  ]
+}

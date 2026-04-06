@@ -1008,7 +1008,7 @@ type LadvTodo = {
 
 ---
 
-#### 9.9.3 — Frontend: Admin-Sektion auf der Event-Detailseite
+#### ✅ 9.9.3 — Frontend: Admin-Sektion auf der Event-Detailseite
 
 Die **bestehende `EventRegistrationList`-Komponente bleibt unverändert** — sie zeigt die öffentliche Anmeldungsliste für alle Mitglieder.
 
@@ -1038,9 +1038,11 @@ Inhalt:
 **Output:** Admin-Sektion auf Detailseite funktionsfähig  
 **Kontext-Files:** `app/pages/events/[id]/index.vue`, `app/components/event/EventRegistrationList.vue`, `shared/types/events.ts`
 
+**Abschluss (2026-04-06):** Implementiert. Im Zuge dieser Session wurden die per-Disziplin-Endpoints (`disciplines/[disciplineId]/ladv-register` und `/ladv-cancel`) durch per-Anmeldung-Endpoints (`registrations/[id]/ladv-register` und `/ladv-cancel`) ersetzt — ein Call statt N sequentielle. `LadvTodo`-Typ auf gruppierte `disciplines[]`-Struktur umgestellt; API-Endpoint (`GET /api/admin/ladv-todos`) gruppiert entsprechend im JS. Route Map aktualisiert.
+
 ---
 
-#### 9.9.4 — Frontend: `/admin`-Seite (globale Todo-Tabelle)
+#### ✅ 9.9.4 — Frontend: `/admin`-Seite (globale Todo-Tabelle)
 
 `app/pages/admin.vue` — Auth: nur `isAdmin`.
 
@@ -1067,9 +1069,11 @@ Das `LadvTodoModal` ist identisch zur Detailseite — nach `done`-Event: `refres
 **Output:** Globale Admin-Seite nutzbar  
 **Kontext-Files:** `app/pages/admin.vue` (neu), `app/components/LadvTodoModal.vue` (aus 9.9.3), `app/components/AppHeader.vue` o.ä.
 
+**Abschluss (2026-04-06):** `app/pages/admin.vue` implementiert: native Tabelle mit Spalten Event (verlinkt), Datum, Typ-Badge, Person, Disziplin-Badges, Details-Button → `LadvTodoModal`. Leer- und Ladezustand vorhanden. Admin- und Superuser-Links im `UserMenu.vue` ergänzt (beide Bereiche: Expanded/Mobile + Popover/Desktop).
+
 ---
 
-#### 9.9.5 — Frontend: `/superuser`-Seite
+#### ✅ 9.9.5 — Frontend: `/superuser`-Seite
 
 `app/pages/superuser.vue` — Auth: `requireSuperuser()` im API-Layer + client-seitiger Guard.
 
@@ -1079,6 +1083,8 @@ Das `LadvTodoModal` ist identisch zur Detailseite — nach `done`-Event: `refres
 
 **Output:** Superuser-Seite nutzbar  
 **Kontext-Files:** `server/api/cron/sync-members.ts` (für Referenz), `app/pages/superuser.vue` (neu)
+
+**Abschluss (2026-04-06):** `server/api/admin/sync-members.post.ts` angelegt (Session-Auth via `requireSuperuser` statt Bearer-Token). `app/pages/superuser.vue` mit Campai-Sync-Abschnitt: Button → POST-Aufruf, Ergebnis-Statistik (created/updated/deactivated/skipped/duration), Fehler-Alert. TypeCheck Exit 0, Lint clean.
 
 ---
 
@@ -1155,14 +1161,14 @@ Das `LadvTodoModal` ist identisch zur Detailseite — nach `done`-Event: `refres
 | F-10 LADV-Sync + Diff | 9.7 | ✅ |
 | F-11 Event absagen | 9.7 | ✅ |
 | F-12 Anmeldungen einsehen (member) | 9.8.2 | ✅ |
-| F-12 Anmeldungen einsehen (admin) | 9.9 | |
-| F-13 LADV-Anmeldung protokollieren | 9.9 | |
-| F-14 LADV-Abmeldung protokollieren | 9.9 | |
+| F-12 Anmeldungen einsehen (admin) | 9.9 | ✅ |
+| F-13 LADV-Anmeldung protokollieren | 9.9 | ✅ |
+| F-14 LADV-Abmeldung protokollieren | 9.9 | ✅ |
 | F-15 Admin-Announcement | 9.10 | |
 | F-16 Kommentare | 9.10 | |
 | F-18 Synchrone E-Mails | 9.11 | |
 | F-19 E-Mail-Log | 9.11 | |
 | F-21 Campai-Sync | bereits implementiert | ✅ |
 | F-22 LADV-Startpass | 9.8.2 | ✅ |
-| F-24 Superuser-Seite | 9.9 | |
+| F-24 Superuser-Seite | 9.9 | ✅ |
 | F-25 Dev-Seeding | 9.4 | ✅ |

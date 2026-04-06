@@ -216,6 +216,12 @@ async function syncLadv() {
           :event-type="event.type"
         />
 
+        <EventAdminLadvTodos
+          v-if="isAdmin && isLadv"
+          :event="event"
+          @refresh="refresh"
+        />
+
         <EventComments :event-id="event.id" />
       </div>
 

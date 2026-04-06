@@ -1,7 +1,10 @@
 <script setup lang="ts">
-const { clear, user } = useUserSession()
+const { clear, user, session } = useUserSession()
 const colorMode = useColorMode()
 const isOpen = ref(false)
+
+const isAdmin = computed(() => session.value?.user?.role === 'admin' || session.value?.user?.role === 'superuser')
+const isSuperuser = computed(() => session.value?.user?.role === 'superuser')
 
 const colorModeIcon = computed(() =>
   colorMode.value === 'dark' ? 'i-ph-moon-bold' : 'i-ph-sun-bold',
@@ -37,7 +40,7 @@ async function logout() {
           </div>
         </div>
 
-        <div class="py-4 border-b border-default">
+        <div class="py-4 border-b border-default space-y-3">
           <NuxtLink
             to="/meine-anmeldungen"
             class="flex items-center gap-3 text-sm text-default hover:text-primary transition-colors"
@@ -48,6 +51,30 @@ async function logout() {
               class="size-5 text-muted shrink-0"
             />
             Meine Anmeldungen
+          </NuxtLink>
+          <NuxtLink
+            v-if="isAdmin"
+            to="/admin"
+            class="flex items-center gap-3 text-sm text-default hover:text-primary transition-colors"
+            @click="isOpen = false"
+          >
+            <UIcon
+              name="i-ph-shield-check-bold"
+              class="size-5 text-muted shrink-0"
+            />
+            Admin
+          </NuxtLink>
+          <NuxtLink
+            v-if="isSuperuser"
+            to="/superuser"
+            class="flex items-center gap-3 text-sm text-default hover:text-primary transition-colors"
+            @click="isOpen = false"
+          >
+            <UIcon
+              name="i-ph-key-bold"
+              class="size-5 text-muted shrink-0"
+            />
+            Superuser
           </NuxtLink>
         </div>
 
@@ -141,7 +168,7 @@ async function logout() {
 
             <div class="h-px bg-border mx-4" />
 
-            <!-- Meine Anmeldungen -->
+            <!-- Meine Anmeldungen + Admin-Links -->
             <div class="p-2">
               <NuxtLink
                 to="/meine-anmeldungen"
@@ -153,6 +180,30 @@ async function logout() {
                   class="size-5 shrink-0"
                 />
                 Meine Anmeldungen
+              </NuxtLink>
+              <NuxtLink
+                v-if="isAdmin"
+                to="/admin"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-[--ui-radius] text-sm text-default hover:text-primary hover:bg-primary/10 transition-colors"
+                @click="isOpen = false"
+              >
+                <UIcon
+                  name="i-ph-shield-check-bold"
+                  class="size-5 shrink-0"
+                />
+                Admin
+              </NuxtLink>
+              <NuxtLink
+                v-if="isSuperuser"
+                to="/superuser"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-[--ui-radius] text-sm text-default hover:text-primary hover:bg-primary/10 transition-colors"
+                @click="isOpen = false"
+              >
+                <UIcon
+                  name="i-ph-key-bold"
+                  class="size-5 shrink-0"
+                />
+                Superuser
               </NuxtLink>
             </div>
 

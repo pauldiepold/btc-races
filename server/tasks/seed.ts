@@ -5,7 +5,8 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { LadvService } from '../external-apis/ladv/ladv.service'
 import { normalizeLadvData } from '../utils/ladv'
-import type { LadvAusschreibung } from '~~/shared/types/ladv'
+import type { LadvAusschreibung, LadvWettbewerb } from '~~/shared/types/ladv'
+import { isRunningDiscipline } from '~~/shared/utils/ladv-labels'
 
 // LADV-Ausschreibungs-IDs — jeden 3. auskommentiert
 const LADV_IDS: Array<{ id: number, label: string }> = [
@@ -317,7 +318,7 @@ export default defineTask({
     async function seedRandomRegistrations(
       eventId: string,
       eventType: 'ladv' | 'competition' | 'training' | 'social',
-      ladvWettbewerbe: Array<{ disziplin: string, klasse: string }> = [],
+      ladvWettbewerbe: LadvWettbewerb[] = [],
       excludeUserIds: string[] = [],
     ) {
       const pool = [...campaiUserIds, ...Object.values(testUserIds)].filter(
@@ -345,8 +346,8 @@ export default defineTask({
           await db.insert(schema.registrationDisciplines).values({
             id: crypto.randomUUID(),
             registrationId: regId,
-            discipline: disc.disziplin,
-            ageClass: disc.klasse,
+            discipline: disc.disziplinNew,
+            ageClass: disc.klasseNew,
           })
         }
       }
@@ -357,7 +358,8 @@ export default defineTask({
       const event = await db.query.events.findFirst({
         where: eq(schema.events.id, eventId),
       })
-      const wettbewerbe = (event?.ladvData as { wettbewerbe?: Array<{ disziplin: string, klasse: string }> } | null)?.wettbewerbe ?? []
+      const wettbewerbe = ((event?.ladvData as LadvAusschreibung | null)?.wettbewerbe ?? [])
+        .filter(w => isRunningDiscipline(w.disziplinNew))
 
       await seedRandomRegistrations(eventId, 'ladv', wettbewerbe, [kevinId, lisaId])
     }
@@ -367,8 +369,9 @@ export default defineTask({
       const firstEvent = await db.query.events.findFirst({
         where: eq(schema.events.id, firstLadvEventId),
       })
-      const wettbewerbe = (firstEvent?.ladvData as { wettbewerbe?: Array<{ disziplin: string, klasse: string }> } | null)?.wettbewerbe ?? []
-      const disc = wettbewerbe[0] ?? { disziplin: '5000m', klasse: 'M30' }
+      const wettbewerbe = ((firstEvent?.ladvData as LadvAusschreibung | null)?.wettbewerbe ?? [])
+        .filter(w => isRunningDiscipline(w.disziplinNew))
+      const disc = wettbewerbe[0] ?? { disziplinNew: 'L5K0', klasseNew: 'M30' }
 
       // Szenario 1: Kevin — bereits bei LADV angemeldet (E-03-Flow testbar)
       const reg1Id = crypto.randomUUID()
@@ -382,8 +385,8 @@ export default defineTask({
       await db.insert(schema.registrationDisciplines).values({
         id: crypto.randomUUID(),
         registrationId: reg1Id,
-        discipline: disc.disziplin,
-        ageClass: disc.klasse,
+        discipline: disc.disziplinNew,
+        ageClass: disc.klasseNew,
         ladvRegisteredAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // vor 2 Tagen gemeldet
         ladvRegisteredBy: 'Test Admin',
       })
@@ -403,8 +406,8 @@ export default defineTask({
       await db.insert(schema.registrationDisciplines).values({
         id: crypto.randomUUID(),
         registrationId: reg3Id,
-        discipline: disc.disziplin,
-        ageClass: disc.klasse,
+        discipline: disc.disziplinNew,
+        ageClass: disc.klasseNew,
         ladvRegisteredAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
         ladvRegisteredBy: 'Test Admin',
         ladvCanceledAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // vollständiger Abmelde-Flow
@@ -424,8 +427,8 @@ export default defineTask({
       await db.insert(schema.registrationDisciplines).values({
         id: crypto.randomUUID(),
         registrationId: reg4Id,
-        discipline: disc.disziplin,
-        ageClass: disc.klasse,
+        discipline: disc.disziplinNew,
+        ageClass: disc.klasseNew,
         // ladvRegisteredAt absichtlich null → noch nicht bei LADV eingereicht
       })
     }

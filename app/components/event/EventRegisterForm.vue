@@ -392,7 +392,7 @@ async function saveNotes() {
                 <UBadge
                   color="neutral"
                   variant="subtle"
-                  size="xs"
+                  size="sm"
                 >
                   {{ ladvAgeClassLabel(disc.ageClass) }}
                 </UBadge>
@@ -400,7 +400,7 @@ async function saveNotes() {
                   v-if="disc.ladvRegisteredAt"
                   color="success"
                   variant="subtle"
-                  size="xs"
+                  size="sm"
                   icon="i-ph-check-circle"
                 >
                   Bei LADV angemeldet

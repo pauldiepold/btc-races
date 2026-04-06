@@ -110,7 +110,7 @@ function fullName(r: RegistrationDetail): string {
                 :label="`${ladvDisciplineLabel(d.discipline)} · ${ladvAgeClassLabel(d.ageClass)}`"
                 color="neutral"
                 variant="outline"
-                size="xs"
+                size="sm"
               />
             </div>
 

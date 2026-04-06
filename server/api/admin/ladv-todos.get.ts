@@ -19,7 +19,6 @@ export default defineEventHandler(async (event) => {
       disciplineId: schema.registrationDisciplines.id,
       discipline: schema.registrationDisciplines.discipline,
       ageClass: schema.registrationDisciplines.ageClass,
-      ladvRegisteredAt: schema.registrationDisciplines.ladvRegisteredAt,
       userId: schema.users.id,
       firstName: schema.users.firstName,
       lastName: schema.users.lastName,
@@ -55,8 +54,30 @@ export default defineEventHandler(async (event) => {
     )
     .orderBy(dateNullsLast, asc(schema.events.date), asc(typeOrder), asc(schema.users.lastName))
 
-  return rows.map(({ _typeOrder, ...r }) => ({
-    ...r,
-    type: _typeOrder === 0 ? ('register' as const) : ('cancel' as const),
-  })) satisfies LadvTodo[]
+  // Gruppieren: eine LadvTodo pro registrationId + type
+  const grouped = new Map<string, LadvTodo>()
+  for (const row of rows) {
+    const type = row._typeOrder === 0 ? 'register' as const : 'cancel' as const
+    const key = `${row.registrationId}:${type}`
+    const existing = grouped.get(key)
+    if (existing) {
+      existing.disciplines.push({ id: row.disciplineId, discipline: row.discipline, ageClass: row.ageClass })
+    }
+    else {
+      grouped.set(key, {
+        type,
+        eventId: row.eventId,
+        eventName: row.eventName,
+        eventDate: row.eventDate,
+        ladvId: row.ladvId,
+        registrationId: row.registrationId,
+        disciplines: [{ id: row.disciplineId, discipline: row.discipline, ageClass: row.ageClass }],
+        userId: row.userId,
+        firstName: row.firstName,
+        lastName: row.lastName,
+      })
+    }
+  }
+
+  return [...grouped.values()] satisfies LadvTodo[]
 })

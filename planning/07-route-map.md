@@ -75,8 +75,8 @@ _Stand: 2026-04-02_
 |---------|------|---------|--------------|---------|
 | `POST` | `/api/registrations/[id]/disciplines` | member (eigene) | Disziplin hinzufügen | F-04 |
 | `DELETE` | `/api/registrations/[id]/disciplines/[disciplineId]` | member (eigene) | Disziplin entfernen | F-04 |
-| `POST` | `/api/registrations/[id]/disciplines/[disciplineId]/ladv-register` | admin | LADV-Anmeldung protokollieren | F-13 |
-| `POST` | `/api/registrations/[id]/disciplines/[disciplineId]/ladv-cancel` | admin | LADV-Abmeldung protokollieren | F-14 |
+| `POST` | `/api/registrations/[id]/ladv-register` | admin | LADV-Anmeldung für alle Disziplinen der Anmeldung protokollieren | F-13 |
+| `POST` | `/api/registrations/[id]/ladv-cancel` | admin | LADV-Abmeldung für alle Disziplinen der Anmeldung protokollieren | F-14 |
 
 ### Comments
 

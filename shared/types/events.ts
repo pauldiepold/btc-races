@@ -34,6 +34,12 @@ export type EventDetail = Omit<Event, 'ladvData'> & {
   registrations: RegistrationDetail[]
 }
 
+export type LadvTodoDiscipline = {
+  id: string
+  discipline: string
+  ageClass: string
+}
+
 export type LadvTodo = {
   type: 'register' | 'cancel'
   eventId: string
@@ -41,13 +47,10 @@ export type LadvTodo = {
   eventDate: Date | null
   ladvId: number | null
   registrationId: string
-  disciplineId: string
-  discipline: string
-  ageClass: string
+  disciplines: LadvTodoDiscipline[]
   userId: string
   firstName: string | null
   lastName: string | null
-  ladvRegisteredAt: Date | null
 }
 
 export type MyRegistration = {

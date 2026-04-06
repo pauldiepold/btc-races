@@ -137,7 +137,7 @@ function toggle(code: string) {
                   :label="ladvAgeClassLabel(ak)"
                   color="neutral"
                   variant="subtle"
-                  size="xs"
+                  size="sm"
                 />
               </div>
             </div>

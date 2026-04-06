@@ -634,7 +634,7 @@ export type RegistrationStatus = 'registered' | 'canceled' | 'maybe' | 'yes' | '
 
 // State Machine gemäß 03-feature-spec.md
 // ladv:        registered ↔ canceled (kein maybe)
-// competition: registered ↔ maybe ↔ canceled
+// competition: registered ↔ maybe ↔ no
 // training:    yes ↔ maybe ↔ no
 // social:      yes ↔ maybe ↔ no
 export function getValidNextStatuses(
@@ -782,7 +782,7 @@ Sortierung: `event.date DESC NULLS LAST`.
 
 ---
 
-### 9.8.2 — Registrierungs-Flow: Frontend (F-03, F-04, F-06, F-22)
+### ✅ 9.8.2 — Registrierungs-Flow: Frontend (F-03, F-04, F-06, F-22)
 
 **Ziel:** `EventRegisterForm.vue` vollständig implementieren und `/profil`-Seite anlegen.
 
@@ -926,6 +926,8 @@ Keine neue pure Logik in 9.8.2 — alle Utils wurden in 9.8.1 implementiert und 
 **Output:** `EventRegisterForm.vue` vollständig, `/profil` nutzbar
 **Kontext-Files:** `app/components/event/EventRegisterForm.vue` (aktuell Stub), `app/pages/events/[id]/index.vue` (Parent, dort `refresh` und `session`), `shared/utils/registration.ts`, `shared/utils/ladv-age-class.ts`, `shared/utils/deadlines.ts`, `shared/utils/ladv-labels.ts`, `shared/types/events.ts` (MyRegistration), `app/components/UserMenu.vue`
 
+**Abschluss (2026-04-06):** `EventRegisterForm.vue` vollständig implementiert: drei Zustände (abgesagt/kein ownReg/ownReg vorhanden), LADV-Startpass-Check, Multi-Step Disziplin-Auswahl mit Auto-Select via `getLadvAgeClass`, Status-Buttons via `getValidNextStatuses` mit Deadline-Filter, Disziplin-Management für bestehende Anmeldungen (hinzufügen/entfernen inkl. `ladvRegisteredAt`-Badge), Inline-Notiz-Bearbeitung. `@refresh="refresh"` in `[id]/index.vue` ergänzt. `app/pages/meine-anmeldungen.vue` angelegt (UserMenu verlinkte bereits darauf statt `/profil`): Profil-Header mit Avatar/Initialen, Rollen-Badge, Sections-Badges; Anmeldungsliste mit Datum, Typ-Badge, Status-Badge, LADV-Status, Leer-Zustand. Lint-Fix: unbenutztes `EventType`-Import in `test/unit/registration.test.ts` entfernt. TypeCheck Exit 0, Lint clean.
+
 ---
 
 ### 9.9 — Admin-Workflows: LADV-Protokollierung + Dashboard (F-12 admin, F-13, F-14, F-24)
@@ -1010,15 +1012,15 @@ Keine neue pure Logik in 9.8.2 — alle Utils wurden in 9.8.1 implementiert und 
 |---------|---------|--------|
 | F-01 Event-Liste | 9.5 | ✅ |
 | F-02 Event-Detail | 9.6 | ✅ |
-| F-03 Anmeldung | 9.8.1 | ✅ (Backend) |
-| F-04 Anmeldung bearbeiten | 9.8.1 | ✅ (Backend) |
-| F-06 Profil / Anmeldungsübersicht | 9.8.1 | ✅ (Backend) |
+| F-03 Anmeldung | 9.8.2 | ✅ |
+| F-04 Anmeldung bearbeiten | 9.8.2 | ✅ |
+| F-06 Profil / Anmeldungsübersicht | 9.8.2 | ✅ |
 | F-07 Event manuell anlegen | 9.5 | ✅ |
 | F-08 LADV-Import | 9.5 | ✅ |
 | F-09 Event bearbeiten | 9.7 | ✅ |
 | F-10 LADV-Sync + Diff | 9.7 | ✅ |
 | F-11 Event absagen | 9.7 | ✅ |
-| F-12 Anmeldungen einsehen (member) | 9.8.1 | ✅ (Backend) |
+| F-12 Anmeldungen einsehen (member) | 9.8.2 | ✅ |
 | F-12 Anmeldungen einsehen (admin) | 9.9 | |
 | F-13 LADV-Anmeldung protokollieren | 9.9 | |
 | F-14 LADV-Abmeldung protokollieren | 9.9 | |
@@ -1027,6 +1029,6 @@ Keine neue pure Logik in 9.8.2 — alle Utils wurden in 9.8.1 implementiert und 
 | F-18 Synchrone E-Mails | 9.11 | |
 | F-19 E-Mail-Log | 9.11 | |
 | F-21 Campai-Sync | bereits implementiert | ✅ |
-| F-22 LADV-Startpass | 9.8.1 | ✅ (Backend) |
+| F-22 LADV-Startpass | 9.8.2 | ✅ |
 | F-24 Superuser-Seite | 9.9 | |
 | F-25 Dev-Seeding | 9.4 | ✅ |

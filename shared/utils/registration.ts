@@ -3,7 +3,7 @@ export type RegistrationStatus = 'registered' | 'canceled' | 'maybe' | 'yes' | '
 
 // State Machine gemäß Feature-Spec:
 // ladv:        registered ↔ canceled
-// competition: registered ↔ maybe ↔ canceled
+// competition: registered ↔ maybe ↔ no
 // training:    yes ↔ maybe ↔ no
 // social:      yes ↔ maybe ↔ no
 //
@@ -20,9 +20,9 @@ export function getValidNextStatuses(
   }
 
   if (eventType === 'competition') {
-    if (current === 'registered') return ['maybe', 'canceled']
-    if (current === 'maybe') return ['registered', 'canceled']
-    if (current === 'canceled') return ['registered', 'maybe']
+    if (current === 'registered') return ['maybe', 'no']
+    if (current === 'maybe') return ['registered', 'no']
+    if (current === 'no') return ['registered', 'maybe']
     return []
   }
 

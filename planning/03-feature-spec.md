@@ -146,12 +146,12 @@ Ausgetretene Mitglieder (nicht mehr in Campai aktiv) erhalten `membershipStatus 
 | Event-Typ     | Mögliche Status                         | Zeitregel                          |
 |---------------|-----------------------------------------|------------------------------------|
 | `ladv`        | `registered` ↔ `canceled`              | Vor Meldefrist (Storno immer möglich) |
-| `competition` | `registered` ↔ `maybe` ↔ `canceled`   | Vor Meldefrist (Storno immer möglich) |
+| `competition` | `registered` ↔ `maybe` ↔ `no`         | Vor Meldefrist (Absage `no` immer möglich) |
 | `training`    | `yes` ↔ `maybe` ↔ `no`                 | Jederzeit                          |
 | `social`      | `yes` ↔ `maybe` ↔ `no`                 | Jederzeit                          |
 
 **Akzeptanzkriterien:**
-- Statusänderung jederzeit möglich solange Meldefrist nicht abgelaufen (bei `ladv` + `competition`); Ausnahme: Storno (`canceled`/`no`) bleibt immer möglich
+- Statusänderung jederzeit möglich solange Meldefrist nicht abgelaufen (bei `ladv` + `competition`); Ausnahme: Absage (`canceled`/`no`) bleibt immer möglich
 - Keine E-Mail bei `maybe`-Status
 - Bei Stornierung: E-Mail-Bestätigung an Mitglied (→ E-02)
 - Bei `ladv`-Events mit gesetztem `ladv_registered_at` für eine Disziplin: deutlicher Hinweis im UI — "Diese Disziplin ist bereits bei LADV angemeldet — Admin informieren"
@@ -634,7 +634,7 @@ Pro Event mit Anmeldungen werden 0–3 zufällige Mitglieder-Kommentare generier
 | Event-Typ     | Mögliche Werte                          | Steuerung |
 |---------------|-----------------------------------------|-----------|
 | `ladv`        | `registered` ↔ `canceled`              | Mitglied  |
-| `competition` | `registered` ↔ `maybe` ↔ `canceled`   | Mitglied  |
+| `competition` | `registered` ↔ `maybe` ↔ `no`         | Mitglied  |
 | `training`    | `yes` ↔ `maybe` ↔ `no`                 | Mitglied  |
 | `social`      | `yes` ↔ `maybe` ↔ `no`                 | Mitglied  |
 
@@ -642,7 +642,7 @@ Pro Event mit Anmeldungen werden 0–3 zufällige Mitglieder-Kommentare generier
 - Bei `ladv` kein `maybe` — LADV erfordert eine verbindliche Meldung
 - `training` und `social` verhalten sich identisch: kein Admin-Bestätigungsschritt, keine Meldefrist, initialer Status `yes`
 - Übergänge sind in alle Richtungen frei möglich, solange die Meldefrist nicht abgelaufen ist (bei `ladv` und `competition`)
-- Stornierung (`canceled`/`no`) bleibt auch nach Fristablauf möglich — Admin entscheidet dann selbst über die LADV-Abmeldung
+- Absage (`canceled` bei `ladv`, `no` bei `competition`/`training`/`social`) bleibt auch nach Fristablauf möglich — Admin entscheidet dann selbst über die LADV-Abmeldung
 - Initiale Anmeldung ist immer `registered` (bei ladv/competition) bzw. `yes` (bei training/social)
 - Vollständige State Machine inkl. Disziplin-Änderungen: → F-04
 

@@ -11,6 +11,7 @@ const bodySchema = z.object({
     discipline: z.string(),
     ageClass: z.string(),
   })).optional(),
+  status: z.enum(['registered', 'maybe', 'yes', 'no']).optional(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -27,7 +28,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: result.error.issues[0]?.message ?? 'Validierungsfehler' })
   }
 
-  const { notes, disciplines } = result.data
+  const { notes, disciplines, status: requestedStatus } = result.data
 
   // 1. Event laden
   const dbEvent = await db.query.events.findFirst({
@@ -73,11 +74,22 @@ export default defineEventHandler(async (event) => {
   const now = new Date()
   const registrationId = randomUUID()
 
+  // Initialen Status bestimmen: angefordert (falls erlaubt) oder Fallback
+  const validInitial: Record<string, string[]> = {
+    ladv: ['registered'],
+    competition: ['registered', 'maybe'],
+    training: ['yes', 'maybe', 'no'],
+    social: ['yes', 'maybe', 'no'],
+  }
+  const initialStatus = (requestedStatus && validInitial[dbEvent.type]?.includes(requestedStatus))
+    ? requestedStatus
+    : getInitialStatus(dbEvent.type)
+
   await db.insert(schema.registrations).values({
     id: registrationId,
     eventId: id,
     userId: session.user.id,
-    status: getInitialStatus(dbEvent.type),
+    status: initialStatus,
     notes: notes ?? null,
     createdAt: now,
     updatedAt: now,

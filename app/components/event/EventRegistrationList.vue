@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { RegistrationDetail } from '~~/shared/types/events'
+import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
+import { getRegistrationTabConfig } from '~~/shared/utils/registration-ui'
 
 const props = defineProps<{
   registrations: RegistrationDetail[]
@@ -8,26 +10,9 @@ const props = defineProps<{
 
 type TabKey = 'registered' | 'canceled' | 'maybe' | 'yes' | 'no'
 
-const tabConfig = computed<{ key: TabKey, label: string }[]>(() => {
-  if (props.eventType === 'ladv') {
-    return [
-      { key: 'registered', label: 'Angemeldet' },
-      { key: 'canceled', label: 'Abgesagt' },
-    ]
-  }
-  if (props.eventType === 'competition') {
-    return [
-      { key: 'registered', label: 'Angemeldet' },
-      { key: 'maybe', label: 'Vielleicht' },
-      { key: 'canceled', label: 'Abgesagt' },
-    ]
-  }
-  return [
-    { key: 'yes', label: 'Dabei' },
-    { key: 'maybe', label: 'Vielleicht' },
-    { key: 'no', label: 'Nicht dabei' },
-  ]
-})
+const tabConfig = computed(() =>
+  getRegistrationTabConfig(props.eventType) as { key: TabKey, label: string }[],
+)
 
 const byStatus = computed(() =>
   Object.fromEntries(
@@ -58,7 +43,7 @@ function fullName(r: RegistrationDetail): string {
 
 <template>
   <div>
-    <h2 class="font-semibold text-highlighted mb-4">
+    <h2 class="font-display font-semibold text-highlighted mb-4">
       Anmeldungen
     </h2>
 
@@ -79,6 +64,7 @@ function fullName(r: RegistrationDetail): string {
         v-model="activeTab"
         :items="tabItems"
         :content="false"
+        variant="link"
         class="mb-4"
       />
 
@@ -121,7 +107,7 @@ function fullName(r: RegistrationDetail): string {
               <UBadge
                 v-for="d in reg.disciplines"
                 :key="d.id"
-                :label="`${d.discipline} · ${d.ageClass}`"
+                :label="`${ladvDisciplineLabel(d.discipline)} · ${ladvAgeClassLabel(d.ageClass)}`"
                 color="neutral"
                 variant="outline"
                 size="xs"

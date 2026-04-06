@@ -5,7 +5,7 @@ const route = useRoute()
 const toast = useToast()
 const id = route.params.id as string
 
-const { data: event, status, refresh } = await useFetch<EventDetail>(`/api/events/${id}`, {
+const { data: event, status, refresh } = useFetch<EventDetail>(`/api/events/${id}`, {
   onResponseError({ response }) {
     if (response.status === 404) {
       toast.add({ title: 'Event nicht gefunden', color: 'error' })
@@ -17,6 +17,8 @@ const { data: event, status, refresh } = await useFetch<EventDetail>(`/api/event
 useHead(() => ({
   title: event.value?.name ?? 'Event',
 }))
+
+const isInitialLoading = computed(() => status.value === 'pending' && !event.value)
 
 const isCancelled = computed(() => !!event.value?.cancelledAt)
 const isLadv = computed(() => event.value?.type === 'ladv')
@@ -112,7 +114,7 @@ async function syncLadv() {
 
     <!-- Lade-Zustand -->
     <div
-      v-if="status === 'pending'"
+      v-if="isInitialLoading"
       class="flex flex-col gap-14 lg:flex-row lg:gap-16"
     >
       <div class="flex-1 space-y-6">
@@ -170,7 +172,7 @@ async function syncLadv() {
             <UButton
               v-if="isAdmin && !isCancelled"
               icon="i-ph-x-circle"
-              label="Absagen"
+              label="Event absagen"
               color="error"
               variant="outline"
               size="sm"
@@ -204,7 +206,10 @@ async function syncLadv() {
           :last-sync="event.ladvLastSync"
         />
 
-        <EventRegisterForm :event="event" />
+        <EventRegisterForm
+          :event="event"
+          @refresh="refresh"
+        />
 
         <EventRegistrationList
           :registrations="event.registrations"

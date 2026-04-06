@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { getValidNextStatuses, getInitialStatus } from '../../shared/utils/registration'
-import type { EventType, RegistrationStatus } from '../../shared/utils/registration'
+import type { RegistrationStatus } from '../../shared/utils/registration'
 
 describe('getInitialStatus', () => {
   it('returns registered for ladv events', () => {
@@ -35,17 +35,17 @@ describe('getValidNextStatuses', () => {
     })
   })
 
-  describe('competition events (registered ↔ maybe ↔ canceled)', () => {
-    it('allows maybe and cancel when registered', () => {
-      expect(getValidNextStatuses('registered', 'competition')).toEqual(['maybe', 'canceled'])
+  describe('competition events (registered ↔ maybe ↔ no)', () => {
+    it('allows maybe and no when registered', () => {
+      expect(getValidNextStatuses('registered', 'competition')).toEqual(['maybe', 'no'])
     })
 
-    it('allows registered and cancel when maybe', () => {
-      expect(getValidNextStatuses('maybe', 'competition')).toEqual(['registered', 'canceled'])
+    it('allows registered and no when maybe', () => {
+      expect(getValidNextStatuses('maybe', 'competition')).toEqual(['registered', 'no'])
     })
 
-    it('allows registered and maybe when canceled', () => {
-      expect(getValidNextStatuses('canceled', 'competition')).toEqual(['registered', 'maybe'])
+    it('allows registered and maybe when no', () => {
+      expect(getValidNextStatuses('no', 'competition')).toEqual(['registered', 'maybe'])
     })
 
     it('returns empty array for unexpected status', () => {

@@ -19,6 +19,9 @@ export const users = sqliteTable('users', {
   lastSyncedAt: integer({ mode: 'timestamp' }),
   avatarUrl: text(),
   hasLadvStartpass: integer().default(0),
+  gender: text().$type<'m' | 'w'>(),
+  age: integer(),
+  birthday: integer({ mode: 'timestamp' }),
 
   createdAt: integer({ mode: 'timestamp' })
     .notNull()

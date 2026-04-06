@@ -188,6 +188,9 @@ Die Felder `discipline`, `age_class` sowie die LADV-Operationsfelder werden aus 
 | lastSyncedAt         | integer (timestamp)              | letzter Campai-Sync                                            |
 | avatarUrl            | text                             |                                                                |
 | has_ladv_startpass   | integer (boolean) DEFAULT 0      | aus Campai-Sync (F-21); required für LADV-Event-Anmeldung      |
+| gender               | text                             | `m` \| `w` — aus `personal.type` (Campai-Sync)                 |
+| age                  | integer                          | Alter in Jahren — aus `personal.personAge` (Campai-Sync)       |
+| birthday             | integer (timestamp)              | Geburtsdatum — aus `personal.personBirthday` (Campai-Sync)     |
 | createdAt            | integer (timestamp) NOT NULL     |                                                                |
 
 

@@ -54,6 +54,9 @@ export default defineTask({
           sections,
           avatarUrl,
           hasLadvStartpass: contact.custom?.['1EAOnH99nXTTRrmreBYuF'] === true ? 1 : 0,
+          gender: (contact.personal.type === 'malePerson' ? 'm' : contact.personal.type === 'femalePerson' ? 'w' : null) as 'm' | 'w' | null,
+          age: contact.personal.personAge ?? null,
+          birthday: contact.personal.personBirthday ? new Date(contact.personal.personBirthday) : null,
           lastSyncedAt: syncTimestamp,
         }
 

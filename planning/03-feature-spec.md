@@ -453,7 +453,7 @@ Ausgetretene Mitglieder (nicht mehr in Campai aktiv) erhalten `membershipStatus 
 **Beschreibung:** Automatischer Abgleich aktiver Vereinsmitglieder aus Campai in die `users`-Tabelle.
 
 **Was der Sync tut:**
-- Aktive Mitglieder: upsert in `users` mit allen Feldern inkl. `role` und `hasLadvStartpass`
+- Aktive Mitglieder: upsert in `users` mit allen Feldern inkl. `role`, `hasLadvStartpass`, `gender`, `age`, `birthday`
 - Rollen-Zuweisung: `superuser` wenn E-Mail `paul@diepold.de`; `admin` wenn Section `"Coaches"`; sonst `member`
 - Nicht mehr aktive Mitglieder: `membershipStatus = 'inactive'` setzen (Daten bleiben erhalten)
 

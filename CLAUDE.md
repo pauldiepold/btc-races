@@ -110,6 +110,16 @@ Am Ende jeder Feature-Session prüfen: Enthält der neue Code pure, testbare Log
 
 Siehe (`.env.example`)
 
+## Git-Commit-Konvention
+
+`<type>(<scope>): <beschreibung> [(F-xx, F-yy)]`
+
+- **Types**: `feat` | `fix` | `refactor` | `docs` | `chore` | `test`
+- **Scope**: Session-Nummer (`9.8.1`) oder Modul (`auth`, `db`)
+- **Feature-IDs** obligatorisch bei Spec-Bezug
+- Max. 2 Commits pro Session: Code-Commit + ggf. separater `docs:`-Commit bei eigenständigen Planänderungen. Session-Abschluss (✅ + Notiz) in den Code-Commit bundeln.
+- Kein `Co-Authored-By`
+
 ## Implementierungsplan-Pflege
 
 Der Implementierungsplan liegt in `planning/09-implementierungsplan.md`. Nach jeder abgeschlossenen Session:

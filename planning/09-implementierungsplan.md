@@ -575,39 +575,354 @@ Hinweis: `$fetch` bei 4xx/5xx wirft einen `FetchError` mit `.status`, `.statusMe
 
 ---
 
-### 9.8 — Registrierungs-Flow (F-03, F-04, F-06, F-12 member, F-22)
+### 9.8.1 — Registrierungs-Flow: Backend (F-03, F-04, F-06, F-12 member, F-22)
 
-**Ziel:** Mitglieder können sich anmelden, ihre Anmeldung bearbeiten und eine Übersicht ihrer Anmeldungen sehen.
+**Ziel:** Alle Backend-Endpunkte für Anmeldung, Bearbeitung und eigene Übersicht. Shared Utils für State Machine und Fristprüfung. Session um `hasLadvStartpass`, `birthYear`, `gender` erweitern.
 
-**Was zu tun ist:**
+---
 
-**Backend:**
-- `POST /api/events/[id]/registrations` — Anmeldung erstellen. Validierung:
-  - Meldefrist noch nicht abgelaufen (bei `ladv` + `competition`)
-  - Event nicht abgesagt
-  - Keine Doppelanmeldung (UNIQUE constraint)
-  - Bei `ladv`: mindestens eine Disziplin angegeben
-  - Bei `ladv`: `has_ladv_startpass = true` (F-22) — sonst 403 mit sprechendem Fehler
-  - Initialer Status: `registered` (ladv/competition) / `yes` (training/social)
-- `PATCH /api/registrations/[id]` — Status oder Notiz ändern. Status-Validierung per Event-Typ (State Machine aus `03-feature-spec.md`). Auth: nur eigene Anmeldung.
-- `POST /api/registrations/[id]/disciplines` — Disziplin hinzufügen (nur eigene, nur vor Fristablauf). Auth: nur eigene Anmeldung.
-- `DELETE /api/registrations/[id]/disciplines/[disciplineId]` — Disziplin entfernen. Mindestens eine muss verbleiben. Auth: nur eigene Anmeldung.
-- `GET /api/me/registrations` — alle eigenen Anmeldungen über alle Events.
+#### Kontext-Schnellreferenz (für explore-Phase)
 
-**Frontend:**
-- Event-Detailseite (`/events/[id]`) erweitern:
-  - Anmeldeformular (wenn noch nicht angemeldet): bei LADV Disziplin-Auswahl aus `ladv_data.wettbewerbe`, bei competition/training/social Notiz-Feld. Hinweis "Öffentliche Notiz — für alle Mitglieder sichtbar".
-  - Eigene Anmeldung bearbeiten: Status-Buttons gemäß State Machine, Disziplin hinzufügen/entfernen, Notiz editieren
-  - Hinweis wenn Disziplin bereits `ladv_registered_at` gesetzt hat
-  - F-22: Fehlermeldung bei fehlendem Startpass
-- `/profil` — eigene Anmeldungsübersicht: Event-Name, Datum, Typ, Status, LADV-Status (bei ladv-Events), Link zur Detailseite
+**Schema-Status:**
+- `users`-Tabelle hat bereits: `hasLadvStartpass` (integer), `gender` (text `'m'|'w'`), `birthday` (integer timestamp)
+- `registrations`: id, eventId, userId, status, notes, createdAt/updatedAt; UNIQUE (eventId, userId)
+- `registrationDisciplines`: id, registrationId, discipline, ageClass, ladvRegisteredAt, ladvRegisteredBy, ladvCanceledAt, ladvCanceledBy, createdAt; UNIQUE (registrationId, discipline)
+- Schema liegt in `server/db/schema.ts`
 
-**Testbare Logik (→ `/test` nach der Session):**
-- State Machine — `getValidNextStatuses(currentStatus, eventType)` in `shared/utils/registration.ts` extrahieren. Wird im Frontend (welche Buttons anzeigen) und im Backend (Validierung beim PATCH) gleichermaßen gebraucht. Test-Cases: alle Kombinationen aus `03-feature-spec.md`, ungültige Übergänge.
-- Fristprüfung — `isDeadlineExpired(deadline: Date | null, now?: Date): boolean` in `shared/utils/deadlines.ts`. Test-Cases: abgelaufene Frist, noch offene Frist, `null` (kein Deadline-Check nötig), exakte Grenze.
+**Session-Status (aktuell):** `id, firstName, lastName, email, role, sections, avatarUrl` — **fehlt:** `hasLadvStartpass`, `birthYear`, `gender`
+- Session wird in `server/routes/verify.get.ts` (Zeile 50) via `setUserSession()` gesetzt
+- Typ-Deklaration: `shared/types/auth.d.ts`
 
-**Output:** Anmeldungs-Flow vollständig, `/profil` nutzbar  
-**Kontext-Files:** `03-feature-spec.md` (F-03, F-04, F-06, F-22), `02b-datenmodell-entwurf.md` (ADR-005, ADR-007)
+**Auth-Utils:** `server/utils/auth.ts` — `requireAdmin(event)`, `requireSuperuser(event)`, `requireOwnerOrAdmin(event, ownerId)` — alle rufen `requireUserSession` intern auf.
+
+**E-Mails in 9.8:** KEIN E-Mail-Service verwenden. Nur `console.log`-Stubs:
+```ts
+console.log(`[E-01] Anmeldung-Bestätigung → ${user.email}: "${event.name}"`)
+console.log(`[E-02] Stornierung-Bestätigung → ${user.email}: "${event.name}"`)
+console.log(`[E-05] Dringende Anmeldung (< 3 Tage) → Alle Admins: ${user.firstName} ${user.lastName} → "${event.name}"`)
+```
+Der echte E-Mail-Service wird in Session 9.11 angebunden.
+
+**LADV-Altersklassen-Format** (aus Fixtures): `'M'`, `'W'`, `'M35'`, `'W50'`, `'M60'`, `'MJU20'`, `'WJU18'` etc. Gender-Präfix: `'m'` im Schema → `'M'` in LADV; `'w'` → `'W'`.
+
+---
+
+#### Was zu tun ist
+
+**1. Session erweitern**
+
+`shared/types/auth.d.ts` — drei Felder zur `User`-Interface ergänzen:
+```ts
+hasLadvStartpass: boolean
+birthYear: number | null   // null wenn kein Birthday in DB
+gender: 'm' | 'w' | null
+```
+
+`server/routes/verify.get.ts` — beim `setUserSession`-Aufruf ergänzen:
+```ts
+hasLadvStartpass: user.hasLadvStartpass === 1,
+birthYear: user.birthday ? new Date(user.birthday).getFullYear() : null,
+gender: user.gender ?? null,
+```
+
+**2. Shared Utils anlegen**
+
+**`shared/utils/registration.ts`** (neu):
+```ts
+export type EventType = 'ladv' | 'competition' | 'training' | 'social'
+export type RegistrationStatus = 'registered' | 'canceled' | 'maybe' | 'yes' | 'no'
+
+// State Machine gemäß 03-feature-spec.md
+// ladv:        registered ↔ canceled (kein maybe)
+// competition: registered ↔ maybe ↔ canceled
+// training:    yes ↔ maybe ↔ no
+// social:      yes ↔ maybe ↔ no
+export function getValidNextStatuses(
+  current: RegistrationStatus,
+  eventType: EventType,
+): RegistrationStatus[]
+```
+Hinweis: Fristprüfung ist NICHT Teil dieser Funktion — die macht `isDeadlineExpired`. Diese Funktion gibt nur die laut State Machine erlaubten Übergänge zurück. Backend prüft zusätzlich ob Frist abgelaufen (außer bei cancel/no, die immer erlaubt sind).
+
+**`shared/utils/deadlines.ts`** (neu):
+```ts
+// null = kein Deadline-Check nötig → gibt immer false zurück
+export function isDeadlineExpired(deadline: Date | null, now?: Date): boolean
+```
+
+**`shared/utils/ladv-age-class.ts`** (neu):
+```ts
+// Berechnet die theoretische LADV-Altersklasse eines Athleten.
+// age = year - birthYear (Stichtag 31.12. des Wettkampfjahres)
+// Masters: 35, 40, 45, ... in 5er-Schritten
+// Aktive: 20–34 → 'M'/'W'
+// Jugend: <20 → 'MJU20'/'WJU20' (18-19), 'MJU18'/'WJU18' (16-17), etc.
+// genderPrefix: 'm' → 'M', 'w' → 'W'
+export function getLadvAgeClass(
+  birthYear: number,
+  gender: 'm' | 'w',
+  competitionYear: number,
+): string
+```
+
+**3. API-Endpunkte**
+
+**`POST /api/events/[id]/registrations`** — `server/api/events/[id]/registrations.post.ts`
+
+Body (Zod):
+```ts
+z.object({
+  notes: z.string().optional(),
+  disciplines: z.array(z.object({
+    discipline: z.string(),   // disziplinNew
+    ageClass: z.string(),     // klasseNew
+  })).optional(),
+})
+```
+Validierung in Reihenfolge:
+1. Event laden — 404 wenn nicht gefunden
+2. Event abgesagt → 422 `Event ist abgesagt`
+3. Deadline abgelaufen (ladv/competition) → 422 `Meldefrist abgelaufen`
+4. Bereits angemeldet → 409 `Bereits angemeldet`
+5. LADV + `hasLadvStartpass = false` → 403 `Kein LADV-Startpass` (F-22)
+6. LADV + keine disciplines → 422 `Mindestens eine Disziplin erforderlich`
+
+Dann: `INSERT` in `registrations`, danach `INSERT` in `registrationDisciplines` (nur ladv).
+
+E-Mail-Stubs:
+- Immer: `[E-01]` console.log
+- Wenn Deadline gesetzt und `now + 3 Tage > deadline`: `[E-05]` console.log
+
+Response: `{ id: registration.id }` mit HTTP 201.
+
+---
+
+**`PATCH /api/registrations/[id]`** — `server/api/registrations/[id].patch.ts`
+
+Auth: nur eigene Anmeldung (`session.user.id !== registration.userId` → 403).
+
+Body (Zod):
+```ts
+z.object({
+  status: z.enum(['registered', 'canceled', 'maybe', 'yes', 'no']).optional(),
+  notes: z.string().nullable().optional(),
+})
+```
+
+Logik:
+- Notiz: immer updatebar (kein Deadline-Check)
+- Status-Änderung: `getValidNextStatuses(current, eventType)` prüfen → 422 wenn ungültig
+  - Wenn nicht cancel/no: Deadline abgelaufen → 422
+- `UPDATE registrations SET status, notes, updatedAt WHERE id`
+
+E-Mail-Stub: wenn Status auf `canceled`/`no` wechselt → `[E-02]` console.log.
+
+Response: `{ id }` HTTP 200.
+
+---
+
+**`POST /api/registrations/[id]/disciplines`** — `server/api/registrations/[id]/disciplines.post.ts`
+
+Auth: nur eigene Anmeldung.
+
+Validierung: Deadline prüfen (ladv — disziplinen nur vor Fristablauf änderbar). UNIQUE (registrationId, discipline) — Drizzle wirft bei Verletzung; catch → 409.
+
+Body: `{ discipline: string, ageClass: string }`
+
+Response: `{ id }` HTTP 201.
+
+---
+
+**`DELETE /api/registrations/[id]/disciplines/[disciplineId]`** — `server/api/registrations/[id]/disciplines/[disciplineId].delete.ts`
+
+Auth: nur eigene Anmeldung.
+
+Validierung: mindestens 1 muss verbleiben → erst Anzahl zählen, wenn ≤ 1 → 422 `Mindestens eine Disziplin muss verbleiben`.
+
+Response: HTTP 204 (no content).
+
+---
+
+**`GET /api/me/registrations`** — `server/api/me/registrations.get.ts`
+
+Gibt alle eigenen Anmeldungen zurück, inkl. Event-Infos (name, date, type, cancelledAt) und Disziplinen.
+
+Response-Typ in `shared/types/events.ts` ergänzen:
+```ts
+export type MyRegistration = {
+  id: string
+  status: RegistrationStatus
+  notes: string | null
+  createdAt: Date
+  event: {
+    id: string
+    name: string
+    date: Date | null
+    type: EventType
+    cancelledAt: Date | null
+    registrationDeadline: Date | null
+  }
+  disciplines: DisciplineDetail[]
+}
+```
+Sortierung: `event.date DESC NULLS LAST`.
+
+---
+
+#### Testbare Logik (→ `/test` nach der Session)
+
+- `getValidNextStatuses` — alle Kombinationen aus State Machine, ungültige Übergänge
+- `isDeadlineExpired` — abgelaufen, offen, `null`, exakter Grenzwert (gleicher Zeitstempel)
+- `getLadvAgeClass` — Aktive (M25), Masters-Grenze (M35, W40), Jugend (MJU20), Kante 35
+
+**Output:** 5 API-Endpunkte + 3 Shared Utils + Session-Erweiterung
+**Kontext-Files:** `server/db/schema.ts`, `server/routes/verify.get.ts`, `shared/types/auth.d.ts`, `server/utils/auth.ts`, `shared/types/events.ts`, `03-feature-spec.md` (F-03, F-04, F-06, F-22)
+
+---
+
+### 9.8.2 — Registrierungs-Flow: Frontend (F-03, F-04, F-06, F-22)
+
+**Ziel:** `EventRegisterForm.vue` vollständig implementieren und `/profil`-Seite anlegen.
+
+---
+
+#### Kontext-Schnellreferenz (für explore-Phase)
+
+**Voraussetzungen aus 9.8.1:**
+- Session hat `hasLadvStartpass: boolean`, `birthYear: number | null`, `gender: 'm' | 'w' | null`
+- `getValidNextStatuses(status, eventType)` in `shared/utils/registration.ts`
+- `isDeadlineExpired(deadline, now?)` in `shared/utils/deadlines.ts`
+- `getLadvAgeClass(birthYear, gender, year)` in `shared/utils/ladv-age-class.ts`
+- 5 API-Endpunkte vorhanden
+
+**Bestehende Patterns:**
+- Auth: `const { session } = useUserSession()` → `session.value?.user`
+- API-Calls: `$fetch(...)` mit try/catch → `toast.add({ title, color })`
+- Toast: `const toast = useToast()` → `toast.add({ title, description?, color })`
+- Formulare: `UForm` + Zod-Schema + `UFormField`
+- `event`-Objekt kommt als Prop vom Parent `[id]/index.vue` (Typ `EventDetail`)
+- `refresh()` von Parent aufrufen nach Mutation → Parent hat `const { data: event, refresh } = await useFetch(...)`
+
+**Datenzugriff in EventRegisterForm:**
+```ts
+const props = defineProps<{ event: EventDetail }>()
+const emit = defineEmits<{ refresh: [] }>()
+// Parent muss refresh() nach emit aufrufen — Pattern: emit('refresh') → Parent ruft await refresh()
+const ownReg = computed(() => props.event.registrations.find(r => r.userId === session.value?.user?.id))
+```
+
+**LADV Wettbewerbe-Struktur:**
+```ts
+// LadvWettbewerb: { disziplin, klasse, disziplinNew, klasseNew }
+// disziplinNew ist der Anzeige-Key; klasseNew ist die Altersklasse
+// Mehrere Einträge können dieselbe disziplinNew haben (verschiedene klasseNew)
+// Disziplin-Select: unique disziplinNew-Werte
+// Altersklasse-Select: alle klasseNew für gewählte disziplinNew
+// Auto-Select: getLadvAgeClass(birthYear, gender, event.date.getFullYear())
+// Label-Mapping: disziplinNew → Lesbare Namen via shared/utils/ladv-labels.ts
+```
+
+**Deadline-Logik im Frontend:**
+```ts
+const deadlineExpired = computed(() =>
+  isDeadlineExpired(props.event.registrationDeadline)
+)
+// Für ladv/competition: Anmeldung gesperrt wenn deadlineExpired (außer Status-Buttons für cancel)
+```
+
+---
+
+#### Was zu tun ist
+
+**1. `EventRegisterForm.vue` — Vollständige Implementierung**
+
+`app/components/event/EventRegisterForm.vue` — aktuell nur Stub (TODO 9.8-Kommentar). Props: `event: EventDetail`. Emits: `refresh`.
+
+Der Parent `[id]/index.vue` muss `@refresh="refresh"` auf `<EventRegisterForm>` setzen.
+
+**UI-Zustände (im computed bestimmen):**
+
+| Zustand | Bedingung | Anzeige |
+|---------|-----------|---------|
+| Abgesagt | `event.cancelledAt` | UAlert: Event abgesagt |
+| Nicht angemeldet | `!ownReg` | Anmeldeformular |
+| Angemeldet | `ownReg` | Eigene Anmeldung + Bearbeitung |
+
+**Anmeldeformular (kein `ownReg`):**
+
+LADV-spezifisch:
+- Wenn `!session.user.hasLadvStartpass` → UAlert error: "Du hast keinen gültigen LADV-Startpass. Wende dich an den Vorstand."
+- Disziplin-Auswahl (Multiple, min. 1):
+  - Liste der gewählten Disziplinen (initial leer)
+  - "Disziplin hinzufügen"-Button → öffnet inline Auswahl:
+    - Schritt 1: `USelect` mit unique `disziplinNew`-Werten (bereits gewählte ausblenden). Label via `ladv-labels.ts`.
+    - Schritt 2: `USelect` mit verfügbaren `klasseNew` für gewählte Disziplin. Auto-select via `getLadvAgeClass` wenn Wert in der Liste vorhanden, sonst erster Eintrag.
+    - "Hinzufügen"-Button speichert pair in lokalem Array
+  - Gewählte Disziplinen als Badges mit X-Button (entfernen)
+- Notiz-Feld optional (alle Typen)
+- Submit: `POST /api/events/[id]/registrations` → bei 403 (kein Startpass) UAlert, bei 409 Toast, sonst emit('refresh')
+
+Competition/Training/Social:
+- Nur optionales Notiz-`UTextarea`
+- Hinweistext: "Öffentliche Notiz — für alle Mitglieder sichtbar"
+
+Deadline-Sperre: wenn `deadlineExpired` (ladv/competition) → Formular durch UAlert ersetzen: "Meldefrist abgelaufen. Eine Anmeldung ist nicht mehr möglich."
+
+**Eigene Anmeldung (mit `ownReg`):**
+
+Status-Buttons (Status-Zeile oben):
+- `getValidNextStatuses(ownReg.status, event.type)` → einen Button pro möglichem Zielstatus
+- Ausnahme: wenn `deadlineExpired` → nur cancel/no-Buttons anzeigen (Storno bleibt immer möglich)
+- Klick → `PATCH /api/registrations/[ownReg.id]` mit `{ status }` → emit('refresh')
+- Aktueller Status als highlighted Badge, kein Button dafür
+
+LADV-Disziplinen (nur bei `event.type === 'ladv'`):
+- Liste der `ownReg.disciplines`
+- Pro Disziplin: Name (via ladv-labels.ts), Altersklasse, wenn `ladvRegisteredAt` gesetzt: UBadge "Bei LADV angemeldet" + UAlert "Diese Disziplin ist bereits bei LADV angemeldet — Admin informieren falls Änderung nötig"
+- X-Button je Disziplin → `DELETE /api/registrations/[id]/disciplines/[disciplineId]` (deaktiviert wenn nur 1 Disziplin)
+- "Disziplin hinzufügen"-Button (gleiche Inline-UI wie oben, aber direkt API-Call) — versteckt wenn `deadlineExpired`
+
+Notiz-Bearbeitung:
+- Inline: Edit-Icon neben Notiz → Textfeld + Speichern-Button
+- `PATCH /api/registrations/[ownReg.id]` mit `{ notes }` → emit('refresh')
+- Immer möglich (auch nach Fristablauf)
+
+---
+
+**2. `/profil` — Seite anlegen**
+
+`app/pages/profil.vue` — neue Seite.
+
+Datenabruf:
+```ts
+const { session } = useUserSession()
+const { data: registrations } = await useFetch<MyRegistration[]>('/api/me/registrations')
+```
+
+Layout: zwei Bereiche
+
+**Bereich 1 — Profil-Header:**
+- Avatar: `UAvatar` mit `session.user.avatarUrl` (Fallback: Initialen aus firstName/lastName)
+- Name: `session.user.firstName + ' ' + session.user.lastName`
+- E-Mail: `session.user.email`
+- Rolle: Badge (`member` = kein Badge / `admin` = "Admin" / `superuser` = "Superuser")
+- Sections: Tags/Badges der `session.user.sections` (wenn vorhanden)
+
+**Bereich 2 — Anmeldungsübersicht:**
+- Tabelle oder Liste aller `registrations`
+- Spalten: Event (mit Link `/events/[id]`), Datum, Typ-Badge, Status-Badge, LADV-Status (nur bei `type = 'ladv'`: ob mind. eine Disziplin `ladvRegisteredAt` hat)
+- Leer-Zustand: "Noch keine Anmeldungen"
+
+**Navigation:** Im `UserMenu.vue` einen "Profil"-Link ergänzen (`/profil`).
+
+---
+
+#### Testbare Logik
+
+Keine neue pure Logik in 9.8.2 — alle Utils wurden in 9.8.1 implementiert und getestet.
+
+**Output:** `EventRegisterForm.vue` vollständig, `/profil` nutzbar
+**Kontext-Files:** `app/components/event/EventRegisterForm.vue` (aktuell Stub), `app/pages/events/[id]/index.vue` (Parent, dort `refresh` und `session`), `shared/utils/registration.ts`, `shared/utils/ladv-age-class.ts`, `shared/utils/deadlines.ts`, `shared/utils/ladv-labels.ts`, `shared/types/events.ts` (MyRegistration), `app/components/UserMenu.vue`
 
 ---
 

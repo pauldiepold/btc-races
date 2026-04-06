@@ -14,13 +14,13 @@
   "abgesagt": false,
   "url": "https://ladv.de/ausschreibung/detail/46947/1.-Abendsportfest-des-Berliner-SV-1892-%26-oBBM-4x400m-Berlin-Wilmersdorf.htm",
   "wrc": true,
-  "tags": "jugend,aktive,masters,kinder,bahn",
+  "tags": "masters,bahn,kinder,aktive,jugend",
   "kategorien": [
-    "jugend",
-    "aktive",
     "masters",
+    "bahn",
     "kinder",
-    "bahn"
+    "aktive",
+    "jugend"
   ],
   "ort": {
     "id": 2025,

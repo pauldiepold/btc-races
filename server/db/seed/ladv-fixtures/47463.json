@@ -13,11 +13,11 @@
   "meldDatumText": "20.04.2026",
   "abgesagt": false,
   "url": "https://ladv.de/ausschreibung/detail/47463/Fr%C3%BChjahrssportfest-des-LAC-BERLIN-Berlin-Marzahn.htm",
-  "tags": "jugend,aktive,kinder",
+  "tags": "kinder,jugend,aktive",
   "kategorien": [
+    "kinder",
     "jugend",
-    "aktive",
-    "kinder"
+    "aktive"
   ],
   "ort": {
     "id": 1252,

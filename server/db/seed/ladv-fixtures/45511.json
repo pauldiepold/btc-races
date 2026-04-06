@@ -13,10 +13,10 @@
   "meldDatumText": "21.01.2026",
   "abgesagt": false,
   "url": "https://ladv.de/ausschreibung/detail/45511/52.-Winterlaufserie-Berlin-Wilmersdorf.htm",
-  "tags": "jugend,masters,aktive",
+  "tags": "masters,jugend,aktive",
   "kategorien": [
-    "jugend",
     "masters",
+    "jugend",
     "aktive"
   ],
   "ort": {

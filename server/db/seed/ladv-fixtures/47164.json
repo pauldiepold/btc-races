@@ -14,12 +14,12 @@
   "abgesagt": false,
   "url": "https://ladv.de/ausschreibung/detail/47164/2.-Abendsportfest-des-Berliner-SV-1892-Berlin-Wilmersdorf.htm",
   "wrc": true,
-  "tags": "jugend,aktive,kinder,bahn",
+  "tags": "bahn,kinder,aktive,jugend",
   "kategorien": [
-    "jugend",
-    "aktive",
+    "bahn",
     "kinder",
-    "bahn"
+    "aktive",
+    "jugend"
   ],
   "ort": {
     "id": 2025,

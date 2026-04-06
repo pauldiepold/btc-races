@@ -14,11 +14,11 @@
   "abgesagt": false,
   "url": "https://ladv.de/ausschreibung/detail/46212/17.-Berliner-L%C3%A4ufermeeting-und-Bahner%C3%B6ffnung-Berlin-Marzahn.htm",
   "wrc": true,
-  "tags": "jugend,aktive,kinder",
+  "tags": "kinder,jugend,aktive",
   "kategorien": [
+    "kinder",
     "jugend",
-    "aktive",
-    "kinder"
+    "aktive"
   ],
   "ort": {
     "id": 1252,

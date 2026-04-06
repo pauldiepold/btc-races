@@ -13,11 +13,11 @@
   "meldDatumText": "31.12.2025",
   "abgesagt": false,
   "url": "https://ladv.de/ausschreibung/detail/45487/52.-Winterlaufserie-Berlin-Wilmersdorf.htm",
-  "tags": "jugend,aktive,masters",
+  "tags": "masters,aktive,jugend",
   "kategorien": [
-    "jugend",
+    "masters",
     "aktive",
-    "masters"
+    "jugend"
   ],
   "ort": {
     "id": 2025,

@@ -14,10 +14,10 @@
   "abgesagt": false,
   "url": "https://ladv.de/ausschreibung/detail/46231/Abendsportfest-und-BBM-3.000-m-U-18--U-20-Berlin-Zehlendorf.htm",
   "wrc": true,
-  "tags": "jugend,aktive",
+  "tags": "aktive,jugend",
   "kategorien": [
-    "jugend",
-    "aktive"
+    "aktive",
+    "jugend"
   ],
   "ort": {
     "id": 1497,

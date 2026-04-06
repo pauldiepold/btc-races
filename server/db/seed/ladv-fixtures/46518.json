@@ -14,13 +14,13 @@
   "abgesagt": false,
   "url": "https://ladv.de/ausschreibung/detail/46518/DM-10-km-%28LV-Berlin%29-Uelzen.htm",
   "wrc": true,
-  "tags": "uelzen,lueneburg,jugend,aktive,masters",
+  "tags": "uelzen,masters,lueneburg,aktive,jugend",
   "kategorien": [
     "uelzen",
+    "masters",
     "lueneburg",
-    "jugend",
     "aktive",
-    "masters"
+    "jugend"
   ],
   "ort": {
     "id": 1441,

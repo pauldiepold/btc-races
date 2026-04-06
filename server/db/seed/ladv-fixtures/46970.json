@@ -13,11 +13,11 @@
   "meldDatumText": "15.03.2026",
   "abgesagt": false,
   "url": "https://ladv.de/ausschreibung/detail/46970/BBM-Langstrecke-Berlin-Marzahn.htm",
-  "tags": "jugend,masters,aktive",
+  "tags": "masters,aktive,jugend",
   "kategorien": [
-    "jugend",
     "masters",
-    "aktive"
+    "aktive",
+    "jugend"
   ],
   "ort": {
     "id": 1252,

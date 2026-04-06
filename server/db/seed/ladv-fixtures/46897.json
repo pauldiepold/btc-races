@@ -14,11 +14,11 @@
   "abgesagt": false,
   "url": "https://ladv.de/ausschreibung/detail/46897/oBBM-5-KM-Stra%C3%9Fenlauf-Berlin-Britz.htm",
   "wrc": true,
-  "tags": "jugend,masters,aktive",
+  "tags": "masters,aktive,jugend",
   "kategorien": [
-    "jugend",
     "masters",
-    "aktive"
+    "aktive",
+    "jugend"
   ],
   "ort": {
     "id": 1123,

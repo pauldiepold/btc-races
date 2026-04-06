@@ -1,5 +1,6 @@
 import type { Event } from './db'
 import type { LadvAusschreibung } from './ladv'
+import type { EventType, RegistrationStatus } from '../utils/registration'
 
 export type EventListItem = Omit<Event, 'ladvData'> & {
   participantCount: number
@@ -31,4 +32,20 @@ export type RegistrationDetail = {
 export type EventDetail = Omit<Event, 'ladvData'> & {
   ladvData: LadvAusschreibung | null
   registrations: RegistrationDetail[]
+}
+
+export type MyRegistration = {
+  id: string
+  status: RegistrationStatus
+  notes: string | null
+  createdAt: Date
+  event: {
+    id: string
+    name: string
+    date: Date | null
+    type: EventType
+    cancelledAt: Date | null
+    registrationDeadline: Date | null
+  }
+  disciplines: DisciplineDetail[]
 }

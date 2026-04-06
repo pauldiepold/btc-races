@@ -7,6 +7,9 @@ declare module '#auth-utils' {
     role: 'member' | 'admin' | 'superuser'
     sections: string[]
     avatarUrl: string
+    hasLadvStartpass: boolean
+    birthYear: number | null
+    gender: 'm' | 'w' | null
   }
 
   interface UserSession {

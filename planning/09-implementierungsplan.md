@@ -575,7 +575,7 @@ Hinweis: `$fetch` bei 4xx/5xx wirft einen `FetchError` mit `.status`, `.statusMe
 
 ---
 
-### 9.8.1 — Registrierungs-Flow: Backend (F-03, F-04, F-06, F-12 member, F-22)
+### ✅ 9.8.1 — Registrierungs-Flow: Backend (F-03, F-04, F-06, F-12 member, F-22)
 
 **Ziel:** Alle Backend-Endpunkte für Anmeldung, Bearbeitung und eigene Übersicht. Shared Utils für State Machine und Fristprüfung. Session um `hasLadvStartpass`, `birthYear`, `gender` erweitern.
 
@@ -777,6 +777,8 @@ Sortierung: `event.date DESC NULLS LAST`.
 
 **Output:** 5 API-Endpunkte + 3 Shared Utils + Session-Erweiterung
 **Kontext-Files:** `server/db/schema.ts`, `server/routes/verify.get.ts`, `shared/types/auth.d.ts`, `server/utils/auth.ts`, `shared/types/events.ts`, `03-feature-spec.md` (F-03, F-04, F-06, F-22)
+
+**Abschluss (2026-04-06):** Session um `hasLadvStartpass`, `birthYear`, `gender` erweitert (`auth.d.ts` + `verify.get.ts`). Drei Shared Utils angelegt: `registration.ts` (State Machine `getValidNextStatuses` + `getInitialStatus`), `deadlines.ts` (`isDeadlineExpired`), `ladv-age-class.ts` (`getLadvAgeClass` mit Jugend/Aktive/Masters-Logik). `MyRegistration`-Typ in `shared/types/events.ts` ergänzt. 5 API-Endpunkte implementiert: POST registrations (6 Validierungsschritte, E-01/E-05-Stubs), PATCH registrations (State-Machine-Check + Deadline-Guard), POST disciplines, DELETE disciplines (min-1-Guard), GET me/registrations (JOIN + Disziplinen). TypeCheck Exit 0, Lint clean.
 
 ---
 
@@ -1008,15 +1010,15 @@ Keine neue pure Logik in 9.8.2 — alle Utils wurden in 9.8.1 implementiert und 
 |---------|---------|--------|
 | F-01 Event-Liste | 9.5 | ✅ |
 | F-02 Event-Detail | 9.6 | ✅ |
-| F-03 Anmeldung | 9.8 | |
-| F-04 Anmeldung bearbeiten | 9.8 | |
-| F-06 Profil / Anmeldungsübersicht | 9.8 | |
+| F-03 Anmeldung | 9.8.1 | ✅ (Backend) |
+| F-04 Anmeldung bearbeiten | 9.8.1 | ✅ (Backend) |
+| F-06 Profil / Anmeldungsübersicht | 9.8.1 | ✅ (Backend) |
 | F-07 Event manuell anlegen | 9.5 | ✅ |
 | F-08 LADV-Import | 9.5 | ✅ |
 | F-09 Event bearbeiten | 9.7 | ✅ |
 | F-10 LADV-Sync + Diff | 9.7 | ✅ |
 | F-11 Event absagen | 9.7 | ✅ |
-| F-12 Anmeldungen einsehen (member) | 9.8 | |
+| F-12 Anmeldungen einsehen (member) | 9.8.1 | ✅ (Backend) |
 | F-12 Anmeldungen einsehen (admin) | 9.9 | |
 | F-13 LADV-Anmeldung protokollieren | 9.9 | |
 | F-14 LADV-Abmeldung protokollieren | 9.9 | |
@@ -1025,6 +1027,6 @@ Keine neue pure Logik in 9.8.2 — alle Utils wurden in 9.8.1 implementiert und 
 | F-18 Synchrone E-Mails | 9.11 | |
 | F-19 E-Mail-Log | 9.11 | |
 | F-21 Campai-Sync | bereits implementiert | ✅ |
-| F-22 LADV-Startpass | 9.8 | |
+| F-22 LADV-Startpass | 9.8.1 | ✅ (Backend) |
 | F-24 Superuser-Seite | 9.9 | |
 | F-25 Dev-Seeding | 9.4 | ✅ |

@@ -12,16 +12,12 @@ const month = computed(() => eventDate.value?.toLocaleDateString('de-DE', { mont
 
 type BadgeColor = 'error' | 'info' | 'primary' | 'secondary' | 'success' | 'warning' | 'neutral'
 
-const showDeadline = computed(() =>
+const hasDeadline = computed(() =>
   (props.event.type === 'competition' || props.event.type === 'ladv') && !!props.event.registrationDeadline,
 )
 
 const deadlineDate = computed(() => toDate(props.event.registrationDeadline))
 const deadlineExpired = computed(() => !!deadlineDate.value && deadlineDate.value < new Date())
-const deadlineLabel = computed(() => {
-  if (!deadlineDate.value) return ''
-  return `Meldeschluss ${deadlineDate.value.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}`
-})
 
 const registrationStatusConfig: Record<string, { icon: string, label: string, color: BadgeColor }> = {
   registered: { icon: 'i-ph-check-circle', label: 'Angemeldet', color: 'success' },
@@ -49,34 +45,50 @@ const ownRegistration = computed(() =>
       </span>
       <span
         v-if="month"
-        class="text-xs text-muted uppercase tracking-wide"
+        class="text-xs text-primary uppercase tracking-wide"
       >{{ month }}</span>
     </div>
 
     <!-- Trennlinie -->
-    <div class="w-px h-9 bg-border shrink-0" />
+    <div class="w-px self-stretch my-1 bg-border group-hover:bg-primary shrink-0 transition-colors duration-150" />
 
     <!-- Event-Infos -->
     <div class="flex-1 min-w-0">
-      <div class="flex items-center gap-2 flex-wrap">
-        <span class="text-sm font-medium text-highlighted truncate">{{ event.name }}</span>
+      <!-- Titel-Zeile: Typ-Icon + Name + Anmeldestatus (rechts) -->
+      <div class="flex items-center gap-2">
+        <UIcon
+          :name="eventTypeIcons[event.type]"
+          class="size-4 text-muted shrink-0"
+        />
+        <span class="text-sm font-medium text-highlighted">{{ event.name }}</span>
         <UBadge
           v-if="event.cancelledAt"
           label="Abgesagt"
           color="error"
           variant="subtle"
           size="xs"
+          class="shrink-0"
         />
         <UBadge
-          v-if="event.isWrc"
-          icon="i-ph-trophy"
-          label="WRC"
-          color="primary"
+          v-if="ownRegistration"
+          :icon="ownRegistration.icon"
+          :label="ownRegistration.label"
+          :color="ownRegistration.color"
           variant="subtle"
           size="xs"
+          class="ml-auto shrink-0"
+        />
+        <UBadge
+          v-else-if="hasDeadline && !deadlineExpired"
+          label="Offen"
+          color="success"
+          variant="subtle"
+          size="xs"
+          class="ml-auto shrink-0"
         />
       </div>
-      <div class="flex items-center gap-3 mt-1 flex-wrap">
+      <!-- Meta-Zeile: Ort, Typ-Details -->
+      <div class="flex items-center gap-3 mt-2 flex-wrap">
         <span
           v-if="event.location"
           class="text-xs text-muted flex items-center gap-1"
@@ -108,44 +120,7 @@ const ownRegistration = computed(() =>
           variant="subtle"
           size="xs"
         />
-        <span
-          v-if="showDeadline"
-          class="text-xs flex items-center gap-1"
-          :class="deadlineExpired ? 'text-red-600 dark:text-red-400' : 'text-muted'"
-        >
-          <UIcon
-            name="i-ph-clock"
-            class="size-3"
-          />
-          {{ deadlineLabel }}
-        </span>
       </div>
-    </div>
-
-    <!-- Rechts: Typ-Badge + Status + Details-Button -->
-    <div class="shrink-0 hidden sm:flex items-center gap-2">
-      <UBadge
-        v-if="ownRegistration"
-        :icon="ownRegistration.icon"
-        :label="ownRegistration.label"
-        :color="ownRegistration.color"
-        variant="subtle"
-        size="xs"
-      />
-      <UBadge
-        :label="eventTypeLabels[event.type]"
-        :color="eventTypeColors[event.type]"
-        variant="subtle"
-        size="sm"
-      />
-      <UButton
-        size="xs"
-        color="neutral"
-        variant="ghost"
-        trailing-icon="i-ph-arrow-right"
-        label="Details"
-        tabindex="-1"
-      />
     </div>
   </NuxtLink>
 </template>

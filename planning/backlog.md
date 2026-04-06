@@ -38,3 +38,22 @@ Hier landen Themen, die grundsätzlich geplant und durchdacht sind, aber aktuell
 **Kontext-Files:** `server/db/schema.ts`, `server/tasks/sync-members.ts`, `server/external-apis/campai-contacts/contacts.service.ts`
 
 ---
+
+## BL-02 Google-Maps Link
+
+---
+
+## BL-03 Auch die Uhrzeit und Dauer des Events pflegen
+
+---
+
+## BL-04 Inkonsistenz bei LADV Meldung wenn eine Disziplin abgemeldet wird
+
+Muss hinterfragt werden...
+
+---
+
+## BL-05 LADV-Ausschreibungslink aufräumen
+
+Muss nicht im Datenfeld stehen - lässt sich ja aus der ID bestimmen.
+

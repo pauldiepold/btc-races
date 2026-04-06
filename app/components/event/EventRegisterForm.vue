@@ -6,6 +6,7 @@ import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-lab
 import {
   REGISTRATION_STATUS_LABELS,
   REGISTRATION_STATUS_BUTTON_COLORS,
+  REGISTRATION_STATUS_CHIP_CLASSES,
   getRegistrationActionLabels,
 } from '~~/shared/utils/registration-ui'
 
@@ -19,13 +20,9 @@ const ownReg = computed(() =>
   props.event.registrations.find(r => r.userId === session.value?.user?.id),
 )
 
-const statusChipClass = computed(() => {
-  const s = ownReg.value?.status
-  if (s === 'registered' || s === 'yes') return 'bg-green-500/12 dark:bg-green-400/12 text-green-700 dark:text-green-400'
-  if (s === 'maybe') return 'bg-amber-500/12 dark:bg-amber-400/12 text-amber-700 dark:text-amber-400'
-  if (s === 'canceled' || s === 'no') return 'bg-red-500/12 dark:bg-red-400/12 text-red-700 dark:text-red-400'
-  return ''
-})
+const statusChipClass = computed(() =>
+  ownReg.value?.status ? (REGISTRATION_STATUS_CHIP_CLASSES[ownReg.value.status] ?? '') : '',
+)
 
 const deadlineExpired = computed(() =>
   isDeadlineExpired(toDate(props.event.registrationDeadline)),
@@ -286,13 +283,10 @@ async function saveNotes() {
 </script>
 
 <template>
-  <div class="space-y-5">
-    <!-- Bold-Header -->
-    <div class="border-b border-default pb-3">
-      <h2 class="font-display font-semibold text-highlighted">
-        Deine Anmeldung
-      </h2>
-    </div>
+  <div class="space-y-4">
+    <p class="text-xs font-medium text-muted uppercase tracking-widest">
+      Deine Anmeldung
+    </p>
 
     <!-- Event abgesagt -->
     <UAlert
@@ -382,7 +376,7 @@ async function saveNotes() {
           <div
             v-for="disc in ownReg.disciplines"
             :key="disc.id"
-            class="flex items-start gap-3 rounded-[--ui-radius] bg-elevated px-3 py-2.5"
+            class="flex items-center gap-3 rounded-[--ui-radius] bg-default border border-default px-3 py-2.5"
           >
             <div class="flex-1 min-w-0 space-y-1">
               <div class="flex items-center gap-2 flex-wrap">
@@ -567,29 +561,29 @@ async function saveNotes() {
 
         <div
           v-if="pendingDisciplines.length > 0"
-          class="flex flex-wrap gap-2"
+          class="space-y-2"
         >
-          <UBadge
+          <div
             v-for="(d, i) in pendingDisciplines"
             :key="i"
-            color="neutral"
-            variant="subtle"
-            size="md"
-            class="gap-1.5"
+            class="flex items-center gap-3 rounded-[--ui-radius] bg-default border border-default px-3 py-2.5"
           >
-            {{ ladvDisciplineLabel(d.discipline) }}
-            <span class="opacity-60">{{ ladvAgeClassLabel(d.ageClass) }}</span>
-            <button
-              class="ml-1 opacity-50 hover:opacity-100 transition-opacity cursor-pointer"
+            <div class="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
+              <span class="text-sm font-medium text-highlighted">{{ ladvDisciplineLabel(d.discipline) }}</span>
+              <LadvBadge
+                :age-class="d.ageClass"
+                variant="subtle"
+              />
+            </div>
+            <UButton
+              icon="i-ph-x"
+              color="neutral"
+              variant="ghost"
+              size="xs"
               aria-label="Disziplin entfernen"
               @click="removePending(i)"
-            >
-              <UIcon
-                name="i-ph-x"
-                class="size-3"
-              />
-            </button>
-          </UBadge>
+            />
+          </div>
         </div>
 
         <div

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { RegistrationDetail } from '~~/shared/types/events'
-import { getRegistrationTabConfig } from '~~/shared/utils/registration-ui'
+import { REGISTRATION_STATUS_BADGE_COLORS, getRegistrationTabConfig } from '~~/shared/utils/registration-ui'
 
 const props = defineProps<{
   registrations: RegistrationDetail[]
@@ -24,8 +24,14 @@ const byStatus = computed(() =>
 
 const tabItems = computed(() =>
   tabConfig.value.map(tab => ({
-    label: `${tab.label} (${byStatus.value[tab.key]!.length})`,
+    label: tab.label,
     value: tab.key,
+    badge: {
+      label: `${byStatus.value[tab.key]!.length}`,
+      color: REGISTRATION_STATUS_BADGE_COLORS[tab.key] ?? 'neutral',
+      size: 'md' as const,
+      variant: 'outline' as const,
+    },
   })),
 )
 
@@ -63,8 +69,10 @@ function fullName(r: RegistrationDetail): string {
         v-model="activeTab"
         :items="tabItems"
         :content="false"
+        color="neutral"
         variant="link"
         class="mb-4"
+        :ui="{ label: 'font-semibold', list: 'max-sm:w-full max-sm:justify-around' }"
       />
 
       <!-- Tab-Inhalt -->

@@ -1,5 +1,3 @@
-type BadgeColor = 'error' | 'info' | 'primary' | 'secondary' | 'success' | 'warning' | 'neutral'
-
 export const eventTypeLabels: Record<string, string> = {
   ladv: 'LADV',
   competition: 'Wettkampf',
@@ -7,11 +5,11 @@ export const eventTypeLabels: Record<string, string> = {
   social: 'Social',
 }
 
-export const eventTypeColors: Record<string, BadgeColor> = {
-  ladv: 'info',
-  competition: 'primary',
-  training: 'success',
-  social: 'neutral',
+export const eventTypeIcons: Record<string, string> = {
+  ladv: 'i-ph-trophy',
+  competition: 'i-ph-trophy',
+  training: 'i-ph-person-simple-run',
+  social: 'i-ph-users-three',
 }
 
 export const eventRaceTypeLabels: Record<string, string> = {

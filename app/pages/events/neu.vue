@@ -4,8 +4,14 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 
 definePageMeta({ title: 'Event erstellen' })
 
+const route = useRoute()
 const toast = useToast()
 const loading = ref(false)
+
+const validTypes = ['competition', 'training', 'social'] as const
+type EventType = typeof validTypes[number]
+const queryType = route.query.type as string
+const initialType: EventType = (validTypes as readonly string[]).includes(queryType) ? queryType as EventType : 'competition'
 
 const schema = z.object({
   type: z.enum(['competition', 'training', 'social']),
@@ -22,7 +28,7 @@ const schema = z.object({
 type Schema = z.output<typeof schema>
 
 const state = reactive<Schema>({
-  type: 'competition',
+  type: initialType,
   name: '',
   date: '',
   location: '',

@@ -36,13 +36,13 @@ export const REGISTRATION_STATUS_BUTTON_COLORS: Record<string, BadgeColor> = {
   no: 'error',
 }
 
-/** Tailwind-Textfarbe für den bold Status-Header */
-export const REGISTRATION_STATUS_TEXT_CLASSES: Record<string, string> = {
-  registered: 'text-green-600 dark:text-green-400',
-  canceled: 'text-red-600 dark:text-red-400',
-  maybe: 'text-amber-600 dark:text-amber-400',
-  yes: 'text-green-600 dark:text-green-400',
-  no: 'text-zinc-500 dark:text-zinc-400',
+/** Hintergrund- + Textfarbe für den Status-Chip in EventRegisterForm */
+export const REGISTRATION_STATUS_CHIP_CLASSES: Record<string, string> = {
+  registered: 'bg-green-500/12 dark:bg-green-400/12 text-green-700 dark:text-green-400',
+  yes: 'bg-green-500/12 dark:bg-green-400/12 text-green-700 dark:text-green-400',
+  maybe: 'bg-amber-500/12 dark:bg-amber-400/12 text-amber-700 dark:text-amber-400',
+  canceled: 'bg-red-500/12 dark:bg-red-400/12 text-red-700 dark:text-red-400',
+  no: 'bg-red-500/12 dark:bg-red-400/12 text-red-700 dark:text-red-400',
 }
 
 /** Tab-Konfiguration für die Anmeldeliste je Event-Typ */

@@ -115,7 +115,7 @@ async function syncLadv() {
     <!-- Lade-Zustand -->
     <div
       v-if="isInitialLoading"
-      class="flex flex-col gap-14 lg:flex-row lg:gap-16"
+      class="flex flex-col gap-8 lg:flex-row lg:gap-16"
     >
       <div class="flex-1 space-y-6">
         <div class="space-y-3">
@@ -125,149 +125,130 @@ async function syncLadv() {
         <USkeleton class="h-32 w-full" />
         <USkeleton class="h-48 w-full" />
       </div>
-      <div class="lg:w-64 xl:w-72 space-y-4">
+      <div class="lg:w-72 xl:w-80 space-y-4">
         <USkeleton class="h-24 w-full" />
         <USkeleton class="h-16 w-full" />
       </div>
     </div>
 
-    <div
-      v-else-if="event"
-      class="flex flex-col gap-14 lg:flex-row lg:gap-16 lg:items-start"
-    >
-      <!-- Hauptinhalt -->
-      <div class="flex-1 min-w-0 space-y-8">
-        <!-- Header + Admin-Aktionen -->
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <EventHeader
-            :event="event"
-            class="flex-1 min-w-0"
+    <div v-else-if="event">
+      <!-- Header (inkl. LADV-Infos und Wettbewerbe): volle Breite -->
+      <EventDetailHeader
+        :event="event"
+        class="mb-16"
+      />
+
+      <!-- Abgesagt-Alert -->
+      <UAlert
+        v-if="isCancelled"
+        icon="i-ph-warning-circle"
+        color="error"
+        variant="subtle"
+        title="Dieses Event wurde abgesagt"
+        :description="`Abgesagt am ${formatDate(event.cancelledAt)}`"
+        class="mb-8"
+      />
+
+      <!-- Two-Column Layout -->
+      <div class="flex flex-col gap-8 lg:flex-row lg:gap-12 lg:items-start">
+        <!-- Sidebar: order-1 auf Mobile (erscheint vor den Listen), lg:order-2 -->
+        <aside class="order-1 lg:order-2 lg:w-72 xl:w-80 lg:shrink-0 lg:sticky lg:top-[calc(var(--ui-header-height)+2rem)] space-y-6">
+          <!-- Deine Anmeldung -->
+          <div class="bg-elevated border border-default rounded-[--ui-radius] p-5">
+            <EventRegisterForm
+              :event="event"
+              @refresh="refresh"
+            />
+          </div>
+
+          <!-- Admin-Aktionen -->
+          <div
+            v-if="canEdit"
+            class="space-y-3"
+          >
+            <p class="text-xs font-medium text-muted uppercase tracking-widest mb-3">
+              Admin
+            </p>
+            <div
+              v-if="isAdmin && isLadv"
+              class="flex items-center justify-between gap-2 mb-3"
+            >
+              <span
+                v-if="event.ladvLastSync"
+                class="flex items-center gap-1 text-xs text-muted"
+              >
+                <UIcon
+                  name="i-ph-arrows-clockwise"
+                  class="size-3.5 shrink-0"
+                />
+                LADV-Sync: {{ formatDateTime(event.ladvLastSync) }}
+              </span>
+              <span
+                v-else
+                class="text-xs text-muted"
+              >Noch nicht synchronisiert</span>
+              <UButton
+                icon="i-ph-arrows-clockwise"
+                label="Sync"
+                color="neutral"
+                variant="outline"
+                size="xs"
+                :loading="syncLoading"
+                @click="syncLadv"
+              />
+            </div>
+            <div class="flex flex-col gap-2">
+              <UButton
+                :to="`/events/${id}/bearbeiten`"
+                icon="i-ph-pencil-simple"
+                label="Bearbeiten"
+                color="neutral"
+                variant="outline"
+                size="sm"
+                block
+              />
+              <UButton
+                v-if="isAdmin && !isCancelled"
+                icon="i-ph-x-circle"
+                label="Event absagen"
+                color="error"
+                variant="outline"
+                size="sm"
+                block
+                @click="cancelModal = true"
+              />
+              <UButton
+                v-if="isAdmin && isCancelled"
+                icon="i-ph-arrow-u-up-left"
+                label="Reaktivieren"
+                color="neutral"
+                variant="outline"
+                size="sm"
+                block
+                @click="uncancel"
+              />
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main: Info + Listen — order-2 auf Mobile, lg:order-1 -->
+        <div class="order-2 lg:order-1 flex-1 min-w-0">
+          <EventRegistrationList
+            :registrations="event.registrations"
+            :event-type="event.type"
           />
 
           <div
-            v-if="canEdit"
-            class="flex items-center gap-2 shrink-0"
+            v-if="isAdmin && isLadv"
+            class="mt-12"
           >
-            <UButton
-              v-if="canEdit"
-              :to="`/events/${id}/bearbeiten`"
-              icon="i-ph-pencil-simple"
-              label="Bearbeiten"
-              color="neutral"
-              variant="outline"
-              size="sm"
-            />
-
-            <UButton
-              v-if="isAdmin && isLadv"
-              icon="i-ph-arrows-clockwise"
-              label="Sync"
-              color="neutral"
-              variant="outline"
-              size="sm"
-              :loading="syncLoading"
-              @click="syncLadv"
-            />
-
-            <UButton
-              v-if="isAdmin && !isCancelled"
-              icon="i-ph-x-circle"
-              label="Event absagen"
-              color="error"
-              variant="outline"
-              size="sm"
-              @click="cancelModal = true"
-            />
-
-            <UButton
-              v-if="isAdmin && isCancelled"
-              icon="i-ph-arrow-u-up-left"
-              label="Reaktivieren"
-              color="neutral"
-              variant="outline"
-              size="sm"
-              @click="uncancel"
+            <EventAdminLadvTodos
+              :event="event"
+              @refresh="refresh"
             />
           </div>
         </div>
-
-        <UAlert
-          v-if="isCancelled"
-          icon="i-ph-warning-circle"
-          color="error"
-          variant="subtle"
-          title="Dieses Event wurde abgesagt"
-          :description="`Abgesagt am ${formatDate(event.cancelledAt)}`"
-        />
-
-        <EventLadvInfo
-          v-if="isLadv && event.ladvData"
-          :data="event.ladvData"
-          :last-sync="event.ladvLastSync"
-        />
-
-        <EventRegisterForm
-          :event="event"
-          @refresh="refresh"
-        />
-
-        <EventRegistrationList
-          :registrations="event.registrations"
-          :event-type="event.type"
-        />
-
-        <EventAdminLadvTodos
-          v-if="isAdmin && isLadv"
-          :event="event"
-          @refresh="refresh"
-        />
-
-        <EventComments :event-id="event.id" />
       </div>
-
-      <!-- Sidebar -->
-      <aside class="lg:w-64 xl:w-72 lg:shrink-0 lg:sticky lg:top-[calc(var(--ui-header-height)+2rem)] space-y-4">
-        <div
-          v-if="event.announcementLink"
-          class="pb-5 border-b border-default"
-        >
-          <p class="text-xs font-medium text-muted uppercase tracking-widest mb-3">
-            Ausschreibung
-          </p>
-          <UButton
-            :to="event.announcementLink"
-            target="_blank"
-            rel="noopener noreferrer"
-            color="neutral"
-            variant="outline"
-            trailing-icon="i-ph-arrow-up-right-bold"
-            block
-          >
-            Ausschreibung öffnen
-          </UButton>
-        </div>
-
-        <div>
-          <p class="text-xs font-medium text-muted uppercase tracking-widest mb-3">
-            Fragen?
-          </p>
-          <p class="text-sm text-muted mb-3 leading-relaxed">
-            Bei Fragen zum Event wende dich über die BTC Community an die Coaches.
-          </p>
-          <UButton
-            to="https://app.campai.com/pt/9a0cd/rooms/room/688357998a5abe1409d4fc8e/channel"
-            target="_blank"
-            rel="noopener noreferrer"
-            color="neutral"
-            variant="outline"
-            size="sm"
-            trailing-icon="i-ph-arrow-up-right-bold"
-            block
-          >
-            BTC Community
-          </UButton>
-        </div>
-      </aside>
     </div>
 
     <!-- Absagen-Bestätigungsdialog -->

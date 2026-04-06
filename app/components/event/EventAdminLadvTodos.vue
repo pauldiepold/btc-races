@@ -65,7 +65,7 @@ function avatarInitial(todo: LadvTodo): string {
 
 <template>
   <div>
-    <h2 class="font-display font-semibold text-highlighted mb-1">
+    <h2 class="font-display font-semibold text-highlighted mb-2">
       LADV-Todos
       <span
         v-if="todos.length > 0"

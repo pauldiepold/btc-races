@@ -157,12 +157,12 @@ const avatarFallback = computed(() => {
             </p>
             <div class="flex items-center gap-2 flex-wrap">
               <UBadge
-                :color="eventTypeColors[reg.event.type]"
+                :icon="eventTypeIcons[reg.event.type]"
+                :label="eventTypeLabels[reg.event.type]"
+                color="neutral"
                 variant="subtle"
                 size="xs"
-              >
-                {{ eventTypeLabels[reg.event.type] }}
-              </UBadge>
+              />
               <UBadge
                 v-if="reg.event.cancelledAt"
                 color="error"

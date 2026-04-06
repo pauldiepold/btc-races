@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { LadvTodo } from '~~/shared/types/events'
-import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
 
 definePageMeta({ title: 'Admin — LADV-Todos' })
 
@@ -134,13 +133,11 @@ const columns = [
             <!-- Disziplinen -->
             <td class="px-4 py-3">
               <div class="flex flex-wrap gap-1">
-                <UBadge
+                <LadvBadge
                   v-for="d in todo.disciplines"
                   :key="d.id"
-                  :label="`${ladvDisciplineLabel(d.discipline)} · ${ladvAgeClassLabel(d.ageClass)}`"
-                  color="neutral"
-                  variant="outline"
-                  size="xs"
+                  :discipline="d.discipline"
+                  :age-class="d.ageClass"
                 />
               </div>
             </td>

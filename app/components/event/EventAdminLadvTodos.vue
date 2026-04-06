@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { EventDetail, LadvTodo } from '~~/shared/types/events'
-import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
 
 const props = defineProps<{
   event: EventDetail
@@ -113,13 +112,11 @@ function avatarInitial(todo: LadvTodo): string {
             />
           </div>
           <div class="flex flex-wrap gap-1 mt-1">
-            <UBadge
+            <LadvBadge
               v-for="d in todo.disciplines"
               :key="d.id"
-              :label="`${ladvDisciplineLabel(d.discipline)} · ${ladvAgeClassLabel(d.ageClass)}`"
-              color="neutral"
-              variant="outline"
-              size="sm"
+              :discipline="d.discipline"
+              :age-class="d.ageClass"
             />
           </div>
         </div>

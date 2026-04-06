@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { RegistrationDetail } from '~~/shared/types/events'
-import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
 import { getRegistrationTabConfig } from '~~/shared/utils/registration-ui'
 
 const props = defineProps<{
@@ -104,13 +103,10 @@ function fullName(r: RegistrationDetail): string {
               v-if="reg.disciplines.length"
               class="flex flex-wrap gap-1 mt-1.5"
             >
-              <UBadge
+              <LadvBadge
                 v-for="d in reg.disciplines"
                 :key="d.id"
-                :label="`${ladvDisciplineLabel(d.discipline)} · ${ladvAgeClassLabel(d.ageClass)}`"
-                color="neutral"
-                variant="outline"
-                size="sm"
+                :discipline="d.discipline"
               />
             </div>
 

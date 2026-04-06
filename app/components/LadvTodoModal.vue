@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { LadvTodo } from '~~/shared/types/events'
-import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
 
 const props = defineProps<{
   todo: LadvTodo
@@ -75,20 +74,14 @@ async function markDone() {
           <p class="text-xs font-medium text-muted uppercase tracking-widest mb-2">
             Disziplinen
           </p>
-          <div class="space-y-1.5">
-            <div
+          <div class="flex flex-wrap gap-1.5">
+            <LadvBadge
               v-for="d in todo.disciplines"
               :key="d.id"
-              class="flex items-center gap-2"
-            >
-              <UBadge
-                :label="ladvDisciplineLabel(d.discipline)"
-                color="neutral"
-                variant="outline"
-                size="sm"
-              />
-              <span class="text-xs text-muted">{{ ladvAgeClassLabel(d.ageClass) }}</span>
-            </div>
+              :discipline="d.discipline"
+              :age-class="d.ageClass"
+              size="md"
+            />
           </div>
         </div>
 

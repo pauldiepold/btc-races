@@ -389,13 +389,10 @@ async function saveNotes() {
                 <span class="text-sm font-medium text-highlighted">
                   {{ ladvDisciplineLabel(disc.discipline) }}
                 </span>
-                <UBadge
-                  color="neutral"
+                <LadvBadge
+                  :age-class="disc.ageClass"
                   variant="subtle"
-                  size="sm"
-                >
-                  {{ ladvAgeClassLabel(disc.ageClass) }}
-                </UBadge>
+                />
                 <UBadge
                   v-if="disc.ladvRegisteredAt"
                   color="success"

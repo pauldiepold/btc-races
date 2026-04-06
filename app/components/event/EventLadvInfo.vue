@@ -131,13 +131,11 @@ function toggle(code: string) {
           >
             <div class="overflow-hidden">
               <div class="px-4 pb-3 flex flex-wrap gap-1.5">
-                <UBadge
+                <LadvBadge
                   v-for="ak in group.akCodes"
                   :key="ak"
-                  :label="ladvAgeClassLabel(ak)"
-                  color="neutral"
+                  :age-class="ak"
                   variant="subtle"
-                  size="sm"
                 />
               </div>
             </div>

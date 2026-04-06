@@ -932,24 +932,172 @@ Keine neue pure Logik in 9.8.2 — alle Utils wurden in 9.8.1 implementiert und 
 
 ### 9.9 — Admin-Workflows: LADV-Protokollierung + Dashboard (F-12 admin, F-13, F-14, F-24)
 
-**Ziel:** Kevin kann LADV-Anmeldungen und Abmeldungen protokollieren. Admin-Dashboard zeigt Events mit Handlungsbedarf.
+**Ziel:** Kevin kann LADV-Anmeldungen und Abmeldungen protokollieren. Dafür gibt es eine eigene Admin-Sektion auf der Event-Detailseite sowie eine globale Admin-Seite über alle Events.
+
+**Implementierungs-Phasen (token-effizient):**
+- **Phase 1 → 9.9.1 allein** — wartet auf Campai-Feldname; Schema-Migration braucht eigenen Checkpoint
+- **Phase 2 → 9.9.2 + 9.9.3 zusammen** — Backend-Endpoints + Frontend Detailseite (inkl. Modal): eng gekoppelt, spart Re-Lesen der gemeinsamen Types und Endpoint-Definitionen
+- **Phase 3 → 9.9.4 + 9.9.5 zusammen** — Admin-Seite (nutzt Modal aus Phase 2) + Superuser-Seite (~50 Zeilen); beide klein, kein nennenswerter Context-Overhead
+
+---
+
+#### Konzept: Todo-Typen
+
+**Typ A — LADV-Anmeldung ausstehend:**
+`registration.status = 'registered'` + mind. eine Disziplin mit `ladvRegisteredAt = null` (und `ladvCanceledAt = null`)
+
+**Typ B — LADV-Abmeldung ausstehend:**
+`registration.status = 'canceled'` + mind. eine Disziplin mit `ladvRegisteredAt != null` + `ladvCanceledAt = null`
+
+#### LADV-Links
+
+- **Anmeldung:** `https://ladv.de/meldung/addathlet/[event.ladvId]?aa=[user.ladvAthleteNumber]`
+- **Abmeldung:** `https://ladv.de/meldung/removeathlet/[event.ladvId]?athlet=[user.ladvAthleteNumber]&raction=addathlet`
+- Wenn `ladvAthleteNumber` fehlt: Link trotzdem anzeigen (ohne Parameter), plus Hinweis "Athleten-Nummer fehlt — in Campai ergänzen und Sync anstoßen"
+
+---
+
+#### 9.9.1 — ladvAthleteNumber aus Campai importieren
+
+**Campai-Feldname:** wird vom User nachgereicht.
 
 **Was zu tun ist:**
+1. Neues Feld `ladvAthleteNumber: text()` in `server/db/schema.ts` (Tabelle `users`)
+2. `pnpm db:generate` + `pnpm db:migrate`
+3. `server/tasks/sync-members.ts` — Campai-Custom-Field auslesen und in `ladvAthleteNumber` speichern
+4. `CampaiContact`-Interface in `contacts.service.ts` um das Custom-Feld erweitern
+5. Session-Typ (`nuxt-auth-utils`) ggf. erweitern, falls `ladvAthleteNumber` in der Session benötigt wird (nicht nötig — nur Admin sieht es via API)
 
-**Backend:**
-- `POST /api/registrations/[id]/disciplines/[disciplineId]/ladv-register` — `ladv_registered_at` + `ladv_registered_by` setzen. Nur wenn `registration.status = 'registered'` und `ladv_registered_at` noch nicht gesetzt. Auth: `requireAdmin()`.
-- `POST /api/registrations/[id]/disciplines/[disciplineId]/ladv-cancel` — `ladv_canceled_at` + `ladv_canceled_by` setzen. Nur wenn `ladv_registered_at` gesetzt. Auth: `requireAdmin()`.
+**Output:** `ladvAthleteNumber` wird beim Sync befüllt  
+**Kontext-Files:** `server/db/schema.ts`, `server/tasks/sync-members.ts`, `server/external-apis/campai-contacts/contacts.service.ts`
 
-**Frontend:**
-- Event-Detailseite (`/events/[id]`) erweitern (admin-only):
-  - LADV-Operationsstatus aller Angemeldeten: "Noch nicht gemeldet" / "Angemeldet am [Datum] von [Coach]" / "Abgemeldet am [Datum]"
-  - Protokollier-Buttons pro Disziplin (mit Coach-Name-Feld, vorbelegt mit Session-Name)
-  - Filterbar nach Anmeldestatus
-- `/admin` — Dashboard: Events mit offenem Handlungsbedarf (Anmeldungen ohne LADV-Status vor ablaufender Frist), Übersicht
-- `/superuser` — Systemseite: "Campai-Sync anstoßen"-Button, Feedback nach Sync (Anzahl sync'd Members). Auth: `requireSuperuser()`.
+---
 
-**Output:** Admin-Workflows vollständig, Dashboard + Superuser-Seite nutzbar  
-**Kontext-Files:** `03-feature-spec.md` (F-12, F-13, F-14, F-24), `02b-datenmodell-entwurf.md` (ADR-005, ADR-007)
+#### 9.9.2 — Backend: Protokollierungs-Endpoints + Admin-Todos-API
+
+**Protokollierung (pro Disziplin):**
+
+`POST /api/registrations/[id]/disciplines/[disciplineId]/ladv-register`
+- Setzt `ladvRegisteredAt = now()`, `ladvRegisteredBy = session.user.id`
+- Guard: `registration.status = 'registered'` + `ladvRegisteredAt` noch nicht gesetzt
+- Auth: `requireAdmin()`
+
+`POST /api/registrations/[id]/disciplines/[disciplineId]/ladv-cancel`
+- Setzt `ladvCanceledAt = now()`, `ladvCanceledBy = session.user.id`
+- Guard: `ladvRegisteredAt` muss gesetzt sein
+- Auth: `requireAdmin()`
+
+**Admin-Todos-Endpoint:**
+
+`GET /api/admin/ladv-todos`
+- Gibt alle offenen Todos aller LADV-Events zurück, sortiert: `eventDate ASC`, dann `todoType` (A vor B), dann `lastName ASC`
+- Auth: `requireAdmin()`
+
+Response-Typ `LadvTodo`:
+```ts
+type LadvTodo = {
+  type: 'register' | 'cancel'        // Typ A oder B
+  eventId: string
+  eventName: string
+  eventDate: Date | null
+  ladvId: number | null
+  registrationId: string
+  disciplineId: string
+  discipline: string
+  ageClass: string
+  userId: string
+  firstName: string | null
+  lastName: string | null
+  ladvAthleteNumber: string | null    // für den Link
+  // Nur bei Typ B:
+  ladvRegisteredAt: Date | null
+}
+```
+
+**`EventDetail` erweitern:** `RegistrationDetail` bekommt `ladvAthleteNumber: string | null` — wird im `events/[id].get.ts`-Handler per JOIN befüllt.
+
+**Output:** Beide Endpoints einsatzbereit  
+**Kontext-Files:** `server/api/registrations/`, `server/api/events/[id].get.ts`, `shared/types/events.ts`
+
+---
+
+#### 9.9.3 — Frontend: Admin-Sektion auf der Event-Detailseite
+
+Die **bestehende `EventRegistrationList`-Komponente bleibt unverändert** — sie zeigt die öffentliche Anmeldungsliste für alle Mitglieder.
+
+Direkt darunter: neue `EventAdminLadvTodos.vue`-Komponente — nur sichtbar wenn `isAdmin && isLadv`.
+
+**`EventAdminLadvTodos.vue`:**
+- Überschrift "LADV-Todos" mit Zähler offener Todos
+- Wenn keine Todos: leerer Zustand ("Alle LADV-Aktionen erledigt ✓")
+- Liste der Todos: je eine Zeile mit Avatar-Initiale, Name, Typ-Badge ("Anmelden" / "Abmelden"), Disziplin-Namen, Klick → Modal
+- Daten kommen aus `event.registrations` (schon geladen) — computed aus dem `EventDetail`-Prop
+
+**`LadvTodoModal.vue`** (wiederverwendbar für Detailseite + Admin-Seite):
+
+Props: `todo: LadvTodo`, `open: boolean`
+
+Inhalt:
+- Header: Name + Event-Name
+- Typ-Badge: "In LADV anmelden" (blau) / "Von LADV abmelden" (rot)
+- Disziplin-Liste mit Altersklassen
+- LADV-Link als prominenter Button (öffnet neuen Tab):
+  - Anmeldung: `https://ladv.de/meldung/addathlet/[ladvId]?aa=[ladvAthleteNumber]`
+  - Abmeldung: `https://ladv.de/meldung/removeathlet/[ladvId]?athlet=[ladvAthleteNumber]&raction=addathlet`
+  - Wenn `ladvAthleteNumber = null`: Link ohne Parameter + UAlert "Athleten-Nummer fehlt — in Campai ergänzen und Sync anstoßen"
+- Footer: Button "Als in LADV [angemeldet / abgemeldet] markieren"
+  - Klick ruft für jede betroffene Disziplin `POST .../ladv-register` bzw. `POST .../ladv-cancel` auf (sequentiell)
+  - Nach Erfolg: `emit('done')` → Parent ruft `refresh()` auf
+
+**Output:** Admin-Sektion auf Detailseite funktionsfähig  
+**Kontext-Files:** `app/pages/events/[id]/index.vue`, `app/components/event/EventRegistrationList.vue`, `shared/types/events.ts`
+
+---
+
+#### 9.9.4 — Frontend: `/admin`-Seite (globale Todo-Tabelle)
+
+`app/pages/admin.vue` — Auth: nur `isAdmin`.
+
+**Layout:**
+- Seitentitel "Admin — LADV-Todos"
+- `useFetch<LadvTodo[]>('/api/admin/ladv-todos')`
+- Wenn keine Todos: Leer-Zustand
+
+**Tabelle** (`UTable`), Spalten:
+| Event | Datum | Typ | Person | Disziplin | Aktion |
+- **Event**: Name, verlinkt zu `/events/[id]`
+- **Datum**: formatiertes Datum
+- **Typ**: Badge "Anmelden" / "Abmelden"
+- **Person**: Name
+- **Disziplin**: alle betroffenen Disziplinen (Badges)
+- **Aktion**: "Details"-Button → öffnet `LadvTodoModal`
+
+Sortierung: wie API-Endpoint (Event-Datum → Typ → Name)
+
+Das `LadvTodoModal` ist identisch zur Detailseite — nach `done`-Event: `refresh()` der Todo-Liste.
+
+**Navigation:** Neuer Link "Admin" im Header/UserMenu, nur für `isAdmin` sichtbar.
+
+**Output:** Globale Admin-Seite nutzbar  
+**Kontext-Files:** `app/pages/admin.vue` (neu), `app/components/LadvTodoModal.vue` (aus 9.9.3), `app/components/AppHeader.vue` o.ä.
+
+---
+
+#### 9.9.5 — Frontend: `/superuser`-Seite
+
+`app/pages/superuser.vue` — Auth: `requireSuperuser()` im API-Layer + client-seitiger Guard.
+
+- Seitentitel "Superuser"
+- Abschnitt "Campai-Sync": Button "Sync anstoßen" → `POST /api/cron/sync-members` mit Bearer-Token aus `useRuntimeConfig().public`? → nein, eigener geschützter Endpoint `POST /api/admin/sync-members` (nutzt Session-Auth + requireSuperuser statt Bearer)
+- Nach Sync: Feedback mit Statistik (created / updated / deactivated)
+
+**Output:** Superuser-Seite nutzbar  
+**Kontext-Files:** `server/api/cron/sync-members.ts` (für Referenz), `app/pages/superuser.vue` (neu)
+
+---
+
+**Gesamter Output 9.9:** Admin-LADV-Todos auf Detailseite + globaler Admin-Seite, Protokollierungs-Endpoints, Superuser-Seite  
+**Kontext-Files:** `03-feature-spec.md` (F-12, F-13, F-14, F-24)
 
 ---
 

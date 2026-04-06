@@ -36,6 +36,7 @@ pnpm db:remote:migrate # Migrationen auf Cloudflare D1 (Produktion) anwenden
 - `app/` — Frontend (pages, components, middleware, email-templates, assets)
 - `server/` — Backend (api-routes, db-schema, tasks, email-service, external APIs)
 - `shared/` — Typen, die server- und clientseitig geteilt werden
+- `btc-races-v1/` — **Nur zur Info:** altes Git-Repo (Vorgänger-Projekt). Nicht anfassen, nicht darin arbeiten.
 
 ### Datenbank (Drizzle + NuxtHub)
 

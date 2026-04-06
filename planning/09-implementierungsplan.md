@@ -935,9 +935,10 @@ Keine neue pure Logik in 9.8.2 — alle Utils wurden in 9.8.1 implementiert und 
 **Ziel:** Kevin kann LADV-Anmeldungen und Abmeldungen protokollieren. Dafür gibt es eine eigene Admin-Sektion auf der Event-Detailseite sowie eine globale Admin-Seite über alle Events.
 
 **Implementierungs-Phasen (token-effizient):**
-- **Phase 1 → 9.9.1 allein** — wartet auf Campai-Feldname; Schema-Migration braucht eigenen Checkpoint
-- **Phase 2 → 9.9.2 + 9.9.3 zusammen** — Backend-Endpoints + Frontend Detailseite (inkl. Modal): eng gekoppelt, spart Re-Lesen der gemeinsamen Types und Endpoint-Definitionen
-- **Phase 3 → 9.9.4 + 9.9.5 zusammen** — Admin-Seite (nutzt Modal aus Phase 2) + Superuser-Seite (~50 Zeilen); beide klein, kein nennenswerter Context-Overhead
+- **Phase 1 → 9.9.2 + 9.9.3 zusammen** — Backend-Endpoints + Frontend Detailseite (inkl. Modal): eng gekoppelt, spart Re-Lesen der gemeinsamen Types und Endpoint-Definitionen
+- **Phase 2 → 9.9.4 + 9.9.5 zusammen** — Admin-Seite (nutzt Modal aus Phase 1) + Superuser-Seite (~50 Zeilen); beide klein, kein nennenswerter Context-Overhead
+
+**Hinweis:** Import der LADV-Athleten-Nummer aus Campai ist ins Backlog verschoben → `backlog.md` BL-01.
 
 ---
 
@@ -951,25 +952,10 @@ Keine neue pure Logik in 9.8.2 — alle Utils wurden in 9.8.1 implementiert und 
 
 #### LADV-Links
 
-- **Anmeldung:** `https://ladv.de/meldung/addathlet/[event.ladvId]?aa=[user.ladvAthleteNumber]`
-- **Abmeldung:** `https://ladv.de/meldung/removeathlet/[event.ladvId]?athlet=[user.ladvAthleteNumber]&raction=addathlet`
-- Wenn `ladvAthleteNumber` fehlt: Link trotzdem anzeigen (ohne Parameter), plus Hinweis "Athleten-Nummer fehlt — in Campai ergänzen und Sync anstoßen"
+- **Anmeldung:** `https://ladv.de/meldung/addathlet/[event.ladvId]` — kein `?aa=`-Parameter; Coach wählt Athlet auf LADV manuell aus
+- **Abmeldung:** `https://ladv.de/meldung/anmeldungen/[event.ladvId]` — Liste aller angemeldeten Athleten; Coach löscht die richtige Person dort manuell
 
----
-
-#### 9.9.1 — ladvAthleteNumber aus Campai importieren
-
-**Campai-Feldname:** wird vom User nachgereicht.
-
-**Was zu tun ist:**
-1. Neues Feld `ladvAthleteNumber: text()` in `server/db/schema.ts` (Tabelle `users`)
-2. `pnpm db:generate` + `pnpm db:migrate`
-3. `server/tasks/sync-members.ts` — Campai-Custom-Field auslesen und in `ladvAthleteNumber` speichern
-4. `CampaiContact`-Interface in `contacts.service.ts` um das Custom-Feld erweitern
-5. Session-Typ (`nuxt-auth-utils`) ggf. erweitern, falls `ladvAthleteNumber` in der Session benötigt wird (nicht nötig — nur Admin sieht es via API)
-
-**Output:** `ladvAthleteNumber` wird beim Sync befüllt  
-**Kontext-Files:** `server/db/schema.ts`, `server/tasks/sync-members.ts`, `server/external-apis/campai-contacts/contacts.service.ts`
+> Vorauswahl per Athleten-Nummer ist ins Backlog verschoben (→ `backlog.md` BL-01).
 
 ---
 
@@ -1008,13 +994,12 @@ type LadvTodo = {
   userId: string
   firstName: string | null
   lastName: string | null
-  ladvAthleteNumber: string | null    // für den Link
   // Nur bei Typ B:
   ladvRegisteredAt: Date | null
 }
 ```
 
-**`EventDetail` erweitern:** `RegistrationDetail` bekommt `ladvAthleteNumber: string | null` — wird im `events/[id].get.ts`-Handler per JOIN befüllt.
+> `ladvAthleteNumber` entfällt — wird in BL-01 nachgeliefert wenn Campai-Daten verfügbar.
 
 **Output:** Beide Endpoints einsatzbereit  
 **Kontext-Files:** `server/api/registrations/`, `server/api/events/[id].get.ts`, `shared/types/events.ts`
@@ -1042,9 +1027,8 @@ Inhalt:
 - Typ-Badge: "In LADV anmelden" (blau) / "Von LADV abmelden" (rot)
 - Disziplin-Liste mit Altersklassen
 - LADV-Link als prominenter Button (öffnet neuen Tab):
-  - Anmeldung: `https://ladv.de/meldung/addathlet/[ladvId]?aa=[ladvAthleteNumber]`
-  - Abmeldung: `https://ladv.de/meldung/removeathlet/[ladvId]?athlet=[ladvAthleteNumber]&raction=addathlet`
-  - Wenn `ladvAthleteNumber = null`: Link ohne Parameter + UAlert "Athleten-Nummer fehlt — in Campai ergänzen und Sync anstoßen"
+  - Anmeldung: `https://ladv.de/meldung/addathlet/[ladvId]` — Coach wählt Person auf LADV manuell aus
+  - Abmeldung: `https://ladv.de/meldung/anmeldungen/[ladvId]` — Coach löscht die richtige Person in der Anmeldeliste
 - Footer: Button "Als in LADV [angemeldet / abgemeldet] markieren"
   - Klick ruft für jede betroffene Disziplin `POST .../ladv-register` bzw. `POST .../ladv-cancel` auf (sequentiell)
   - Nach Erfolg: `emit('done')` → Parent ruft `refresh()` auf

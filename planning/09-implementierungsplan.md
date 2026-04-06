@@ -959,7 +959,7 @@ Keine neue pure Logik in 9.8.2 — alle Utils wurden in 9.8.1 implementiert und 
 
 ---
 
-#### 9.9.2 — Backend: Protokollierungs-Endpoints + Admin-Todos-API
+#### ✅ 9.9.2 — Backend: Protokollierungs-Endpoints + Admin-Todos-API
 
 **Protokollierung (pro Disziplin):**
 
@@ -1003,6 +1003,8 @@ type LadvTodo = {
 
 **Output:** Beide Endpoints einsatzbereit  
 **Kontext-Files:** `server/api/registrations/`, `server/api/events/[id].get.ts`, `shared/types/events.ts`
+
+**Abschluss (2026-04-06):** Alle drei Endpoints implementiert. Sortier-Bug (Date-Referenzvergleich) im Review entdeckt und direkt behoben — Todo-Query auf eine einzige DB-Query mit ORDER BY konsolidiert.
 
 ---
 

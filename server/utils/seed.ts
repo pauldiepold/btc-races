@@ -34,9 +34,14 @@ const LADV_IDS: Array<{ id: number, label: string }> = [
 const FIXTURE_DIR = resolve(process.cwd(), 'server/db/seed/ladv-fixtures')
 
 function loadFixture(id: number): LadvAusschreibung | null {
-  const path = resolve(FIXTURE_DIR, `${id}.json`)
-  if (!existsSync(path)) return null
-  return JSON.parse(readFileSync(path, 'utf-8')) as LadvAusschreibung
+  try {
+    const path = resolve(FIXTURE_DIR, `${id}.json`)
+    if (!existsSync(path)) return null
+    return JSON.parse(readFileSync(path, 'utf-8')) as LadvAusschreibung
+  }
+  catch {
+    return null
+  }
 }
 
 function saveFixture(id: number, data: LadvAusschreibung): void {
@@ -179,8 +184,13 @@ export async function runSeed(): Promise<{ result: string }> {
       try {
         console.log(`   🌐 ${label} (${id}) — von LADV-API...`)
         normalized = await ladvService.fetchAusschreibung(id)
-        saveFixture(id, normalized.ladv_data)
-        console.log(`      → gespeichert als Fixture`)
+        try {
+          saveFixture(id, normalized.ladv_data)
+          console.log(`      → gespeichert als Fixture`)
+        }
+        catch {
+          console.warn(`      → Fixture konnte nicht gespeichert werden (kein Filesystem verfügbar)`)
+        }
       }
       catch (e) {
         console.warn(`   ⚠️  Fehler bei ${label} (${id}): ${(e as Error).message} — übersprungen`)

@@ -92,6 +92,12 @@ _Stand: 2026-04-02_
 |---------|------|---------|--------------|---------|
 | `GET` | `/api/me/registrations` | member | Eigene Anmeldungen (alle Events, inkl. vergangene) | F-06 |
 
+### Superuser
+
+| Methode | Pfad | Zugriff | Beschreibung | Feature |
+|---------|------|---------|--------------|---------|
+| `POST` | `/api/superuser/seed` | superuser | DB leeren und Testdaten befüllen | ✅ F-24 |
+
 ### Cron / System
 
 | Methode | Pfad | Zugriff | Beschreibung | Feature |
@@ -105,8 +111,8 @@ _Stand: 2026-04-02_
 
 | Task | Beschreibung | Auslöser | Feature |
 |------|--------------|----------|---------|
-| `tasks/sync-members` | Campai-Sync-Logik | Via `runTask()` aus `/api/cron/sync-members` | ✅ F-21 |
-| `tasks/seed` | Testdaten (dev only) | Manuell | — |
+| `tasks/sync-members` | Dünner Wrapper — Logik in `server/utils/sync-members.ts` | Manuell oder via Task-Runner | ✅ F-21 |
+| `tasks/seed` | Dünner Wrapper — Logik in `server/utils/seed.ts` | Manuell oder via Task-Runner | — |
 | `tasks/send-reminders` | Reminder-Mail-Versand | Via `/api/cron/send-reminders` | F-20 `[Backlog]` |
 
 ---

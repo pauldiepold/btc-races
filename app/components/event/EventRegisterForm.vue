@@ -284,9 +284,9 @@ async function saveNotes() {
 
 <template>
   <div class="space-y-4">
-    <p class="text-xs font-medium text-muted uppercase tracking-widest">
+    <h2 class="font-display font-semibold text-highlighted">
       Deine Anmeldung
-    </p>
+    </h2>
 
     <!-- Event abgesagt -->
     <UAlert

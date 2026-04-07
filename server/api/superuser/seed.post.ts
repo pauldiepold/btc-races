@@ -1,7 +1,7 @@
 import { requireSuperuser } from '~~/server/utils/auth'
-import { runSyncMembers } from '~~/server/utils/sync-members'
+import { runSeed } from '~~/server/utils/seed'
 
 export default defineEventHandler(async (event) => {
   await requireSuperuser(event)
-  return await runSyncMembers()
+  return await runSeed()
 })

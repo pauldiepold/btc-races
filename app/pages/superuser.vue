@@ -35,6 +35,27 @@ async function runSync() {
     syncLoading.value = false
   }
 }
+
+type SeedResult = { result: string }
+
+const seedLoading = ref(false)
+const seedResult = ref<SeedResult | null>(null)
+const seedError = ref<string | null>(null)
+
+async function runSeed() {
+  seedLoading.value = true
+  seedResult.value = null
+  seedError.value = null
+  try {
+    seedResult.value = await $fetch<SeedResult>('/api/superuser/seed', { method: 'POST' })
+  }
+  catch (err: unknown) {
+    seedError.value = err instanceof Error ? err.message : 'Unbekannter Fehler'
+  }
+  finally {
+    seedLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -46,6 +67,51 @@ async function runSync() {
       <p class="text-sm text-muted mt-1">
         Systemfunktionen
       </p>
+    </div>
+
+    <!-- DB-Seed -->
+    <div class="rounded-[--ui-radius] border border-error/40 p-6 space-y-5">
+      <div>
+        <h2 class="font-display font-semibold text-highlighted text-base">
+          DB-Seed
+        </h2>
+        <p class="text-sm text-muted mt-1">
+          Datenbank vollständig leeren und mit Testdaten befüllen. <span class="text-error font-medium">Alle vorhandenen Daten gehen verloren.</span>
+        </p>
+      </div>
+
+      <UButton
+        label="Seed ausführen"
+        icon="i-ph-database-bold"
+        color="error"
+        variant="subtle"
+        :loading="seedLoading"
+        @click="runSeed"
+      />
+
+      <!-- Ergebnis -->
+      <div
+        v-if="seedResult"
+        class="rounded-[--ui-radius] bg-success/10 border border-success/20 p-4"
+      >
+        <div class="flex items-center gap-2 text-sm font-medium text-success">
+          <UIcon
+            name="i-ph-check-circle-bold"
+            class="size-4 shrink-0"
+          />
+          {{ seedResult.result }}
+        </div>
+      </div>
+
+      <!-- Fehler -->
+      <UAlert
+        v-if="seedError"
+        color="error"
+        variant="subtle"
+        icon="i-ph-warning-bold"
+        title="Seed fehlgeschlagen"
+        :description="seedError"
+      />
     </div>
 
     <!-- Campai-Sync -->

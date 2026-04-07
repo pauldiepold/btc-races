@@ -15,8 +15,14 @@
     "lint:fix": "eslint . --fix",
     "db:generate": "nuxt db generate",
     "db:migrate": "nuxt db migrate",
-    "db:remote": "wrangler d1 migrations list btc-races-prod --remote",
-    "db:remote:migrate": "wrangler d1 migrations apply btc-races-prod --remote"
+    "db:remote:prod": "wrangler d1 migrations list btc-races-prod --remote",
+    "db:remote:preview": "wrangler d1 migrations list btc-races-preview --remote",
+    "db:remote:migrate:prod": "wrangler d1 migrations apply btc-races-prod --remote",
+    "db:remote:migrate:preview": "wrangler d1 migrations apply btc-races-preview --remote",
+    "seed:preview": "wrangler pages functions execute btc-races --env preview --path /api/cron/seed --method POST --header 'Authorization: Bearer $NUXT_CRON_TOKEN'",
+    "sync:members:preview": "wrangler pages functions execute btc-races --env preview --path /api/cron/sync-members --method POST --header 'Authorization: Bearer $NUXT_CRON_TOKEN'",
+    "sync:members:prod": "wrangler pages functions execute btc-races --env production --path /api/cron/sync-members --method POST --header 'Authorization: Bearer $NUXT_CRON_TOKEN'",
+    "db:login": "wrangler login --no-browser"
   },
   "dependencies": {
     "@libsql/client": "^0.17.2",

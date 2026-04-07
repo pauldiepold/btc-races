@@ -135,7 +135,7 @@ async function syncLadv() {
       <!-- Header (inkl. LADV-Infos und Wettbewerbe): volle Breite -->
       <EventDetailHeader
         :event="event"
-        class="mb-16"
+        class="mb-8 lg:mb-16"
       />
 
       <!-- Abgesagt-Alert -->
@@ -152,19 +152,11 @@ async function syncLadv() {
       <!-- Two-Column Layout -->
       <div class="flex flex-col gap-8 lg:flex-row lg:gap-12 lg:items-start">
         <!-- Sidebar: order-1 auf Mobile (erscheint vor den Listen), lg:order-2 -->
-        <aside class="order-1 lg:order-2 lg:w-72 xl:w-80 lg:shrink-0 lg:sticky lg:top-[calc(var(--ui-header-height)+2rem)] space-y-6">
-          <!-- Deine Anmeldung -->
-          <div class="bg-elevated border border-default rounded-[--ui-radius] p-5">
-            <EventRegisterForm
-              :event="event"
-              @refresh="refresh"
-            />
-          </div>
-
-          <!-- Admin-Aktionen -->
+        <aside class="order-1 lg:order-2 lg:w-72 xl:w-80 lg:shrink-0 lg:sticky lg:top-[calc(var(--ui-header-height)+2rem)] flex flex-col gap-8">
+          <!-- Admin-Aktionen: auf Mobile zuerst, auf Desktop nach der Anmeldung -->
           <div
             v-if="canEdit"
-            class="space-y-3"
+            class="order-1 lg:order-2 space-y-3"
           >
             <p class="text-xs font-medium text-muted uppercase tracking-widest mb-3">
               Admin
@@ -228,6 +220,14 @@ async function syncLadv() {
                 @click="uncancel"
               />
             </div>
+          </div>
+
+          <!-- Deine Anmeldung: auf Mobile nach Admin, auf Desktop zuerst -->
+          <div class="order-2 lg:order-1 bg-elevated border border-default rounded-[--ui-radius] p-5">
+            <EventRegisterForm
+              :event="event"
+              @refresh="refresh"
+            />
           </div>
         </aside>
 

@@ -85,6 +85,9 @@ Ausgetretene Mitglieder (nicht mehr in Campai aktiv) erhalten `membershipStatus 
 **Akzeptanzkriterien:**
 - Events sind standardmäßig nach Datum aufsteigend sortiert (nächstes zuerst)
 - Filterbar nach Typ (`ladv`, `competition`, `training`, `social`) und Zeitraum
+- Zusätzliche Filter (hauptsächlich für `competition` + `ladv`-Events mit gesetzten Werten):
+  - `raceType`: `track` \| `road`
+  - `championshipType`: `none` \| `bbm` \| `ndm` \| `dm`
 - Pro Event sichtbar: Name, Datum, Ort, Typ-Badge, Meldefrist (falls gesetzt), eigener Anmeldestatus
 - Abgesagte Events (`cancelled_at IS NOT NULL`) werden angezeigt, aber als "Abgesagt" markiert — nicht ausgeblendet
 - Vergangene Events standardmäßig ausgeblendet, über Filter einblendbar
@@ -143,12 +146,12 @@ Ausgetretene Mitglieder (nicht mehr in Campai aktiv) erhalten `membershipStatus 
 | Event-Typ     | Mögliche Status                         | Zeitregel                          |
 |---------------|-----------------------------------------|------------------------------------|
 | `ladv`        | `registered` ↔ `canceled`              | Vor Meldefrist (Storno immer möglich) |
-| `competition` | `registered` ↔ `maybe` ↔ `canceled`   | Vor Meldefrist (Storno immer möglich) |
+| `competition` | `registered` ↔ `maybe` ↔ `no`         | Vor Meldefrist (Absage `no` immer möglich) |
 | `training`    | `yes` ↔ `maybe` ↔ `no`                 | Jederzeit                          |
 | `social`      | `yes` ↔ `maybe` ↔ `no`                 | Jederzeit                          |
 
 **Akzeptanzkriterien:**
-- Statusänderung jederzeit möglich solange Meldefrist nicht abgelaufen (bei `ladv` + `competition`); Ausnahme: Storno (`canceled`/`no`) bleibt immer möglich
+- Statusänderung jederzeit möglich solange Meldefrist nicht abgelaufen (bei `ladv` + `competition`); Ausnahme: Absage (`canceled`/`no`) bleibt immer möglich
 - Keine E-Mail bei `maybe`-Status
 - Bei Stornierung: E-Mail-Bestätigung an Mitglied (→ E-02)
 - Bei `ladv`-Events mit gesetztem `ladv_registered_at` für eine Disziplin: deutlicher Hinweis im UI — "Diese Disziplin ist bereits bei LADV angemeldet — Admin informieren"
@@ -226,11 +229,14 @@ Ausgetretene Mitglieder (nicht mehr in Campai aktiv) erhalten `membershipStatus 
 **Beschreibung:** Admins können alle Events bearbeiten; Ersteller können ihr eigenes Event bearbeiten.
 
 **Akzeptanzkriterien:**
-- Editierbare Felder: Name, Datum, Ort, Meldefrist, Ausschreibungslink
+- Editierbare Felder: Name, Datum, Ort, Meldefrist, Ausschreibungslink, Beschreibung, Rennart, Meisterschaft
+  - `raceType` (Rennart): editierbar bei `competition` und `ladv`
+  - `championshipType` (Meisterschaft): editierbar nur bei `ladv` (kommt immer aus LADV-Kontext; bei manuellen Events kein LADV-Äquivalent)
 - Manuelle Änderungen überstehen spätere LADV-Syncs (Sync schreibt nur `ladv_data` + `ladv_last_sync`, nicht normalisierte Felder — ADR-003)
-- Bei LADV-Events: wenn editierte Felder von den Werten in `ladv_data` abweichen, wird ein visueller Diff-Hinweis angezeigt (→ F-10)
+- Bei LADV-Events: Diff-Hinweise im Bearbeitungsformular pro Feld (→ F-10) — kein Diff auf der Detailseite
 - Typ-Änderung nach dem Anlegen nicht möglich
 - Zugriff: Admin (alle Events) oder Ersteller (nur eigene Events, `created_by = session.id`)
+- Route: `/events/[id]/bearbeiten` — separate Seite (nicht Inline/Modal)
 
 **Abhängigkeiten:** F-07, F-08
 
@@ -240,13 +246,14 @@ Ausgetretene Mitglieder (nicht mehr in Campai aktiv) erhalten `membershipStatus 
 
 **Priorität:** Must (Sync) / Should (Diff-Hinweis)
 
-**Beschreibung:** Admin aktualisiert LADV-Daten manuell. Frontend zeigt, wenn sich LADV-Quelldaten von den normalisierten Feldern unterscheiden.
+**Beschreibung:** Admin aktualisiert LADV-Daten manuell. Bearbeitungsformular zeigt Abweichungen zwischen gespeicherten Feldern und LADV-Quelldaten.
 
 **Akzeptanzkriterien:**
-- "Sync"-Button auf der Detailseite eines LADV-Events
-- Sync aktualisiert `ladv_data` + `ladv_last_sync`; normalisierte Felder werden nicht überschrieben
-- Wenn LADV-Daten `abgesagt: true` enthalten: `cancelled_at` wird gesetzt. Keine automatische Mail an Athleten — Admin entscheidet (→ OE-4)
-- **Diff-Hinweis (Should):** wenn `name`, `date`, `location` oder `registration_deadline` in `ladv_data` von den gespeicherten Werten abweichen → sichtbarer Hinweis mit Option "Feld übernehmen" pro Feld
+- "Sync"-Button auf der Detailseite eines LADV-Events (admin-only)
+- Sync aktualisiert `ladv_data` + `ladv_last_sync`; normalisierte Felder werden nicht überschrieben (ADR-003)
+- Wenn LADV-Daten `abgesagt: true` enthalten: `cancelled_at` wird automatisch gesetzt. Keine automatische Mail an Athleten — Admin entscheidet (→ OE-4)
+- **Diff-Hinweis (Should):** Abweichungen werden **im Bearbeitungsformular** angezeigt (nicht auf der Detailseite) — saubere Trennung Read/Write. Verglichene Felder: `name`, `date`, `location`, `registrationDeadline`, `raceType`, `championshipType`. Pro abweichendem Feld: LADV-Wert + "Übernehmen"-Button (kopiert Wert reaktiv ins Formularfeld, kein extra API-Call).
+- Nach Sync: Toast "LADV-Daten aktualisiert"; bei erkannten Diffs: Toast mit Link zum Bearbeitungsformular
 - Letzter Sync-Zeitpunkt (`ladv_last_sync`) auf der Eventseite sichtbar
 
 **Abhängigkeiten:** F-09
@@ -257,10 +264,11 @@ Ausgetretene Mitglieder (nicht mehr in Campai aktiv) erhalten `membershipStatus 
 
 **Priorität:** Should
 
-**Beschreibung:** Admin markiert ein Event manuell als abgesagt.
+**Beschreibung:** Admin markiert ein Event manuell als abgesagt. Die Absage ist reversibel.
 
 **Akzeptanzkriterien:**
-- Setzt `cancelled_at` auf den aktuellen Zeitpunkt
+- Setzt `cancelled_at` auf den aktuellen Zeitpunkt — mit Bestätigungsdialog (UModal)
+- Absage ist **reversibel**: "Reaktivieren"-Button setzt `cancelled_at` zurück auf null
 - Kein echtes Löschen — Event bleibt in der DB und in der UI sichtbar (mit "Abgesagt"-Badge)
 - Bestehende Anmeldungen bleiben unverändert erhalten
 - Ob eine automatische Massen-Mail an Angemeldete gesendet wird: → OE-4
@@ -445,7 +453,7 @@ Ausgetretene Mitglieder (nicht mehr in Campai aktiv) erhalten `membershipStatus 
 **Beschreibung:** Automatischer Abgleich aktiver Vereinsmitglieder aus Campai in die `users`-Tabelle.
 
 **Was der Sync tut:**
-- Aktive Mitglieder: upsert in `users` mit allen Feldern inkl. `role` und `hasLadvStartpass`
+- Aktive Mitglieder: upsert in `users` mit allen Feldern inkl. `role`, `hasLadvStartpass`, `gender`, `age`, `birthday`
 - Rollen-Zuweisung: `superuser` wenn E-Mail `paul@diepold.de`; `admin` wenn Section `"Coaches"`; sonst `member`
 - Nicht mehr aktive Mitglieder: `membershipStatus = 'inactive'` setzen (Daten bleiben erhalten)
 
@@ -506,7 +514,7 @@ Ausgetretene Mitglieder (nicht mehr in Campai aktiv) erhalten `membershipStatus 
 **Beschreibung:** Superuser hat eine geschützte Admin-Seite für Systemoperationen. Erster Use-Case: Campai-Sync manuell anstoßen. Seite ist erweiterbar für künftige Systemoperationen.
 
 **Akzeptanzkriterien:**
-- Route `/admin` (oder `/admin/system`) — ausschließlich zugänglich mit `role = 'superuser'`
+- Route `/superuser/system` — ausschließlich zugänglich mit `role = 'superuser'` (allgemeiner `/admin`-Bereich ist für `admin` + `superuser`; Systemoperationen liegen unter `/superuser`)
 - Button "Campai-Sync anstoßen" — ruft den bestehenden `POST /api/cron/sync-members`-Endpunkt auf
 - Feedback nach dem Sync: Erfolg / Fehler anzeigen (Anzahl synchronisierter Mitglieder o.ä.)
 - Seite ist bewusst minimal gehalten — kein Feature-Bloat, nur was gebraucht wird
@@ -626,7 +634,7 @@ Pro Event mit Anmeldungen werden 0–3 zufällige Mitglieder-Kommentare generier
 | Event-Typ     | Mögliche Werte                          | Steuerung |
 |---------------|-----------------------------------------|-----------|
 | `ladv`        | `registered` ↔ `canceled`              | Mitglied  |
-| `competition` | `registered` ↔ `maybe` ↔ `canceled`   | Mitglied  |
+| `competition` | `registered` ↔ `maybe` ↔ `no`         | Mitglied  |
 | `training`    | `yes` ↔ `maybe` ↔ `no`                 | Mitglied  |
 | `social`      | `yes` ↔ `maybe` ↔ `no`                 | Mitglied  |
 
@@ -634,7 +642,7 @@ Pro Event mit Anmeldungen werden 0–3 zufällige Mitglieder-Kommentare generier
 - Bei `ladv` kein `maybe` — LADV erfordert eine verbindliche Meldung
 - `training` und `social` verhalten sich identisch: kein Admin-Bestätigungsschritt, keine Meldefrist, initialer Status `yes`
 - Übergänge sind in alle Richtungen frei möglich, solange die Meldefrist nicht abgelaufen ist (bei `ladv` und `competition`)
-- Stornierung (`canceled`/`no`) bleibt auch nach Fristablauf möglich — Admin entscheidet dann selbst über die LADV-Abmeldung
+- Absage (`canceled` bei `ladv`, `no` bei `competition`/`training`/`social`) bleibt auch nach Fristablauf möglich — Admin entscheidet dann selbst über die LADV-Abmeldung
 - Initiale Anmeldung ist immer `registered` (bei ladv/competition) bzw. `yes` (bei training/social)
 - Vollständige State Machine inkl. Disziplin-Änderungen: → F-04
 

@@ -1,0 +1,194 @@
+{
+  "id": 45510,
+  "name": "52. Winterlaufserie",
+  "sportstaette": "Stadion Wilmersdorf",
+  "meldAdresse": "Carsten Römer, Scheelestr. 127, 12209 Berlin,",
+  "meldEmail": "winterserie@bsv1892-leichtathletik.de",
+  "veranstalter": "Berliner SV 1892",
+  "ausrichter": "Berliner SV 1892",
+  "beschreibung": "",
+  "datum": 1768086000000,
+  "datumText": "11.01.2026",
+  "meldDatum": 1767740400000,
+  "meldDatumText": "07.01.2026",
+  "abgesagt": false,
+  "url": "https://ladv.de/ausschreibung/detail/45510/52.-Winterlaufserie-Berlin-Wilmersdorf.htm",
+  "tags": "masters,jugend,aktive",
+  "kategorien": [
+    "masters",
+    "jugend",
+    "aktive"
+  ],
+  "ort": {
+    "id": 2025,
+    "name": "Berlin-Wilmersdorf",
+    "lv": "BE",
+    "land": "DEU",
+    "lng": 13.3167,
+    "lat": 52.4833
+  },
+  "veranstaltungen": [],
+  "lvs": "BE",
+  "landesverband": [
+    "BE"
+  ],
+  "links": [],
+  "attachements": [
+    {
+      "name": "Ausschreibung",
+      "extension": ".pdf",
+      "url": "https://ladv.de/ausschreibung/datei/452152"
+    },
+    {
+      "name": "Streckenplan",
+      "extension": ".pdf",
+      "url": "https://ladv.de/ausschreibung/datei/452153"
+    }
+  ],
+  "wettbewerbe": [
+    {
+      "disziplin": "15S",
+      "klasse": "W75",
+      "disziplinNew": "S15K",
+      "klasseNew": "W75"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "M35",
+      "disziplinNew": "S15K",
+      "klasseNew": "M35"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "MJA",
+      "disziplinNew": "S15K",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "W55",
+      "disziplinNew": "S15K",
+      "klasseNew": "W55"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "MJB",
+      "disziplinNew": "S15K",
+      "klasseNew": "MJU18"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "M55",
+      "disziplinNew": "S15K",
+      "klasseNew": "M55"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "WJB",
+      "disziplinNew": "S15K",
+      "klasseNew": "WJU18"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "M50",
+      "disziplinNew": "S15K",
+      "klasseNew": "M50"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "M65",
+      "disziplinNew": "S15K",
+      "klasseNew": "M65"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "W50",
+      "disziplinNew": "S15K",
+      "klasseNew": "W50"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "M40",
+      "disziplinNew": "S15K",
+      "klasseNew": "M40"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "W45",
+      "disziplinNew": "S15K",
+      "klasseNew": "W45"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "W65",
+      "disziplinNew": "S15K",
+      "klasseNew": "W65"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "WJA",
+      "disziplinNew": "S15K",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "W",
+      "disziplinNew": "S15K",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "M",
+      "disziplinNew": "S15K",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "M45",
+      "disziplinNew": "S15K",
+      "klasseNew": "M45"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "W60",
+      "disziplinNew": "S15K",
+      "klasseNew": "W60"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "W35",
+      "disziplinNew": "S15K",
+      "klasseNew": "W35"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "M75",
+      "disziplinNew": "S15K",
+      "klasseNew": "M75"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "W40",
+      "disziplinNew": "S15K",
+      "klasseNew": "W40"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "M70",
+      "disziplinNew": "S15K",
+      "klasseNew": "M70"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "M60",
+      "disziplinNew": "S15K",
+      "klasseNew": "M60"
+    },
+    {
+      "disziplin": "15S",
+      "klasse": "W70",
+      "disziplinNew": "S15K",
+      "klasseNew": "W70"
+    }
+  ]
+}

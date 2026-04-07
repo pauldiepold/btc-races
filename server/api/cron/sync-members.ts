@@ -1,3 +1,5 @@
+import { runSyncMembers } from '~~/server/utils/sync-members'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event)
   const authHeader = getHeader(event, 'Authorization')
@@ -9,5 +11,5 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return await runTask('sync-members')
+  return await runSyncMembers()
 })

@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 pnpm dev              # Dev-Server starten (localhost:3000, wendet Migrationen automatisch an)
 pnpm build            # Production build
-pnpm typecheck        # TypeScript-Typen prüfen
+pnpm typecheck        # TypeScript-Typen prüfen — immer mit Exit-Code prüfen: `pnpm typecheck 2>&1; echo "Exit: $?"`
 pnpm lint             # ESLint
 pnpm lint:fix         # ESLint mit Auto-Fix
 
@@ -20,8 +20,6 @@ pnpm db:generate      # Migrationen aus Schema-Änderungen generieren
 pnpm db:migrate       # Migrationen lokal anwenden
 pnpm db:remote:migrate # Migrationen auf Cloudflare D1 (Produktion) anwenden
 
-# Externe API-Typen
-pnpm api:generate     # TypeScript-Typen aus OpenAPI-Schemas generieren (LADV & Campai)
 ```
 
 ## Architecture
@@ -38,6 +36,7 @@ pnpm api:generate     # TypeScript-Typen aus OpenAPI-Schemas generieren (LADV & 
 - `app/` — Frontend (pages, components, middleware, email-templates, assets)
 - `server/` — Backend (api-routes, db-schema, tasks, email-service, external APIs)
 - `shared/` — Typen, die server- und clientseitig geteilt werden
+- `btc-races-v1/` — **Nur zur Info:** altes Git-Repo (Vorgänger-Projekt). Nicht anfassen, nicht darin arbeiten.
 
 ### Datenbank (Drizzle + NuxtHub)
 
@@ -82,11 +81,45 @@ Nitro-Task `server/tasks/sync-members.ts`: Synct aktive Mitglieder von der Campa
 
 - **Campai**: Mitgliederverwaltung — `server/external-apis/campai-contacts/`
 - **LADV**: Wettkampf-Daten (Schema vorhanden, noch nicht vollständig implementiert)
-- OpenAPI-Schemas in `server/external-apis/schemas/`, Typen via `pnpm api:generate`
+- Typen manuell in `server/utils/ladv.ts` (LADV) und `server/external-apis/campai-contacts/contacts.service.ts` (Campai) definiert
+
+## Testing
+
+Setup: `vitest` — nur Unit Tests für pure Business-Logik.
+
+```bash
+pnpm test        # einmalig ausführen
+pnpm test:watch  # watch mode
+```
+
+Tests liegen in `test/unit/`. Nach einer Feature-Session: `/test` aufrufen.
+
+### Was getestet wird
+- Pure Funktionen in `server/utils/` (kein DB-Zugriff, kein HTTP)
+- Daten-Mapping und Transformations-Logik
+- Zod-Schema-Validierungen und Business-Rules
+
+### Was NICHT getestet wird
+- Nitro Event Handler / API-Routen
+- Drizzle-Queries / Datenbankzugriffe
+- Vue-Komponenten
+
+### Hinweis beim Implementieren
+Am Ende jeder Feature-Session prüfen: Enthält der neue Code pure, testbare Logik? Falls ja, kurz darauf hinweisen und `/test` anbieten.
 
 ## Umgebungsvariablen
 
 Siehe (`.env.example`)
+
+## Git-Commit-Konvention
+
+`<type>(<scope>): <beschreibung> [(F-xx, F-yy)]`
+
+- **Types**: `feat` | `fix` | `refactor` | `docs` | `chore` | `test`
+- **Scope**: Session-Nummer (`9.8.1`) oder Modul (`auth`, `db`)
+- **Feature-IDs** obligatorisch bei Spec-Bezug
+- Max. 2 Commits pro Session: Code-Commit + ggf. separater `docs:`-Commit bei eigenständigen Planänderungen. Session-Abschluss (✅ + Notiz) in den Code-Commit bundeln.
+- Kein `Co-Authored-By`
 
 ## Implementierungsplan-Pflege
 

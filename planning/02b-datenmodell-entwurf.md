@@ -96,22 +96,26 @@ Die Felder `discipline`, `age_class` sowie die LADV-Operationsfelder werden aus 
 
 ### `events`
 
-| Spalte                | Typ                              | Beschreibung                                      |
-|-----------------------|----------------------------------|---------------------------------------------------|
-| id                    | text PK                          | UUID                                              |
-| type                  | text NOT NULL                    | `ladv` \| `competition` \| `training` \| `social` |
-| name                  | text NOT NULL                    |                                                   |
-| date                  | integer (timestamp) NOT NULL     |                                                   |
-| location              | text                             |                                                   |
-| registration_deadline | integer (timestamp)              | null bei training                                 |
-| announcement_link     | text                             |                                                   |
-| cancelled_at          | integer (timestamp)              | gesetzt beim Sync wenn LADV `abgesagt: true`      |
-| ladv_id               | integer                          | nur bei type=ladv                                 |
-| ladv_data             | text (JSON)                      | Rohdaten LADV-API inkl. wettbewerbe-Liste         |
-| ladv_last_sync        | integer (timestamp)              |                                                   |
-| created_by            | text FK → users.id               |                                                   |
-| createdAt             | integer (timestamp) NOT NULL     |                                                   |
-| updatedAt             | integer (timestamp) NOT NULL     |                                                   |
+| Spalte                | Typ                              | Beschreibung                                                                 |
+|-----------------------|----------------------------------|------------------------------------------------------------------------------|
+| id                    | text PK                          | UUID                                                                         |
+| type                  | text NOT NULL                    | `ladv` \| `competition` \| `training` \| `social`                            |
+| name                  | text NOT NULL                    |                                                                              |
+| date                  | integer (timestamp)              |                                                                              |
+| location              | text                             |                                                                              |
+| description           | text                             | Freitext-Beschreibung, für alle Event-Typen                                  |
+| registration_deadline | integer (timestamp)              | null bei training/social                                                     |
+| announcement_link     | text                             |                                                                              |
+| cancelled_at          | integer (timestamp)              | gesetzt beim Sync wenn LADV `abgesagt: true`                                 |
+| race_type             | text                             | `track` \| `road` — nur competition + ladv; bei ladv aus `kategorien`        |
+| championship_type     | text                             | `none` \| `bbm` \| `ndm` \| `dm` — manuell gepflegt, nicht aus LADV-API     |
+| is_wrc                | integer (boolean) NOT NULL DEF 0 | World Ranking Competition; bei ladv aus `wrc`-Feld                           |
+| ladv_id               | integer                          | nur bei type=ladv                                                            |
+| ladv_data             | text (JSON)                      | Rohdaten LADV-API inkl. wettbewerbe-Liste                                    |
+| ladv_last_sync        | integer (timestamp)              |                                                                              |
+| created_by            | text FK → users.id               |                                                                              |
+| createdAt             | integer (timestamp) NOT NULL     |                                                                              |
+| updatedAt             | integer (timestamp) NOT NULL     |                                                                              |
 
 ### `registrations`
 
@@ -184,9 +188,11 @@ Die Felder `discipline`, `age_class` sowie die LADV-Operationsfelder werden aus 
 | lastSyncedAt         | integer (timestamp)              | letzter Campai-Sync                                            |
 | avatarUrl            | text                             |                                                                |
 | has_ladv_startpass   | integer (boolean) DEFAULT 0      | aus Campai-Sync (F-21); required für LADV-Event-Anmeldung      |
+| gender               | text                             | `m` \| `w` — aus `personal.type` (Campai-Sync)                 |
+| age                  | integer                          | Alter in Jahren — aus `personal.personAge` (Campai-Sync)       |
+| birthday             | integer (timestamp)              | Geburtsdatum — aus `personal.personBirthday` (Campai-Sync)     |
 | createdAt            | integer (timestamp) NOT NULL     |                                                                |
 
-_Anmerkung: `has_ladv_startpass` ist noch nicht im Schema — wird mit F-21 ergänzt._
 
 ### `auth_tokens`
 

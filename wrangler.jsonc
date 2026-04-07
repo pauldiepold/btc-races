@@ -1,17 +1,38 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "btc-races",
-  "pages_build_output_dir": "dist",
-  "compatibility_date": "2025-12-29",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "btc-races-prod",
-      "database_id": "377c148c-ff3e-486f-b0a6-866e3de24e1d",
-      "migrations_dir": "./server/db/migrations/sqlite"
-    }
-  ]
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "btc-races",
+	"pages_build_output_dir": "dist",
+	"compatibility_date": "2025-12-29",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"vars": {
+		"NUXT_EMAIL_SENDER_ADDRESS": "donotreply@berlin-track-club.de",
+		"NUXT_EMAIL_PROVIDER": "azure-fetch"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "btc-races-prod",
+			"database_id": "377c148c-ff3e-486f-b0a6-866e3de24e1d",
+			"migrations_dir": "./server/db/migrations/sqlite"
+		}
+	],
+	"env": {
+		"preview": {
+			"vars": {
+				"NUXT_EMAIL_SENDER_ADDRESS": "donotreply@berlin-track-club.de",
+				"NUXT_EMAIL_TEST_MODE": "true",
+				"NUXT_EMAIL_PROVIDER": "azure-fetch"
+			},
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "btc-races-preview",
+					"database_id": "7d7e65bb-c798-4a7d-b318-969de6080012",
+					"migrations_dir": "./server/db/migrations/sqlite"
+				}
+			]
+		}
+	}
 }

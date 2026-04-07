@@ -1,18 +1,18 @@
 export default defineEventHandler(async (event) => {
   const path = getRequestURL(event).pathname
 
-  // Pfade, die NICHT geschützt werden sollen
-  const protectedPaths = [
-    '/events/',
-  ]
+  // Cron-Routen verwenden Bearer-Token-Auth im Route-Handler selbst
+  // Auth-Routen sind per Definition öffentlich (Login-Flow)
+  const publicPaths = ['/api/auth/', '/api/cron/']
 
-  // Prüfen, ob der Pfad öffentlich ist
-  const isProtectedPath = protectedPaths.some(protectedPath => path.startsWith(protectedPath))
+  const isPublicPath = publicPaths.some(publicPath => path.startsWith(publicPath))
 
-  if (!isProtectedPath) {
+  if (isPublicPath) {
     return
   }
 
-  // Alle anderen Routen müssen authentifiziert sein
-  await requireUserSession(event)
+  // Alle anderen /api/-Routen erfordern eine Session
+  if (path.startsWith('/api/')) {
+    await requireUserSession(event)
+  }
 })

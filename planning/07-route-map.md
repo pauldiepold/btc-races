@@ -75,8 +75,8 @@ _Stand: 2026-04-02_
 |---------|------|---------|--------------|---------|
 | `POST` | `/api/registrations/[id]/disciplines` | member (eigene) | Disziplin hinzufügen | F-04 |
 | `DELETE` | `/api/registrations/[id]/disciplines/[disciplineId]` | member (eigene) | Disziplin entfernen | F-04 |
-| `POST` | `/api/registrations/[id]/disciplines/[disciplineId]/ladv-register` | admin | LADV-Anmeldung protokollieren | F-13 |
-| `POST` | `/api/registrations/[id]/disciplines/[disciplineId]/ladv-cancel` | admin | LADV-Abmeldung protokollieren | F-14 |
+| `POST` | `/api/registrations/[id]/ladv-register` | admin | LADV-Anmeldung für alle Disziplinen der Anmeldung protokollieren | F-13 |
+| `POST` | `/api/registrations/[id]/ladv-cancel` | admin | LADV-Abmeldung für alle Disziplinen der Anmeldung protokollieren | F-14 |
 
 ### Comments
 
@@ -92,6 +92,12 @@ _Stand: 2026-04-02_
 |---------|------|---------|--------------|---------|
 | `GET` | `/api/me/registrations` | member | Eigene Anmeldungen (alle Events, inkl. vergangene) | F-06 |
 
+### Superuser
+
+| Methode | Pfad | Zugriff | Beschreibung | Feature |
+|---------|------|---------|--------------|---------|
+| `POST` | `/api/superuser/seed` | superuser | DB leeren und Testdaten befüllen | ✅ F-24 |
+
 ### Cron / System
 
 | Methode | Pfad | Zugriff | Beschreibung | Feature |
@@ -105,8 +111,8 @@ _Stand: 2026-04-02_
 
 | Task | Beschreibung | Auslöser | Feature |
 |------|--------------|----------|---------|
-| `tasks/sync-members` | Campai-Sync-Logik | Via `runTask()` aus `/api/cron/sync-members` | ✅ F-21 |
-| `tasks/seed` | Testdaten (dev only) | Manuell | — |
+| `tasks/sync-members` | Dünner Wrapper — Logik in `server/utils/sync-members.ts` | Manuell oder via Task-Runner | ✅ F-21 |
+| `tasks/seed` | Dünner Wrapper — Logik in `server/utils/seed.ts` | Manuell oder via Task-Runner | — |
 | `tasks/send-reminders` | Reminder-Mail-Versand | Via `/api/cron/send-reminders` | F-20 `[Backlog]` |
 
 ---

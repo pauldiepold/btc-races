@@ -39,6 +39,13 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  if (user.membershipStatus !== 'active') {
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Deine Mitgliedschaft ist nicht aktiv. Bitte wende dich an den BTC.',
+    })
+  }
+
   // 3. Session setzen
   await setUserSession(event, {
     user: {
@@ -46,9 +53,12 @@ export default defineEventHandler(async (event) => {
       email: user.email,
       firstName: user.firstName ?? '',
       lastName: user.lastName ?? '',
-      role: user.role ?? '',
+      role: user.role ?? 'member',
       sections: user.sections ?? [],
       avatarUrl: user.avatarUrl ?? '',
+      hasLadvStartpass: user.hasLadvStartpass === 1,
+      birthYear: user.birthday ? new Date(user.birthday).getFullYear() : null,
+      gender: user.gender ?? null,
     },
     loggedInAt: new Date().toISOString(),
   })

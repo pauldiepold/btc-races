@@ -30,10 +30,9 @@ export default defineEventHandler(async (event) => {
     where: eq(schema.users.email, email.toLowerCase()),
   })
 
-  if (!user) {
-    // Sicherheitshalber geben wir keine Fehlermeldung aus, um User-Enumeration zu verhindern,
-    // aber in diesem speziellen Fall (nur registrierte User) loggen wir es intern.
-    console.log(`Login attempt for non-existent user: ${email}`)
+  if (!user || user.membershipStatus !== 'active') {
+    // Kein Status-Leak nach außen — inaktive Mitglieder erhalten dieselbe Antwort wie nicht existierende
+    console.log(`Login attempt for non-existent or inactive user: ${email}`)
     return { message: 'Wenn die E-Mail existiert, wurde ein Magic Link gesendet.' }
   }
 
@@ -42,6 +41,8 @@ export default defineEventHandler(async (event) => {
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000) // 15 Minuten
 
   // 3. Alte Tokens des Users löschen und neues Token speichern
+  // Token-Bereinigung bewusst deaktiviert: Tokens laufen nach 15 min automatisch ab.
+  // Solange gültig, sind mehrere Klicks auf denselben Link erlaubt (z.B. Mail-Client-Vorschau).
   // await db.delete(schema.authTokens).where(eq(schema.authTokens.userId, user.id))
 
   await db.insert(schema.authTokens).values({

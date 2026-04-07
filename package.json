@@ -9,13 +9,20 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "typecheck": "nuxi typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "db:generate": "nuxt db generate",
     "db:migrate": "nuxt db migrate",
-    "db:remote": "wrangler d1 migrations list btc-races-prod --remote",
-    "db:remote:migrate": "wrangler d1 migrations apply btc-races-prod --remote",
-    "api:generate": "openapi-typescript server/external-apis/schemas/ladv-api-schema.json -o server/external-apis/ladv/generated/types.ts && openapi-typescript server/external-apis/schemas/campai-api-schema.json -o server/external-apis/campai/generated/types.ts"
+    "db:remote:prod": "wrangler d1 migrations list btc-races-prod --remote",
+    "db:remote:preview": "wrangler d1 migrations list btc-races-preview --remote --env preview",
+    "db:remote:migrate:prod": "wrangler d1 migrations apply btc-races-prod --remote",
+    "db:remote:migrate:preview": "wrangler d1 migrations apply btc-races-preview --remote --env preview",
+    "seed:preview": "curl -s -X POST https://develop.btc-races.pages.dev/api/cron/seed -H \"Authorization: Bearer $NUXT_CRON_TOKEN\"",
+    "sync:members:preview": "curl -s -X POST https://develop.btc-races.pages.dev/api/cron/sync-members -H \"Authorization: Bearer $NUXT_CRON_TOKEN\"",
+    "sync:members:prod": "curl -s -X POST https://btc-races.pages.dev/api/cron/sync-members -H \"Authorization: Bearer $NUXT_CRON_TOKEN\"",
+    "db:login": "wrangler login --no-browser"
   },
   "dependencies": {
     "@libsql/client": "^0.17.2",
@@ -31,8 +38,6 @@
     "nuxt": "^4.4.2",
     "nuxt-auth-utils": "^0.5.29",
     "nuxt-email-renderer": "2.6.0",
-    "openapi-fetch": "^0.17.0",
-    "openapi-typescript": "^7.13.0",
     "pinia": "^3.0.4",
     "vue": "^3.5.31",
     "vue-router": "^5.0.4",
@@ -40,11 +45,13 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.4.0",
     "@iconify-json/lucide": "^1.2.101",
     "@iconify-json/ph": "^1.2.2",
     "@nuxt/eslint": "^1.15.2",
     "eslint": "^10.1.0",
     "typescript": "^6.0.2",
+    "vitest": "^4.1.2",
     "vue-tsc": "^3.2.6"
   }
 }

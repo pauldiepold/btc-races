@@ -7,6 +7,9 @@ export interface CampaiContact {
     personFirstName?: string
     personLastName?: string
     email?: string
+    type?: 'malePerson' | 'femalePerson' | null
+    personAge?: number | null
+    personBirthday?: string | null
     [key: string]: unknown
   }
   communication?: {

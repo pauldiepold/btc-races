@@ -1,0 +1,188 @@
+{
+  "id": 45487,
+  "name": "52. Winterlaufserie",
+  "sportstaette": "Stadion Wilmersdorf",
+  "meldAdresse": "Carsten Römer, Scheelestr. 127, 12209 Berlin,",
+  "meldEmail": "roemer@sigavest.de",
+  "veranstalter": "Berliner SV 1892",
+  "ausrichter": "Berliner SV 1892",
+  "beschreibung": "",
+  "datum": 1767481200000,
+  "datumText": "04.01.2026",
+  "meldDatum": 1767135600000,
+  "meldDatumText": "31.12.2025",
+  "abgesagt": false,
+  "url": "https://ladv.de/ausschreibung/detail/45487/52.-Winterlaufserie-Berlin-Wilmersdorf.htm",
+  "tags": "masters,aktive,jugend",
+  "kategorien": [
+    "masters",
+    "aktive",
+    "jugend"
+  ],
+  "ort": {
+    "id": 2025,
+    "name": "Berlin-Wilmersdorf",
+    "lv": "BE",
+    "land": "DEU",
+    "lng": 13.3167,
+    "lat": 52.4833
+  },
+  "veranstaltungen": [
+    {
+      "id": 35051,
+      "name": "52. Winterlaufserie",
+      "url": "https://ladv.de/veranstaltung/detail/35051/52.-Winterlaufserie-Berlin-Wilmersdorf.htm"
+    }
+  ],
+  "lvs": "BE",
+  "landesverband": [
+    "BE"
+  ],
+  "links": [],
+  "attachements": [
+    {
+      "name": "Streckenplan",
+      "extension": ".pdf",
+      "url": "https://ladv.de/ausschreibung/datei/451271"
+    },
+    {
+      "name": "Ausschreibung",
+      "extension": ".pdf",
+      "url": "https://ladv.de/ausschreibung/datei/451273"
+    }
+  ],
+  "wettbewerbe": [
+    {
+      "disziplin": "10S",
+      "klasse": "W60",
+      "disziplinNew": "S10K",
+      "klasseNew": "W60"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W",
+      "disziplinNew": "S10K",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "MJA",
+      "disziplinNew": "S10K",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W50",
+      "disziplinNew": "S10K",
+      "klasseNew": "W50"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W45",
+      "disziplinNew": "S10K",
+      "klasseNew": "W45"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M55",
+      "disziplinNew": "S10K",
+      "klasseNew": "M55"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M",
+      "disziplinNew": "S10K",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M60",
+      "disziplinNew": "S10K",
+      "klasseNew": "M60"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M50",
+      "disziplinNew": "S10K",
+      "klasseNew": "M50"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W35",
+      "disziplinNew": "S10K",
+      "klasseNew": "W35"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M35",
+      "disziplinNew": "S10K",
+      "klasseNew": "M35"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W55",
+      "disziplinNew": "S10K",
+      "klasseNew": "W55"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M40",
+      "disziplinNew": "S10K",
+      "klasseNew": "M40"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W65",
+      "disziplinNew": "S10K",
+      "klasseNew": "W65"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M65",
+      "disziplinNew": "S10K",
+      "klasseNew": "M65"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M45",
+      "disziplinNew": "S10K",
+      "klasseNew": "M45"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W40",
+      "disziplinNew": "S10K",
+      "klasseNew": "W40"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W70",
+      "disziplinNew": "S10K",
+      "klasseNew": "W70"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "WJA",
+      "disziplinNew": "S10K",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M70",
+      "disziplinNew": "S10K",
+      "klasseNew": "M70"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M75",
+      "disziplinNew": "S10K",
+      "klasseNew": "M75"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W75",
+      "disziplinNew": "S10K",
+      "klasseNew": "W75"
+    }
+  ]
+}

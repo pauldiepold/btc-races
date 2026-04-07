@@ -1,0 +1,206 @@
+{
+  "id": 45916,
+  "name": "oBBM 10km",
+  "sportstaette": "Stadthalle Falkensee",
+  "meldAdresse": null,
+  "meldEmail": "info@leichtathletik-berlin.de",
+  "veranstalter": "Berliner Leichtathletik-Verband",
+  "ausrichter": "VfV Spandau & TSV Falkensee",
+  "beschreibung": "ZUSÄTZLICH ZUR MEISTERSCHAFTSMELDUNG MUSS EINE MELDUNG BEIM VERANSTALTER DES LAUFS DER SYMPATHIE ERFOLGEN!\r\n\r\nAM VERANSTALUNGSTAG BESTEHT ERSATZVERKEHR, MEHR INFORMATIONEN: https://www.falkensee.de/generalsanierung",
+  "datum": 1773529200000,
+  "datumText": "15.03.2026",
+  "meldDatum": 1772924400000,
+  "meldDatumText": "08.03.2026",
+  "abgesagt": false,
+  "url": "https://ladv.de/ausschreibung/detail/45916/oBBM-10km-Berlin-Spandau.htm",
+  "tags": "masters,jugend,aktive",
+  "kategorien": [
+    "masters",
+    "jugend",
+    "aktive"
+  ],
+  "ort": {
+    "id": 2083,
+    "name": "Berlin-Spandau",
+    "lv": "BE",
+    "land": "DEU",
+    "lng": 13.2033,
+    "lat": 52.5361
+  },
+  "veranstaltungen": [
+    {
+      "id": 35482,
+      "name": "oBBM 10km",
+      "url": "https://ladv.de/veranstaltung/detail/35482/oBBM-10km-Berlin-Spandau.htm"
+    }
+  ],
+  "lvs": "BE",
+  "landesverband": [
+    "BE"
+  ],
+  "links": [
+    {
+      "name": "Onlinemeldung Lauf der Sympathie",
+      "url": "https://www.laufdersympathie.de/?page_id=64"
+    }
+  ],
+  "attachements": [
+    {
+      "name": "Ausschreibung",
+      "extension": ".pdf",
+      "url": "https://ladv.de/ausschreibung/datei/477013"
+    }
+  ],
+  "wettbewerbe": [
+    {
+      "disziplin": "10S",
+      "klasse": "MJB",
+      "disziplinNew": "S10K",
+      "klasseNew": "MJU18"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "MJA",
+      "disziplinNew": "S10K",
+      "klasseNew": "MJU20"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M",
+      "disziplinNew": "S10K",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M30",
+      "disziplinNew": "S10K",
+      "klasseNew": "M30"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M35",
+      "disziplinNew": "S10K",
+      "klasseNew": "M35"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M40",
+      "disziplinNew": "S10K",
+      "klasseNew": "M40"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M45",
+      "disziplinNew": "S10K",
+      "klasseNew": "M45"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M50",
+      "disziplinNew": "S10K",
+      "klasseNew": "M50"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M55",
+      "disziplinNew": "S10K",
+      "klasseNew": "M55"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M60",
+      "disziplinNew": "S10K",
+      "klasseNew": "M60"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M65",
+      "disziplinNew": "S10K",
+      "klasseNew": "M65"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M70",
+      "disziplinNew": "S10K",
+      "klasseNew": "M70"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "M75",
+      "disziplinNew": "S10K",
+      "klasseNew": "M75"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "WJB",
+      "disziplinNew": "S10K",
+      "klasseNew": "WJU18"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "WJA",
+      "disziplinNew": "S10K",
+      "klasseNew": "WJU20"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W",
+      "disziplinNew": "S10K",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W30",
+      "disziplinNew": "S10K",
+      "klasseNew": "W30"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W35",
+      "disziplinNew": "S10K",
+      "klasseNew": "W35"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W40",
+      "disziplinNew": "S10K",
+      "klasseNew": "W40"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W45",
+      "disziplinNew": "S10K",
+      "klasseNew": "W45"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W50",
+      "disziplinNew": "S10K",
+      "klasseNew": "W50"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W55",
+      "disziplinNew": "S10K",
+      "klasseNew": "W55"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W60",
+      "disziplinNew": "S10K",
+      "klasseNew": "W60"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W65",
+      "disziplinNew": "S10K",
+      "klasseNew": "W65"
+    },
+    {
+      "disziplin": "10S",
+      "klasse": "W70",
+      "disziplinNew": "S10K",
+      "klasseNew": "W70"
+    }
+  ]
+}

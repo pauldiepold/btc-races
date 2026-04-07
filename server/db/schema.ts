@@ -19,6 +19,9 @@ export const users = sqliteTable('users', {
   lastSyncedAt: integer({ mode: 'timestamp' }),
   avatarUrl: text(),
   hasLadvStartpass: integer().default(0),
+  gender: text().$type<'m' | 'w'>(),
+  age: integer(),
+  birthday: integer({ mode: 'timestamp' }),
 
   createdAt: integer({ mode: 'timestamp' })
     .notNull()
@@ -39,9 +42,15 @@ export const events = sqliteTable('events', {
   name: text().notNull(),
   date: integer({ mode: 'timestamp' }),
   location: text(),
+  description: text(),
   registrationDeadline: integer({ mode: 'timestamp' }),
   announcementLink: text(),
   cancelledAt: integer({ mode: 'timestamp' }),
+
+  // Wettkampf-Metadaten (competition + ladv)
+  raceType: text('race_type').$type<'track' | 'road'>(),
+  championshipType: text('championship_type').$type<'none' | 'bbm' | 'ndm' | 'dm'>(),
+  isWrc: integer('is_wrc').notNull().default(0),
 
   // LADV-spezifische Felder
   ladvId: integer(),

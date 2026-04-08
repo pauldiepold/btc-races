@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import type { LadvTodo } from '~~/shared/types/events'
 
-definePageMeta({ title: 'Admin — LADV-Todos' })
-
-const { session } = useUserSession()
-if (session.value?.user?.role !== 'admin' && session.value?.user?.role !== 'superuser') {
-  await navigateTo('/')
-}
+definePageMeta({ layout: 'admin', title: 'Admin — LADV-Todos' })
 
 const { data: todos, refresh, status } = await useFetch<LadvTodo[]>('/api/admin/ladv-todos')
 
@@ -27,16 +22,11 @@ const columns = [
 </script>
 
 <template>
-  <UContainer class="py-10 lg:py-14 max-w-5xl">
+  <div>
     <div class="mb-8 flex items-center justify-between gap-4">
-      <div>
-        <h1 class="font-display font-semibold text-highlighted text-2xl">
-          Admin — LADV-Todos
-        </h1>
-        <p class="text-sm text-muted mt-1">
-          Offene LADV-An- und Abmeldungen über alle Events
-        </p>
-      </div>
+      <p class="text-sm text-muted">
+        Offene LADV-An- und Abmeldungen über alle Events
+      </p>
       <UButton
         icon="i-ph-arrows-clockwise"
         label="Aktualisieren"
@@ -165,5 +155,5 @@ const columns = [
       @update:open="!$event && (openTodo = null)"
       @done="refresh()"
     />
-  </UContainer>
+  </div>
 </template>

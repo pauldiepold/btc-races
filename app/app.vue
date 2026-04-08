@@ -69,7 +69,9 @@ useHead({
     />
 
     <UMain>
-      <NuxtPage />
+      <NuxtLayout>
+        <NuxtPage />
+      </NuxtLayout>
     </UMain>
 
     <UFooter class="mb-4 border-t border-yellow-500/30">

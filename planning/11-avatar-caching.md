@@ -115,7 +115,7 @@ Der Browser hat nativen Canvas-Support. Ein Admin-Tool läuft einmalig im Browse
 
 ---
 
-### 11.2 — Admin-Tool: Avatare verarbeiten
+### ✅ 11.2 — Admin-Tool: Avatare verarbeiten
 
 **Ziel:** Admin-seitige UI, die Avatare aller User herunterlädt, resizet und in D1 speichert.
 
@@ -177,6 +177,8 @@ Der Browser hat nativen Canvas-Support. Ein Admin-Tool läuft einmalig im Browse
    - Fehlerbehandlung: User überspringen, weitermachen, Fehler am Ende anzeigen
 
 4. **Route/Page**: Komponente in eine bestehende Admin-Seite einbauen oder eigene Route `/admin/avatare`. Muss hinter dem Auth-Guard liegen.
+
+**Abschluss (2026-04-08):** Proxy-, Save- und Users-Endpoint implementiert. Admin-UI mit sequenziellem Processing, Canvas-Resize (64×64 + 128×128), Progress-Anzeige und Fehlerbehandlung fertig. Campai-404 (veraltete Avatar-URLs) wird als `no-avatar`-Status behandelt und nicht als Fehler gezählt. Admin-Layout mit UTabs (Link-Variante, route-basiertes v-model) neu eingeführt — `/admin` leitet auf `/admin/ladv-todos` weiter, `/admin/avatare` eingebunden.
 
 ---
 

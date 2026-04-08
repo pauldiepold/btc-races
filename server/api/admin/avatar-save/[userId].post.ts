@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
       avatarSmall: body.small,
       avatarLarge: body.large,
       avatarUpdatedAt: new Date().toISOString(),
+      avatarNeedsResync: 0,
     })
     .where(eq(schema.users.id, userId))
 

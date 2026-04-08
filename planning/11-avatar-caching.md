@@ -216,15 +216,30 @@ Der Browser hat nativen Canvas-Support. Ein Admin-Tool läuft einmalig im Browse
 
 ---
 
-### 11.4 — Sync-Cleanup (optional)
+### 11.4 — Sync-Cleanup: Resync-Flag
 
-**Ziel:** `avatarUrl` (Campai-URL) aus dem Sync-Prozess sauber herausnehmen oder beibehalten als Referenz für spätere Re-Sync-Läufe.
+**Ziel:** Wenn Campai eine neue `avatarUrl` liefert, soll das Admin-Tool sichtbar machen, dass ein Re-Caching nötig ist — ohne das bereits gecachte Bild zu löschen.
 
-**Entscheidung:** `avatarUrl` in der DB **behalten** — wird im Admin-Tool gebraucht, um zu wissen, von wo das Bild zu laden ist. Kein Schema-Breaking-Change nötig.
+**Entscheidung:** `avatarUrl` in der DB **behalten** — wird im Admin-Tool als Quelle für das Processing gebraucht.
 
-**Was zu tun ist (minimal):**
-- Dokumentieren, dass `avatarUrl` nur noch als Quelle für das Admin-Tool gilt, nicht mehr für die Anzeige
-- Optional: Beim Campai-Sync prüfen ob `avatarUrl` sich geändert hat → `avatarSmall`/`avatarLarge` invalidieren (auf `null` setzen) → Admin muss nochmal verarbeiten
+**Ansatz:** Flag statt Löschen — das gecachte Bild bleibt erhalten bis ein neues da ist.
+
+**Was zu tun ist:**
+
+1. **Schema:** Neue Spalte `avatarNeedsResync: integer` (0/1, default 0) in `users`
+
+2. **`server/utils/sync-members.ts`:** Beim Update prüfen ob sich `avatarUrl` geändert hat → `avatarNeedsResync: 1` setzen. Gecachte Bilder bleiben unberührt.
+
+3. **`server/api/admin/avatar-save/[userId].post.ts`:** Nach erfolgreichem Speichern `avatarNeedsResync: 0` zurücksetzen.
+
+4. **`server/api/admin/users-with-avatar.get.ts`:** `avatarNeedsResync` ins Select aufnehmen.
+
+5. **`app/components/admin/AvatarProcessor.vue`:**
+   - Neuer Status `'outdated'` für User mit gecachtem Bild aber gesetztem Flag
+   - Badge: gelb, "Veraltet — Avatar-URL geändert"
+   - `processable` schließt auch `outdated`-User ein
+
+**Abschluss (2026-04-08):** `avatarNeedsResync`-Flag implementiert. Sync-Task erkennt `avatarUrl`-Änderungen und setzt das Flag, ohne gecachte Bilder zu löschen. Admin-Tool zeigt veraltete User mit gelbem Badge und "Neu cachen"-Button. `@nuxt/image` aus `package.json` entfernt. Migration `0006_wild_vengeance.sql` generiert.
 
 ---
 

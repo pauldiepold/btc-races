@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
       lastName: schema.users.lastName,
       avatarUrl: schema.users.avatarUrl,
       avatarCached: sql<0 | 1>`CASE WHEN ${schema.users.avatarSmall} IS NOT NULL THEN 1 ELSE 0 END`,
+      avatarNeedsResync: sql<0 | 1>`COALESCE(${schema.users.avatarNeedsResync}, 0)`,
     })
     .from(schema.users)
     .where(isNotNull(schema.users.avatarUrl))

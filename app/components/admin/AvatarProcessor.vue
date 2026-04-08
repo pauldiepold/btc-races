@@ -5,9 +5,10 @@ interface UserAvatarItem {
   lastName: string | null
   avatarUrl: string | null
   avatarCached: 0 | 1
+  avatarNeedsResync: 0 | 1
 }
 
-type ProcessStatus = 'idle' | 'processing' | 'done' | 'no-avatar' | 'error'
+type ProcessStatus = 'idle' | 'processing' | 'done' | 'outdated' | 'no-avatar' | 'error'
 
 interface UserState extends UserAvatarItem {
   status: ProcessStatus
@@ -22,7 +23,7 @@ watch(users, (val) => {
   if (val) {
     userStates.value = val.map(u => ({
       ...u,
-      status: u.avatarCached ? 'done' : 'idle' as ProcessStatus,
+      status: (u.avatarCached && u.avatarNeedsResync ? 'outdated' : u.avatarCached ? 'done' : 'idle') as ProcessStatus,
     }))
   }
 }, { immediate: true })
@@ -36,6 +37,7 @@ const progress = computed(() => ({
 
 const errors = computed(() => userStates.value.filter(u => u.status === 'error'))
 const processable = computed(() => userStates.value.filter(u => u.avatarUrl && u.status !== 'done' && u.status !== 'no-avatar'))
+const outdated = computed(() => userStates.value.filter(u => u.status === 'outdated'))
 
 function resizeToBase64(blob: Blob, size: number, quality: number): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -117,9 +119,19 @@ function fullName(user: UserState): string {
   <div>
     <!-- Header -->
     <div class="mb-6 flex items-center justify-between gap-4">
-      <p class="text-sm text-muted">
-        {{ progress.done }}/{{ progress.total }} gecacht
-      </p>
+      <div class="flex items-center gap-3">
+        <p class="text-sm text-muted">
+          {{ progress.done }}/{{ progress.total }} gecacht
+        </p>
+        <UBadge
+          v-if="outdated.length"
+          :label="`${outdated.length} veraltet`"
+          color="warning"
+          variant="subtle"
+          size="sm"
+          icon="i-ph-arrow-clockwise"
+        />
+      </div>
       <UButton
         icon="i-ph-play"
         label="Alle verarbeiten"
@@ -212,6 +224,14 @@ function fullName(user: UserState): string {
                 icon="i-ph-check"
               />
               <UBadge
+                v-else-if="user.status === 'outdated'"
+                label="Veraltet"
+                color="warning"
+                variant="subtle"
+                size="sm"
+                icon="i-ph-arrow-clockwise"
+              />
+              <UBadge
                 v-else-if="user.status === 'processing'"
                 label="Verarbeite…"
                 color="info"
@@ -246,8 +266,8 @@ function fullName(user: UserState): string {
             <td class="px-4 py-3 text-right">
               <UButton
                 v-if="user.avatarUrl && user.status !== 'processing' && user.status !== 'no-avatar'"
-                :label="user.status === 'done' ? 'Erneut' : 'Verarbeiten'"
-                color="neutral"
+                :label="user.status === 'done' ? 'Erneut' : user.status === 'outdated' ? 'Neu cachen' : 'Verarbeiten'"
+                :color="user.status === 'outdated' ? 'warning' : 'neutral'"
                 variant="ghost"
                 size="xs"
                 :disabled="isProcessing"

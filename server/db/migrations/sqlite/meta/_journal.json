@@ -43,6 +43,13 @@
       "when": 1775679871360,
       "tag": "0005_fat_sauron",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1775681951771,
+      "tag": "0006_wild_vengeance",
+      "breakpoints": true
     }
   ]
 }

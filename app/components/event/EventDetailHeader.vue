@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { EventDetail } from '~~/shared/types/events'
-import { ladvDisciplineLabel } from '~~/shared/utils/ladv-labels'
+import { ageClassSortIndex, disciplineSortIndex, ladvDisciplineLabel } from '~~/shared/utils/ladv-labels'
 
 const props = defineProps<{ event: EventDetail }>()
 
@@ -54,11 +54,13 @@ const disciplineGroups = computed(() => {
     if (!groups.has(key)) groups.set(key, [])
     groups.get(key)!.push(w.klasseNew)
   }
-  return [...groups.entries()].map(([code, akCodes]) => ({
-    code,
-    label: ladvDisciplineLabel(code),
-    akCodes,
-  }))
+  return [...groups.entries()]
+    .map(([code, akCodes]) => ({
+      code,
+      label: ladvDisciplineLabel(code),
+      akCodes: [...akCodes].sort((a, b) => ageClassSortIndex(a) - ageClassSortIndex(b)),
+    }))
+    .sort((a, b) => disciplineSortIndex(a.code) - disciplineSortIndex(b.code))
 })
 
 // Modal

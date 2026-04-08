@@ -59,3 +59,14 @@ Muss hinterfragt werden...
 
 **Abschluss (2026-04-08):** `announcement_link` aus `NormalizedLadvData` und `normalizeLadvData` entfernt — wird nicht mehr in die DB geschrieben. Im `EventDetailHeader` wird `ladvData.url` direkt genutzt (Label "Zu LADV"), für manuelle Events bleibt `announcementLink` mit Label "Ausschreibung". Im Bearbeitungsformular wird das Feld für LADV-Events ausgeblendet. Zusätzlich: LADV-Attachments (PDFs etc.) werden in der Sidebar angezeigt.
 
+--- 
+
+## ✅ BL-06 Sortierung fixen
+
+- Disziplinen und AKs richtig sortieren - siehe ladv-labels.ts - hier ist die semantisch richtige Reihenfolge der Keys drin. Sie ist nicht alphabetisch, oder? Müsste gecheckt werden.
+- Personen immer alphabetisch, in Registrierungsliste und in LADV-ToDo Liste daruner
+- vergangene Events neuste zuerst
+
+**Abschluss (2026-04-08):** Drei neue Hilfsfunktionen in `shared/utils/ladv-labels.ts`: `disciplineSortIndex`, `ageClassSortIndex`, `compareDisciplines` — basieren auf der Einfügereihenfolge der Keys in den Label-Maps (semantisch korrekt, nicht alphabetisch). Disziplinen und AKs werden in `EventDetailHeader` und in der Registrierungs-Detailansicht sortiert. Registrierungsliste jetzt nach Vor-/Nachname sortiert. Vergangene Events (`timeRange=past`) werden absteigend sortiert. Sortierung der LADV-ToDo-Liste ist noch offen.
+
+---

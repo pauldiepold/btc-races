@@ -437,6 +437,26 @@ export function ladvAgeClassLabel(code: string): string {
   return LADV_AGE_CLASS_LABELS[code] ?? code
 }
 
+const DISCIPLINE_SORT_ORDER = new Map(Object.keys(LADV_DISCIPLINE_LABELS).map((k, i) => [k, i]))
+const AGE_CLASS_SORT_ORDER = new Map(Object.keys(LADV_AGE_CLASS_LABELS).map((k, i) => [k, i]))
+
+export function disciplineSortIndex(code: string): number {
+  return DISCIPLINE_SORT_ORDER.get(code) ?? 9999
+}
+
+export function ageClassSortIndex(code: string): number {
+  return AGE_CLASS_SORT_ORDER.get(code) ?? 9999
+}
+
+export function compareDisciplines(
+  a: { discipline: string, ageClass?: string | null },
+  b: { discipline: string, ageClass?: string | null },
+): number {
+  const diff = disciplineSortIndex(a.discipline) - disciplineSortIndex(b.discipline)
+  if (diff !== 0) return diff
+  return ageClassSortIndex(a.ageClass ?? '') - ageClassSortIndex(b.ageClass ?? '')
+}
+
 // Walking, Inline-Skating, Rollstuhl und "Sonstiges" sind keine Lauf-Disziplinen
 const NON_RUNNING_S_CODES = new Set([
   'SWALKING', 'SNWALKING', 'SWANDERN', 'SINLINE', 'SROLLSTUHL', 'SWANDERNWALKING', 'SSONSTIGES',

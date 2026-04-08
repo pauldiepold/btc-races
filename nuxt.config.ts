@@ -7,7 +7,6 @@ export default defineNuxtConfig({
     'nuxt-auth-utils',
     '@pinia/nuxt',
     '@pinia/colada-nuxt',
-    '@nuxt/image',
     'nuxt-email-renderer',
     '@nuxt/fonts',
   ],
@@ -93,7 +92,4 @@ export default defineNuxtConfig({
     }],
   },
 
-  image: {
-    domains: ['api.campai.com'],
-  },
 })

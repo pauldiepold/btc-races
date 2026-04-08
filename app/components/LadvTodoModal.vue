@@ -53,13 +53,21 @@ async function markDone() {
       <div class="p-6 space-y-5">
         <!-- Header -->
         <div class="flex items-start justify-between gap-3">
-          <div>
-            <p class="font-semibold text-highlighted text-base">
-              {{ fullName }}
-            </p>
-            <p class="text-sm text-muted mt-0.5">
-              {{ todo.eventName }}
-            </p>
+          <div class="flex items-center gap-3 min-w-0">
+            <UAvatar
+              :src="useAvatarUrl(todo.userId)"
+              :alt="`${todo.firstName ?? ''} ${todo.lastName ?? ''}`"
+              size="md"
+              class="shrink-0"
+            />
+            <div class="min-w-0">
+              <p class="font-semibold text-highlighted text-base">
+                {{ fullName }}
+              </p>
+              <p class="text-sm text-muted mt-0.5">
+                {{ todo.eventName }}
+              </p>
+            </div>
           </div>
           <UBadge
             :label="isRegister ? 'In LADV anmelden' : 'Von LADV abmelden'"

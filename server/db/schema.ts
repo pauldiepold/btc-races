@@ -18,6 +18,10 @@ export const users = sqliteTable('users', {
   sections: text({ mode: 'json' }).$type<string[]>(),
   lastSyncedAt: integer({ mode: 'timestamp' }),
   avatarUrl: text(),
+  avatarSmall: text(), // base64 JPEG, 64×64
+  avatarLarge: text(), // base64 JPEG, 128×128
+  avatarUpdatedAt: text(), // ISO-Timestamp, für ETag
+  avatarNeedsResync: integer().default(0), // 1 wenn avatarUrl sich seit letztem Cache geändert hat
   hasLadvStartpass: integer().default(0),
   gender: text().$type<'m' | 'w'>(),
   age: integer(),

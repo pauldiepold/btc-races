@@ -66,12 +66,16 @@ export async function runSyncMembers(): Promise<SyncMembersResult> {
 
     const existing = await db.query.users.findFirst({
       where: eq(schema.users.campaiId, campaiId),
-      columns: { id: true },
+      columns: { id: true, avatarUrl: true },
     })
 
     if (existing) {
+      const avatarUrlChanged = existing.avatarUrl !== avatarUrl
       await db.update(schema.users)
-        .set(userData)
+        .set({
+          ...userData,
+          ...(avatarUrlChanged ? { avatarNeedsResync: 1 } : {}),
+        })
         .where(eq(schema.users.campaiId, campaiId))
       updated++
     }

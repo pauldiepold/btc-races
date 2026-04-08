@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `avatar_needs_resync` integer DEFAULT 0;

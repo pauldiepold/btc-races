@@ -4,6 +4,8 @@ const colorMode = useColorMode()
 const isOpen = ref(false)
 
 const isAdmin = computed(() => session.value?.user?.role === 'admin' || session.value?.user?.role === 'superuser')
+const avatarUrlSmall = computed(() => user.value?.id ? useAvatarUrl(user.value.id) : undefined)
+const avatarAlt = computed(() => `${user.value?.firstName ?? ''} ${user.value?.lastName ?? ''}`)
 const isSuperuser = computed(() => session.value?.user?.role === 'superuser')
 
 const colorModeIcon = computed(() =>
@@ -26,7 +28,8 @@ async function logout() {
       <template v-if="expanded">
         <div class="flex items-center gap-4 pb-4 border-b border-default">
           <UAvatar
-            :src="user?.avatarUrl"
+            :src="avatarUrlSmall"
+            :alt="avatarAlt"
             size="2xl"
             :ui="{ root: 'ring ring-primary shrink-0' }"
           />
@@ -130,7 +133,8 @@ async function logout() {
         >
           <template #leading>
             <UAvatar
-              :src="user?.avatarUrl"
+              :src="avatarUrlSmall"
+              :alt="avatarAlt"
               size="md"
               :ui="{ root: 'ring ring-primary' }"
             />
@@ -152,7 +156,8 @@ async function logout() {
             <!-- User card -->
             <div class="px-4 py-4 flex items-center gap-4">
               <UAvatar
-                :src="user?.avatarUrl"
+                :src="avatarUrlSmall"
+                :alt="avatarAlt"
                 size="2xl"
                 :ui="{ root: 'ring-2 ring-primary shrink-0' }"
               />

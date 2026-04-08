@@ -23,11 +23,8 @@ const ROLE_COLORS: Record<string, BadgeColor> = {
   superuser: 'warning',
 }
 
-const avatarFallback = computed(() => {
-  const u = user.value
-  if (!u) return ''
-  return `${u.firstName?.[0] ?? ''}${u.lastName?.[0] ?? ''}`.toUpperCase()
-})
+const avatarUrlLarge = computed(() => user.value?.id ? useAvatarUrl(user.value.id, 'large') : undefined)
+const avatarAlt = computed(() => `${user.value?.firstName ?? ''} ${user.value?.lastName ?? ''}`)
 </script>
 
 <template>
@@ -35,18 +32,11 @@ const avatarFallback = computed(() => {
     <!-- Profil-Header -->
     <div class="flex items-center gap-5 mb-10">
       <UAvatar
-        :src="user?.avatarUrl ?? undefined"
-        :alt="avatarFallback"
+        :src="avatarUrlLarge"
+        :alt="avatarAlt"
         :ui="{ root: 'ring-2 ring-primary shrink-0' }"
         size="3xl"
-      >
-        <template
-          v-if="!user?.avatarUrl"
-          #default
-        >
-          <span class="font-display font-semibold text-2xl">{{ avatarFallback }}</span>
-        </template>
-      </UAvatar>
+      />
 
       <div class="min-w-0 space-y-1.5">
         <p class="font-display font-semibold text-highlighted text-2xl leading-snug">

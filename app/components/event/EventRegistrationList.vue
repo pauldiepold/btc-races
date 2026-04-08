@@ -96,10 +96,12 @@ function fullName(r: RegistrationDetail): string {
           :key="reg.id"
           class="flex items-start gap-3 py-3"
         >
-          <!-- Avatar-Initiale -->
-          <div class="shrink-0 size-8 rounded-full bg-accented flex items-center justify-center text-xs font-semibold text-highlighted mt-0.5">
-            {{ (reg.firstName?.[0] ?? reg.lastName?.[0] ?? '?').toUpperCase() }}
-          </div>
+          <UAvatar
+            :src="useAvatarUrl(reg.userId)"
+            :alt="`${reg.firstName ?? ''} ${reg.lastName ?? ''}`"
+            size="sm"
+            class="mt-0.5 shrink-0"
+          />
 
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 flex-wrap">

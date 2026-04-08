@@ -182,7 +182,7 @@ Der Browser hat nativen Canvas-Support. Ein Admin-Tool läuft einmalig im Browse
 
 ---
 
-### 11.3 — Frontend-Integration
+### ✅ 11.3 — Frontend-Integration
 
 **Ziel:** `UAvatar` überall auf die internen Avatar-URLs umstellen, Fallback auf Initialen erhalten.
 
@@ -211,6 +211,8 @@ Der Browser hat nativen Canvas-Support. Ein Admin-Tool läuft einmalig im Browse
 5. **`UAvatar` Fehlerverhalten prüfen:**
    - Nuxt UI `UAvatar` zeigt bei 404 nichts an — `alt`-Prop (Initialen) übernimmt dann.
    - Sicherstellen dass `alt` oder `#default`-Slot mit Initialen korrekt greift.
+
+**Abschluss (2026-04-08):** Composable `useAvatarUrl` erstellt. `avatarUrl` aus Session-Typ und `verify.get.ts` entfernt. `UserMenu.vue` (3 Stellen) und `meine-anmeldungen.vue` auf interne `/api/avatar/[userId]?size=...`-URLs umgestellt. `alt`-Prop mit vollem Namen überall gesetzt → Nuxt UI erzeugt daraus zwei Großbuchstaben als Fallback. `@nuxt/image` entfernt (IPX blockierte interne API-Pfade mit 403). Avatare zusätzlich in `EventRegistrationList`, `EventAdminLadvTodos` und `LadvTodoModal` ergänzt.
 
 ---
 

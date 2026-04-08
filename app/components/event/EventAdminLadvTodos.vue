@@ -57,10 +57,6 @@ const todos = computed<LadvTodo[]>(() => {
 function fullName(todo: LadvTodo): string {
   return [todo.firstName, todo.lastName].filter(Boolean).join(' ') || 'Unbekannt'
 }
-
-function avatarInitial(todo: LadvTodo): string {
-  return (todo.firstName?.[0] ?? todo.lastName?.[0] ?? '?').toUpperCase()
-}
 </script>
 
 <template>
@@ -96,10 +92,12 @@ function avatarInitial(todo: LadvTodo): string {
         class="w-full flex items-center gap-3 py-3 text-left hover:bg-elevated/50 rounded-lg px-2 -mx-2 transition-colors"
         @click="openTodo = todo"
       >
-        <!-- Avatar -->
-        <div class="shrink-0 size-8 rounded-full bg-accented flex items-center justify-center text-xs font-semibold text-highlighted">
-          {{ avatarInitial(todo) }}
-        </div>
+        <UAvatar
+          :src="useAvatarUrl(todo.userId)"
+          :alt="`${todo.firstName ?? ''} ${todo.lastName ?? ''}`"
+          size="sm"
+          class="shrink-0"
+        />
 
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">

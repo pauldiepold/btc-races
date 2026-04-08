@@ -80,7 +80,7 @@ Der Browser hat nativen Canvas-Support. Ein Admin-Tool läuft einmalig im Browse
 
 ---
 
-### 11.1 — DB-Schema + Serve-Endpoint
+### ✅ 11.1 — DB-Schema + Serve-Endpoint
 
 **Ziel:** Neue Spalten für Avatar-Daten in D1, Basis-Serve-Endpoint mit Cache-Headers.
 
@@ -110,6 +110,8 @@ Der Browser hat nativen Canvas-Support. Ein Admin-Tool läuft einmalig im Browse
 4. **Kein Frontend-Update in dieser Session** — Endpoint zuerst testen
 
 **Testbar:** Endpoint mit Postman/curl testen (404 bei leerem Avatar erwartet).
+
+**Abschluss (2026-04-08):** Schema-Änderung, Migration (0005_fat_sauron.sql) und Serve-Endpoint inklusive ETag/304-Support fertig. Typecheck und Linting sauber.
 
 ---
 

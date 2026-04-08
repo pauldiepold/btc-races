@@ -35,8 +35,9 @@ const ausrichter = computed(() => {
   return a && a !== veranstalter.value ? a : null
 })
 const ladvBeschreibung = computed(() => props.event.ladvData?.beschreibung ?? null)
+const attachements = computed(() => props.event.ladvData?.attachements ?? [])
 const hasLadvSidebar = computed(() =>
-  !!(veranstalter.value || ausrichter.value || ladvBeschreibung.value || disciplineGroups.value.length),
+  !!(veranstalter.value || ausrichter.value || ladvBeschreibung.value || disciplineGroups.value.length || attachements.value.length),
 )
 
 // Wettbewerbe (gruppiert nach Disziplin)
@@ -171,8 +172,8 @@ function toggle(code: string) {
               {{ eventRaceTypeLabels[event.raceType] }}
             </span>
             <a
-              v-if="event.announcementLink"
-              :href="event.announcementLink"
+              v-if="event.ladvData?.url || event.announcementLink"
+              :href="event.ladvData?.url ?? event.announcementLink ?? ''"
               target="_blank"
               rel="noopener noreferrer"
               class="flex items-center gap-1 text-primary hover:opacity-80 transition-opacity"
@@ -181,7 +182,7 @@ function toggle(code: string) {
                 name="i-ph-arrow-up-right-bold"
                 class="size-3.5 shrink-0"
               />
-              Ausschreibung
+              {{ event.ladvData?.url ? 'Zu LADV' : 'Ausschreibung' }}
             </a>
           </div>
 
@@ -256,6 +257,27 @@ function toggle(code: string) {
                 Alle Wettbewerbe & Altersklassen
               </UButton>
             </div>
+
+            <!-- Dokumente -->
+            <div
+              v-if="attachements.length"
+              class="flex flex-col gap-1"
+            >
+              <a
+                v-for="att in attachements"
+                :key="att.url"
+                :href="att.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center gap-1.5 text-sm text-default hover:text-primary transition-colors"
+              >
+                <UIcon
+                  :name="att.extension === '.pdf' ? 'i-ph-file-pdf' : 'i-ph-file'"
+                  class="size-4 shrink-0 text-muted"
+                />
+                {{ att.name }}
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -322,6 +344,27 @@ function toggle(code: string) {
           >
             Alle Wettbewerbe & Altersklassen
           </UButton>
+        </div>
+
+        <!-- Dokumente -->
+        <div
+          v-if="attachements.length"
+          class="flex flex-col gap-1"
+        >
+          <a
+            v-for="att in attachements"
+            :key="att.url"
+            :href="att.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-1.5 text-sm text-default hover:text-primary transition-colors"
+          >
+            <UIcon
+              :name="att.extension === '.pdf' ? 'i-ph-file-pdf' : 'i-ph-file'"
+              class="size-4 shrink-0 text-muted"
+            />
+            {{ att.name }}
+          </a>
         </div>
       </div>
     </div>

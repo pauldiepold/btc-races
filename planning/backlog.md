@@ -53,7 +53,7 @@ Muss hinterfragt werden...
 
 ---
 
-## BL-05 LADV-Ausschreibungslink aufräumen
+## ✅ BL-05 LADV-Ausschreibungslink aufräumen
 
-Muss nicht im Datenfeld stehen - lässt sich ja aus der ID bestimmen.
+**Abschluss (2026-04-08):** `announcement_link` aus `NormalizedLadvData` und `normalizeLadvData` entfernt — wird nicht mehr in die DB geschrieben. Im `EventDetailHeader` wird `ladvData.url` direkt genutzt (Label "Zu LADV"), für manuelle Events bleibt `announcementLink` mit Label "Ausschreibung". Im Bearbeitungsformular wird das Feld für LADV-Events ausgeblendet. Zusätzlich: LADV-Attachments (PDFs etc.) werden in der Sidebar angezeigt.
 

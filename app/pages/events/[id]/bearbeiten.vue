@@ -130,7 +130,7 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
         location: state.location || null,
         description: state.description || null,
         registrationDeadline: isCompetitionOrLadv.value ? (state.registrationDeadline || null) : null,
-        announcementLink: state.announcementLink || null,
+        announcementLink: isLadv.value ? undefined : (state.announcementLink || null),
         raceType: isCompetitionOrLadv.value ? (state.raceType || null) : null,
         championshipType: isLadv.value ? (state.championshipType || null) : null,
       },
@@ -250,8 +250,9 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
         />
       </UFormField>
 
-      <!-- Ausschreibungslink -->
+      <!-- Ausschreibungslink (nicht bei LADV — dort kommt er automatisch aus ladvData.url) -->
       <UFormField
+        v-if="!isLadv"
         name="announcementLink"
         label="Ausschreibungslink"
       >

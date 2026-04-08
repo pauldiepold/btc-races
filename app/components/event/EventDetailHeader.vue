@@ -28,6 +28,12 @@ const locationDisplay = computed(() => {
   return parts.join(' · ')
 })
 
+const locationMapsUrl = computed(() => {
+  const s = props.event.ladvData?.sportstaette
+  if (!s || !props.event.location) return null
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s}, ${props.event.location}`)}`
+})
+
 // LADV Org-Infos
 const veranstalter = computed(() => props.event.ladvData?.veranstalter ?? null)
 const ausrichter = computed(() => {
@@ -138,8 +144,21 @@ function toggle(code: string) {
 
           <!-- Meta-Zeile -->
           <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-base text-default mt-2">
+            <a
+              v-if="locationDisplay && locationMapsUrl"
+              :href="locationMapsUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center gap-1.5 text-primary transition-colors"
+            >
+              <UIcon
+                name="i-ph-map-pin"
+                class="size-4 shrink-0"
+              />
+              {{ locationDisplay }}
+            </a>
             <span
-              v-if="locationDisplay"
+              v-else-if="locationDisplay"
               class="flex items-center gap-1.5"
             >
               <UIcon

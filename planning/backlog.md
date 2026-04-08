@@ -39,7 +39,9 @@ Hier landen Themen, die grundsätzlich geplant und durchdacht sind, aber aktuell
 
 ---
 
-## BL-02 Google-Maps Link
+## ✅ BL-02 Google-Maps Link
+
+**Abschluss (2026-04-08):** Im `EventDetailHeader` wird der Ort-Text zu einem Google-Maps-Suchlink, wenn bei einem LADV-Event sowohl `location` als auch `ladvData.sportstaette` vorhanden sind. Suchquery: `"Sportstätte, Ort"`. Visuell: `text-primary`, kein Hover nötig. Ohne Sportstätte bleibt der Ort ein einfacher `<span>`.
 
 ---
 

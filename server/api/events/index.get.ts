@@ -1,5 +1,5 @@
 import { db, schema } from 'hub:db'
-import { and, asc, eq, gte, isNotNull, isNull, lt, or, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, isNotNull, isNull, lt, or, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
 const querySchema = z.object({
@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
     .groupBy(schema.events.id)
     .orderBy(
       sql`case when ${schema.events.date} is null then 1 else 0 end`,
-      asc(schema.events.date),
+      timeRange === 'past' ? desc(schema.events.date) : asc(schema.events.date),
     )
 
   return events

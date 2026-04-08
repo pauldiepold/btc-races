@@ -22,7 +22,6 @@ export function normalizeLadvData(raw: LadvAusschreibung): NormalizedLadvData {
     date: timestampToDate(raw.datum),
     location: raw.ort.name,
     registration_deadline: timestampToDate(raw.meldDatum),
-    announcement_link: raw.url,
     race_type: raw.kategorien.includes('bahn') ? 'track' : 'road',
     is_wrc: (raw.wrc ?? false) ? 1 : 0,
     championship_type: null,

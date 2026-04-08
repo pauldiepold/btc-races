@@ -71,10 +71,6 @@ describe('normalizeLadvData', () => {
     expect(normalizeLadvData(BASE_RAW).location).toBe('Berlin')
   })
 
-  it('passes through the announcement URL', () => {
-    expect(normalizeLadvData(BASE_RAW).announcement_link).toBe(BASE_RAW.url)
-  })
-
   it('includes the raw ladv_data object', () => {
     expect(normalizeLadvData(BASE_RAW).ladv_data).toBe(BASE_RAW)
   })

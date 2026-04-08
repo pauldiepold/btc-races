@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isRunningDiscipline, ladvAgeClassLabel, ladvDisciplineLabel } from '../../shared/utils/ladv-labels'
+import { ageClassSortIndex, compareDisciplines, disciplineSortIndex, isRunningDiscipline, ladvAgeClassLabel, ladvDisciplineLabel } from '../../shared/utils/ladv-labels'
 
 describe('ladvDisciplineLabel', () => {
   it('returns the German label for a known discipline code', () => {
@@ -95,6 +95,71 @@ describe('isRunningDiscipline', () => {
     expect(isRunningDiscipline('BL100')).toBe(false)
     expect(isRunningDiscipline('KKILA')).toBe(false)
     expect(isRunningDiscipline('ADM1')).toBe(false)
+  })
+})
+
+describe('disciplineSortIndex', () => {
+  it('returns a defined index for known codes', () => {
+    const idx100 = disciplineSortIndex('L100')
+    const idx800 = disciplineSortIndex('L800')
+    expect(idx100).toBeGreaterThanOrEqual(0)
+    expect(idx800).toBeGreaterThan(idx100)
+  })
+
+  it('L-codes come before S-codes in sort order', () => {
+    expect(disciplineSortIndex('L100')).toBeLessThan(disciplineSortIndex('SMAR'))
+  })
+
+  it('returns 9999 for unknown codes', () => {
+    expect(disciplineSortIndex('UNBEKANNT')).toBe(9999)
+    expect(disciplineSortIndex('')).toBe(9999)
+  })
+})
+
+describe('ageClassSortIndex', () => {
+  it('returns a defined index for known codes', () => {
+    const idxM = ageClassSortIndex('M')
+    const idxM30 = ageClassSortIndex('M30')
+    expect(idxM).toBeGreaterThanOrEqual(0)
+    expect(idxM30).toBeGreaterThan(idxM)
+  })
+
+  it('returns 9999 for unknown codes', () => {
+    expect(ageClassSortIndex('UNBEKANNT')).toBe(9999)
+    expect(ageClassSortIndex('')).toBe(9999)
+  })
+})
+
+describe('compareDisciplines', () => {
+  it('sorts by discipline first', () => {
+    const a = { discipline: 'L100', ageClass: 'M' }
+    const b = { discipline: 'SMAR', ageClass: 'M' }
+    expect(compareDisciplines(a, b)).toBeLessThan(0)
+    expect(compareDisciplines(b, a)).toBeGreaterThan(0)
+  })
+
+  it('returns 0 for equal discipline and age class', () => {
+    const a = { discipline: 'L800', ageClass: 'W' }
+    expect(compareDisciplines(a, a)).toBe(0)
+  })
+
+  it('sorts by age class when discipline is equal', () => {
+    const a = { discipline: 'L800', ageClass: 'M' }
+    const b = { discipline: 'L800', ageClass: 'M30' }
+    expect(compareDisciplines(a, b)).toBeLessThan(0)
+    expect(compareDisciplines(b, a)).toBeGreaterThan(0)
+  })
+
+  it('handles missing ageClass (null/undefined)', () => {
+    const a = { discipline: 'L800', ageClass: null }
+    const b = { discipline: 'L800', ageClass: 'M' }
+    expect(typeof compareDisciplines(a, b)).toBe('number')
+  })
+
+  it('sorts unknown codes after known ones', () => {
+    const known = { discipline: 'L100', ageClass: 'M' }
+    const unknown = { discipline: 'UNBEKANNT', ageClass: 'M' }
+    expect(compareDisciplines(known, unknown)).toBeLessThan(0)
   })
 })
 

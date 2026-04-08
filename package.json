@@ -19,6 +19,7 @@
     "db:remote:preview": "wrangler d1 migrations list btc-races-preview --remote --env preview",
     "db:remote:migrate:prod": "wrangler d1 migrations apply btc-races-prod --remote",
     "db:remote:migrate:preview": "wrangler d1 migrations apply btc-races-preview --remote --env preview",
+    "seed:prod": "curl -s -X POST https://events.berlin-track-club.de/api/cron/seed -H \"Authorization: Bearer $NUXT_CRON_TOKEN\"",
     "seed:preview": "curl -s -X POST https://develop.btc-races.pages.dev/api/cron/seed -H \"Authorization: Bearer $NUXT_CRON_TOKEN\"",
     "sync:members:preview": "curl -s -X POST https://develop.btc-races.pages.dev/api/cron/sync-members -H \"Authorization: Bearer $NUXT_CRON_TOKEN\"",
     "sync:members:prod": "curl -s -X POST https://btc-races.pages.dev/api/cron/sync-members -H \"Authorization: Bearer $NUXT_CRON_TOKEN\"",

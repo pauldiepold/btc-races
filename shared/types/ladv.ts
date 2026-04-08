@@ -46,7 +46,6 @@ export interface NormalizedLadvData {
   date: string // YYYY-MM-DD (Berliner Ortszeit)
   location: string
   registration_deadline: string // YYYY-MM-DD (Berliner Ortszeit)
-  announcement_link: string
   race_type: 'track' | 'road'
   is_wrc: 0 | 1
   championship_type: null

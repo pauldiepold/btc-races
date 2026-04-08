@@ -211,7 +211,6 @@ export async function runSeed(): Promise<{ result: string }> {
       date: normalized.date ? new Date(normalized.date) : null,
       location: normalized.location,
       registrationDeadline: normalized.registration_deadline ? new Date(normalized.registration_deadline) : null,
-      announcementLink: normalized.announcement_link,
       raceType: normalized.race_type,
       isWrc: normalized.is_wrc,
       championshipType: deriveChampionshipType(normalized.name),

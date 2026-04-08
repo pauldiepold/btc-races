@@ -55,7 +55,6 @@ export default defineEventHandler(async (event) => {
     date: new Date(normalized.date),
     location: normalized.location,
     registrationDeadline: new Date(normalized.registration_deadline),
-    announcementLink: normalized.announcement_link,
     raceType: normalized.race_type,
     isWrc: normalized.is_wrc,
     ladvId,

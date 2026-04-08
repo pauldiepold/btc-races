@@ -1,7 +1,7 @@
 import { db, schema } from 'hub:db'
 import { asc, eq, inArray } from 'drizzle-orm'
 import type { LadvAusschreibung } from '~~/shared/types/ladv'
-import { isRunningDiscipline } from '~~/shared/utils/ladv-labels'
+import { compareDisciplines, isRunningDiscipline } from '~~/shared/utils/ladv-labels'
 import type { DisciplineDetail, EventDetail, RegistrationDetail } from '~~/shared/types/events'
 
 export default defineEventHandler(async (event) => {
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
     .from(schema.registrations)
     .leftJoin(schema.users, eq(schema.registrations.userId, schema.users.id))
     .where(eq(schema.registrations.eventId, id))
-    .orderBy(asc(schema.registrations.createdAt))
+    .orderBy(asc(schema.users.firstName), asc(schema.users.lastName))
 
   const isAdmin = session.user.role === 'admin' || session.user.role === 'superuser'
   const userId = session.user.id
@@ -68,6 +68,10 @@ export default defineEventHandler(async (event) => {
     const existing = disciplinesByRegId.get(d.registrationId) ?? []
     existing.push(item)
     disciplinesByRegId.set(d.registrationId, existing)
+  }
+
+  for (const discs of disciplinesByRegId.values()) {
+    discs.sort(compareDisciplines)
   }
 
   const registrations: RegistrationDetail[] = regs.map(r => ({

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { EventDetail } from '~~/shared/types/events'
-import { ladvDisciplineLabel } from '~~/shared/utils/ladv-labels'
+import { ageClassSortIndex, disciplineSortIndex, ladvDisciplineLabel } from '~~/shared/utils/ladv-labels'
 
 const props = defineProps<{ event: EventDetail }>()
 
@@ -28,6 +28,12 @@ const locationDisplay = computed(() => {
   return parts.join(' · ')
 })
 
+const locationMapsUrl = computed(() => {
+  const s = props.event.ladvData?.sportstaette
+  if (!s || !props.event.location) return null
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s}, ${props.event.location}`)}`
+})
+
 // LADV Org-Infos
 const veranstalter = computed(() => props.event.ladvData?.veranstalter ?? null)
 const ausrichter = computed(() => {
@@ -35,8 +41,9 @@ const ausrichter = computed(() => {
   return a && a !== veranstalter.value ? a : null
 })
 const ladvBeschreibung = computed(() => props.event.ladvData?.beschreibung ?? null)
+const attachements = computed(() => props.event.ladvData?.attachements ?? [])
 const hasLadvSidebar = computed(() =>
-  !!(veranstalter.value || ausrichter.value || ladvBeschreibung.value || disciplineGroups.value.length),
+  !!(veranstalter.value || ausrichter.value || ladvBeschreibung.value || disciplineGroups.value.length || attachements.value.length),
 )
 
 // Wettbewerbe (gruppiert nach Disziplin)
@@ -47,11 +54,13 @@ const disciplineGroups = computed(() => {
     if (!groups.has(key)) groups.set(key, [])
     groups.get(key)!.push(w.klasseNew)
   }
-  return [...groups.entries()].map(([code, akCodes]) => ({
-    code,
-    label: ladvDisciplineLabel(code),
-    akCodes,
-  }))
+  return [...groups.entries()]
+    .map(([code, akCodes]) => ({
+      code,
+      label: ladvDisciplineLabel(code),
+      akCodes: [...akCodes].sort((a, b) => ageClassSortIndex(a) - ageClassSortIndex(b)),
+    }))
+    .sort((a, b) => disciplineSortIndex(a.code) - disciplineSortIndex(b.code))
 })
 
 // Modal
@@ -137,8 +146,21 @@ function toggle(code: string) {
 
           <!-- Meta-Zeile -->
           <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-base text-default mt-2">
+            <a
+              v-if="locationDisplay && locationMapsUrl"
+              :href="locationMapsUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center gap-1.5 text-primary transition-colors"
+            >
+              <UIcon
+                name="i-ph-map-pin"
+                class="size-4 shrink-0"
+              />
+              {{ locationDisplay }}
+            </a>
             <span
-              v-if="locationDisplay"
+              v-else-if="locationDisplay"
               class="flex items-center gap-1.5"
             >
               <UIcon
@@ -171,8 +193,8 @@ function toggle(code: string) {
               {{ eventRaceTypeLabels[event.raceType] }}
             </span>
             <a
-              v-if="event.announcementLink"
-              :href="event.announcementLink"
+              v-if="event.ladvData?.url || event.announcementLink"
+              :href="event.ladvData?.url ?? event.announcementLink ?? ''"
               target="_blank"
               rel="noopener noreferrer"
               class="flex items-center gap-1 text-primary hover:opacity-80 transition-opacity"
@@ -181,7 +203,7 @@ function toggle(code: string) {
                 name="i-ph-arrow-up-right-bold"
                 class="size-3.5 shrink-0"
               />
-              Ausschreibung
+              {{ event.ladvData?.url ? 'Zu LADV' : 'Ausschreibung' }}
             </a>
           </div>
 
@@ -256,6 +278,27 @@ function toggle(code: string) {
                 Alle Wettbewerbe & Altersklassen
               </UButton>
             </div>
+
+            <!-- Dokumente -->
+            <div
+              v-if="attachements.length"
+              class="flex flex-col gap-1"
+            >
+              <a
+                v-for="att in attachements"
+                :key="att.url"
+                :href="att.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center gap-1.5 text-sm text-default hover:text-primary transition-colors"
+              >
+                <UIcon
+                  :name="att.extension === '.pdf' ? 'i-ph-file-pdf' : 'i-ph-file'"
+                  class="size-4 shrink-0 text-muted"
+                />
+                {{ att.name }}
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -322,6 +365,27 @@ function toggle(code: string) {
           >
             Alle Wettbewerbe & Altersklassen
           </UButton>
+        </div>
+
+        <!-- Dokumente -->
+        <div
+          v-if="attachements.length"
+          class="flex flex-col gap-1"
+        >
+          <a
+            v-for="att in attachements"
+            :key="att.url"
+            :href="att.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-1.5 text-sm text-default hover:text-primary transition-colors"
+          >
+            <UIcon
+              :name="att.extension === '.pdf' ? 'i-ph-file-pdf' : 'i-ph-file'"
+              class="size-4 shrink-0 text-muted"
+            />
+            {{ att.name }}
+          </a>
         </div>
       </div>
     </div>

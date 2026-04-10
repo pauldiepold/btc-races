@@ -42,6 +42,19 @@ const ausrichter = computed(() => {
 })
 const ladvBeschreibung = computed(() => props.event.ladvData?.beschreibung ?? null)
 const attachements = computed(() => props.event.ladvData?.attachements ?? [])
+
+/** LADV liefert Dateien direkt aus, wenn file=true gesetzt ist (statt eingebetteter Box). */
+function ladvAttachmentHref(url: string): string {
+  try {
+    const u = new URL(url)
+    u.searchParams.set('file', 'true')
+    return u.toString()
+  }
+  catch {
+    const sep = url.includes('?') ? '&' : '?'
+    return `${url}${sep}file=true`
+  }
+}
 const hasLadvSidebar = computed(() =>
   !!(veranstalter.value || ausrichter.value || ladvBeschreibung.value || disciplineGroups.value.length || attachements.value.length),
 )
@@ -146,6 +159,7 @@ function toggle(code: string) {
 
           <!-- Meta-Zeile -->
           <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-base text-default mt-2">
+            <EventPriorityBadge :priority="event.priority" />
             <a
               v-if="locationDisplay && locationMapsUrl"
               :href="locationMapsUrl"
@@ -287,7 +301,7 @@ function toggle(code: string) {
               <a
                 v-for="att in attachements"
                 :key="att.url"
-                :href="att.url"
+                :href="ladvAttachmentHref(att.url)"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="flex items-center gap-1.5 text-sm text-default hover:text-primary transition-colors"
@@ -375,7 +389,7 @@ function toggle(code: string) {
           <a
             v-for="att in attachements"
             :key="att.url"
-            :href="att.url"
+            :href="ladvAttachmentHref(att.url)"
             target="_blank"
             rel="noopener noreferrer"
             class="flex items-center gap-1.5 text-sm text-default hover:text-primary transition-colors"

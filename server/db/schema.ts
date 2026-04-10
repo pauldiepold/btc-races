@@ -55,6 +55,7 @@ export const events = sqliteTable('events', {
   raceType: text('race_type').$type<'track' | 'road'>(),
   championshipType: text('championship_type').$type<'none' | 'bbm' | 'ndm' | 'dm'>(),
   isWrc: integer('is_wrc').notNull().default(0),
+  priority: text().$type<'A' | 'B' | 'C'>(),
 
   // LADV-spezifische Felder
   ladvId: integer(),

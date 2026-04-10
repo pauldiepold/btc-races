@@ -16,6 +16,9 @@ pnpm typecheck        # TypeScript-Typen prüfen
 pnpm lint             # ESLint
 pnpm lint:fix         # ESLint mit Auto-Fix
 
+# Pre-commit (automatisch bei git commit)
+# lint-staged (eslint --fix auf staged files) → typecheck → test
+
 # Datenbank
 pnpm db:generate      # Migrationen aus Schema-Änderungen generieren
 pnpm db:migrate       # Migrationen lokal anwenden (oder einfach pnpm dev)

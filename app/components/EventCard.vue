@@ -87,8 +87,9 @@ const ownRegistration = computed(() =>
           class="ml-auto shrink-0"
         />
       </div>
-      <!-- Meta-Zeile: Ort, Typ-Details -->
+      <!-- Meta-Zeile: Priorität, Ort, Typ-Details -->
       <div class="flex items-center gap-3 mt-2 flex-wrap">
+        <EventPriorityBadge :priority="event.priority" />
         <span
           v-if="event.location"
           class="text-xs text-muted flex items-center gap-1"

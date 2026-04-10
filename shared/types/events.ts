@@ -23,6 +23,7 @@ export type RegistrationDetail = {
   userId: string
   firstName: string | null
   lastName: string | null
+  hasAvatar: boolean
   status: 'registered' | 'canceled' | 'maybe' | 'yes' | 'no'
   notes: string | null
   createdAt: Date

@@ -48,6 +48,7 @@ export default defineEventHandler(async (event) => {
       raceType: schema.events.raceType,
       championshipType: schema.events.championshipType,
       isWrc: schema.events.isWrc,
+      priority: schema.events.priority,
       ladvId: schema.events.ladvId,
       ladvLastSync: schema.events.ladvLastSync,
       createdBy: schema.events.createdBy,

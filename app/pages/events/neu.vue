@@ -23,6 +23,7 @@ const schema = z.object({
   announcementLink: z.union([z.literal(''), z.string().url('Bitte eine gültige URL eingeben')]).optional(),
   raceType: z.string().optional(),
   championshipType: z.string().optional(),
+  priority: z.enum(['A', 'B', 'C']).optional(),
 })
 
 type Schema = z.output<typeof schema>
@@ -37,9 +38,13 @@ const state = reactive<Schema>({
   announcementLink: '',
   raceType: undefined,
   championshipType: undefined,
+  priority: undefined,
 })
 
 const isCompetition = computed(() => state.type === 'competition')
+
+const { session } = useUserSession()
+const isAdmin = computed(() => session.value?.user?.role === 'admin' || session.value?.user?.role === 'superuser')
 
 const typeItems = [
   { label: 'Wettkampf', value: 'competition' },
@@ -60,6 +65,13 @@ const championshipItems = [
   { label: 'DM', value: 'dm' },
 ]
 
+const priorityItems = [
+  { label: 'Keine Priorität', value: undefined },
+  { label: 'A-Rennen', value: 'A' },
+  { label: 'B-Rennen', value: 'B' },
+  { label: 'C-Rennen', value: 'C' },
+]
+
 async function onSubmit(_event: FormSubmitEvent<Schema>) {
   loading.value = true
   try {
@@ -75,6 +87,7 @@ async function onSubmit(_event: FormSubmitEvent<Schema>) {
         announcementLink: state.announcementLink || undefined,
         raceType: isCompetition.value ? (state.raceType || undefined) : undefined,
         championshipType: isCompetition.value ? (state.championshipType || undefined) : undefined,
+        priority: isCompetition.value ? (state.priority || undefined) : undefined,
       },
     })
     await navigateTo(`/events/${id}`)
@@ -220,6 +233,21 @@ async function onSubmit(_event: FormSubmitEvent<Schema>) {
             value-key="value"
             label-key="label"
             placeholder="Keine Meisterschaft"
+            class="w-full"
+          />
+        </UFormField>
+
+        <UFormField
+          v-if="isAdmin"
+          name="priority"
+          label="Priorität"
+        >
+          <USelect
+            v-model="state.priority"
+            :items="priorityItems"
+            value-key="value"
+            label-key="label"
+            placeholder="Keine Priorität"
             class="w-full"
           />
         </UFormField>

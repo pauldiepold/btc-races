@@ -11,6 +11,7 @@ const patchEventSchema = z.object({
   announcementLink: z.string().url('Ungültige URL').optional().nullable(),
   raceType: z.enum(['track', 'road']).optional().nullable(),
   championshipType: z.enum(['none', 'bbm', 'ndm', 'dm']).optional().nullable(),
+  priority: z.enum(['A', 'B', 'C']).optional().nullable(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -26,6 +27,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
   }
 
+  const session = await requireUserSession(event)
   await requireOwnerOrAdmin(event, dbEvent.createdBy ?? '')
 
   const body = await readBody(event)
@@ -47,6 +49,10 @@ export default defineEventHandler(async (event) => {
   if ('announcementLink' in data) updates.announcementLink = data.announcementLink ?? null
   if ('raceType' in data) updates.raceType = data.raceType ?? null
   if ('championshipType' in data) updates.championshipType = data.championshipType ?? null
+
+  const isAdmin = session.user.role === 'admin' || session.user.role === 'superuser'
+  const isCompetitionOrLadv = dbEvent.type === 'competition' || dbEvent.type === 'ladv'
+  if ('priority' in data && isAdmin && isCompetitionOrLadv) updates.priority = data.priority ?? null
 
   await db.update(schema.events).set(updates).where(eq(schema.events.id, id))
 

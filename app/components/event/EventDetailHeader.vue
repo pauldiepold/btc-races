@@ -140,9 +140,12 @@ function toggle(code: string) {
           </div>
 
           <!-- Name -->
-          <h1 class="font-display text-2xl font-bold tracking-tight text-highlighted">
-            {{ event.name }}
-          </h1>
+          <div class="flex items-center gap-2.5">
+            <EventPriorityBadge :priority="event.priority" />
+            <h1 class="font-display text-2xl font-bold tracking-tight text-highlighted">
+              {{ event.name }}
+            </h1>
+          </div>
 
           <!-- Meta-Zeile -->
           <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-base text-default mt-2">

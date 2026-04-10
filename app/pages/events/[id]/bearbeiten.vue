@@ -34,6 +34,7 @@ watchEffect(() => {
 
 const isLadv = computed(() => event.value?.type === 'ladv')
 const isCompetitionOrLadv = computed(() => event.value?.type === 'competition' || event.value?.type === 'ladv')
+const isAdmin = computed(() => session.value?.user?.role === 'admin' || session.value?.user?.role === 'superuser')
 
 const berlinFormatter = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Europe/Berlin',
@@ -57,6 +58,7 @@ const formSchema = z.object({
   announcementLink: z.union([z.literal(''), z.string().url('Bitte eine gültige URL eingeben')]).optional(),
   raceType: z.string().optional(),
   championshipType: z.string().optional(),
+  priority: z.enum(['A', 'B', 'C']).optional(),
 })
 
 type FormSchema = z.output<typeof formSchema>
@@ -70,6 +72,7 @@ const state = reactive<FormSchema>({
   announcementLink: '',
   raceType: undefined,
   championshipType: undefined,
+  priority: undefined,
 })
 
 // Formular mit Event-Daten vorbelegen, sobald geladen
@@ -85,6 +88,7 @@ watch(
     state.announcementLink = e.announcementLink ?? ''
     state.raceType = e.raceType ?? undefined
     state.championshipType = e.championshipType ?? undefined
+    state.priority = e.priority ?? undefined
   },
   { immediate: true },
 )
@@ -117,6 +121,13 @@ const championshipItems = [
   { label: 'DM', value: 'dm' },
 ]
 
+const priorityItems = [
+  { label: 'Keine Priorität', value: undefined },
+  { label: 'A-Rennen', value: 'A' },
+  { label: 'B-Rennen', value: 'B' },
+  { label: 'C-Rennen', value: 'C' },
+]
+
 const loading = ref(false)
 
 async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
@@ -133,6 +144,7 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
         announcementLink: isLadv.value ? undefined : (state.announcementLink || null),
         raceType: isCompetitionOrLadv.value ? (state.raceType || null) : null,
         championshipType: isLadv.value ? (state.championshipType || null) : null,
+        priority: isCompetitionOrLadv.value ? (state.priority || null) : null,
       },
     })
     toast.add({ title: 'Event gespeichert', color: 'success' })
@@ -315,6 +327,22 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
           value-key="value"
           label-key="label"
           placeholder="Keine Meisterschaft"
+          class="w-full"
+        />
+      </UFormField>
+
+      <!-- Priorität (Competition + LADV, nur Admins) -->
+      <UFormField
+        v-if="isCompetitionOrLadv && isAdmin"
+        name="priority"
+        label="Priorität"
+      >
+        <USelect
+          v-model="state.priority"
+          :items="priorityItems"
+          value-key="value"
+          label-key="label"
+          placeholder="Keine Priorität"
           class="w-full"
         />
       </UFormField>

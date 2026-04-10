@@ -54,12 +54,13 @@ const ownRegistration = computed(() =>
 
     <!-- Event-Infos -->
     <div class="flex-1 min-w-0">
-      <!-- Titel-Zeile: Typ-Icon + Name + Anmeldestatus (rechts) -->
+      <!-- Titel-Zeile: Typ-Icon + Priorität + Name + Anmeldestatus (rechts) -->
       <div class="flex items-center gap-2">
         <UIcon
           :name="eventTypeIcons[event.type]"
           class="size-4 text-muted shrink-0"
         />
+        <EventPriorityBadge :priority="event.priority" />
         <span class="text-sm font-medium text-highlighted">{{ event.name }}</span>
         <UBadge
           v-if="event.cancelledAt"

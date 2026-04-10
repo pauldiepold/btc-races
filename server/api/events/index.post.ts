@@ -12,6 +12,7 @@ const createEventSchema = z.object({
   announcementLink: z.string().url('Ungültige URL').optional().nullable(),
   raceType: z.enum(['track', 'road']).optional().nullable(),
   championshipType: z.enum(['none', 'bbm', 'ndm', 'dm']).optional().nullable(),
+  priority: z.enum(['A', 'B', 'C']).optional().nullable(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -25,6 +26,7 @@ export default defineEventHandler(async (event) => {
 
   const data = result.data
   const now = new Date()
+  const isAdmin = session.user.role === 'admin' || session.user.role === 'superuser'
 
   const newEvent = {
     id: randomUUID(),
@@ -37,6 +39,7 @@ export default defineEventHandler(async (event) => {
     announcementLink: data.announcementLink ?? null,
     raceType: data.raceType ?? null,
     championshipType: data.championshipType ?? null,
+    priority: (isAdmin && data.type === 'competition') ? (data.priority ?? null) : null,
     createdBy: session.user.id,
     createdAt: now,
     updatedAt: now,

@@ -8,6 +8,7 @@ const timeRange = ref('upcoming')
 const searchQuery = ref('')
 const raceTypeFilter = ref<'track' | 'road' | undefined>(undefined)
 const championshipFilter = ref<'bbm' | 'ndm' | 'dm' | undefined>(undefined)
+const priorityFilter = ref<'A' | 'B' | 'C' | undefined>(undefined)
 const isCreateModalOpen = ref(false)
 
 type CreateEventType = 'ladv' | 'competition' | 'training' | 'social'
@@ -85,12 +86,14 @@ const championshipItems = [
 
 const hasRaceTypeEvents = computed(() => (events.value ?? []).some(e => e.raceType))
 const hasChampionshipEvents = computed(() => (events.value ?? []).some(e => e.championshipType && e.championshipType !== 'none'))
+const hasPriorityEvents = computed(() => (events.value ?? []).some(e => e.priority))
 
 const activeSecondaryFilterCount = computed(() => {
   let count = 0
   if (typeFilter.value) count++
   if (raceTypeFilter.value) count++
   if (championshipFilter.value) count++
+  if (priorityFilter.value) count++
   return count
 })
 
@@ -100,6 +103,7 @@ function resetSecondaryFilters() {
   typeFilter.value = undefined
   raceTypeFilter.value = undefined
   championshipFilter.value = undefined
+  priorityFilter.value = undefined
   isFilterPopoverOpen.value = false
 }
 
@@ -107,6 +111,7 @@ const filteredEvents = computed(() => {
   return (events.value ?? []).filter((e) => {
     if (raceTypeFilter.value && e.raceType !== raceTypeFilter.value) return false
     if (championshipFilter.value && e.championshipType !== championshipFilter.value) return false
+    if (priorityFilter.value && e.priority !== priorityFilter.value) return false
     if (searchQuery.value) {
       const q = searchQuery.value.toLowerCase()
       return (
@@ -227,6 +232,27 @@ const steps = [
                       v-model="championshipFilter"
                       :items="championshipItems"
                       placeholder="Alle Wertungen"
+                      size="sm"
+                      value-key="value"
+                      label-key="label"
+                    />
+                  </div>
+                  <div
+                    v-if="hasPriorityEvents"
+                    class="space-y-1.5"
+                  >
+                    <p class="text-xs font-medium text-muted uppercase tracking-widest">
+                      Priorität
+                    </p>
+                    <USelect
+                      v-model="priorityFilter"
+                      :items="[
+                        { label: 'Alle', value: undefined },
+                        { label: 'A-Rennen', value: 'A' },
+                        { label: 'B-Rennen', value: 'B' },
+                        { label: 'C-Rennen', value: 'C' },
+                      ]"
+                      placeholder="Alle"
                       size="sm"
                       value-key="value"
                       label-key="label"

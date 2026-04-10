@@ -5,12 +5,8 @@ defineProps<{
 </script>
 
 <template>
-  <UBadge
+  <span
     v-if="priority"
-    :label="priority"
-    color="primary"
-    variant="solid"
-    size="xs"
-    class="shrink-0 font-bold tabular-nums"
-  />
+    class="shrink-0 inline-flex items-center justify-center size-5 rounded text-primary bg-primary/15 font-black text-sm leading-none"
+  >{{ priority }}</span>
 </template>

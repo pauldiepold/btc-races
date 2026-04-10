@@ -97,7 +97,7 @@ function fullName(r: RegistrationDetail): string {
           class="flex items-start gap-3 py-3"
         >
           <UAvatar
-            :src="useAvatarUrl(reg.userId)"
+            :src="reg.hasAvatar ? useAvatarUrl(reg.userId) : undefined"
             :alt="`${reg.firstName ?? ''} ${reg.lastName ?? ''}`"
             size="sm"
             class="mt-0.5 shrink-0"

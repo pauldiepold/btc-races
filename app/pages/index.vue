@@ -9,46 +9,6 @@ const searchQuery = ref('')
 const raceTypeFilter = ref<'track' | 'road' | undefined>(undefined)
 const championshipFilter = ref<'bbm' | 'ndm' | 'dm' | undefined>(undefined)
 const priorityFilter = ref<'A' | 'B' | 'C' | undefined>(undefined)
-const isCreateModalOpen = ref(false)
-
-type CreateEventType = 'ladv' | 'competition' | 'training' | 'social'
-
-async function handleCreate(type: CreateEventType) {
-  isCreateModalOpen.value = false
-  if (type === 'ladv') {
-    await navigateTo('/events/ladv-importieren')
-  }
-  else {
-    await navigateTo(`/events/neu?type=${type}`)
-  }
-}
-
-const createOptions: { type: CreateEventType, label: string, description: string, icon: string }[] = [
-  {
-    type: 'ladv',
-    label: 'LADV-Import',
-    description: 'Wettkampf aus der LADV-Datenbank importieren',
-    icon: 'i-ph-download-simple',
-  },
-  {
-    type: 'competition',
-    label: 'Wettkampf',
-    description: 'Wettkampf manuell anlegen',
-    icon: 'i-ph-trophy',
-  },
-  {
-    type: 'training',
-    label: 'Training',
-    description: 'Trainingstermin erstellen',
-    icon: 'i-ph-lightning',
-  },
-  {
-    type: 'social',
-    label: 'Social',
-    description: 'Gemeinschaftsevent anlegen',
-    icon: 'i-ph-confetti',
-  },
-]
 
 const { data: events, status } = await useFetch<EventListItem[]>('/api/events', {
   query: computed(() => ({
@@ -57,55 +17,9 @@ const { data: events, status } = await useFetch<EventListItem[]>('/api/events', 
   })),
 })
 
-const typeFilterItems = [
-  { label: 'Alle Events', value: undefined },
-  { label: 'LADV', value: 'ladv' },
-  { label: 'Wettkampf', value: 'competition' },
-  { label: 'Training', value: 'training' },
-  { label: 'Social', value: 'social' },
-]
-
-const timeRangeItems = [
-  { label: 'Alle', value: 'all' },
-  { label: 'Vergangene', value: 'past' },
-  { label: 'Kommende', value: 'upcoming' },
-]
-
-const raceTypeItems = [
-  { label: 'Bahn und Straße', value: undefined },
-  { label: 'Bahn', value: 'track' },
-  { label: 'Straße', value: 'road' },
-]
-
-const championshipItems = [
-  { label: 'Alle Wertungen', value: undefined },
-  { label: 'BBM', value: 'bbm' },
-  { label: 'NDM', value: 'ndm' },
-  { label: 'DM', value: 'dm' },
-]
-
 const hasRaceTypeEvents = computed(() => (events.value ?? []).some(e => e.raceType))
 const hasChampionshipEvents = computed(() => (events.value ?? []).some(e => e.championshipType && e.championshipType !== 'none'))
 const hasPriorityEvents = computed(() => (events.value ?? []).some(e => e.priority))
-
-const activeSecondaryFilterCount = computed(() => {
-  let count = 0
-  if (typeFilter.value) count++
-  if (raceTypeFilter.value) count++
-  if (championshipFilter.value) count++
-  if (priorityFilter.value) count++
-  return count
-})
-
-const isFilterPopoverOpen = ref(false)
-
-function resetSecondaryFilters() {
-  typeFilter.value = undefined
-  raceTypeFilter.value = undefined
-  championshipFilter.value = undefined
-  priorityFilter.value = undefined
-  isFilterPopoverOpen.value = false
-}
 
 const filteredEvents = computed(() => {
   return (events.value ?? []).filter((e) => {
@@ -165,156 +79,17 @@ const steps = [
         </div>
 
         <!-- Filter-Zeile -->
-        <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center">
-          <UInput
-            v-model="searchQuery"
-            placeholder="Suchen..."
-            size="sm"
-            icon="i-ph-magnifying-glass"
-            class="flex-1 min-w-0"
-          />
-          <div class="flex items-center gap-2">
-            <USelect
-              v-model="timeRange"
-              :items="timeRangeItems"
-              size="sm"
-              value-key="value"
-              label-key="label"
-              class="flex-1 sm:w-36 sm:flex-none"
-            />
-            <UPopover v-model:open="isFilterPopoverOpen">
-              <UButton
-                size="sm"
-                :color="activeSecondaryFilterCount ? 'primary' : 'neutral'"
-                variant="outline"
-                icon="i-ph-funnel"
-                :label="activeSecondaryFilterCount ? `Filtern (${activeSecondaryFilterCount})` : 'Filtern'"
-              />
-              <template #content>
-                <div class="p-3 w-52 space-y-3">
-                  <div class="space-y-1.5">
-                    <p class="text-xs font-medium text-muted uppercase tracking-widest">
-                      Typ
-                    </p>
-                    <USelect
-                      v-model="typeFilter"
-                      :items="typeFilterItems"
-                      placeholder="Alle Events"
-                      size="sm"
-                      value-key="value"
-                      label-key="label"
-                    />
-                  </div>
-                  <div
-                    v-if="hasRaceTypeEvents"
-                    class="space-y-1.5"
-                  >
-                    <p class="text-xs font-medium text-muted uppercase tracking-widest">
-                      Streckentyp
-                    </p>
-                    <USelect
-                      v-model="raceTypeFilter"
-                      :items="raceTypeItems"
-                      placeholder="Bahn und Straße"
-                      size="sm"
-                      value-key="value"
-                      label-key="label"
-                    />
-                  </div>
-                  <div
-                    v-if="hasChampionshipEvents"
-                    class="space-y-1.5"
-                  >
-                    <p class="text-xs font-medium text-muted uppercase tracking-widest">
-                      Meisterschaft
-                    </p>
-                    <USelect
-                      v-model="championshipFilter"
-                      :items="championshipItems"
-                      placeholder="Alle Wertungen"
-                      size="sm"
-                      value-key="value"
-                      label-key="label"
-                    />
-                  </div>
-                  <div
-                    v-if="hasPriorityEvents"
-                    class="space-y-1.5"
-                  >
-                    <p class="text-xs font-medium text-muted uppercase tracking-widest">
-                      Priorität
-                    </p>
-                    <USelect
-                      v-model="priorityFilter"
-                      :items="[
-                        { label: 'Alle', value: undefined },
-                        { label: 'A-Rennen', value: 'A' },
-                        { label: 'B-Rennen', value: 'B' },
-                        { label: 'C-Rennen', value: 'C' },
-                      ]"
-                      placeholder="Alle"
-                      size="sm"
-                      value-key="value"
-                      label-key="label"
-                    />
-                  </div>
-                  <div
-                    v-if="activeSecondaryFilterCount"
-                    class="pt-2 border-t border-default"
-                  >
-                    <UButton
-                      size="xs"
-                      color="neutral"
-                      variant="ghost"
-                      icon="i-ph-x"
-                      label="Zurücksetzen"
-                      @click="resetSecondaryFilters"
-                    />
-                  </div>
-                </div>
-              </template>
-            </UPopover>
-
-            <div class="ml-auto">
-              <UModal
-                v-model:open="isCreateModalOpen"
-                title="Event erstellen"
-                description="Wähle, welche Art von Event du anlegen möchtest."
-              >
-                <UButton
-                  size="sm"
-                  icon="i-ph-plus"
-                  label="Event erstellen"
-                />
-                <template #body>
-                  <div class="space-y-2">
-                    <button
-                      v-for="option in createOptions"
-                      :key="option.type"
-                      class="w-full flex items-start gap-3 p-3 rounded-[--ui-radius] border border-default hover:bg-elevated transition-colors text-left"
-                      @click="handleCreate(option.type)"
-                    >
-                      <div class="mt-0.5 size-8 rounded-[--ui-radius] bg-primary/10 flex items-center justify-center shrink-0">
-                        <UIcon
-                          :name="option.icon"
-                          class="size-4 text-primary"
-                        />
-                      </div>
-                      <div>
-                        <p class="text-sm font-medium text-highlighted">
-                          {{ option.label }}
-                        </p>
-                        <p class="text-xs text-muted mt-0.5">
-                          {{ option.description }}
-                        </p>
-                      </div>
-                    </button>
-                  </div>
-                </template>
-              </UModal>
-            </div>
-          </div>
-        </div>
+        <EventListFilter
+          v-model:search-query="searchQuery"
+          v-model:time-range="timeRange"
+          v-model:type-filter="typeFilter"
+          v-model:race-type-filter="raceTypeFilter"
+          v-model:championship-filter="championshipFilter"
+          v-model:priority-filter="priorityFilter"
+          :has-race-type-events="hasRaceTypeEvents"
+          :has-championship-events="hasChampionshipEvents"
+          :has-priority-events="hasPriorityEvents"
+        />
 
         <!-- Lade-Zustand -->
         <div

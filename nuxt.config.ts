@@ -99,6 +99,7 @@ export default defineNuxtConfig({
   },
 
   ogImage: {
+    zeroRuntime: true,
     defaults: {
       cacheMaxAgeSeconds: 60 * 60 * 24,
     },

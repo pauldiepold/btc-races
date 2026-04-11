@@ -1,3 +1,5 @@
+import { resolve } from 'node:path'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
@@ -53,6 +55,12 @@ export default defineNuxtConfig({
   nitro: {
     experimental: {
       tasks: true,
+    },
+    alias: {
+      // ECodeBlock aus nuxt-email-renderer importiert shiki dynamisch und
+      // zieht ~200 Sprach-Grammars ins Worker-Bundle. Da wir ECodeBlock
+      // nicht verwenden, reicht ein No-Op-Stub.
+      shiki: resolve('./server/stubs/shiki.ts'),
     },
   },
 

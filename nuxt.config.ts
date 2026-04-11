@@ -64,6 +64,9 @@ export default defineNuxtConfig({
     kv: true,
   },
   vite: {
+    build: {
+      sourcemap: false,
+    },
     optimizeDeps: {
       include: [
         '@vue/devtools-core',

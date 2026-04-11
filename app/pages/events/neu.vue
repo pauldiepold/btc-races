@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
+import { Time } from '@internationalized/date'
 
 definePageMeta({ title: 'Event erstellen' })
 
@@ -17,6 +18,9 @@ const schema = z.object({
   type: z.enum(['competition', 'training', 'social']),
   name: z.string().min(1, 'Name ist erforderlich'),
   date: z.string().optional(),
+  startTime: z.union([z.literal(''), z.string().regex(/^\d{2}:\d{2}$/, 'Format: HH:MM')]).optional(),
+  durationHours: z.number().int().min(0).optional(),
+  durationMinutes: z.number().int().min(0).max(55).optional(),
   location: z.string().optional(),
   description: z.string().optional(),
   registrationDeadline: z.string().optional(),
@@ -32,6 +36,9 @@ const state = reactive<Schema>({
   type: initialType,
   name: '',
   date: '',
+  startTime: '',
+  durationHours: undefined,
+  durationMinutes: undefined,
   location: '',
   description: '',
   registrationDeadline: '',
@@ -42,6 +49,19 @@ const state = reactive<Schema>({
 })
 
 const isCompetition = computed(() => state.type === 'competition')
+
+const startTimeModel = computed({
+  get: (): Time | null => {
+    if (!state.startTime) return null
+    const [h, m] = state.startTime.split(':').map(Number)
+    return new Time(h, m)
+  },
+  set: (val: Time | null) => {
+    state.startTime = val
+      ? `${String(val.hour).padStart(2, '0')}:${String(val.minute).padStart(2, '0')}`
+      : ''
+  },
+})
 
 const { session } = useUserSession()
 const isAdmin = computed(() => session.value?.user?.role === 'admin' || session.value?.user?.role === 'superuser')
@@ -81,6 +101,8 @@ async function onSubmit(_event: FormSubmitEvent<Schema>) {
         type: state.type,
         name: state.name,
         date: state.date || undefined,
+        startTime: state.startTime || undefined,
+        duration: ((state.durationHours ?? 0) * 60 + (state.durationMinutes ?? 0)) || undefined,
         location: state.location || undefined,
         description: state.description || undefined,
         registrationDeadline: isCompetition.value ? (state.registrationDeadline || undefined) : undefined,
@@ -161,6 +183,46 @@ async function onSubmit(_event: FormSubmitEvent<Schema>) {
           class="w-full"
         />
       </UFormField>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <UFormField
+          name="startTime"
+          label="Startzeit"
+        >
+          <UInputTime
+            v-model="startTimeModel"
+            :hour-cycle="24"
+            :step="{ minute: 5 }"
+            :step-snapping="true"
+            class="w-full"
+          />
+        </UFormField>
+
+        <UFormField
+          name="durationHours"
+          label="Dauer"
+          class="sm:col-span-2"
+        >
+          <div class="flex items-center gap-2">
+            <UInputNumber
+              v-model="state.durationHours"
+              :min="0"
+              placeholder="0"
+              class="flex-1 min-w-0"
+            />
+            <span class="text-sm text-muted shrink-0">h</span>
+            <UInputNumber
+              v-model="state.durationMinutes"
+              :min="0"
+              :max="55"
+              :step="5"
+              placeholder="0"
+              class="flex-1 min-w-0"
+            />
+            <span class="text-sm text-muted shrink-0">min</span>
+          </div>
+        </UFormField>
+      </div>
 
       <UFormField
         name="location"

@@ -2,6 +2,8 @@ import { db, schema } from 'hub:db'
 import { and, asc, desc, eq, gte, isNotNull, isNull, lt, or, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
+const berlinDateFormatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' })
+
 const querySchema = z.object({
   type: z.enum(['ladv', 'competition', 'training', 'social']).optional(),
   timeRange: z.enum(['upcoming', 'past', 'all']).optional(),
@@ -17,7 +19,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const { type, timeRange = 'upcoming' } = params.data
-  const now = new Date()
+  const today = berlinDateFormatter.format(new Date())
 
   const conditions = []
 
@@ -26,10 +28,10 @@ export default defineEventHandler(async (event) => {
   }
 
   if (timeRange === 'past') {
-    conditions.push(and(isNotNull(schema.events.date), lt(schema.events.date, now)))
+    conditions.push(and(isNotNull(schema.events.date), lt(schema.events.date, today)))
   }
   else if (timeRange === 'upcoming') {
-    conditions.push(or(isNull(schema.events.date), gte(schema.events.date, now)))
+    conditions.push(or(isNull(schema.events.date), gte(schema.events.date, today)))
   }
 
   const userId = session.user.id
@@ -40,6 +42,8 @@ export default defineEventHandler(async (event) => {
       type: schema.events.type,
       name: schema.events.name,
       date: schema.events.date,
+      startTime: schema.events.startTime,
+      duration: schema.events.duration,
       location: schema.events.location,
       description: schema.events.description,
       registrationDeadline: schema.events.registrationDeadline,

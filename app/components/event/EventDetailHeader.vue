@@ -12,6 +12,27 @@ const month = computed(() =>
   eventDate.value?.toLocaleDateString('de-DE', { month: 'short' }).replace('.', '') ?? null,
 )
 
+const startTime = computed(() => props.event.startTime ?? null)
+
+const endTime = computed(() => {
+  if (!props.event.startTime || !props.event.duration) return null
+  const [h, m] = props.event.startTime.split(':').map(Number)
+  const totalMinutes = h! * 60 + m! + props.event.duration
+  const endH = Math.floor(totalMinutes / 60) % 24
+  const endM = totalMinutes % 60
+  return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`
+})
+
+const durationDisplay = computed(() => {
+  const d = props.event.duration
+  if (!d) return null
+  const h = Math.floor(d / 60)
+  const min = d % 60
+  if (h > 0 && min > 0) return `${h}h ${min}min`
+  if (h > 0) return `${h}h`
+  return `${min}min`
+})
+
 const deadlineDate = computed(() => toDate(props.event.registrationDeadline))
 const deadlineExpired = computed(() => !!deadlineDate.value && deadlineDate.value < new Date())
 const showDeadline = computed(() =>
@@ -112,6 +133,18 @@ function toggle(code: string) {
           <span class="text-xs text-primary uppercase tracking-wide">
             {{ month }}
           </span>
+          <span
+            v-if="startTime"
+            class="text-xs text-muted tabular-nums"
+          >{{ startTime }}</span>
+          <span
+            v-if="endTime"
+            class="text-xs text-muted tabular-nums"
+          >–{{ endTime }}</span>
+          <span
+            v-else-if="durationDisplay && !startTime"
+            class="text-xs text-muted"
+          >{{ durationDisplay }}</span>
         </div>
 
         <!-- Trennlinie -->

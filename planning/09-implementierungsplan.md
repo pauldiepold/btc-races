@@ -930,6 +930,33 @@ Keine neue pure Logik in 9.8.2 — alle Utils wurden in 9.8.1 implementiert und 
 
 ---
 
+### ✅ 9.8.3 — Event-Datum als Text-Feld, Uhrzeit & Dauer (Issue #18)
+
+**Ziel:** Timezone-Bug beheben (`date`/`registrationDeadline` von `integer timestamp` auf `text YYYY-MM-DD`), Uhrzeit (`startTime`) und Dauer (`duration`) hinzufügen.
+
+**Geänderte Dateien:**
+- `server/db/schema.ts` — `date` + `registrationDeadline` → `text()`, neu: `startTime text()`, `duration integer()`
+- `server/db/migrations/sqlite/0008_shiny_dagger.sql` — generiert via `pnpm db:generate`, INSERT-Bug (neue Spalten) manuell auf `NULL` gesetzt
+- `server/utils/ladv.ts` — `timestampToTime()` neu (Berlin HH:MM, null bei 00:00), `normalizeLadvData()` um `start_time` erweitert
+- `shared/types/ladv.ts` — `NormalizedLadvData` um `start_time: string | null` erweitert
+- `shared/utils/ladv.ts` — `detectLadvDiff()` vereinfacht (nur noch String-Vergleich, kein `dateToString` mehr)
+- `shared/utils/deadlines.ts` — `isDeadlineExpired` akzeptiert jetzt `Date | string | null`
+- `shared/types/events.ts` — `LadvTodo.eventDate` + `MyRegistration.event.date/registrationDeadline` → `string | null`
+- `server/api/events/index.get.ts` — Upcoming-Filter auf Datumsstring-Vergleich umgestellt, `startTime`/`duration` im SELECT
+- `server/api/events/index.post.ts` + `[id].patch.ts` — `startTime`/`duration` hinzugefügt, kein `new Date()` mehr
+- `server/api/events/ladv-import.post.ts` — `startTime` beim Insert, Date als String
+- `server/api/events/[id]/registrations.post.ts` — Deadline-Vergleich auf `new Date(string)` umgestellt
+- `server/utils/seed.ts` — alle Dates als YYYY-MM-DD-Strings, `startTime`/`duration` in competition-Events
+- `app/pages/events/neu.vue` + `bearbeiten.vue` — `startTime` (time input) + `duration` (number, Minuten) Felder
+- `app/components/EventCard.vue` — Uhrzeit in dritter Zeile unter Monat (nur wenn gesetzt)
+- `app/components/event/EventDetailHeader.vue` — Uhrzeit (3. Zeile) + Endzeit (4. Zeile, aus startTime+duration berechnet) im Datum-Block
+- `test/unit/ladv.test.ts` — Tests für `timestampToTime`, `normalizeLadvData.start_time`
+- `test/unit/detect-ladv-diff.test.ts` — BASE_EVENT auf String-Dates umgestellt
+
+**Abschluss (2026-04-11):** Reibungslos — das PRD hatte alle Entscheidungen bereits getroffen. Einzige Überraschung: drizzle-kit generiert bei Table-Recreation die neuen Spalten falsch im INSERT (SELECT aus alter Tabelle, die sie noch nicht kennt) → Migration-SQL manuell auf `NULL` gesetzt. TypeCheck Exit 0, Lint clean, 118 Tests grün.
+
+---
+
 ### 9.9 — Admin-Workflows: LADV-Protokollierung + Dashboard (F-12 admin, F-13, F-14, F-24)
 
 **Ziel:** Kevin kann LADV-Anmeldungen und Abmeldungen protokollieren. Dafür gibt es eine eigene Admin-Sektion auf der Event-Detailseite sowie eine globale Admin-Seite über alle Events.

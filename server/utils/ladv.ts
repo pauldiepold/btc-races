@@ -7,19 +7,38 @@ export function parseLadvIdFromUrl(url: string): number | null {
   return parseInt(match[1], 10)
 }
 
+const berlinDateFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Europe/Berlin',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
+
+const berlinTimeFormatter = new Intl.DateTimeFormat('de-DE', {
+  timeZone: 'Europe/Berlin',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+})
+
 function timestampToDate(ms: number): string {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Europe/Berlin',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(new Date(ms))
+  return berlinDateFormatter.format(new Date(ms))
+}
+
+/**
+ * Extrahiert die Berliner Uhrzeit aus einem LADV-Timestamp.
+ * Gibt null zurück wenn die Zeit 00:00 ist (LADV-Konvention für "kein Startzeitpunkt").
+ */
+export function timestampToTime(ms: number): string | null {
+  const time = berlinTimeFormatter.format(new Date(ms))
+  return time === '00:00' ? null : time
 }
 
 export function normalizeLadvData(raw: LadvAusschreibung): NormalizedLadvData {
   return {
     name: raw.name,
     date: timestampToDate(raw.datum),
+    start_time: timestampToTime(raw.datum),
     location: raw.ort.name,
     registration_deadline: timestampToDate(raw.meldDatum),
     race_type: raw.kategorien.includes('bahn') ? 'track' : 'road',

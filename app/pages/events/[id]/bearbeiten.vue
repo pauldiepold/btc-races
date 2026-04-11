@@ -3,6 +3,7 @@ import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import type { EventDetail } from '~~/shared/types/events'
 import { detectLadvDiff, type LadvDiff } from '~~/shared/utils/ladv'
+import { Time } from '@internationalized/date'
 
 definePageMeta({ title: 'Event bearbeiten' })
 
@@ -32,6 +33,19 @@ watchEffect(() => {
   }
 })
 
+const startTimeModel = computed({
+  get: (): Time | null => {
+    if (!state.startTime) return null
+    const [h, m] = state.startTime.split(':').map(Number)
+    return new Time(h, m)
+  },
+  set: (val: Time | null) => {
+    state.startTime = val
+      ? `${String(val.hour).padStart(2, '0')}:${String(val.minute).padStart(2, '0')}`
+      : ''
+  },
+})
+
 const isLadv = computed(() => event.value?.type === 'ladv')
 const isCompetitionOrLadv = computed(() => event.value?.type === 'competition' || event.value?.type === 'ladv')
 const isAdmin = computed(() => session.value?.user?.role === 'admin' || session.value?.user?.role === 'superuser')
@@ -52,6 +66,9 @@ function dateString(d: Date | string | null | undefined): string {
 const formSchema = z.object({
   name: z.string().min(1, 'Name ist erforderlich'),
   date: z.string().optional(),
+  startTime: z.union([z.literal(''), z.string().regex(/^\d{2}:\d{2}$/, 'Format: HH:MM')]).optional(),
+  durationHours: z.number().int().min(0).optional(),
+  durationMinutes: z.number().int().min(0).max(55).optional(),
   location: z.string().optional(),
   description: z.string().optional(),
   registrationDeadline: z.string().optional(),
@@ -66,6 +83,9 @@ type FormSchema = z.output<typeof formSchema>
 const state = reactive<FormSchema>({
   name: '',
   date: '',
+  startTime: '',
+  durationHours: undefined,
+  durationMinutes: undefined,
   location: '',
   description: '',
   registrationDeadline: '',
@@ -82,6 +102,9 @@ watch(
     if (!e) return
     state.name = e.name
     state.date = dateString(e.date)
+    state.startTime = e.startTime ?? ''
+    state.durationHours = e.duration != null ? Math.floor(e.duration / 60) : undefined
+    state.durationMinutes = e.duration != null ? e.duration % 60 : undefined
     state.location = e.location ?? ''
     state.description = e.description ?? ''
     state.registrationDeadline = dateString(e.registrationDeadline)
@@ -138,6 +161,8 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
       body: {
         name: state.name,
         date: state.date || null,
+        startTime: state.startTime || null,
+        duration: ((state.durationHours ?? 0) * 60 + (state.durationMinutes ?? 0)) || null,
         location: state.location || null,
         description: state.description || null,
         registrationDeadline: isCompetitionOrLadv.value ? (state.registrationDeadline || null) : null,
@@ -233,6 +258,47 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
           @apply="state.date = ladvDiff.date!"
         />
       </UFormField>
+
+      <!-- Startzeit + Dauer -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <UFormField
+          name="startTime"
+          label="Startzeit"
+        >
+          <UInputTime
+            v-model="startTimeModel"
+            :hour-cycle="24"
+            :step="{ minute: 5 }"
+            :step-snapping="true"
+            class="w-full"
+          />
+        </UFormField>
+
+        <UFormField
+          name="durationHours"
+          label="Dauer"
+          class="sm:col-span-2"
+        >
+          <div class="flex items-center gap-2">
+            <UInputNumber
+              v-model="state.durationHours"
+              :min="0"
+              placeholder="0"
+              class="flex-1 min-w-0"
+            />
+            <span class="text-sm text-muted shrink-0">h</span>
+            <UInputNumber
+              v-model="state.durationMinutes"
+              :min="0"
+              :max="55"
+              :step="5"
+              placeholder="0"
+              class="flex-1 min-w-0"
+            />
+            <span class="text-sm text-muted shrink-0">min</span>
+          </div>
+        </UFormField>
+      </div>
 
       <!-- Ort -->
       <UFormField

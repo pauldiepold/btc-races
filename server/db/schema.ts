@@ -44,10 +44,12 @@ export const events = sqliteTable('events', {
   id: text().primaryKey(), // UUID
   type: text().notNull().$type<'ladv' | 'competition' | 'training' | 'social'>(),
   name: text().notNull(),
-  date: integer({ mode: 'timestamp' }),
+  date: text(), // YYYY-MM-DD (kein Timezone-Overhead, LADV liefert immer Berliner Mitternacht)
+  startTime: text(), // HH:MM, optional
+  duration: integer(), // Minuten, optional
   location: text(),
   description: text(),
-  registrationDeadline: integer({ mode: 'timestamp' }),
+  registrationDeadline: text(), // YYYY-MM-DD
   announcementLink: text(),
   cancelledAt: integer({ mode: 'timestamp' }),
 

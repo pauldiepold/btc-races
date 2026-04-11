@@ -56,12 +56,18 @@ function deriveChampionshipType(name: string): 'bbm' | 'ndm' | 'dm' | null {
   return null
 }
 
-function randomPastDate(daysAgo: { min: number, max: number }): Date {
-  return faker.date.recent({ days: faker.number.int(daysAgo) })
+const berlinDateFormatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' })
+
+function toDateString(d: Date): string {
+  return berlinDateFormatter.format(d)
 }
 
-function randomFutureDate(daysAhead: { min: number, max: number }): Date {
-  return faker.date.soon({ days: faker.number.int(daysAhead) })
+function randomPastDate(daysAgo: { min: number, max: number }): string {
+  return toDateString(faker.date.recent({ days: faker.number.int(daysAgo) }))
+}
+
+function randomFutureDate(daysAhead: { min: number, max: number }): string {
+  return toDateString(faker.date.soon({ days: faker.number.int(daysAhead) }))
 }
 
 export async function runSeed(): Promise<{ result: string }> {
@@ -208,9 +214,10 @@ export async function runSeed(): Promise<{ result: string }> {
       id: eventId,
       type: 'ladv',
       name: normalized.name,
-      date: normalized.date ? new Date(normalized.date) : null,
+      date: normalized.date ?? null,
+      startTime: normalized.start_time,
       location: normalized.location,
-      registrationDeadline: normalized.registration_deadline ? new Date(normalized.registration_deadline) : null,
+      registrationDeadline: normalized.registration_deadline ?? null,
       raceType: normalized.race_type,
       isWrc: normalized.is_wrc,
       championshipType: deriveChampionshipType(normalized.name),
@@ -231,24 +238,26 @@ export async function runSeed(): Promise<{ result: string }> {
   // 8 competition-Events
   const competitionEventIds: string[] = []
   const competitionConfigs = [
-    { deadlineOffset: -10, dateOffset: 30 }, // Meldefrist abgelaufen, Event in Zukunft
-    { deadlineOffset: -10, dateOffset: 30 }, // Meldefrist abgelaufen, Event in Zukunft
-    { deadlineOffset: 5, dateOffset: 20 }, // Meldefrist offen
-    { deadlineOffset: 5, dateOffset: 20 }, // Meldefrist offen
-    { deadlineOffset: 60, dateOffset: 90 }, // Meldefrist weit in Zukunft
-    { deadlineOffset: 60, dateOffset: 90 }, // Meldefrist weit in Zukunft
-    { deadlineOffset: -20, dateOffset: -5 }, // vergangen
-    { deadlineOffset: -30, dateOffset: -15 }, // vergangen
+    { deadlineOffset: -10, dateOffset: 30, startTime: '10:00' as string | null, duration: 120 }, // Meldefrist abgelaufen
+    { deadlineOffset: -10, dateOffset: 30, startTime: '14:30' as string | null, duration: 90 }, // Meldefrist abgelaufen
+    { deadlineOffset: 5, dateOffset: 20, startTime: '09:00' as string | null, duration: 180 }, // Meldefrist offen
+    { deadlineOffset: 5, dateOffset: 20, startTime: null, duration: null }, // Meldefrist offen, keine Zeit
+    { deadlineOffset: 60, dateOffset: 90, startTime: '11:00' as string | null, duration: 60 }, // Meldefrist weit in Zukunft
+    { deadlineOffset: 60, dateOffset: 90, startTime: null, duration: null }, // Meldefrist weit in Zukunft
+    { deadlineOffset: -20, dateOffset: -5, startTime: '10:00' as string | null, duration: 120 }, // vergangen
+    { deadlineOffset: -30, dateOffset: -15, startTime: null, duration: null }, // vergangen
   ]
   for (const cfg of competitionConfigs) {
     const eventId = crypto.randomUUID()
-    const eventDate = new Date(Date.now() + cfg.dateOffset * 24 * 60 * 60 * 1000)
-    const deadline = new Date(Date.now() + cfg.deadlineOffset * 24 * 60 * 60 * 1000)
+    const eventDate = toDateString(new Date(Date.now() + cfg.dateOffset * 24 * 60 * 60 * 1000))
+    const deadline = toDateString(new Date(Date.now() + cfg.deadlineOffset * 24 * 60 * 60 * 1000))
     await db.insert(schema.events).values({
       id: eventId,
       type: 'competition',
       name: `${faker.location.city()} ${faker.number.int({ min: 1, max: 40 })}. Stadtlauf`,
       date: eventDate,
+      startTime: cfg.startTime,
+      duration: cfg.duration,
       location: faker.location.city(),
       registrationDeadline: deadline,
       raceType: faker.helpers.arrayElement(['track', 'road'] as const),

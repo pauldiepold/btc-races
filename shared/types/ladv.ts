@@ -44,6 +44,7 @@ export interface LadvAusschreibung {
 export interface NormalizedLadvData {
   name: string
   date: string // YYYY-MM-DD (Berliner Ortszeit)
+  start_time: string | null // HH:MM, null wenn LADV keine echte Zeit liefert (00:00)
   location: string
   registration_deadline: string // YYYY-MM-DD (Berliner Ortszeit)
   race_type: 'track' | 'road'

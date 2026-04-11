@@ -45,7 +45,7 @@ export type LadvTodo = {
   type: 'register' | 'cancel'
   eventId: string
   eventName: string
-  eventDate: Date | null
+  eventDate: string | null
   ladvId: number | null
   registrationId: string
   disciplines: LadvTodoDiscipline[]
@@ -62,10 +62,10 @@ export type MyRegistration = {
   event: {
     id: string
     name: string
-    date: Date | null
+    date: string | null
     type: EventType
     cancelledAt: Date | null
-    registrationDeadline: Date | null
+    registrationDeadline: string | null
   }
   disciplines: DisciplineDetail[]
 }

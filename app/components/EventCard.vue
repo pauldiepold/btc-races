@@ -47,6 +47,10 @@ const ownRegistration = computed(() =>
         v-if="month"
         class="text-xs text-primary uppercase tracking-wide"
       >{{ month }}</span>
+      <span
+        v-if="event.startTime"
+        class="text-xs text-muted tabular-nums"
+      >{{ event.startTime }}</span>
     </div>
 
     <!-- Trennlinie -->

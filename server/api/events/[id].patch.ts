@@ -5,6 +5,8 @@ import { z } from 'zod'
 const patchEventSchema = z.object({
   name: z.string().min(1, 'Name ist erforderlich').optional(),
   date: z.string().date().optional().nullable(),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Ungültiges Format, erwartet HH:MM').optional().nullable(),
+  duration: z.number().int().positive().optional().nullable(),
   location: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
   registrationDeadline: z.string().date().optional().nullable(),
@@ -42,10 +44,12 @@ export default defineEventHandler(async (event) => {
   }
 
   if (data.name !== undefined) updates.name = data.name
-  if ('date' in data) updates.date = data.date ? new Date(data.date) : null
+  if ('date' in data) updates.date = data.date ?? null
+  if ('startTime' in data) updates.startTime = data.startTime ?? null
+  if ('duration' in data) updates.duration = data.duration ?? null
   if ('location' in data) updates.location = data.location ?? null
   if ('description' in data) updates.description = data.description ?? null
-  if ('registrationDeadline' in data) updates.registrationDeadline = data.registrationDeadline ? new Date(data.registrationDeadline) : null
+  if ('registrationDeadline' in data) updates.registrationDeadline = data.registrationDeadline ?? null
   if ('announcementLink' in data) updates.announcementLink = data.announcementLink ?? null
   if ('raceType' in data) updates.raceType = data.raceType ?? null
   if ('championshipType' in data) updates.championshipType = data.championshipType ?? null

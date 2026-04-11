@@ -9,15 +9,6 @@ export type LadvDiff = Partial<{
   // championshipType bewusst nicht im Diff — LADV-Daten enthalten diese Info nicht zuverlässig
 }>
 
-function timestampToDate(ms: number): string {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Europe/Berlin',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(new Date(ms))
-}
-
 const berlinFormatter = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Europe/Berlin',
   year: 'numeric',
@@ -25,10 +16,8 @@ const berlinFormatter = new Intl.DateTimeFormat('en-CA', {
   day: '2-digit',
 })
 
-function dateToString(d: Date | string | null | undefined): string | null {
-  if (!d) return null
-  if (typeof d === 'string') return d.slice(0, 10)
-  return berlinFormatter.format(d)
+function timestampToDate(ms: number): string {
+  return berlinFormatter.format(new Date(ms))
 }
 
 /**
@@ -39,9 +28,9 @@ function dateToString(d: Date | string | null | undefined): string | null {
 export function detectLadvDiff(
   event: {
     name: string
-    date: Date | string | null
+    date: string | null
     location: string | null
-    registrationDeadline: Date | string | null
+    registrationDeadline: string | null
     raceType: string | null
   },
   ladvData: LadvAusschreibung,
@@ -52,13 +41,13 @@ export function detectLadvDiff(
   if (event.name !== ladvName) diff.name = ladvName
 
   const ladvDate = timestampToDate(ladvData.datum)
-  if (dateToString(event.date) !== ladvDate) diff.date = ladvDate
+  if ((event.date?.slice(0, 10) ?? null) !== ladvDate) diff.date = ladvDate
 
   const ladvLocation = ladvData.ort.name
   if ((event.location ?? '') !== ladvLocation) diff.location = ladvLocation
 
   const ladvDeadline = timestampToDate(ladvData.meldDatum)
-  if (dateToString(event.registrationDeadline) !== ladvDeadline) diff.registrationDeadline = ladvDeadline
+  if ((event.registrationDeadline?.slice(0, 10) ?? null) !== ladvDeadline) diff.registrationDeadline = ladvDeadline
 
   const ladvRaceType = ladvData.kategorien.includes('bahn') ? 'track' : 'road'
   if (event.raceType !== ladvRaceType) diff.raceType = ladvRaceType

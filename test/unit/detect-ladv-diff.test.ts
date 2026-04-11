@@ -33,9 +33,9 @@ const BASE_LADV: LadvAusschreibung = {
 
 const BASE_EVENT = {
   name: 'Abendsportfest Zehlendorf',
-  date: new Date('2024-06-15T00:00:00+02:00'),
+  date: '2024-06-15',
   location: 'Berlin',
-  registrationDeadline: new Date('2024-08-01T00:00:00+02:00'),
+  registrationDeadline: '2024-08-01',
   raceType: 'track' as const,
 }
 
@@ -58,13 +58,13 @@ describe('detectLadvDiff', () => {
   })
 
   it('detects date difference', () => {
-    const event = { ...BASE_EVENT, date: new Date('2024-06-16T00:00:00+02:00') }
+    const event = { ...BASE_EVENT, date: '2024-06-16' }
     const diff = detectLadvDiff(event, BASE_LADV)
     expect(diff.date).toBe('2024-06-15')
   })
 
   it('detects registrationDeadline difference', () => {
-    const event = { ...BASE_EVENT, registrationDeadline: new Date('2024-07-01T00:00:00+02:00') }
+    const event = { ...BASE_EVENT, registrationDeadline: '2024-07-01' }
     const diff = detectLadvDiff(event, BASE_LADV)
     expect(diff.registrationDeadline).toBe('2024-08-01')
   })
@@ -79,11 +79,6 @@ describe('detectLadvDiff', () => {
     const event = { ...BASE_EVENT, raceType: 'road' as const }
     const ladv = { ...BASE_LADV, kategorien: ['straße'] }
     expect(detectLadvDiff(event, ladv).raceType).toBeUndefined()
-  })
-
-  it('handles date as string in YYYY-MM-DD format', () => {
-    const event = { ...BASE_EVENT, date: '2024-06-15' }
-    expect(detectLadvDiff(event, BASE_LADV)).toEqual({})
   })
 
   it('handles null date in event as diff against LADV date', () => {

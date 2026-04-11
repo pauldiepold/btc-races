@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { LadvAusschreibung } from '../../server/utils/ladv'
-import { normalizeLadvData, parseLadvIdFromUrl } from '../../server/utils/ladv'
+import { normalizeLadvData, parseLadvIdFromUrl, timestampToTime } from '../../server/utils/ladv'
 
 describe('parseLadvIdFromUrl', () => {
   it('extracts ID from a valid LADV URL', () => {
@@ -27,6 +27,24 @@ describe('parseLadvIdFromUrl', () => {
 // Unix-Timestamp für 2024-06-15T00:00:00 Berliner Zeit (CEST = UTC+2)
 const JUNE_15_2024_BERLIN_MS = new Date('2024-06-15T00:00:00+02:00').getTime()
 const AUG_01_2024_BERLIN_MS = new Date('2024-08-01T00:00:00+02:00').getTime()
+// Timestamp mit echter Uhrzeit (10:30 Berliner Zeit)
+const JUNE_15_2024_10_30_BERLIN_MS = new Date('2024-06-15T10:30:00+02:00').getTime()
+
+describe('timestampToTime', () => {
+  it('returns null when LADV time is midnight Berlin (00:00)', () => {
+    expect(timestampToTime(JUNE_15_2024_BERLIN_MS)).toBeNull()
+  })
+
+  it('extracts HH:MM from a real LADV timestamp in Berlin timezone', () => {
+    expect(timestampToTime(JUNE_15_2024_10_30_BERLIN_MS)).toBe('10:30')
+  })
+
+  it('returns null for UTC midnight that maps to 01:00 Berlin (CET, winter)', () => {
+    // 2024-01-15T00:00:00Z = 01:00 Berlin (UTC+1) → nicht 00:00, also nicht null
+    const jan15UtcMidnight = new Date('2024-01-15T00:00:00Z').getTime()
+    expect(timestampToTime(jan15UtcMidnight)).toBe('01:00')
+  })
+})
 
 const BASE_RAW: LadvAusschreibung = {
   id: 42008,
@@ -106,5 +124,14 @@ describe('normalizeLadvData', () => {
 
   it('sets championship_type to null', () => {
     expect(normalizeLadvData(BASE_RAW).championship_type).toBeNull()
+  })
+
+  it('sets start_time to null when datum is midnight Berlin', () => {
+    expect(normalizeLadvData(BASE_RAW).start_time).toBeNull()
+  })
+
+  it('extracts start_time when datum has a real time', () => {
+    const raw = { ...BASE_RAW, datum: JUNE_15_2024_10_30_BERLIN_MS }
+    expect(normalizeLadvData(raw).start_time).toBe('10:30')
   })
 })

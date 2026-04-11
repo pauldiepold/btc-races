@@ -1,7 +1,17 @@
 <script setup lang="ts">
-import type { EventListItem } from '~~/shared/types/events'
+import type { EventListItem, EventListPublicItem } from '~~/shared/types/events'
 
 definePageMeta({ title: 'Events' })
+
+const { loggedIn } = useUserSession()
+const { public: { siteUrl } } = useRuntimeConfig()
+
+useSeoMeta({
+  ogTitle: 'Wettkampfkalender – Berlin Track Club',
+  ogDescription: 'Alle Wettkämpfe des Berlin Track Club auf einen Blick. Melde dich an, lass dich einschreiben und starte durch.',
+  ogImage: `${siteUrl}/og-image.png`,
+  ogType: 'website',
+})
 
 const typeFilter = ref<string | undefined>(undefined)
 const timeRange = ref('upcoming')
@@ -10,7 +20,7 @@ const raceTypeFilter = ref<'track' | 'road' | undefined>(undefined)
 const championshipFilter = ref<'bbm' | 'ndm' | 'dm' | undefined>(undefined)
 const priorityFilter = ref<'A' | 'B' | 'C' | undefined>(undefined)
 
-const { data: events, status } = await useFetch<EventListItem[]>('/api/events', {
+const { data: events, status } = await useFetch<EventListItem[] | EventListPublicItem[]>('/api/events', {
   query: computed(() => ({
     type: typeFilter.value || undefined,
     timeRange: timeRange.value,
@@ -89,6 +99,7 @@ const steps = [
           :has-race-type-events="hasRaceTypeEvents"
           :has-championship-events="hasChampionshipEvents"
           :has-priority-events="hasPriorityEvents"
+          :public-mode="!loggedIn"
         />
 
         <!-- Lade-Zustand -->
@@ -144,6 +155,29 @@ const steps = [
 
       <!-- ── Sidebar: Erklärung ────────────────────────────────────── -->
       <aside class="lg:w-64 xl:w-72 lg:shrink-0 lg:sticky lg:top-[calc(var(--ui-header-height)+2rem)]">
+        <!-- Login-CTA für Gäste -->
+        <div
+          v-if="!loggedIn"
+          class="pb-6 mb-6 border-b border-default space-y-3"
+        >
+          <p class="text-xs font-medium text-muted uppercase tracking-widest">
+            Mitglieder-Bereich
+          </p>
+          <h2 class="font-display font-semibold text-xl text-highlighted">
+            Jetzt einloggen
+          </h2>
+          <p class="text-sm text-muted leading-relaxed">
+            Als BTC-Mitglied kannst du dich direkt zu Wettkämpfen anmelden — die Coaches übernehmen die Einschreibung.
+          </p>
+          <UButton
+            to="/login"
+            color="primary"
+            block
+          >
+            Zum Login
+          </UButton>
+        </div>
+
         <div class="pb-5 mb-6 border-b border-default">
           <p class="text-xs font-medium text-muted uppercase tracking-widest mb-2">
             So funktioniert's

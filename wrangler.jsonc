@@ -18,6 +18,12 @@
 			"migrations_dir": "./server/db/migrations/sqlite"
 		}
 	],
+	"kv_namespaces": [
+		{
+			"binding": "KV",
+			"id": "fb53e134815046ee9d0f12d83e4f1177"
+		}
+	],
 	"env": {
 		"preview": {
 			"vars": {
@@ -31,6 +37,12 @@
 					"database_name": "btc-races-preview",
 					"database_id": "7d7e65bb-c798-4a7d-b318-969de6080012",
 					"migrations_dir": "./server/db/migrations/sqlite"
+				}
+			],
+			"kv_namespaces": [
+				{
+					"binding": "KV",
+					"id": "6c67a6bf03fd40e98728d0d5f838797b"
 				}
 			]
 		}

@@ -7,6 +7,7 @@ import type { EmailMessage } from '~~/server/email/email.types'
 
 const loginSchema = z.object({
   email: z.email('Bitte gib eine gültige E-Mail-Adresse ein'),
+  redirect: z.string().optional(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -23,7 +24,10 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const { email } = result.data
+  const { email, redirect: rawRedirect } = result.data
+  const redirectParam = rawRedirect?.startsWith('/') && !rawRedirect.startsWith('//')
+    ? rawRedirect
+    : undefined
 
   // 1. Prüfen, ob der User existiert
   const user = await db.query.users.findFirst({
@@ -37,7 +41,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // 2. Token generieren
-  const token = randomBytes(16).toString('hex')
+  const token = randomBytes(16).toString('base64url')
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000) // 15 Minuten
 
   // 3. Alte Tokens des Users löschen und neues Token speichern
@@ -52,7 +56,10 @@ export default defineEventHandler(async (event) => {
   })
 
   // 4. Magic Link ausgeben (Console für Dev)
-  const magicLink = `${runtimeConfig.public.siteUrl}/verify?token=${token}`
+  const magicLinkBase = `${runtimeConfig.public.siteUrl}/magic-link/${token}`
+  const magicLink = redirectParam
+    ? `${magicLinkBase}?redirect=${encodeURIComponent(redirectParam)}`
+    : magicLinkBase
 
   const htmlResult = await renderEmailComponent(
     'LoginEmail',

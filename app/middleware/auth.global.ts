@@ -6,9 +6,9 @@ export default defineNuxtRouteMiddleware((to) => {
     return
   }
 
-  // Wenn nicht eingeloggt, zur Login-Seite weiterleiten
+  // Wenn nicht eingeloggt, zur Login-Seite weiterleiten (mit redirect zurück zur Zielseite)
   if (!loggedIn.value) {
-    return navigateTo('/login')
+    return navigateTo(`/login?redirect=${encodeURIComponent(to.fullPath)}`)
   }
 
   const role = user.value?.role

@@ -3,6 +3,7 @@ import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
 import * as z from 'zod'
 
 const { loggedIn } = useUserSession()
+const route = useRoute()
 const loading = ref(false)
 
 definePageMeta({
@@ -61,9 +62,10 @@ watch(loading, (isLoading) => {
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
   loading.value = true
   try {
+    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : undefined
     await $fetch('/api/auth/login', {
       method: 'POST',
-      body: { email: payload.data.email },
+      body: { email: payload.data.email, ...(redirect ? { redirect } : {}) },
     })
 
     navigateTo('/link-gesendet')

@@ -35,6 +35,18 @@ export type EventDetail = Omit<Event, 'ladvData'> & {
   registrations: RegistrationDetail[]
 }
 
+export type EventPublicRegistrationCounts = Partial<Record<RegistrationStatus, number>>
+
+export type EventPublicDetail = Omit<Event, 'ladvData'> & {
+  ladvData: LadvAusschreibung | null
+  registrationCounts: EventPublicRegistrationCounts
+}
+
+export type EventListPublicItem = Omit<EventListItem, 'ownRegistrationStatus' | 'ownRegistrationId'>
+
+export type EventResponse = EventDetail | EventPublicDetail
+export type EventListResponse = EventListItem[] | EventListPublicItem[]
+
 export type LadvTodoDiscipline = {
   id: string
   discipline: string

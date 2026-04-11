@@ -24,6 +24,8 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - LADV-Daten synchronisieren (`POST /api/events/[id]/sync`)
 - Google-Maps-Suchlink für LADV-Veranstaltungsort
 - Event-Priorität A / B / C für `ladv`- und `competition`-Events — #23
+- Öffentliche Event-Detailseite für nicht eingeloggte Gäste: Registrierungszähler sichtbar, Login-CTA statt Anmeldeformular — #36
+- Dynamische OG Images via `nuxt-og-image` (Satori, Edge-kompatibel): Default-Template für alle Seiten, Event-Template (Props-Verdrahtung ausstehend → #40) — #39
 
 ---
 

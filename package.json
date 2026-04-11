@@ -24,7 +24,7 @@
     "sync:members:preview": "curl -s -X POST https://develop.btc-races.pages.dev/api/cron/sync-members -H \"Authorization: Bearer $NUXT_CRON_TOKEN\"",
     "sync:members:prod": "curl -s -X POST https://btc-races.pages.dev/api/cron/sync-members -H \"Authorization: Bearer $NUXT_CRON_TOKEN\"",
     "db:login": "wrangler login --no-browser",
-    "prepare": "husky && (npx skilld prepare || true)"
+    "prepare": "husky"
   },
   "dependencies": {
     "@libsql/client": "^0.17.2",

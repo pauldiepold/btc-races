@@ -147,9 +147,14 @@ Jede Änderung mit eigenem Commit braucht ein Issue.
 - **Types**: `feat` | `fix` | `refactor` | `docs` | `chore` | `test`
 - **Scope**: Modul-Name (`auth`, `db`, `events`, `ui`, `api`, etc.)
 - **Issue-Referenz**: `Closes #123` im Commit-Body (nicht im Titel)
-- Max. 2 Commits pro Session: Code-Commit + ggf. separater `docs:`-Commit
+- Max. 1 Commit pro Session — Docs-Änderungen (FEATURES.md, CLAUDE.md) im selben Commit
 - Kein `Co-Authored-By`
 
 ## Historische Planungsdokumente
 
 Unter `planning/` liegen ältere Implementierungspläne aus der initialen Entwicklungsphase. Diese sind eingefroren und werden nicht mehr aktiv gepflegt — GitHub Issues haben diese Funktion übernommen.
+
+<!-- skilld -->
+Before modifying code, evaluate each installed skill against the current task.
+For each skill, determine YES/NO relevance and invoke all YES skills before proceeding.
+<!-- /skilld -->

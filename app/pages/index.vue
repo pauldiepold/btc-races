@@ -4,12 +4,12 @@ import type { EventListItem, EventListPublicItem } from '~~/shared/types/events'
 definePageMeta({ title: 'Events' })
 
 const { loggedIn } = useUserSession()
-const { public: { siteUrl } } = useRuntimeConfig()
+
+defineOgImage('Default')
 
 useSeoMeta({
   ogTitle: 'Wettkampfkalender – Berlin Track Club',
   ogDescription: 'Alle Wettkämpfe des Berlin Track Club auf einen Blick. Melde dich an, lass dich einschreiben und starte durch.',
-  ogImage: `${siteUrl}/og-image.png`,
   ogType: 'website',
 })
 

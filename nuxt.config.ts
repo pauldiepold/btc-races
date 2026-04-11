@@ -9,16 +9,21 @@ export default defineNuxtConfig({
     '@pinia/colada-nuxt',
     'nuxt-email-renderer',
     '@nuxt/fonts',
+    'nuxt-og-image',
   ],
 
   devtools: { enabled: true },
 
   app: {
     head: {
-      title: 'BTC Wettkampfanmeldung',
+      title: 'BTC Events',
     },
   },
   css: ['~/assets/css/main.css'],
+
+  site: {
+    url: process.env.CF_PAGES_URL || 'http://localhost:3000',
+  },
 
   colorMode: {
     preference: 'dark',
@@ -56,6 +61,7 @@ export default defineNuxtConfig({
       dialect: 'sqlite',
       casing: 'snake_case',
     },
+    kv: true,
   },
   vite: {
     optimizeDeps: {
@@ -90,6 +96,12 @@ export default defineNuxtConfig({
       prefix: 'btc',
       dir: './app/assets/icons',
     }],
+  },
+
+  ogImage: {
+    defaults: {
+      cacheMaxAgeSeconds: 60 * 60 * 24,
+    },
   },
 
 })

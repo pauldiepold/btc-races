@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import type { EventDetail } from '~~/shared/types/events'
+import type { EventDetail, EventPublicDetail, EventResponse } from '~~/shared/types/events'
+import { generateEventOgDescription, isEventPublicDetail } from '~~/shared/utils/events'
 
 const route = useRoute()
 const toast = useToast()
+const config = useRuntimeConfig()
 const id = route.params.id as string
 
-const { data: event, status, refresh } = useFetch<EventDetail>(`/api/events/${id}`, {
+const { data: event, status, refresh } = useFetch<EventResponse>(`/api/events/${id}`, {
   onResponseError({ response }) {
     if (response.status === 404) {
       toast.add({ title: 'Event nicht gefunden', color: 'error' })
@@ -18,14 +20,27 @@ useHead(() => ({
   title: event.value?.name ?? 'Event',
 }))
 
+useSeoMeta({
+  ogTitle: computed(() => event.value?.name),
+  ogDescription: computed(() => event.value ? generateEventOgDescription(event.value) : undefined),
+  ogUrl: `${config.public.siteUrl}/events/${id}`,
+  ogType: 'website',
+})
+
+defineOgImage('Default')
+
 const isInitialLoading = computed(() => status.value === 'pending' && !event.value)
 
 const isCancelled = computed(() => !!event.value?.cancelledAt)
 const isLadv = computed(() => event.value?.type === 'ladv')
 
+const isPublic = computed(() => !!event.value && isEventPublicDetail(event.value))
+const publicDetail = computed(() => isPublic.value ? event.value as EventPublicDetail : null)
+const privateDetail = computed(() => !isPublic.value ? event.value as EventDetail : null)
+
 const { session } = useUserSession()
 const isAdmin = computed(() => session.value?.user?.role === 'admin' || session.value?.user?.role === 'superuser')
-const isOwner = computed(() => !!session.value?.user?.id && event.value?.createdBy === session.value.user?.id)
+const isOwner = computed(() => !!session.value?.user?.id && privateDetail.value?.createdBy === session.value.user?.id)
 const canEdit = computed(() => isAdmin.value || isOwner.value)
 
 // Cancel / Uncancel
@@ -222,10 +237,25 @@ async function syncLadv() {
             </div>
           </div>
 
-          <!-- Deine Anmeldung: auf Mobile nach Admin, auf Desktop zuerst -->
+          <!-- Deine Anmeldung / Login-CTA: auf Mobile nach Admin, auf Desktop zuerst -->
           <div class="order-2 lg:order-1 bg-elevated border border-default rounded-[--ui-radius] p-5">
+            <template v-if="isPublic">
+              <p class="text-sm font-semibold text-highlighted mb-1">
+                Anmeldung
+              </p>
+              <p class="text-sm text-muted mb-4">
+                Melde dich an, um an diesem Event teilzunehmen.
+              </p>
+              <UButton
+                :to="`/login?redirect=${encodeURIComponent(route.fullPath)}`"
+                label="Jetzt einloggen"
+                color="primary"
+                block
+              />
+            </template>
             <EventRegisterForm
-              :event="event"
+              v-else-if="privateDetail"
+              :event="privateDetail"
               @refresh="refresh"
             />
           </div>
@@ -234,16 +264,23 @@ async function syncLadv() {
         <!-- Main: Info + Listen — order-2 auf Mobile, lg:order-1 -->
         <div class="order-2 lg:order-1 flex-1 min-w-0">
           <EventRegistrationList
-            :registrations="event.registrations"
+            v-if="isPublic"
+            :event-type="event.type"
+            :public-mode="true"
+            :registration-counts="publicDetail!.registrationCounts"
+          />
+          <EventRegistrationList
+            v-else-if="privateDetail"
+            :registrations="privateDetail.registrations"
             :event-type="event.type"
           />
 
           <div
-            v-if="isAdmin && isLadv"
+            v-if="isAdmin && isLadv && privateDetail"
             class="mt-12"
           >
             <EventAdminLadvTodos
-              :event="event"
+              :event="privateDetail"
               @refresh="refresh"
             />
           </div>

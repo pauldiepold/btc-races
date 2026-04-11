@@ -6,6 +6,11 @@ export default defineNuxtRouteMiddleware((to) => {
     return
   }
 
+  // Event-Detailseiten sind öffentlich (Gäste sehen eingeschränkte Ansicht)
+  if (/^\/events\/[^/]+$/.test(to.path)) {
+    return
+  }
+
   // Wenn nicht eingeloggt, zur Login-Seite weiterleiten (mit redirect zurück zur Zielseite)
   if (!loggedIn.value) {
     return navigateTo(`/login?redirect=${encodeURIComponent(to.fullPath)}`)

@@ -25,3 +25,6 @@ logs
 !.env.example
 
 .wrangler
+
+# Skilld references (recreated by `skilld install`)
+.skilld

@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import type { RegistrationDetail } from '~~/shared/types/events'
+import type { EventPublicRegistrationCounts, RegistrationDetail } from '~~/shared/types/events'
 import { REGISTRATION_STATUS_BADGE_COLORS, getRegistrationTabConfig } from '~~/shared/utils/registration-ui'
 
 const props = defineProps<{
-  registrations: RegistrationDetail[]
+  registrations?: RegistrationDetail[]
   eventType: 'ladv' | 'competition' | 'training' | 'social'
+  publicMode?: boolean
+  registrationCounts?: EventPublicRegistrationCounts
 }>()
+
+const route = useRoute()
 
 type TabKey = 'registered' | 'canceled' | 'maybe' | 'yes' | 'no'
 
@@ -17,7 +21,7 @@ const byStatus = computed(() =>
   Object.fromEntries(
     tabConfig.value.map(tab => [
       tab.key,
-      props.registrations.filter(r => r.status === tab.key),
+      (props.registrations ?? []).filter(r => r.status === tab.key),
     ]),
   ),
 )
@@ -27,7 +31,9 @@ const tabItems = computed(() =>
     label: tab.label,
     value: tab.key,
     badge: {
-      label: `${byStatus.value[tab.key]!.length}`,
+      label: props.publicMode
+        ? `${props.registrationCounts?.[tab.key] ?? 0}`
+        : `${byStatus.value[tab.key]!.length}`,
       color: REGISTRATION_STATUS_BADGE_COLORS[tab.key] ?? 'neutral',
       size: 'md' as const,
       variant: 'outline' as const,
@@ -40,6 +46,13 @@ const activeTab = ref(tabConfig.value[0]!.key)
 const activeRegistrations = computed(
   () => byStatus.value[activeTab.value] ?? [],
 )
+
+const totalCount = computed(() => {
+  if (props.publicMode) {
+    return Object.values(props.registrationCounts ?? {}).reduce((sum, n) => sum + (n ?? 0), 0)
+  }
+  return (props.registrations ?? []).length
+})
 
 function fullName(r: RegistrationDetail): string {
   return [r.firstName, r.lastName].filter(Boolean).join(' ') || 'Unbekannt'
@@ -54,7 +67,7 @@ function fullName(r: RegistrationDetail): string {
 
     <!-- Globaler Leer-Zustand -->
     <div
-      v-if="registrations.length === 0"
+      v-if="totalCount === 0"
       class="py-10 text-center text-sm text-muted"
     >
       <UIcon
@@ -75,60 +88,81 @@ function fullName(r: RegistrationDetail): string {
         :ui="{ label: 'font-semibold', list: 'max-sm:w-full max-sm:justify-around' }"
       />
 
-      <!-- Tab-Inhalt -->
+      <!-- Public Mode: Login-CTA statt Personenliste -->
       <div
-        v-if="activeRegistrations.length === 0"
-        class="py-8 text-center text-sm text-muted"
+        v-if="publicMode"
+        class="py-8 text-center text-sm text-muted space-y-3"
       >
         <UIcon
-          name="i-ph-users-three"
-          class="size-6 mx-auto mb-2 opacity-40"
+          name="i-ph-lock"
+          class="size-6 mx-auto opacity-40"
         />
-        <p>Noch niemand in dieser Gruppe.</p>
+        <p>Nur für eingeloggte Mitglieder sichtbar.</p>
+        <UButton
+          :to="`/login?redirect=${encodeURIComponent(route.fullPath)}`"
+          label="Jetzt einloggen"
+          color="primary"
+          variant="outline"
+          size="sm"
+        />
       </div>
 
-      <div
-        v-else
-        class="divide-y divide-default"
-      >
+      <template v-else>
+        <!-- Tab-Inhalt -->
         <div
-          v-for="reg in activeRegistrations"
-          :key="reg.id"
-          class="flex items-start gap-3 py-3"
+          v-if="activeRegistrations.length === 0"
+          class="py-8 text-center text-sm text-muted"
         >
-          <UAvatar
-            :src="reg.hasAvatar ? useAvatarUrl(reg.userId) : undefined"
-            :alt="`${reg.firstName ?? ''} ${reg.lastName ?? ''}`"
-            size="sm"
-            class="mt-0.5 shrink-0"
+          <UIcon
+            name="i-ph-users-three"
+            class="size-6 mx-auto mb-2 opacity-40"
           />
+          <p>Noch niemand in dieser Gruppe.</p>
+        </div>
 
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="text-sm font-medium text-highlighted">{{ fullName(reg) }}</span>
+        <div
+          v-else
+          class="divide-y divide-default"
+        >
+          <div
+            v-for="reg in activeRegistrations"
+            :key="reg.id"
+            class="flex items-start gap-3 py-3"
+          >
+            <UAvatar
+              :src="reg.hasAvatar ? useAvatarUrl(reg.userId) : undefined"
+              :alt="`${reg.firstName ?? ''} ${reg.lastName ?? ''}`"
+              size="sm"
+              class="mt-0.5 shrink-0"
+            />
+
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-medium text-highlighted">{{ fullName(reg) }}</span>
+              </div>
+
+              <!-- Disziplinen (LADV) -->
+              <div
+                v-if="reg.disciplines.length"
+                class="flex flex-wrap gap-1 mt-1.5"
+              >
+                <LadvBadge
+                  v-for="d in reg.disciplines"
+                  :key="d.id"
+                  :discipline="d.discipline"
+                />
+              </div>
+
+              <p
+                v-if="reg.notes"
+                class="text-xs text-muted mt-1 italic"
+              >
+                {{ reg.notes }}
+              </p>
             </div>
-
-            <!-- Disziplinen (LADV) -->
-            <div
-              v-if="reg.disciplines.length"
-              class="flex flex-wrap gap-1 mt-1.5"
-            >
-              <LadvBadge
-                v-for="d in reg.disciplines"
-                :key="d.id"
-                :discipline="d.discipline"
-              />
-            </div>
-
-            <p
-              v-if="reg.notes"
-              class="text-xs text-muted mt-1 italic"
-            >
-              {{ reg.notes }}
-            </p>
           </div>
         </div>
-      </div>
+      </template>
     </template>
   </div>
 </template>

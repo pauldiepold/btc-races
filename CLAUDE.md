@@ -22,7 +22,6 @@ pnpm lint:fix         # ESLint mit Auto-Fix
 pnpm db:generate      # Migrationen aus Schema-Änderungen generieren
 pnpm db:migrate       # Migrationen lokal anwenden
 pnpm db:remote:migrate # Migrationen auf Cloudflare D1 (Produktion) anwenden
-
 ```
 
 ## Architecture
@@ -39,7 +38,7 @@ pnpm db:remote:migrate # Migrationen auf Cloudflare D1 (Produktion) anwenden
 - `app/` — Frontend (pages, components, middleware, email-templates, assets)
 - `server/` — Backend (api-routes, db-schema, tasks, email-service, external APIs)
 - `shared/` — Typen, die server- und clientseitig geteilt werden
-- `btc-races-v1/` — **Nur zur Info:** altes Git-Repo (Vorgänger-Projekt). Nicht anfassen, nicht darin arbeiten.
+- `btc-races-v1/` — Altes Vorgänger-Projekt (eingefroren, nicht anfassen)
 
 ### Datenbank (Drizzle + NuxtHub)
 
@@ -112,21 +111,44 @@ Am Ende jeder Feature-Session prüfen: Enthält der neue Code pure, testbare Log
 
 ## Umgebungsvariablen
 
-Siehe (`.env.example`)
+Siehe `.env.example`
+
+## GitHub Issues Workflow
+
+Jede Änderung mit eigenem Commit braucht ein Issue.
+
+**Normalfall**: Issue existiert vorab → Commit mit `Closes #123` im Commit-Body.
+
+**Kein Issue vorhanden**: Am Ende der Session vor dem Commit erstelle ich per `gh issue create` ein kurzes Doku-Issue und schließe es im Commit. Label: `session-log`.
+
+**Epics**: Offenes Sammel-Issue mit Checklist (`- [ ] #123`) auf zugehörige Issues. Bleibt offen bis alle Sub-Issues geschlossen sind.
+
+### Labels
+
+| Label | Verwendung |
+|---|---|
+| `feature` | Neue Funktionalität |
+| `enhancement` | Verbesserung eines bestehenden Features |
+| `bug` | Etwas funktioniert nicht wie erwartet |
+| `chore` | Tech-Debt, Dependencies, Konfiguration |
+| `epic` | Sammelt zusammengehörige Issues via Checklist — bleibt offen |
+| `blocked` | Wartet auf externe Info oder Abhängigkeit |
+| `session-log` | Nachträgliche Doku für kleinere Änderungen ohne Vorab-Issue |
+| `documentation` | Reine Doku-Änderungen (README, CLAUDE.md, etc.) |
+| `question` | Offene Frage oder Klärungsbedarf |
+| `wontfix` | Wird bewusst nicht umgesetzt |
+| `duplicate` | Doppeltes Issue |
 
 ## Git-Commit-Konvention
 
-`<type>(<scope>): <beschreibung> [(F-xx, F-yy)]`
+`<type>(<scope>): <beschreibung>`
 
 - **Types**: `feat` | `fix` | `refactor` | `docs` | `chore` | `test`
-- **Scope**: Session-Nummer (`9.8.1`) oder Modul (`auth`, `db`)
-- **Feature-IDs** obligatorisch bei Spec-Bezug
-- Max. 2 Commits pro Session: Code-Commit + ggf. separater `docs:`-Commit bei eigenständigen Planänderungen. Session-Abschluss (✅ + Notiz) in den Code-Commit bundeln.
+- **Scope**: Modul-Name (`auth`, `db`, `events`, `ui`, `api`, etc.)
+- **Issue-Referenz**: `Closes #123` im Commit-Body (nicht im Titel)
+- Max. 2 Commits pro Session: Code-Commit + ggf. separater `docs:`-Commit
 - Kein `Co-Authored-By`
 
-## Implementierungsplan-Pflege
+## Historische Planungsdokumente
 
-Der Implementierungsplan liegt in `planning/09-implementierungsplan.md`. Nach jeder abgeschlossenen Session:
-1. Überschrift mit `✅` markieren (z.B. `### ✅ 9.1 — ...`)
-2. Inhalt der Session erhalten — nichts löschen
-3. `**Abschluss (DATUM):**`-Notiz direkt vor dem abschließenden `---` ergänzen — kurzes Fazit: was geklappt hat, ob es Schwierigkeiten gab
+Unter `planning/` liegen ältere Implementierungspläne aus der initialen Entwicklungsphase. Diese sind eingefroren und werden nicht mehr aktiv gepflegt — GitHub Issues haben diese Funktion übernommen.

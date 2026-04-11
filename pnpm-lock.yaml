@@ -32,6 +32,9 @@ importers:
       '@takumi-rs/core':
         specifier: ^1.0.4
         version: 1.0.4(react@19.2.5)
+      '@takumi-rs/wasm':
+        specifier: ^1.0.4
+        version: 1.0.4(react@19.2.5)
       drizzle-kit:
         specifier: ^0.31.10
         version: 0.31.10
@@ -49,7 +52,7 @@ importers:
         version: 2.6.0(magicast@0.5.2)(vite@7.3.2(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.32(typescript@6.0.2))
       nuxt-og-image:
         specifier: ^6.3.9
-        version: 6.3.9(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@nuxt/schema@4.4.2)(@resvg/resvg-js@2.6.2)(@resvg/resvg-wasm@2.6.2)(@takumi-rs/core@1.0.4(react@19.2.5))(@unhead/vue@2.1.13(vue@3.5.32(typescript@6.0.2)))(fontless@0.2.1(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260408.1)(@libsql/client@0.17.2)))(ioredis@5.10.1)(vite@7.3.2(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3)))(nuxt@4.4.2(a486299755fc71fe0936fb2411356a47))(satori@0.26.0)(sharp@0.34.5)(tailwindcss@4.2.2)(unifont@0.7.4)(unstorage@1.17.5(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260408.1)(@libsql/client@0.17.2)))(ioredis@5.10.1))(vite@7.3.2(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.32(typescript@6.0.2))(zod@4.3.6)
+        version: 6.3.9(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@nuxt/schema@4.4.2)(@resvg/resvg-js@2.6.2)(@resvg/resvg-wasm@2.6.2)(@takumi-rs/core@1.0.4(react@19.2.5))(@takumi-rs/wasm@1.0.4(react@19.2.5))(@unhead/vue@2.1.13(vue@3.5.32(typescript@6.0.2)))(fontless@0.2.1(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260408.1)(@libsql/client@0.17.2)))(ioredis@5.10.1)(vite@7.3.2(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3)))(nuxt@4.4.2(a486299755fc71fe0936fb2411356a47))(satori@0.26.0)(sharp@0.34.5)(tailwindcss@4.2.2)(unifont@0.7.4)(unstorage@1.17.5(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260408.1)(@libsql/client@0.17.2)))(ioredis@5.10.1))(vite@7.3.2(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.32(typescript@6.0.2))(zod@4.3.6)
       pinia:
         specifier: ^3.0.4
         version: 3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2))
@@ -2885,6 +2888,9 @@ packages:
     peerDependenciesMeta:
       react-dom:
         optional: true
+
+  '@takumi-rs/wasm@1.0.4':
+    resolution: {integrity: sha512-IZAuEslbHKgMScwzCCBnPJxZOPUCUN1eBfQ5/iuA1NMfAX2JgLHHEpTaS8yy0yEUeILsnjG2nN6I0/L/wSrcCQ==}
 
   '@tanstack/table-core@8.21.3':
     resolution: {integrity: sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==}
@@ -9741,6 +9747,13 @@ snapshots:
     dependencies:
       react: 19.2.5
 
+  '@takumi-rs/wasm@1.0.4(react@19.2.5)':
+    dependencies:
+      '@takumi-rs/helpers': 1.0.4(react@19.2.5)
+    transitivePeerDependencies:
+      - react
+      - react-dom
+
   '@tanstack/table-core@8.21.3': {}
 
   '@tanstack/virtual-core@3.13.23': {}
@@ -12527,7 +12540,7 @@ snapshots:
       - vite
       - vue
 
-  nuxt-og-image@6.3.9(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@nuxt/schema@4.4.2)(@resvg/resvg-js@2.6.2)(@resvg/resvg-wasm@2.6.2)(@takumi-rs/core@1.0.4(react@19.2.5))(@unhead/vue@2.1.13(vue@3.5.32(typescript@6.0.2)))(fontless@0.2.1(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260408.1)(@libsql/client@0.17.2)))(ioredis@5.10.1)(vite@7.3.2(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3)))(nuxt@4.4.2(a486299755fc71fe0936fb2411356a47))(satori@0.26.0)(sharp@0.34.5)(tailwindcss@4.2.2)(unifont@0.7.4)(unstorage@1.17.5(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260408.1)(@libsql/client@0.17.2)))(ioredis@5.10.1))(vite@7.3.2(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.32(typescript@6.0.2))(zod@4.3.6):
+  nuxt-og-image@6.3.9(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@nuxt/schema@4.4.2)(@resvg/resvg-js@2.6.2)(@resvg/resvg-wasm@2.6.2)(@takumi-rs/core@1.0.4(react@19.2.5))(@takumi-rs/wasm@1.0.4(react@19.2.5))(@unhead/vue@2.1.13(vue@3.5.32(typescript@6.0.2)))(fontless@0.2.1(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260408.1)(@libsql/client@0.17.2)))(ioredis@5.10.1)(vite@7.3.2(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3)))(nuxt@4.4.2(a486299755fc71fe0936fb2411356a47))(satori@0.26.0)(sharp@0.34.5)(tailwindcss@4.2.2)(unifont@0.7.4)(unstorage@1.17.5(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260408.1)(@libsql/client@0.17.2)))(ioredis@5.10.1))(vite@7.3.2(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.32(typescript@6.0.2))(zod@4.3.6):
     dependencies:
       '@clack/prompts': 1.2.0
       '@nuxt/kit': 4.4.2(magicast@0.5.2)
@@ -12565,6 +12578,7 @@ snapshots:
       '@resvg/resvg-js': 2.6.2
       '@resvg/resvg-wasm': 2.6.2
       '@takumi-rs/core': 1.0.4(react@19.2.5)
+      '@takumi-rs/wasm': 1.0.4(react@19.2.5)
       fontless: 0.2.1(db0@0.3.4(@libsql/client@0.17.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260408.1)(@libsql/client@0.17.2)))(ioredis@5.10.1)(vite@7.3.2(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       satori: 0.26.0
       sharp: 0.34.5

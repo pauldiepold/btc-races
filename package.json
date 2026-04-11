@@ -35,6 +35,7 @@
     "@pinia/colada-nuxt": "^0.3.2",
     "@pinia/nuxt": "^0.11.3",
     "@takumi-rs/core": "^1.0.4",
+    "@takumi-rs/wasm": "^1.0.4",
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
     "nuxt": "^4.4.2",

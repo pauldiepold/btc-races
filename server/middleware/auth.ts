@@ -11,6 +11,16 @@ export default defineEventHandler(async (event) => {
     return
   }
 
+  // GET /api/events und GET /api/events/[id] sind session-optional
+  const method = getMethod(event)
+  const isPublicEventsRoute
+    = method === 'GET'
+      && (path === '/api/events' || /^\/api\/events\/[^/]+$/.test(path))
+
+  if (isPublicEventsRoute) {
+    return
+  }
+
   // Alle anderen /api/-Routen erfordern eine Session
   if (path.startsWith('/api/')) {
     await requireUserSession(event)

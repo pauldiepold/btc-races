@@ -1,11 +1,15 @@
 import { db, schema } from 'hub:db'
-import { asc, eq, inArray } from 'drizzle-orm'
+import { asc, eq, inArray, sql } from 'drizzle-orm'
 import type { LadvAusschreibung } from '~~/shared/types/ladv'
 import { compareDisciplines, isRunningDiscipline } from '~~/shared/utils/ladv-labels'
-import type { DisciplineDetail, EventDetail, RegistrationDetail } from '~~/shared/types/events'
+import type { DisciplineDetail, EventDetail, EventPublicDetail, RegistrationDetail } from '~~/shared/types/events'
+import type { RegistrationStatus } from '~~/shared/utils/registration'
 
-export default defineEventHandler(async (event) => {
-  const session = await requireUserSession(event)
+const PUBLIC_EVENT_TYPES = ['ladv', 'competition'] as const
+
+export default defineEventHandler(async (event): Promise<EventDetail | EventPublicDetail> => {
+  const session = await getUserSession(event)
+  const isAuthenticated = !!session.user
   const id = getRouterParam(event, 'id')
 
   if (!id) {
@@ -18,6 +22,43 @@ export default defineEventHandler(async (event) => {
 
   if (!dbEvent) {
     throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
+  }
+
+  if (!isAuthenticated) {
+    if (!PUBLIC_EVENT_TYPES.includes(dbEvent.type as typeof PUBLIC_EVENT_TYPES[number])) {
+      throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
+    }
+
+    const countRows = await db
+      .select({
+        status: schema.registrations.status,
+        count: sql<number>`cast(count(*) as int)`,
+      })
+      .from(schema.registrations)
+      .where(eq(schema.registrations.eventId, id))
+      .groupBy(schema.registrations.status)
+
+    const registrationCounts: Partial<Record<RegistrationStatus, number>> = {}
+    for (const row of countRows) {
+      registrationCounts[row.status as RegistrationStatus] = row.count
+    }
+
+    const rawLadvData = dbEvent.ladvData as LadvAusschreibung | null
+    const ladvData = rawLadvData
+      ? {
+          ...rawLadvData,
+          wettbewerbe: (rawLadvData.wettbewerbe ?? []).filter(w => isRunningDiscipline(w.disziplinNew)),
+        }
+      : null
+
+    const { createdBy: _createdBy, ladvData: _ladvData, ...eventFields } = dbEvent
+    const result: EventPublicDetail = {
+      ...eventFields,
+      ladvData,
+      registrationCounts,
+    }
+
+    return result
   }
 
   const regs = await db
@@ -36,8 +77,8 @@ export default defineEventHandler(async (event) => {
     .where(eq(schema.registrations.eventId, id))
     .orderBy(asc(schema.users.firstName), asc(schema.users.lastName))
 
-  const isAdmin = session.user.role === 'admin' || session.user.role === 'superuser'
-  const userId = session.user.id
+  const isAdmin = session.user!.role === 'admin' || session.user!.role === 'superuser'
+  const userId = session.user!.id
 
   let disciplines: typeof schema.registrationDisciplines.$inferSelect[] = []
   if (regs.length > 0) {

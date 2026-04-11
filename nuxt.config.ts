@@ -1,3 +1,5 @@
+import { resolve } from 'node:path'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
@@ -9,16 +11,21 @@ export default defineNuxtConfig({
     '@pinia/colada-nuxt',
     'nuxt-email-renderer',
     '@nuxt/fonts',
+    'nuxt-og-image',
   ],
 
   devtools: { enabled: true },
 
   app: {
     head: {
-      title: 'BTC Wettkampfanmeldung',
+      title: 'BTC Events',
     },
   },
   css: ['~/assets/css/main.css'],
+
+  site: {
+    url: process.env.CF_PAGES_URL || 'http://localhost:3000',
+  },
 
   colorMode: {
     preference: 'dark',
@@ -49,6 +56,12 @@ export default defineNuxtConfig({
     experimental: {
       tasks: true,
     },
+    alias: {
+      // ECodeBlock aus nuxt-email-renderer importiert shiki dynamisch und
+      // zieht ~200 Sprach-Grammars ins Worker-Bundle. Da wir ECodeBlock
+      // nicht verwenden, reicht ein No-Op-Stub.
+      shiki: resolve('./server/stubs/shiki.ts'),
+    },
   },
 
   hub: {
@@ -56,8 +69,12 @@ export default defineNuxtConfig({
       dialect: 'sqlite',
       casing: 'snake_case',
     },
+    kv: true,
   },
   vite: {
+    build: {
+      sourcemap: false,
+    },
     optimizeDeps: {
       include: [
         '@vue/devtools-core',
@@ -90,6 +107,12 @@ export default defineNuxtConfig({
       prefix: 'btc',
       dir: './app/assets/icons',
     }],
+  },
+
+  ogImage: {
+    defaults: {
+      cacheMaxAgeSeconds: 60 * 60 * 24,
+    },
   },
 
 })

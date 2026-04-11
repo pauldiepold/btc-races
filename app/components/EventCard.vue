@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { EventListItem } from '~~/shared/types/events'
+import type { EventListItem, EventListPublicItem } from '~~/shared/types/events'
 
 const props = defineProps<{
-  event: EventListItem
+  event: EventListItem | EventListPublicItem
 }>()
 
 const eventDate = computed(() => toDate(props.event.date))
@@ -27,9 +27,10 @@ const registrationStatusConfig: Record<string, { icon: string, label: string, co
   no: { icon: 'i-ph-x-circle', label: 'Nicht dabei', color: 'neutral' },
 }
 
-const ownRegistration = computed(() =>
-  props.event.ownRegistrationStatus ? registrationStatusConfig[props.event.ownRegistrationStatus] : null,
-)
+const ownRegistration = computed(() => {
+  const status = 'ownRegistrationStatus' in props.event ? props.event.ownRegistrationStatus : null
+  return status ? registrationStatusConfig[status] : null
+})
 </script>
 
 <template>

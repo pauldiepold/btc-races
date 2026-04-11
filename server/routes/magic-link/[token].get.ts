@@ -2,15 +2,20 @@ import { db, schema } from 'hub:db'
 import { eq, and, gt } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
+  const token = getRouterParam(event, 'token')
   const query = getQuery(event)
-  const token = query.token as string
 
   if (!token) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Token is missing',
+      statusMessage: 'Token fehlt.',
     })
   }
+
+  const rawRedirect = query.redirect as string | undefined
+  const redirectTo = rawRedirect?.startsWith('/') && !rawRedirect.startsWith('//')
+    ? rawRedirect
+    : '/'
 
   // 1. Token validieren
   const authToken = await db.query.authTokens.findFirst({
@@ -66,5 +71,5 @@ export default defineEventHandler(async (event) => {
   await db.delete(schema.authTokens).where(eq(schema.authTokens.token, token))
 
   // 5. Weiterleiten
-  return sendRedirect(event, '/')
+  return sendRedirect(event, redirectTo)
 })

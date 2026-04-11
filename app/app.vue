@@ -4,17 +4,12 @@ import { de } from '@nuxt/ui/locale'
 const { user } = useUserSession()
 
 useSeoMeta({
-  description:
-      'Die LADV-Wettkampf-Anmeldung für Mitglieder des Berlin Track Clubs.',
-  ogTitle: 'BTC Wettkampfanmeldung',
-  ogDescription:
-      'Die LADV-Wettkampf-Anmeldung für Mitglieder des Berlin Track Clubs.',
-  ogImage: '/logo-yellow.svg',
-  twitterTitle: 'BTC Wettkampfanmeldung',
-  twitterDescription:
-      'Die LADV-Wettkampf-Anmeldung für Mitglieder des Berlin Track Clubs.',
-  twitterImage: '/logo-yellow.svg',
-  twitterCard: 'summary',
+  description: 'Wettkampf-Events des Berlin Track Clubs.',
+  ogTitle: 'BTC Events',
+  ogDescription: 'Wettkampf-Events des Berlin Track Clubs.',
+  twitterTitle: 'BTC Events',
+  twitterDescription: 'Wettkampf-Events des Berlin Track Clubs.',
+  twitterCard: 'summary_large_image',
 })
 
 useHead({

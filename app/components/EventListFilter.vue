@@ -8,11 +8,29 @@ const raceTypeFilter = defineModel<'track' | 'road' | undefined>('raceTypeFilter
 const championshipFilter = defineModel<'bbm' | 'ndm' | 'dm' | undefined>('championshipFilter')
 const priorityFilter = defineModel<'A' | 'B' | 'C' | undefined>('priorityFilter')
 
-defineProps<{
+const props = defineProps<{
   hasRaceTypeEvents: boolean
   hasChampionshipEvents: boolean
   hasPriorityEvents: boolean
+  publicMode?: boolean
 }>()
+
+const typeFilterItems = computed(() => {
+  if (props.publicMode) {
+    return [
+      { label: 'Alle Events', value: undefined },
+      { label: 'LADV', value: 'ladv' },
+      { label: 'Wettkampf', value: 'competition' },
+    ]
+  }
+  return [
+    { label: 'Alle Events', value: undefined },
+    { label: 'LADV', value: 'ladv' },
+    { label: 'Wettkampf', value: 'competition' },
+    { label: 'Training', value: 'training' },
+    { label: 'Social', value: 'social' },
+  ]
+})
 
 const isCreateModalOpen = ref(false)
 const isFilterPopoverOpen = ref(false)
@@ -22,14 +40,6 @@ const createOptions: { type: CreateEventType, label: string, description: string
   { type: 'competition', label: 'Wettkampf', description: 'Wettkampf manuell anlegen', icon: 'i-ph-trophy' },
   { type: 'training', label: 'Training', description: 'Trainingstermin erstellen', icon: 'i-ph-lightning' },
   { type: 'social', label: 'Social', description: 'Gemeinschaftsevent anlegen', icon: 'i-ph-confetti' },
-]
-
-const typeFilterItems = [
-  { label: 'Alle Events', value: undefined },
-  { label: 'LADV', value: 'ladv' },
-  { label: 'Wettkampf', value: 'competition' },
-  { label: 'Training', value: 'training' },
-  { label: 'Social', value: 'social' },
 ]
 
 const timeRangeItems = [
@@ -81,7 +91,10 @@ async function handleCreate(type: CreateEventType) {
 
 <template>
   <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center">
-    <div class="flex justify-end sm:order-last sm:ml-auto">
+    <div
+      v-if="!publicMode"
+      class="flex justify-end sm:order-last sm:ml-auto"
+    >
       <UModal
         v-model:open="isCreateModalOpen"
         title="Event erstellen"

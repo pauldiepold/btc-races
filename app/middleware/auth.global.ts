@@ -1,14 +1,19 @@
 export default defineNuxtRouteMiddleware((to) => {
   const { loggedIn, user } = useUserSession()
 
-  // Login-Seite ist öffentlich zugänglich
-  if (to.path === '/login' || to.path === '/link-gesendet') {
+  // Öffentlich zugängliche Seiten
+  if (to.path === '/' || to.path === '/login' || to.path === '/link-gesendet') {
     return
   }
 
-  // Wenn nicht eingeloggt, zur Login-Seite weiterleiten
+  // Event-Detailseiten sind öffentlich (Gäste sehen eingeschränkte Ansicht)
+  if (/^\/events\/[^/]+$/.test(to.path)) {
+    return
+  }
+
+  // Wenn nicht eingeloggt, zur Login-Seite weiterleiten (mit redirect zurück zur Zielseite)
   if (!loggedIn.value) {
-    return navigateTo('/login')
+    return navigateTo(`/login?redirect=${encodeURIComponent(to.fullPath)}`)
   }
 
   const role = user.value?.role

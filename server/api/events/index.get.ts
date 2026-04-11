@@ -1,6 +1,7 @@
 import { db, schema } from 'hub:db'
-import { and, asc, desc, eq, gte, isNotNull, isNull, lt, or, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt, or, sql } from 'drizzle-orm'
 import { z } from 'zod'
+import type { EventListItem, EventListPublicItem } from '~~/shared/types/events'
 
 const berlinDateFormatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' })
 
@@ -9,8 +10,11 @@ const querySchema = z.object({
   timeRange: z.enum(['upcoming', 'past', 'all']).optional(),
 })
 
-export default defineEventHandler(async (event) => {
-  const session = await requireUserSession(event)
+const PUBLIC_EVENT_TYPES = ['ladv', 'competition'] as const
+
+export default defineEventHandler(async (event): Promise<EventListItem[] | EventListPublicItem[]> => {
+  const session = await getUserSession(event)
+  const isAuthenticated = !!session.user
 
   const query = getQuery(event)
   const params = querySchema.safeParse(query)
@@ -23,8 +27,14 @@ export default defineEventHandler(async (event) => {
 
   const conditions = []
 
-  if (type) {
-    conditions.push(eq(schema.events.type, type))
+  if (isAuthenticated) {
+    if (type) {
+      conditions.push(eq(schema.events.type, type))
+    }
+  }
+  else {
+    // Ohne Auth: immer auf ladv/competition beschränken
+    conditions.push(inArray(schema.events.type, PUBLIC_EVENT_TYPES))
   }
 
   if (timeRange === 'past') {
@@ -34,7 +44,43 @@ export default defineEventHandler(async (event) => {
     conditions.push(or(isNull(schema.events.date), gte(schema.events.date, today)))
   }
 
-  const userId = session.user.id
+  if (!isAuthenticated) {
+    const events = await db
+      .select({
+        id: schema.events.id,
+        type: schema.events.type,
+        name: schema.events.name,
+        date: schema.events.date,
+        startTime: schema.events.startTime,
+        duration: schema.events.duration,
+        location: schema.events.location,
+        description: schema.events.description,
+        registrationDeadline: schema.events.registrationDeadline,
+        announcementLink: schema.events.announcementLink,
+        cancelledAt: schema.events.cancelledAt,
+        raceType: schema.events.raceType,
+        championshipType: schema.events.championshipType,
+        isWrc: schema.events.isWrc,
+        priority: schema.events.priority,
+        ladvId: schema.events.ladvId,
+        ladvLastSync: schema.events.ladvLastSync,
+        createdAt: schema.events.createdAt,
+        updatedAt: schema.events.updatedAt,
+        participantCount: sql<number>`cast(count(case when ${schema.registrations.status} not in ('canceled', 'no') then 1 end) as int)`,
+      })
+      .from(schema.events)
+      .leftJoin(schema.registrations, eq(schema.events.id, schema.registrations.eventId))
+      .where(conditions.length ? and(...conditions) : undefined)
+      .groupBy(schema.events.id)
+      .orderBy(
+        sql`case when ${schema.events.date} is null then 1 else 0 end`,
+        timeRange === 'past' ? desc(schema.events.date) : asc(schema.events.date),
+      )
+
+    return events
+  }
+
+  const userId = session.user!.id
 
   const events = await db
     .select({

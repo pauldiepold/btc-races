@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { EventDetail } from '~~/shared/types/events'
+import type { EventResponse } from '~~/shared/types/events'
 import { ageClassSortIndex, disciplineSortIndex, ladvDisciplineLabel } from '~~/shared/utils/ladv-labels'
 
-const props = defineProps<{ event: EventDetail }>()
+const props = defineProps<{ event: EventResponse }>()
 
 const eventDate = computed(() => toDate(props.event.date))
 const day = computed(() =>

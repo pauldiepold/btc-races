@@ -4,7 +4,7 @@ const colorMode = useColorMode()
 const isOpen = ref(false)
 
 const isAdmin = computed(() => session.value?.user?.role === 'admin' || session.value?.user?.role === 'superuser')
-const avatarUrlSmall = computed(() => user.value?.id ? useAvatarUrl(user.value.id) : undefined)
+const avatarUrlSmall = computed(() => user.value?.hasAvatar ? useAvatarUrl(user.value.id) : undefined)
 const avatarAlt = computed(() => `${user.value?.firstName ?? ''} ${user.value?.lastName ?? ''}`)
 const isSuperuser = computed(() => session.value?.user?.role === 'superuser')
 
@@ -18,7 +18,7 @@ async function logout() {
   isOpen.value = false
   await $fetch('/api/auth/logout', { method: 'POST' })
   await clear()
-  await navigateTo('/login')
+  await navigateTo('/')
 }
 </script>
 

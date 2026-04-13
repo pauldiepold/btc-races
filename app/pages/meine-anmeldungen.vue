@@ -23,7 +23,7 @@ const ROLE_COLORS: Record<string, BadgeColor> = {
   superuser: 'warning',
 }
 
-const avatarUrlLarge = computed(() => user.value?.id ? useAvatarUrl(user.value.id, 'large') : undefined)
+const avatarUrlLarge = computed(() => user.value?.hasAvatar ? useAvatarUrl(user.value.id, 'large') : undefined)
 const avatarAlt = computed(() => `${user.value?.firstName ?? ''} ${user.value?.lastName ?? ''}`)
 </script>
 

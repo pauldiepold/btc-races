@@ -35,7 +35,7 @@ const ownRegistration = computed(() => {
 
 <template>
   <NuxtLink
-    :to="`/events/${event.id}`"
+    :to="`/${event.id}`"
     class="group flex items-center gap-4 px-4 py-4 rounded-[--ui-radius] border border-default bg-muted hover:bg-accented hover:border-accented transition-all duration-150"
     :class="{ 'opacity-50': event.cancelledAt }"
   >

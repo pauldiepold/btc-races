@@ -116,7 +116,7 @@ const avatarAlt = computed(() => `${user.value?.firstName ?? ''} ${user.value?.l
         <NuxtLink
           v-for="reg in registrations"
           :key="reg.id"
-          :to="`/events/${reg.event.id}`"
+          :to="`/${reg.event.id}`"
           class="flex items-center gap-4 px-4 py-3.5 hover:bg-elevated transition-colors group"
         >
           <!-- Datum -->

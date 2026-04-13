@@ -2,6 +2,8 @@
 import type { EventDetail, EventPublicDetail, EventResponse } from '~~/shared/types/events'
 import { generateEventOgDescription, isEventPublicDetail } from '~~/shared/utils/events'
 
+definePageMeta({ public: true })
+
 const route = useRoute()
 const toast = useToast()
 const config = useRuntimeConfig()
@@ -24,7 +26,7 @@ useSeoMeta({
   description: computed(() => event.value ? generateEventOgDescription(event.value) : undefined),
   ogTitle: computed(() => event.value?.name),
   ogDescription: computed(() => event.value ? generateEventOgDescription(event.value) : undefined),
-  ogUrl: `${config.public.siteUrl}/events/${id}`,
+  ogUrl: `${config.public.siteUrl}/${id}`,
   ogType: 'website',
 })
 

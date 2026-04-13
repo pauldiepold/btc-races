@@ -5,78 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1767016847282,
-      "tag": "0000_smart_franklin_richards",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1767044919705,
-      "tag": "0001_opposite_nemesis",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1775307603179,
-      "tag": "0002_thick_micromacro",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1775367792561,
-      "tag": "0003_amused_siren",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1775455321322,
-      "tag": "0004_chubby_outlaw_kid",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1775679871360,
-      "tag": "0005_fat_sauron",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "6",
-      "when": 1775681951771,
-      "tag": "0006_wild_vengeance",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "6",
-      "when": 1775853659169,
-      "tag": "0007_legal_cardiac",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "6",
-      "when": 1775893145602,
-      "tag": "0008_shiny_dagger",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "6",
-      "when": 1776114432497,
-      "tag": "0009_wet_wendell_rand",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "6",
-      "when": 1776116411588,
-      "tag": "0010_military_trish_tilby",
+      "when": 1776118302032,
+      "tag": "0000_moaning_black_tom",
       "breakpoints": true
     }
   ]

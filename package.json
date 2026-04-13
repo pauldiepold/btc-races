@@ -43,6 +43,7 @@
     "nuxt-email-renderer": "2.6.0",
     "nuxt-og-image": "^6.3.9",
     "pinia": "^3.0.4",
+    "sqids": "^0.3.0",
     "vue": "^3.5.32",
     "vue-router": "^5.0.4",
     "wrangler": "^4.81.0",

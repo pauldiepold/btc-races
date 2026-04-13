@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
     else {
       grouped.set(key, {
         type,
-        eventId: row.eventId,
+        eventId: encodeEventId(row.eventId),
         eventName: row.eventName,
         eventDate: row.eventDate,
         ladvId: row.ladvId,

@@ -1,5 +1,4 @@
 import { db, schema } from 'hub:db'
-import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
 
 const createEventSchema = z.object({
@@ -30,8 +29,7 @@ export default defineEventHandler(async (event) => {
   const now = new Date()
   const isAdmin = session.user.role === 'admin' || session.user.role === 'superuser'
 
-  const newEvent = {
-    id: randomUUID(),
+  const inserted = await db.insert(schema.events).values({
     type: data.type,
     name: data.name,
     date: data.date ?? null,
@@ -47,10 +45,10 @@ export default defineEventHandler(async (event) => {
     createdBy: session.user.id,
     createdAt: now,
     updatedAt: now,
-  }
+  }).returning({ id: schema.events.id })
 
-  await db.insert(schema.events).values(newEvent)
+  const newId = inserted[0]!.id
 
   setResponseStatus(event, 201)
-  return { id: newEvent.id }
+  return { id: encodeEventId(newId) }
 })

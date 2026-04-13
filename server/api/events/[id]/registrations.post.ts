@@ -1,6 +1,5 @@
 import { db, schema } from 'hub:db'
 import { and, eq } from 'drizzle-orm'
-import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import { getInitialStatus } from '~~/shared/utils/registration'
@@ -16,10 +15,15 @@ const bodySchema = z.object({
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
-  const id = getRouterParam(event, 'id')
+  const sqid = getRouterParam(event, 'id')
 
-  if (!id) {
+  if (!sqid) {
     throw createError({ statusCode: 400, statusMessage: 'Fehlende Event-ID' })
+  }
+
+  const id = decodeEventId(sqid)
+  if (id === null) {
+    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
   }
 
   const body = await readBody(event)
@@ -72,7 +76,6 @@ export default defineEventHandler(async (event) => {
   }
 
   const now = new Date()
-  const registrationId = randomUUID()
 
   // Initialen Status bestimmen: angefordert (falls erlaubt) oder Fallback
   const validInitial: Record<string, string[]> = {
@@ -85,20 +88,20 @@ export default defineEventHandler(async (event) => {
     ? requestedStatus
     : getInitialStatus(dbEvent.type)
 
-  await db.insert(schema.registrations).values({
-    id: registrationId,
+  const insertedReg = await db.insert(schema.registrations).values({
     eventId: id,
     userId: session.user.id,
     status: initialStatus,
     notes: notes ?? null,
     createdAt: now,
     updatedAt: now,
-  })
+  }).returning({ id: schema.registrations.id })
+
+  const registrationId = insertedReg[0]!.id
 
   if (dbEvent.type === 'ladv' && disciplines && disciplines.length > 0) {
     await db.insert(schema.registrationDisciplines).values(
       disciplines.map(d => ({
-        id: randomUUID(),
         registrationId,
         discipline: d.discipline,
         ageClass: d.ageClass,

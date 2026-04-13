@@ -64,6 +64,20 @@
       "when": 1775893145602,
       "tag": "0008_shiny_dagger",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1776114432497,
+      "tag": "0009_wet_wendell_rand",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1776116411588,
+      "tag": "0010_military_trish_tilby",
+      "breakpoints": true
     }
   ]
 }

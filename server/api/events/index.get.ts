@@ -77,7 +77,7 @@ export default defineEventHandler(async (event): Promise<EventListItem[] | Event
         timeRange === 'past' ? desc(schema.events.date) : asc(schema.events.date),
       )
 
-    return events
+    return events.map(e => ({ ...e, id: encodeEventId(e.id) }))
   }
 
   const userId = session.user!.id
@@ -106,7 +106,7 @@ export default defineEventHandler(async (event): Promise<EventListItem[] | Event
       updatedAt: schema.events.updatedAt,
       participantCount: sql<number>`cast(count(case when ${schema.registrations.status} not in ('canceled', 'no') then 1 end) as int)`,
       ownRegistrationStatus: sql<string | null>`max(case when ${schema.registrations.userId} = ${userId} then ${schema.registrations.status} end)`,
-      ownRegistrationId: sql<string | null>`max(case when ${schema.registrations.userId} = ${userId} then ${schema.registrations.id} end)`,
+      ownRegistrationId: sql<number | null>`max(case when ${schema.registrations.userId} = ${userId} then ${schema.registrations.id} end)`,
     })
     .from(schema.events)
     .leftJoin(schema.registrations, eq(schema.events.id, schema.registrations.eventId))
@@ -117,5 +117,5 @@ export default defineEventHandler(async (event): Promise<EventListItem[] | Event
       timeRange === 'past' ? desc(schema.events.date) : asc(schema.events.date),
     )
 
-  return events
+  return events.map(e => ({ ...e, id: encodeEventId(e.id) }))
 })

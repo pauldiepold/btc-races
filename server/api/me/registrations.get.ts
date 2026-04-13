@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
     .where(inArray(schema.registrationDisciplines.registrationId, regIds))
     .orderBy(asc(schema.registrationDisciplines.createdAt))
 
-  const disciplinesByRegId = new Map<string, DisciplineDetail[]>()
+  const disciplinesByRegId = new Map<number, DisciplineDetail[]>()
   for (const d of disciplines) {
     const item: DisciplineDetail = {
       id: d.id,
@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
     notes: r.notes,
     createdAt: r.createdAt,
     event: {
-      id: r.eventId,
+      id: encodeEventId(r.eventId),
       name: r.eventName,
       date: r.eventDate,
       type: r.eventType,

@@ -20,7 +20,7 @@ export async function requireSuperuser(event: Parameters<typeof requireUserSessi
 
 export async function requireOwnerOrAdmin(
   event: Parameters<typeof requireUserSession>[0],
-  ownerId: string,
+  ownerId: number,
 ) {
   const session = await requireUserSession(event)
   if (session.user.id !== ownerId && !isAdminOrSuperuser(session.user.role)) {

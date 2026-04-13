@@ -81,7 +81,7 @@ export async function runSyncMembers(): Promise<SyncMembersResult> {
     }
     else {
       await db.insert(schema.users)
-        .values({ id: crypto.randomUUID(), ...userData })
+        .values(userData)
       created++
     }
   }

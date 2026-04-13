@@ -2,25 +2,27 @@ import type { Event } from './db'
 import type { LadvAusschreibung } from './ladv'
 import type { EventType, RegistrationStatus } from '../utils/registration'
 
-export type EventListItem = Omit<Event, 'ladvData'> & {
+// Event-IDs werden in der API als Sqid-Strings zurückgegeben (enkodierter Integer)
+export type EventListItem = Omit<Event, 'ladvData' | 'id'> & {
+  id: string
   participantCount: number
   ownRegistrationStatus: 'registered' | 'canceled' | 'maybe' | 'yes' | 'no' | null
-  ownRegistrationId: string | null
+  ownRegistrationId: number | null
 }
 
 export type DisciplineDetail = {
-  id: string
+  id: number
   discipline: string
   ageClass: string
   ladvRegisteredAt: Date | null
-  ladvRegisteredBy: string | null
+  ladvRegisteredBy: number | null
   ladvCanceledAt: Date | null
-  ladvCanceledBy: string | null
+  ladvCanceledBy: number | null
 }
 
 export type RegistrationDetail = {
-  id: string
-  userId: string
+  id: number
+  userId: number
   firstName: string | null
   lastName: string | null
   hasAvatar: boolean
@@ -30,14 +32,16 @@ export type RegistrationDetail = {
   disciplines: DisciplineDetail[]
 }
 
-export type EventDetail = Omit<Event, 'ladvData'> & {
+export type EventDetail = Omit<Event, 'ladvData' | 'id'> & {
+  id: string
   ladvData: LadvAusschreibung | null
   registrations: RegistrationDetail[]
 }
 
 export type EventPublicRegistrationCounts = Partial<Record<RegistrationStatus, number>>
 
-export type EventPublicDetail = Omit<Event, 'ladvData' | 'createdBy'> & {
+export type EventPublicDetail = Omit<Event, 'ladvData' | 'createdBy' | 'id'> & {
+  id: string
   ladvData: LadvAusschreibung | null
   registrationCounts: EventPublicRegistrationCounts
 }
@@ -48,31 +52,31 @@ export type EventResponse = EventDetail | EventPublicDetail
 export type EventListResponse = EventListItem[] | EventListPublicItem[]
 
 export type LadvTodoDiscipline = {
-  id: string
+  id: number
   discipline: string
   ageClass: string
 }
 
 export type LadvTodo = {
   type: 'register' | 'cancel'
-  eventId: string
+  eventId: string // Sqid — wird für URL-Navigation genutzt
   eventName: string
   eventDate: string | null
   ladvId: number | null
-  registrationId: string
+  registrationId: number
   disciplines: LadvTodoDiscipline[]
-  userId: string
+  userId: number
   firstName: string | null
   lastName: string | null
 }
 
 export type MyRegistration = {
-  id: string
+  id: number
   status: RegistrationStatus
   notes: string | null
   createdAt: Date
   event: {
-    id: string
+    id: string // Sqid — wird für URL-Navigation genutzt
     name: string
     date: string | null
     type: EventType

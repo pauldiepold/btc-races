@@ -4,10 +4,15 @@ import { requireAdmin } from '~~/server/utils/auth'
 
 export default defineEventHandler(async (event) => {
   const session = await requireAdmin(event)
-  const id = getRouterParam(event, 'id')
+  const rawId = getRouterParam(event, 'id')
 
-  if (!id) {
+  if (!rawId) {
     throw createError({ statusCode: 400, statusMessage: 'Fehlende Parameter' })
+  }
+
+  const id = Number(rawId)
+  if (!Number.isInteger(id) || id <= 0) {
+    throw createError({ statusCode: 400, statusMessage: 'Ungültige Anmeldungs-ID' })
   }
 
   const registration = await db.query.registrations.findFirst({

@@ -25,6 +25,7 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - Google-Maps-Suchlink für LADV-Veranstaltungsort
 - Event-Priorität A / B / C für `ladv`- und `competition`-Events — #23
 - Öffentliche Event-Detailseite für nicht eingeloggte Gäste: Registrierungszähler sichtbar, Login-CTA statt Anmeldeformular — #36
+- Kurze Event-URLs via Sqids (Integer-PKs, enkodierte Event-IDs in URLs, z. B. `/events/wrnk`) — #38
 - Dynamische OG Images via `nuxt-og-image` (Satori, Edge-kompatibel): Default-Template für alle Seiten, Event-Template (Props-Verdrahtung ausstehend → #40) — #39
 
 ---

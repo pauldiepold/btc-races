@@ -56,6 +56,9 @@ importers:
       pinia:
         specifier: ^3.0.4
         version: 3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2))
+      sqids:
+        specifier: ^0.3.0
+        version: 0.3.0
       vue:
         specifier: ^3.5.32
         version: 3.5.32(typescript@6.0.2)
@@ -6419,6 +6422,9 @@ packages:
   speakingurl@14.0.1:
     resolution: {integrity: sha512-1POYv7uv2gXoyGFpBCmpDVSNV74IfsWlDW216UPjbWufNf+bSU6GdbDsxdcxtfwb4xlI3yxzOTKClUosxARYrQ==}
     engines: {node: '>=0.10.0'}
+
+  sqids@0.3.0:
+    resolution: {integrity: sha512-lOQK1ucVg+W6n3FhRwwSeUijxe93b51Bfz5PMRMihVf1iVkl82ePQG7V5vwrhzB11v0NtsR25PSZRGiSomJaJw==}
 
   srvx@0.11.15:
     resolution: {integrity: sha512-iXsux0UcOjdvs0LCMa2Ws3WwcDUozA3JN3BquNXkaFPP7TpRqgunKdEgoZ/uwb1J6xaYHfxtz9Twlh6yzwM6Tg==}
@@ -13783,6 +13789,8 @@ snapshots:
   spdx-license-ids@3.0.23: {}
 
   speakingurl@14.0.1: {}
+
+  sqids@0.3.0: {}
 
   srvx@0.11.15: {}
 

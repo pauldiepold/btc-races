@@ -5,8 +5,13 @@ import { requireAdmin } from '~~/server/utils/auth'
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
 
-  const userId = getRouterParam(event, 'userId')
-  if (!userId) throw createError({ statusCode: 400, statusMessage: 'userId fehlt' })
+  const rawUserId = getRouterParam(event, 'userId')
+  if (!rawUserId) throw createError({ statusCode: 400, statusMessage: 'userId fehlt' })
+
+  const userId = Number(rawUserId)
+  if (!Number.isInteger(userId) || userId <= 0) {
+    throw createError({ statusCode: 400, statusMessage: 'Ungültige User-ID' })
+  }
 
   const body = await readBody<{ small?: string, large?: string }>(event)
   if (!body?.small || !body?.large) {

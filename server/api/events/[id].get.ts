@@ -10,10 +10,15 @@ const PUBLIC_EVENT_TYPES = ['ladv', 'competition'] as const
 export default defineEventHandler(async (event): Promise<EventDetail | EventPublicDetail> => {
   const session = await getUserSession(event)
   const isAuthenticated = !!session.user
-  const id = getRouterParam(event, 'id')
+  const sqid = getRouterParam(event, 'id')
 
-  if (!id) {
+  if (!sqid) {
     throw createError({ statusCode: 400, statusMessage: 'Fehlende Event-ID' })
+  }
+
+  const id = decodeEventId(sqid)
+  if (id === null) {
+    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
   }
 
   const dbEvent = await db.query.events.findFirst({
@@ -54,6 +59,7 @@ export default defineEventHandler(async (event): Promise<EventDetail | EventPubl
     const { createdBy: _createdBy, ladvData: _ladvData, ...eventFields } = dbEvent
     const result: EventPublicDetail = {
       ...eventFields,
+      id: sqid,
       ladvData,
       registrationCounts,
     }
@@ -90,9 +96,9 @@ export default defineEventHandler(async (event): Promise<EventDetail | EventPubl
       .orderBy(asc(schema.registrationDisciplines.createdAt))
   }
 
-  const regUserMap = new Map<string, string>(regs.map(r => [r.id, r.userId]))
+  const regUserMap = new Map<number, number>(regs.map(r => [r.id, r.userId!]))
+  const disciplinesByRegId = new Map<number, DisciplineDetail[]>()
 
-  const disciplinesByRegId = new Map<string, DisciplineDetail[]>()
   for (const d of disciplines) {
     const regUserId = regUserMap.get(d.registrationId)
     const showLadv = isAdmin || regUserId === userId
@@ -118,7 +124,7 @@ export default defineEventHandler(async (event): Promise<EventDetail | EventPubl
 
   const registrations: RegistrationDetail[] = regs.map(r => ({
     id: r.id,
-    userId: r.userId,
+    userId: r.userId!,
     firstName: r.firstName,
     lastName: r.lastName,
     hasAvatar: r.hasAvatar !== null,
@@ -138,6 +144,7 @@ export default defineEventHandler(async (event): Promise<EventDetail | EventPubl
 
   const result: EventDetail = {
     ...dbEvent,
+    id: sqid,
     ladvData,
     registrations,
   }

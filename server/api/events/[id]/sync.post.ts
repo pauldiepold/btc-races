@@ -6,9 +6,14 @@ import type { DisciplineDetail, EventDetail, RegistrationDetail } from '~~/share
 import type { LadvAusschreibung } from '~~/shared/types/ladv'
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, 'id')
-  if (!id) {
+  const sqid = getRouterParam(event, 'id')
+  if (!sqid) {
     throw createError({ statusCode: 400, statusMessage: 'Fehlende Event-ID' })
+  }
+
+  const id = decodeEventId(sqid)
+  if (id === null) {
+    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
   }
 
   const session = await requireAdmin(event)
@@ -79,8 +84,9 @@ export default defineEventHandler(async (event) => {
       .orderBy(asc(schema.registrationDisciplines.createdAt))
   }
 
-  const regUserMap = new Map<string, string>(regs.map(r => [r.id, r.userId]))
-  const disciplinesByRegId = new Map<string, DisciplineDetail[]>()
+  const regUserMap = new Map<number, number>(regs.map(r => [r.id, r.userId!]))
+  const disciplinesByRegId = new Map<number, DisciplineDetail[]>()
+
   for (const d of disciplines) {
     const regUserId = regUserMap.get(d.registrationId)
     const showLadv = isAdmin || regUserId === userId
@@ -100,7 +106,7 @@ export default defineEventHandler(async (event) => {
 
   const registrations: RegistrationDetail[] = regs.map(r => ({
     id: r.id,
-    userId: r.userId,
+    userId: r.userId!,
     firstName: r.firstName,
     lastName: r.lastName,
     hasAvatar: r.hasAvatar !== null,
@@ -117,6 +123,7 @@ export default defineEventHandler(async (event) => {
 
   const result: EventDetail = {
     ...updatedEvent!,
+    id: sqid,
     ladvData,
     registrations,
   }

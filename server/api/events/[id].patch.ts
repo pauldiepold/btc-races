@@ -17,9 +17,14 @@ const patchEventSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, 'id')
-  if (!id) {
+  const sqid = getRouterParam(event, 'id')
+  if (!sqid) {
     throw createError({ statusCode: 400, statusMessage: 'Fehlende Event-ID' })
+  }
+
+  const id = decodeEventId(sqid)
+  if (id === null) {
+    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
   }
 
   const dbEvent = await db.query.events.findFirst({
@@ -30,7 +35,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const session = await requireUserSession(event)
-  await requireOwnerOrAdmin(event, dbEvent.createdBy ?? '')
+  await requireOwnerOrAdmin(event, dbEvent.createdBy ?? 0)
 
   const body = await readBody(event)
   const result = patchEventSchema.safeParse(body)
@@ -60,5 +65,5 @@ export default defineEventHandler(async (event) => {
 
   await db.update(schema.events).set(updates).where(eq(schema.events.id, id))
 
-  return { id }
+  return { id: sqid }
 })

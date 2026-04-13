@@ -35,6 +35,7 @@ export default defineNuxtConfig({
     campaiOrgId: '',
     cronToken: '',
     ladvApiKey: '',
+
     // E-Mail-Konfiguration
     emailProvider: 'local',
     emailAzureString: '',

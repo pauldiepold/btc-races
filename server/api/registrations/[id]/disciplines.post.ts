@@ -1,6 +1,5 @@
 import { db, schema } from 'hub:db'
 import { eq } from 'drizzle-orm'
-import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 
@@ -11,10 +10,15 @@ const bodySchema = z.object({
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
-  const id = getRouterParam(event, 'id')
+  const rawId = getRouterParam(event, 'id')
 
-  if (!id) {
+  if (!rawId) {
     throw createError({ statusCode: 400, statusMessage: 'Fehlende Anmeldungs-ID' })
+  }
+
+  const id = Number(rawId)
+  if (!Number.isInteger(id) || id <= 0) {
+    throw createError({ statusCode: 400, statusMessage: 'Ungültige Anmeldungs-ID' })
   }
 
   const body = await readBody(event)
@@ -50,15 +54,15 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 422, statusMessage: 'Meldefrist abgelaufen' })
   }
 
-  const disciplineId = randomUUID()
+  let disciplineId: number
   try {
-    await db.insert(schema.registrationDisciplines).values({
-      id: disciplineId,
+    const inserted = await db.insert(schema.registrationDisciplines).values({
       registrationId: id,
       discipline,
       ageClass,
       createdAt: new Date(),
-    })
+    }).returning({ id: schema.registrationDisciplines.id })
+    disciplineId = inserted[0]!.id
   }
   catch {
     // UNIQUE (registrationId, discipline) verletzt

@@ -21,13 +21,17 @@ useHead(() => ({
 }))
 
 useSeoMeta({
+  description: computed(() => event.value ? generateEventOgDescription(event.value) : undefined),
   ogTitle: computed(() => event.value?.name),
   ogDescription: computed(() => event.value ? generateEventOgDescription(event.value) : undefined),
   ogUrl: `${config.public.siteUrl}/events/${id}`,
   ogType: 'website',
 })
 
-defineOgImage('Default')
+defineOgImage('Default', { title: 'Events - Berlin Track Club' }, [
+  { key: 'og', width: 1200, height: 630 },
+  { key: 'whatsapp', width: 600, height: 600 },
+])
 
 const isInitialLoading = computed(() => status.value === 'pending' && !event.value)
 

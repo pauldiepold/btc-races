@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import type { EventListItem, EventListPublicItem } from '~~/shared/types/events'
 
-definePageMeta({ title: 'Events' })
+definePageMeta({ title: 'Events - Berlin Track Club' })
 
 const { loggedIn } = useUserSession()
 
-defineOgImage('Default')
-
 useSeoMeta({
-  ogTitle: 'Wettkampfkalender – Berlin Track Club',
-  ogDescription: 'Alle Wettkämpfe des Berlin Track Club auf einen Blick. Melde dich an, lass dich einschreiben und starte durch.',
+  ogTitle: 'Eventkalender – Berlin Track Club',
+  ogDescription: 'Alle Events des Berlin Track Club auf einen Blick.',
   ogType: 'website',
 })
+
+defineOgImage('Default', { title: 'Events - Berlin Track Club' }, [
+  { key: 'og', width: 1200, height: 630 },
+  { key: 'whatsapp', width: 600, height: 600 },
+])
 
 const typeFilter = ref<string | undefined>(undefined)
 const timeRange = ref('upcoming')

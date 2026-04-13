@@ -4,11 +4,11 @@ import { de } from '@nuxt/ui/locale'
 const { user } = useUserSession()
 
 useSeoMeta({
-  description: 'Wettkampf-Events des Berlin Track Clubs.',
+  description: 'Events des Berlin Track Clubs.',
   ogTitle: 'BTC Events',
-  ogDescription: 'Wettkampf-Events des Berlin Track Clubs.',
+  ogDescription: 'Events des Berlin Track Clubs.',
   twitterTitle: 'BTC Events',
-  twitterDescription: 'Wettkampf-Events des Berlin Track Clubs.',
+  twitterDescription: 'Events des Berlin Track Clubs.',
   twitterCard: 'summary_large_image',
 })
 

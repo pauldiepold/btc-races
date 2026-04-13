@@ -1,3 +1,3 @@
-export function useAvatarUrl(userId: string, size: 'small' | 'large' = 'small') {
+export function useAvatarUrl(userId: number, size: 'small' | 'large' = 'small') {
   return `/api/avatar/${userId}?size=${size}`
 }

@@ -1,6 +1,5 @@
 import { db, schema } from 'hub:db'
 import { eq } from 'drizzle-orm'
-import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import { LadvService } from '~~/server/external-apis/ladv/ladv.service'
 import { parseLadvIdFromUrl } from '~~/server/utils/ladv'
@@ -32,7 +31,7 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 409,
       statusMessage: 'Ein Event mit dieser LADV-ID existiert bereits.',
-      data: { existingEventId: existing.id },
+      data: { existingEventId: encodeEventId(existing.id) },
     })
   }
 
@@ -48,8 +47,7 @@ export default defineEventHandler(async (event) => {
 
   const now = new Date()
 
-  const newEvent = {
-    id: randomUUID(),
+  const inserted = await db.insert(schema.events).values({
     type: 'ladv' as const,
     name: normalized.name,
     date: normalized.date,
@@ -64,10 +62,10 @@ export default defineEventHandler(async (event) => {
     createdBy: session.user.id,
     createdAt: now,
     updatedAt: now,
-  }
+  }).returning({ id: schema.events.id })
 
-  await db.insert(schema.events).values(newEvent)
+  const newId = inserted[0]!.id
 
   setResponseStatus(event, 201)
-  return { id: newEvent.id }
+  return { id: encodeEventId(newId) }
 })

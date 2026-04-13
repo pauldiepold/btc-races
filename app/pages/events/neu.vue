@@ -112,7 +112,7 @@ async function onSubmit(_event: FormSubmitEvent<Schema>) {
         priority: isCompetition.value ? (state.priority || undefined) : undefined,
       },
     })
-    await navigateTo(`/events/${id}`)
+    await navigateTo(`/${id}`)
   }
   catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Ein Fehler ist aufgetreten.'

@@ -19,7 +19,7 @@ const {
   eventLocation = 'Berlin',
   registrationDeadline = '10.03.2025',
   eventVenue,
-  eventLink = 'https://btc-races.de/events/1',
+  eventLink = 'https://btc-races.de/1',
 } = defineProps<Props>()
 
 const styles = {

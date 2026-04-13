@@ -2,14 +2,19 @@ import { eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
 
 export default defineEventHandler(async (event) => {
-  const userId = getRouterParam(event, 'userId')
+  const rawUserId = getRouterParam(event, 'userId')
   const query = getQuery(event)
   const size = query.size === 'large' ? 'large' : 'small'
+
+  const userId = Number(rawUserId)
+  if (!Number.isInteger(userId) || userId <= 0) {
+    throw createError({ statusCode: 400, statusMessage: 'Ungültige User-ID' })
+  }
 
   const user = await db
     .select({ avatarSmall: schema.users.avatarSmall, avatarLarge: schema.users.avatarLarge, avatarUpdatedAt: schema.users.avatarUpdatedAt })
     .from(schema.users)
-    .where(eq(schema.users.id, userId!))
+    .where(eq(schema.users.id, userId))
     .get()
 
   const base64 = size === 'large' ? user?.avatarLarge : user?.avatarSmall

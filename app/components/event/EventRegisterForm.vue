@@ -192,7 +192,7 @@ const showAddExisting = ref(false)
 const addExistingCode = ref('')
 const addExistingAgeClass = ref('')
 const addExistingLoading = ref(false)
-const removeDiscLoading = ref<string | null>(null)
+const removeDiscLoading = ref<number | null>(null)
 
 const addExistingDisciplineItems = computed(() => buildDisciplineItems(ownRegDisciplineCodes.value))
 const addExistingAgeClassItems = computed(() => buildAgeClassItems(addExistingCode.value))
@@ -228,7 +228,7 @@ async function addExistingDiscipline() {
   }
 }
 
-async function removeDiscipline(disciplineId: string) {
+async function removeDiscipline(disciplineId: number) {
   if (!ownReg.value) return
   removeDiscLoading.value = disciplineId
   try {

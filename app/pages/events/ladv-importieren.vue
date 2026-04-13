@@ -13,13 +13,13 @@ async function onSubmit() {
       method: 'POST',
       body: { url: url.value.trim() },
     })
-    await navigateTo(`/events/${id}`)
+    await navigateTo(`/${id}`)
   }
   catch (e: unknown) {
     const err = e as { status?: number, statusMessage?: string, data?: { existingEventId?: string }, message?: string }
     if (err.status === 409 && err.data?.existingEventId) {
       toast.add({ title: 'Event bereits vorhanden', description: 'Du wirst zur bestehenden Veranstaltung weitergeleitet.', color: 'warning' })
-      await navigateTo(`/events/${err.data.existingEventId}`)
+      await navigateTo(`/${err.data.existingEventId}`)
     }
     else if (err.status === 502) {
       toast.add({ title: 'LADV nicht erreichbar', description: err.statusMessage ?? 'Bitte später erneut versuchen.', color: 'error' })

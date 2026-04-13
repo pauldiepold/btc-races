@@ -15,8 +15,9 @@ pnpm typecheck        # TypeScript-Typen prüfen — immer mit Exit-Code prüfen
 pnpm lint             # ESLint
 pnpm lint:fix         # ESLint mit Auto-Fix
 
-# Pre-commit (automatisch bei git commit)
+# Pre-commit (automatisch bei git commit via Husky)
 # lint-staged (eslint --fix auf staged files) → typecheck → test
+# NICHT manuell vor dem Commit ausführen — der Hook erledigt das automatisch
 
 # Datenbank
 pnpm db:generate      # Migrationen aus Schema-Änderungen generieren

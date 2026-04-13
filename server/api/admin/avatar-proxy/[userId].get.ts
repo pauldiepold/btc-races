@@ -6,8 +6,13 @@ import { send, setHeader } from 'h3'
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
 
-  const userId = getRouterParam(event, 'userId')
-  if (!userId) throw createError({ statusCode: 400, statusMessage: 'userId fehlt' })
+  const rawUserId = getRouterParam(event, 'userId')
+  if (!rawUserId) throw createError({ statusCode: 400, statusMessage: 'userId fehlt' })
+
+  const userId = Number(rawUserId)
+  if (!Number.isInteger(userId) || userId <= 0) {
+    throw createError({ statusCode: 400, statusMessage: 'Ungültige User-ID' })
+  }
 
   const [user] = await db
     .select({ avatarUrl: schema.users.avatarUrl })

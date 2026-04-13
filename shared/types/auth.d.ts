@@ -1,11 +1,12 @@
 declare module '#auth-utils' {
   interface User {
-    id: string
+    id: number
     firstName: string
     lastName: string
     email: string
     role: 'member' | 'admin' | 'superuser'
     sections: string[]
+    hasAvatar: boolean
     hasLadvStartpass: boolean
     birthYear: number | null
     gender: 'm' | 'w' | null

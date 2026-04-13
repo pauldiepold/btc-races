@@ -29,7 +29,7 @@ watchEffect(() => {
   const isOwner = event.value.createdBy === session.value?.user?.id
   if (!isAdmin && !isOwner) {
     toast.add({ title: 'Kein Zugriff', description: 'Nur Admins oder der Ersteller können dieses Event bearbeiten.', color: 'error' })
-    navigateTo(`/events/${id}`)
+    navigateTo(`/${id}`)
   }
 })
 
@@ -173,7 +173,7 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
       },
     })
     toast.add({ title: 'Event gespeichert', color: 'success' })
-    await navigateTo(`/events/${id}`)
+    await navigateTo(`/${id}`)
   }
   catch {
     toast.add({ title: 'Fehler beim Speichern', color: 'error' })
@@ -188,7 +188,7 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
   <UContainer class="py-10 max-w-xl">
     <div class="mb-8">
       <UButton
-        :to="`/events/${id}`"
+        :to="`/${id}`"
         icon="i-ph-arrow-left"
         label="Zurück zum Event"
         color="neutral"
@@ -415,7 +415,7 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
 
       <div class="flex justify-end gap-3 pt-2">
         <UButton
-          :to="`/events/${id}`"
+          :to="`/${id}`"
           color="neutral"
           variant="ghost"
           label="Abbrechen"

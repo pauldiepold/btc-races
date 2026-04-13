@@ -7,7 +7,7 @@ export default defineNuxtRouteMiddleware((to) => {
   }
 
   // Event-Detailseiten sind öffentlich (Gäste sehen eingeschränkte Ansicht)
-  if (/^\/events\/[^/]+$/.test(to.path)) {
+  if (to.meta.public) {
     return
   }
 

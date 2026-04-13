@@ -93,7 +93,7 @@ const columns = [
             <!-- Event -->
             <td class="px-4 py-3">
               <NuxtLink
-                :to="`/events/${todo.eventId}`"
+                :to="`/${todo.eventId}`"
                 class="font-medium text-highlighted hover:text-primary transition-colors"
               >
                 {{ todo.eventName }}

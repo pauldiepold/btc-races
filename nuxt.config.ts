@@ -35,6 +35,7 @@ export default defineNuxtConfig({
     campaiOrgId: '',
     cronToken: '',
     ladvApiKey: '',
+
     // E-Mail-Konfiguration
     emailProvider: 'local',
     emailAzureString: '',
@@ -110,6 +111,7 @@ export default defineNuxtConfig({
   },
 
   ogImage: {
+    zeroRuntime: false,
     defaults: {
       cacheMaxAgeSeconds: 60 * 60 * 24,
     },

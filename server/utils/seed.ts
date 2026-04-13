@@ -101,7 +101,6 @@ export async function runSeed(): Promise<{ result: string }> {
   console.log('👤 Upserting test users...')
   const testUsers = [
     {
-      id: 'a1b2c3d4-0001-0001-0001-000000000001',
       email: 'paul@diepold.de',
       firstName: 'Paul',
       lastName: 'Diepold',
@@ -110,7 +109,6 @@ export async function runSeed(): Promise<{ result: string }> {
       hasLadvStartpass: 1,
     },
     {
-      id: 'a1b2c3d4-0002-0002-0002-000000000002',
       email: 'testadmin@btc-berlin.de',
       firstName: 'Test',
       lastName: 'Admin',
@@ -119,7 +117,6 @@ export async function runSeed(): Promise<{ result: string }> {
       hasLadvStartpass: 1,
     },
     {
-      id: 'a1b2c3d4-0003-0003-0003-000000000003',
       email: 'testmember1@btc-berlin.de',
       firstName: 'Kevin',
       lastName: 'Testmitglied',
@@ -128,7 +125,6 @@ export async function runSeed(): Promise<{ result: string }> {
       hasLadvStartpass: 1, // hat Startpass → LADV-Anmeldung möglich
     },
     {
-      id: 'a1b2c3d4-0004-0004-0004-000000000004',
       email: 'testmember2@btc-berlin.de',
       firstName: 'Lisa',
       lastName: 'Testmitglied',
@@ -138,7 +134,7 @@ export async function runSeed(): Promise<{ result: string }> {
     },
   ]
 
-  const testUserIds: Record<string, string> = {}
+  const testUserIds: Record<string, number> = {}
   for (const u of testUsers) {
     const existing = await db.query.users.findFirst({
       where: eq(schema.users.email, u.email),
@@ -146,11 +142,11 @@ export async function runSeed(): Promise<{ result: string }> {
     })
     if (existing) {
       await db.update(schema.users).set(u).where(eq(schema.users.email, u.email))
-      testUserIds[u.email] = u.id
+      testUserIds[u.email] = existing.id
     }
     else {
-      await db.insert(schema.users).values(u)
-      testUserIds[u.email] = u.id
+      const inserted = await db.insert(schema.users).values(u).returning({ id: schema.users.id })
+      testUserIds[u.email] = inserted[0]!.id
     }
   }
 
@@ -158,9 +154,10 @@ export async function runSeed(): Promise<{ result: string }> {
     where: eq(schema.users.membershipStatus, 'active'),
     columns: { id: true },
   })
+  const testUserIdSet = new Set(Object.values(testUserIds))
   const campaiUserIds = allUsersAfter
     .map(u => u.id)
-    .filter(id => !Object.values(testUserIds).includes(id))
+    .filter(id => !testUserIdSet.has(id))
 
   console.log(`   Test-User OK. ${campaiUserIds.length} Campai-User als Anmeldungs-Pool.`)
 
@@ -174,8 +171,8 @@ export async function runSeed(): Promise<{ result: string }> {
     console.warn('   ⚠️  LADV API Key fehlt — nur Fixtures werden geladen.')
   }
 
-  const ladvEventIds: string[] = []
-  let firstLadvEventId: string | null = null
+  const ladvEventIds: number[] = []
+  let firstLadvEventId: number | null = null
 
   for (const { id, label } of LADV_IDS) {
     let normalized = null
@@ -208,10 +205,8 @@ export async function runSeed(): Promise<{ result: string }> {
       continue
     }
 
-    const eventId = crypto.randomUUID()
     const createdBy = faker.helpers.arrayElement([...Object.values(testUserIds)])
-    await db.insert(schema.events).values({
-      id: eventId,
+    const insertedEvent = await db.insert(schema.events).values({
       type: 'ladv',
       name: normalized.name,
       date: normalized.date ?? null,
@@ -225,7 +220,8 @@ export async function runSeed(): Promise<{ result: string }> {
       ladvData: normalized.ladv_data,
       ladvLastSync: new Date(),
       createdBy,
-    })
+    }).returning({ id: schema.events.id })
+    const eventId = insertedEvent[0]!.id
     ladvEventIds.push(eventId)
     if (!firstLadvEventId) firstLadvEventId = eventId
   }
@@ -236,7 +232,7 @@ export async function runSeed(): Promise<{ result: string }> {
   const allCreatedByPool = [...Object.values(testUserIds)]
 
   // 8 competition-Events
-  const competitionEventIds: string[] = []
+  const competitionEventIds: number[] = []
   const competitionConfigs = [
     { deadlineOffset: -10, dateOffset: 30, startTime: '10:00' as string | null, duration: 120 }, // Meldefrist abgelaufen
     { deadlineOffset: -10, dateOffset: 30, startTime: '14:30' as string | null, duration: 90 }, // Meldefrist abgelaufen
@@ -248,11 +244,9 @@ export async function runSeed(): Promise<{ result: string }> {
     { deadlineOffset: -30, dateOffset: -15, startTime: null, duration: null }, // vergangen
   ]
   for (const cfg of competitionConfigs) {
-    const eventId = crypto.randomUUID()
     const eventDate = toDateString(new Date(Date.now() + cfg.dateOffset * 24 * 60 * 60 * 1000))
     const deadline = toDateString(new Date(Date.now() + cfg.deadlineOffset * 24 * 60 * 60 * 1000))
-    await db.insert(schema.events).values({
-      id: eventId,
+    const inserted = await db.insert(schema.events).values({
       type: 'competition',
       name: `${faker.location.city()} ${faker.number.int({ min: 1, max: 40 })}. Stadtlauf`,
       date: eventDate,
@@ -263,58 +257,54 @@ export async function runSeed(): Promise<{ result: string }> {
       raceType: faker.helpers.arrayElement(['track', 'road'] as const),
       championshipType: faker.helpers.arrayElement(['none', 'bbm', 'ndm', 'dm'] as const),
       createdBy: faker.helpers.arrayElement(allCreatedByPool),
-    })
-    competitionEventIds.push(eventId)
+    }).returning({ id: schema.events.id })
+    competitionEventIds.push(inserted[0]!.id)
   }
 
   // 10 training-Events
-  const trainingEventIds: string[] = []
+  const trainingEventIds: number[] = []
   const trainingNames = [
     'Intervalltraining Tempelhof', 'Langer Dauerlauf', 'Tempotraining Bahn',
     'Hügelläufe Grunewald', 'Regenerationslauf', 'Fahrtspiel Tiergarten',
     'Kraftausdauer', 'Bergläufe Teufelsberg', 'Schwellentraining', '5km-Test',
   ]
   for (let i = 0; i < 10; i++) {
-    const eventId = crypto.randomUUID()
     const isPast = i < 4
     const eventDate = isPast
       ? randomPastDate({ min: 10, max: 60 })
       : randomFutureDate({ min: 3, max: 45 })
-    await db.insert(schema.events).values({
-      id: eventId,
+    const inserted = await db.insert(schema.events).values({
       type: 'training',
       name: trainingNames[i]!,
       date: eventDate,
       location: faker.helpers.arrayElement(['Olympiastadion', 'Mommsenstadion', 'Werner-Seelenbinder-Sportpark', 'Trabrennbahn Karlshorst']),
       createdBy: faker.helpers.arrayElement(allCreatedByPool),
-    })
-    trainingEventIds.push(eventId)
+    }).returning({ id: schema.events.id })
+    trainingEventIds.push(inserted[0]!.id)
   }
 
   // 9 social-Events
-  const socialEventIds: string[] = []
+  const socialEventIds: number[] = []
   const socialNames = [
     'BTC-Sommerfest', 'Weihnachtsfeier', 'Saisonabschluss', 'Vereinsausflug Rügen',
     'Pasta-Party vor dem Marathon', 'Jahreshauptversammlung', 'Team-Brunch',
     'Ehrungsabend', 'Neujahrslauf',
   ]
   for (let i = 0; i < 9; i++) {
-    const eventId = crypto.randomUUID()
     const isPast = i < 3
     const eventDate = i === 5
       ? null // ein Event ohne Datum (tbd)
       : isPast
         ? randomPastDate({ min: 10, max: 90 })
         : randomFutureDate({ min: 5, max: 120 })
-    await db.insert(schema.events).values({
-      id: eventId,
+    const inserted = await db.insert(schema.events).values({
       type: 'social',
       name: socialNames[i]!,
       date: eventDate,
       location: faker.helpers.arrayElement(['BTC-Clubhaus', 'Vereinsheim Tempelhof', 'Gaststätte Olympia', null]),
       createdBy: faker.helpers.arrayElement(allCreatedByPool),
-    })
-    socialEventIds.push(eventId)
+    }).returning({ id: schema.events.id })
+    socialEventIds.push(inserted[0]!.id)
   }
 
   console.log(`   ${competitionEventIds.length} competition, ${trainingEventIds.length} training, ${socialEventIds.length} social angelegt.`)
@@ -328,10 +318,10 @@ export async function runSeed(): Promise<{ result: string }> {
   const paulId = testUserIds['paul@diepold.de']!
 
   async function seedRandomRegistrations(
-    eventId: string,
+    eventId: number,
     eventType: 'ladv' | 'competition' | 'training' | 'social',
     ladvWettbewerbe: LadvWettbewerb[] = [],
-    excludeUserIds: string[] = [],
+    excludeUserIds: number[] = [],
   ) {
     const pool = [...campaiUserIds, ...Object.values(testUserIds)].filter(
       id => !excludeUserIds.includes(id),
@@ -340,23 +330,21 @@ export async function runSeed(): Promise<{ result: string }> {
     const selected = faker.helpers.arrayElements(pool, Math.min(count, pool.length))
 
     for (const userId of selected) {
-      const regId = crypto.randomUUID()
       const status = eventType === 'ladv' || eventType === 'competition'
         ? faker.helpers.arrayElement(['registered', 'registered', 'registered', 'canceled'] as const)
         : faker.helpers.arrayElement(['yes', 'yes', 'maybe', 'no'] as const)
 
-      await db.insert(schema.registrations).values({
-        id: regId,
+      const insertedReg = await db.insert(schema.registrations).values({
         eventId,
         userId,
         status,
         notes: faker.datatype.boolean(0.3) ? faker.lorem.sentence() : null,
-      })
+      }).returning({ id: schema.registrations.id })
+      const regId = insertedReg[0]!.id
 
       if ((eventType === 'ladv') && ladvWettbewerbe.length > 0) {
         const disc = faker.helpers.arrayElement(ladvWettbewerbe)
         await db.insert(schema.registrationDisciplines).values({
-          id: crypto.randomUUID(),
           registrationId: regId,
           discipline: disc.disziplinNew,
           ageClass: disc.klasseNew,
@@ -386,59 +374,50 @@ export async function runSeed(): Promise<{ result: string }> {
     const disc = wettbewerbe[0] ?? { disziplinNew: 'L5K0', klasseNew: 'M30' }
 
     // Szenario 1: Kevin — bereits bei LADV angemeldet (E-03-Flow testbar)
-    const reg1Id = crypto.randomUUID()
-    await db.insert(schema.registrations).values({
-      id: reg1Id,
+    const reg1 = await db.insert(schema.registrations).values({
       eventId: firstLadvEventId,
       userId: kevinId,
       status: 'registered',
       notes: 'Freue mich drauf!',
-    })
+    }).returning({ id: schema.registrations.id })
     await db.insert(schema.registrationDisciplines).values({
-      id: crypto.randomUUID(),
-      registrationId: reg1Id,
+      registrationId: reg1[0]!.id,
       discipline: disc.disziplinNew,
       ageClass: disc.klasseNew,
       ladvRegisteredAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-      ladvRegisteredBy: 'Test Admin',
+      ladvRegisteredBy: adminId,
     })
 
     // Szenario 2: Lisa — kein Startpass, kann sich nicht bei LADV-Events anmelden (F-22-Flow)
     // Lisa bekommt KEINE Anmeldung bei LADV-Events — der Fehler soll beim Versuch auftreten
 
     // Szenario 3: Admin — abgesagt nach LADV-Meldung (E-04-Flow testbar)
-    const reg3Id = crypto.randomUUID()
-    await db.insert(schema.registrations).values({
-      id: reg3Id,
+    const reg3 = await db.insert(schema.registrations).values({
       eventId: firstLadvEventId,
       userId: adminId,
       status: 'canceled',
       notes: null,
-    })
+    }).returning({ id: schema.registrations.id })
     await db.insert(schema.registrationDisciplines).values({
-      id: crypto.randomUUID(),
-      registrationId: reg3Id,
+      registrationId: reg3[0]!.id,
       discipline: disc.disziplinNew,
       ageClass: disc.klasseNew,
       ladvRegisteredAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-      ladvRegisteredBy: 'Test Admin',
+      ladvRegisteredBy: adminId,
       ladvCanceledAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-      ladvCanceledBy: 'Test Admin',
+      ladvCanceledBy: adminId,
     })
 
     // Szenario 4: Paul — angemeldet, Disziplin gewählt, aber noch NICHT bei LADV eingereicht
     // → häufigster Ausgangszustand für E-03, Admin-View zeigt "ausstehend"
-    const reg4Id = crypto.randomUUID()
-    await db.insert(schema.registrations).values({
-      id: reg4Id,
+    const reg4 = await db.insert(schema.registrations).values({
       eventId: firstLadvEventId,
       userId: paulId,
       status: 'registered',
       notes: null,
-    })
+    }).returning({ id: schema.registrations.id })
     await db.insert(schema.registrationDisciplines).values({
-      id: crypto.randomUUID(),
-      registrationId: reg4Id,
+      registrationId: reg4[0]!.id,
       discipline: disc.disziplinNew,
       ageClass: disc.klasseNew,
       // ladvRegisteredAt absichtlich null → noch nicht bei LADV eingereicht
@@ -450,7 +429,6 @@ export async function runSeed(): Promise<{ result: string }> {
   const nearDeadlineEventId = competitionEventIds[2]
   if (nearDeadlineEventId) {
     await db.insert(schema.registrations).values({
-      id: crypto.randomUUID(),
       eventId: nearDeadlineEventId,
       userId: paulId,
       status: 'registered',

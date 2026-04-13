@@ -3,11 +3,17 @@ import { and, count, eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
-  const id = getRouterParam(event, 'id')
-  const disciplineId = getRouterParam(event, 'disciplineId')
+  const rawId = getRouterParam(event, 'id')
+  const rawDisciplineId = getRouterParam(event, 'disciplineId')
 
-  if (!id || !disciplineId) {
+  if (!rawId || !rawDisciplineId) {
     throw createError({ statusCode: 400, statusMessage: 'Fehlende Parameter' })
+  }
+
+  const id = Number(rawId)
+  const disciplineId = Number(rawDisciplineId)
+  if (!Number.isInteger(id) || id <= 0 || !Number.isInteger(disciplineId) || disciplineId <= 0) {
+    throw createError({ statusCode: 400, statusMessage: 'Ungültige Parameter' })
   }
 
   const registration = await db.query.registrations.findFirst({

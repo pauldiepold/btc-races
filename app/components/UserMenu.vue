@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { clear, user, session } = useUserSession()
+const { user, session } = useUserSession()
 const colorMode = useColorMode()
 const isOpen = ref(false)
 
@@ -17,8 +17,7 @@ withDefaults(defineProps<{ expanded?: boolean }>(), { expanded: false })
 async function logout() {
   isOpen.value = false
   await $fetch('/api/auth/logout', { method: 'POST' })
-  await clear()
-  await navigateTo('/')
+  await reloadNuxtApp({ path: '/' })
 }
 </script>
 

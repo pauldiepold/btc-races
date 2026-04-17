@@ -15,9 +15,14 @@ useSeoMeta({
 useHead({
   meta: [
     { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+    { name: 'theme-color', content: '#ffb700' },
+    { name: 'apple-mobile-web-app-capable', content: 'yes' },
+    { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+    { name: 'apple-mobile-web-app-title', content: 'BTC Races' },
   ],
   link: [
     { rel: 'icon', href: '/favicon.ico' },
+    { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
   ],
   htmlAttrs: {
     lang: 'de',

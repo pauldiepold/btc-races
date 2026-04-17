@@ -26,6 +26,15 @@ logs
 
 .wrangler
 
+# vite-pwa dev artifacts (im public/ ausgeliefert, nie committen)
+public/sw.js
+public/sw.js.map
+public/workbox-*.js
+public/workbox-*.js.map
+public/dev-sw.js*
+public/manifest.webmanifest
+public/registerSW.js
+
 # Skilld references (recreated by `skilld install`)
 .skilld
 

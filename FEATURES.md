@@ -64,3 +64,12 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 
 - Seed-Endpunkt (`POST /api/superuser/seed`) für Entwicklungs- und Preview-Daten
 - Superuser-Seite (`/superuser`) mit Seed-Trigger
+
+---
+
+## PWA
+
+- Installierbare PWA via `@vite-pwa/nuxt` (Manifest, Service Worker, Icons) — Voraussetzung für Web Push auf iOS — #59
+- `injectManifest`-Strategie mit eigenem Service Worker (`app/service-worker/sw.ts`) — `push` + `notificationclick` + minimaler `precacheAndRoute` für Nuxt-Update-Manifest
+- PWA-Icons (192/512, maskable, Apple-Touch-Icon 180) in `public/icons/` bzw. `public/apple-touch-icon.png`
+- Theme-Color `#ffb700` (BTC Yellow), Background `#18181b` (Zinc 900), Display `standalone`

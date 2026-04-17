@@ -14,6 +14,7 @@ export default defineNuxtConfig({
     'nuxt-og-image',
     '@nuxt/scripts',
     '@nuxtjs/turnstile',
+    '@vite-pwa/nuxt',
   ],
 
   devtools: { enabled: true },
@@ -120,6 +121,54 @@ export default defineNuxtConfig({
     zeroRuntime: false,
     defaults: {
       cacheMaxAgeSeconds: 60 * 60 * 24,
+    },
+  },
+
+  pwa: {
+    strategies: 'injectManifest',
+    srcDir: 'service-worker',
+    filename: 'sw.ts',
+    registerType: 'autoUpdate',
+    injectManifest: {
+      globPatterns: [],
+    },
+    manifest: {
+      name: 'BTC Races — Wettkampfanmeldung',
+      short_name: 'BTC Races',
+      description: 'Wettkampf-Anmeldesystem des Berlin Track Club',
+      theme_color: '#ffb700',
+      background_color: '#18181b',
+      display: 'standalone',
+      start_url: '/',
+      icons: [
+        {
+          src: '/icons/icon-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'any',
+        },
+        {
+          src: '/icons/icon-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any',
+        },
+        {
+          src: '/icons/icon-maskable-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'maskable',
+        },
+        {
+          src: '/icons/icon-maskable-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable',
+        },
+      ],
+    },
+    devOptions: {
+      enabled: false,
     },
   },
 

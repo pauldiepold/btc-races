@@ -141,21 +141,53 @@ export const reactions = sqliteTable('reactions', {
   unique().on(t.commentId, t.userId, t.emoji),
 ])
 
-// E-Mail-Log (F-19)
-export const sentEmails = sqliteTable('sent_emails', {
+// Notification-Jobs (Queue + Log)
+export const notificationJobs = sqliteTable('notification_jobs', {
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-  eventId: integer({ mode: 'number' }).references(() => events.id, { onDelete: 'set null' }),
-  userId: integer({ mode: 'number' }).references(() => users.id, { onDelete: 'set null' }),
-  type: text().notNull().$type<
-    'registration'
-    | 'cancellation'
-    | 'ladv_registered'
-    | 'ladv_canceled'
-    | 'urgent_registration'
-    | 'reminder_athlete'
-    | 'reminder_admin'
-    | 'event_reminder'
-  >(),
-  sentAt: integer({ mode: 'timestamp' }),
+  type: text().notNull().$type<import('~~/shared/types/notifications').NotificationType>(),
+  status: text().notNull().$type<'pending' | 'processing' | 'done' | 'failed'>().default('pending'),
+  payload: text().notNull(), // JSON
+  attempts: integer().notNull().default(0),
   error: text(),
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  processedAt: integer({ mode: 'timestamp' }),
 })
+
+// Notification-Zustellungen (pro Empfänger + Kanal)
+export const notificationDeliveries = sqliteTable('notification_deliveries', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  jobId: integer({ mode: 'number' }).notNull().references(() => notificationJobs.id, { onDelete: 'cascade' }),
+  channel: text().notNull().$type<import('~~/shared/types/notifications').NotificationChannel>(),
+  recipientId: integer({ mode: 'number' }).notNull().references(() => users.id, { onDelete: 'cascade' }),
+  status: text().notNull().$type<'sent' | 'failed'>(),
+  error: text(),
+  sentAt: integer({ mode: 'timestamp' }),
+})
+
+// Notification-Preferences (User-Overrides, Defaults im Code)
+export const notificationPreferences = sqliteTable('notification_preferences', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  userId: integer({ mode: 'number' }).notNull().references(() => users.id, { onDelete: 'cascade' }),
+  notificationType: text().notNull().$type<import('~~/shared/types/notifications').NotificationType>(),
+  channel: text().notNull().$type<import('~~/shared/types/notifications').NotificationChannel>(),
+  enabled: integer().notNull(),
+}, t => [
+  unique().on(t.userId, t.notificationType, t.channel),
+])
+
+// Web-Push-Subscriptions
+export const pushSubscriptions = sqliteTable('push_subscriptions', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  userId: integer({ mode: 'number' }).notNull().references(() => users.id, { onDelete: 'cascade' }),
+  endpoint: text().notNull(),
+  keysAuth: text().notNull(),
+  keysP256dh: text().notNull(),
+  deviceHint: text().$type<'iOS' | 'Android' | 'Desktop'>(),
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+}, t => [
+  unique().on(t.userId, t.endpoint),
+])

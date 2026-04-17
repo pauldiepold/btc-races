@@ -80,6 +80,11 @@ const newNotes = ref('')
 
 const pendingDisciplines = ref<Array<{ discipline: string, ageClass: string }>>([])
 const pendingCodes = computed(() => new Set(pendingDisciplines.value.map(d => d.discipline)))
+const showDisciplineError = ref(false)
+
+watch(pendingDisciplines, (val) => {
+  if (val.length > 0) showDisciplineError.value = false
+}, { deep: true })
 
 const showAddNew = ref(false)
 const addNewCode = ref('')
@@ -105,6 +110,10 @@ function removePending(index: number) {
 }
 
 async function register(initialStatus?: string) {
+  if (props.event.type === 'ladv' && pendingDisciplines.value.length === 0) {
+    showDisciplineError.value = true
+    return
+  }
   submittingAs.value = initialStatus ?? '_'
   try {
     await $fetch(`/api/events/${props.event.id}/registrations`, {
@@ -442,6 +451,7 @@ async function saveNotes() {
               <UButton
                 label="Hinzufügen"
                 size="sm"
+                variant="outline"
                 :disabled="!addExistingCode || !addExistingAgeClass"
                 :loading="addExistingLoading"
                 @click="addExistingDiscipline"
@@ -609,6 +619,7 @@ async function saveNotes() {
             <UButton
               label="Hinzufügen"
               size="sm"
+              variant="outline"
               :disabled="!addNewCode || !addNewAgeClass"
               @click="confirmAddNew"
             />
@@ -634,7 +645,8 @@ async function saveNotes() {
 
         <p
           v-if="pendingDisciplines.length === 0"
-          class="text-xs text-muted"
+          class="text-xs"
+          :class="showDisciplineError ? 'text-error font-medium' : 'text-muted'"
         >
           Mindestens eine Disziplin erforderlich.
         </p>
@@ -664,7 +676,7 @@ async function saveNotes() {
             color="success"
             variant="outline"
             :loading="submittingAs === 'registered'"
-            :disabled="pendingDisciplines.length === 0 || (submittingAs !== null && submittingAs !== 'registered')"
+            :disabled="submittingAs !== null && submittingAs !== 'registered'"
             @click="register('registered')"
           />
 

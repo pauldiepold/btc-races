@@ -114,6 +114,8 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
           <UAlert
             v-if="formError"
             color="error"
+            variant="subtle"
+            close
             icon="i-lucide-circle-alert"
             :description="formError"
           />
@@ -122,7 +124,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
           <NuxtTurnstile
             ref="turnstile"
             v-model="turnstileToken"
-            class="flex justify-center"
+            :options="{ appearance: 'interaction-only' }"
           />
         </template>
       </UAuthForm>

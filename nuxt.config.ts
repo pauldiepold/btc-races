@@ -12,6 +12,8 @@ export default defineNuxtConfig({
     'nuxt-email-renderer',
     '@nuxt/fonts',
     'nuxt-og-image',
+    '@nuxt/scripts',
+    '@nuxtjs/turnstile',
   ],
 
   devtools: { enabled: true },
@@ -30,6 +32,7 @@ export default defineNuxtConfig({
   colorMode: {
     preference: 'dark',
   },
+
   runtimeConfig: {
     campaiApiKeyContacts: '',
     campaiOrgId: '',
@@ -42,6 +45,9 @@ export default defineNuxtConfig({
     emailSenderAddress: '',
     emailTestMode: false,
     emailTestAddress: '',
+    turnstile: {
+      secretKey: '', // override: NUXT_TURNSTILE_SECRET_KEY
+    },
     session: {
       password: '',
       maxAge: 2678400,

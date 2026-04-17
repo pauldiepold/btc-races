@@ -5,6 +5,8 @@ import * as z from 'zod'
 const { loggedIn } = useUserSession()
 const route = useRoute()
 const loading = ref(false)
+const turnstileToken = ref('')
+const turnstile = ref()
 
 definePageMeta({
   title: 'Login',
@@ -32,7 +34,7 @@ const schema = z.object({
 
 type Schema = z.output<typeof schema>
 
-const toast = useToast()
+const formError = ref<string | null>(null)
 
 const loadingMessages = [
   'Link wird generiert...',
@@ -60,23 +62,31 @@ watch(loading, (isLoading) => {
 })
 
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
+  formError.value = null
+
+  if (!turnstileToken.value) {
+    formError.value = 'Die Sicherheitsprüfung ist noch nicht abgeschlossen. Bitte warte einen Moment.'
+    return
+  }
+
   loading.value = true
   try {
     const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : undefined
     await $fetch('/api/auth/login', {
       method: 'POST',
-      body: { email: payload.data.email, ...(redirect ? { redirect } : {}) },
+      body: {
+        email: payload.data.email,
+        turnstileToken: turnstileToken.value,
+        ...(redirect ? { redirect } : {}),
+      },
     })
 
     navigateTo('/link-gesendet')
   }
-  catch (e) {
-    const description = e instanceof Error ? e.message : 'Ein unbekannter Fehler ist aufgetreten.'
-    toast.add({
-      title: 'Fehler',
-      description,
-      color: 'error',
-    })
+  catch (e: unknown) {
+    turnstile.value?.reset()
+    formError.value = (e as { data?: { message?: string } })?.data?.message
+      ?? (e instanceof Error ? e.message : 'Ein unbekannter Fehler ist aufgetreten.')
   }
   finally {
     loading.value = false
@@ -99,7 +109,23 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
         }"
         :loading="loading"
         @submit="onSubmit"
-      />
+      >
+        <template #validation>
+          <UAlert
+            v-if="formError"
+            color="error"
+            icon="i-lucide-circle-alert"
+            :description="formError"
+          />
+        </template>
+        <template #footer>
+          <NuxtTurnstile
+            ref="turnstile"
+            v-model="turnstileToken"
+            class="flex justify-center"
+          />
+        </template>
+      </UAuthForm>
       <Transition name="loading-container">
         <div
           v-if="loading"

@@ -25,13 +25,16 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-  <EmailLayout header-title="Anmeldebestätigung">
+  <EmailLayout
+    header-title="Neuer Wettkampf"
+    show-unsubscribe
+  >
     <EmailText>
       Hallo {{ firstName }},
     </EmailText>
 
     <EmailText>
-      Du bist jetzt zum folgenden Wettkampf angemeldet:
+      ein neuer Wettkampf ist online: <strong>{{ eventName }}</strong>. Schau rein und melde dich an, wenn du dabei sein möchtest.
     </EmailText>
 
     <EventDetails

@@ -25,13 +25,13 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-  <EmailLayout header-title="Anmeldebestätigung">
+  <EmailLayout header-title="LADV-Meldung zurückgezogen">
     <EmailText>
       Hallo {{ firstName }},
     </EmailText>
 
     <EmailText>
-      Du bist jetzt zum folgenden Wettkampf angemeldet:
+      deine LADV-Meldung für <strong>{{ eventName }}</strong> wurde zurückgezogen. Du bist damit nicht mehr für diesen Wettkampf gemeldet.
     </EmailText>
 
     <EventDetails
@@ -42,5 +42,9 @@ withDefaults(defineProps<Props>(), {
       :event-venue="eventVenue"
       :event-link="eventLink"
     />
+
+    <EmailText>
+      Bei Fragen wende dich an das Trainer-Team.
+    </EmailText>
   </EmailLayout>
 </template>

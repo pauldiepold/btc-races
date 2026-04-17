@@ -1,10 +1,10 @@
 <script setup lang="ts">
 const styles = {
   text: {
-    color: '#333',
+    color: '#18181b',
     fontSize: '14px',
     lineHeight: '1.6',
-    margin: '0 0 15px 0',
+    margin: '0 0 12px 0',
   },
 }
 </script>

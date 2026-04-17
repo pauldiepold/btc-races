@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import EmailLayout from './components/EmailLayout.vue'
 import EmailButton from './components/EmailButton.vue'
-import EmailText from '~/emails/components/EmailText.vue'
+import EmailText from './components/EmailText.vue'
 
 interface Props {
   firstName?: string
@@ -18,47 +18,40 @@ const {
 const styles = {
   urlBox: {
     wordBreak: 'break-all' as const,
-    backgroundColor: '#f9f9f9',
-    padding: '10px',
-    borderRadius: '4px',
-    fontFamily: 'monospace',
+    backgroundColor: '#fafafa',
+    border: '1px solid #e4e4e7',
+    color: '#3f3f46',
+    padding: '12px',
+    borderRadius: '3px',
+    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
     fontSize: '12px',
-    margin: '10px 0',
+    margin: '8px 0 16px 0',
+    lineHeight: '1.5',
   },
   warningBox: {
-    backgroundColor: '#fff3cd',
-    border: '1px solid #ffc107',
-    borderRadius: '5px',
-    padding: '15px',
-    margin: '15px 0',
-    color: '#856404',
+    backgroundColor: '#fafafa',
+    borderLeft: '4px solid #ffb700',
+    padding: '14px 16px',
+    margin: '16px 0 0 0',
+    borderRadius: '3px',
   },
   warningText: {
     margin: '0',
-    fontSize: '12px',
+    fontSize: '13px',
     lineHeight: '1.5',
+    color: '#18181b',
   },
 }
 </script>
 
 <template>
-  <EPreview>
-    Klicke auf diesen Link, um dich bei BTC-Events anzumelden.
-  </EPreview>
-  <EmailLayout
-    header-title="Anmeldelink"
-    header-color="#ffb700"
-  >
+  <EmailLayout header-title="Anmeldelink">
     <EmailText>
       Hallo {{ firstName }},
     </EmailText>
 
     <EmailText>
-      Du hast einen Anmeldelink für BTC-Events angefordert.
-    </EmailText>
-
-    <EmailText>
-      Klicke auf diesen Button, um dich anzumelden:
+      Du hast einen Anmeldelink für BTC-Races angefordert.
     </EmailText>
 
     <EmailButton
@@ -67,18 +60,18 @@ const styles = {
     />
 
     <EmailText>
-      Oder kopiere diese URL in deinen Browser:
+      Falls der Button nicht funktioniert, kopiere diese URL in deinen Browser:
     </EmailText>
-    <EmailText :style="styles.urlBox">
+    <ESection :style="styles.urlBox">
       <ELink :href="magicLink">
         {{ magicLink }}
       </ELink>
-    </EmailText>
+    </ESection>
 
     <ESection :style="styles.warningBox">
-      <EmailText :style="styles.warningText">
+      <EText :style="styles.warningText">
         Dieser Link ist {{ expiryMinutes }} Minuten gültig und kann nur einmal verwendet werden.
-      </EmailText>
+      </EText>
     </ESection>
   </EmailLayout>
 </template>

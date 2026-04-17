@@ -25,13 +25,16 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-  <EmailLayout header-title="Anmeldebestätigung">
+  <EmailLayout
+    header-title="Meldefrist endet bald"
+    show-unsubscribe
+  >
     <EmailText>
       Hallo {{ firstName }},
     </EmailText>
 
     <EmailText>
-      Du bist jetzt zum folgenden Wettkampf angemeldet:
+      die Meldefrist für <strong>{{ eventName }}</strong> endet am <strong>{{ registrationDeadline }}</strong>. Falls du deine Meldung noch anpassen willst, tu das jetzt.
     </EmailText>
 
     <EventDetails

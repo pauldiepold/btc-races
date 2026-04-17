@@ -1,78 +1,78 @@
 <script setup lang="ts">
+import EmailUnsubscribeFooter from './EmailUnsubscribeFooter.vue'
+
 interface Props {
   headerTitle: string
-  headerColor?: string
+  showUnsubscribe?: boolean
+  baseUrl?: string
 }
 
-const { headerTitle, headerColor = '#ffb700' } = defineProps<Props>()
+const {
+  headerTitle,
+  showUnsubscribe = false,
+  baseUrl = 'https://btc-races.de',
+} = defineProps<Props>()
+
 const currentYear = new Date().getFullYear()
 
 const styles = {
   main: {
-    backgroundColor: '#f5f5f5',
-    fontFamily: 'Arial, sans-serif',
+    backgroundColor: '#fafafa',
+    fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+    margin: '0',
+    padding: '0',
   },
   container: {
     maxWidth: '600px',
-    margin: '20px auto',
+    margin: '24px auto',
     backgroundColor: '#ffffff',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+    borderRadius: '3px',
+    overflow: 'hidden',
+    border: '1px solid #e4e4e7',
+  },
+  stripe: {
+    height: '4px',
+    backgroundColor: '#ffb700',
+    lineHeight: '4px',
+    fontSize: '0',
   },
   header: {
-    backgroundColor: headerColor,
-    color: 'white',
-    padding: '30px',
+    backgroundColor: '#09090b',
+    padding: '28px',
     textAlign: 'center' as const,
-    borderRadius: '8px 8px 0 0',
   },
   logo: {
-    marginBottom: '15px',
-    display: 'flex',
-    justifyContent: 'center',
-  },
-  logoCircle: {
-    backgroundColor: '#000000',
-    borderRadius: '50%',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  logoImg: {
-    borderRadius: '50%',
     display: 'block',
+    margin: '0 auto 12px auto',
   },
   headerTitle: {
     margin: '0',
-    fontSize: '24px',
-    fontWeight: 'bold',
+    fontSize: '22px',
+    fontWeight: '700' as const,
+    color: '#ffffff',
+    letterSpacing: '-0.01em',
   },
   content: {
-    padding: '30px',
+    padding: '28px',
     backgroundColor: '#ffffff',
   },
   greetingText: {
-    marginTop: '30px',
-    color: '#333',
+    marginTop: '28px',
+    marginBottom: '0',
+    color: '#18181b',
     fontSize: '14px',
     lineHeight: '1.6',
   },
   footer: {
     textAlign: 'center' as const,
     fontSize: '12px',
-    color: '#666',
-    padding: '20px',
-    borderTop: '1px solid #eee',
-    backgroundColor: '#f9f9f9',
-    borderRadius: '0 0 8px 8px',
+    color: '#71717a',
+    padding: '20px 28px',
+    borderTop: '1px solid #e4e4e7',
+    backgroundColor: '#fafafa',
   },
   footerText: {
-    margin: '5px 0',
-  },
-  disclaimer: {
-    fontSize: '12px',
-    color: '#999',
+    margin: '4px 0',
   },
 }
 </script>
@@ -83,18 +83,18 @@ const styles = {
     <EBody :style="styles.main">
       <EPreview>{{ headerTitle }}</EPreview>
       <EContainer :style="styles.container">
+        <ESection :style="styles.stripe">
+          <!-- Yellow accent stripe -->
+        </ESection>
+
         <ESection :style="styles.header">
-          <div :style="styles.logo">
-            <div :style="styles.logoCircle">
-              <EImg
-                src="https://btc-races.pages.dev/logo-yellow.svg"
-                width="80"
-                height="80"
-                alt="BTC-Races"
-                :style="styles.logoImg"
-              />
-            </div>
-          </div>
+          <EImg
+            src="https://btc-races.pages.dev/logo-yellow.svg"
+            width="56"
+            height="56"
+            alt="BTC-Races"
+            :style="styles.logo"
+          />
           <EHeading :style="styles.headerTitle">
             {{ headerTitle }}
           </EHeading>
@@ -108,12 +108,17 @@ const styles = {
           </EText>
         </ESection>
 
+        <EmailUnsubscribeFooter
+          v-if="showUnsubscribe"
+          :base-url="baseUrl"
+        />
+
         <ESection :style="styles.footer">
-          <EText :style="{ ...styles.footerText, ...styles.disclaimer }">
+          <EText :style="styles.footerText">
             Diese E-Mail wurde automatisch generiert. Bitte antworte nicht direkt auf diese Nachricht.
           </EText>
-          <EText :style="{ ...styles.footerText, ...styles.disclaimer }">
-            © {{ currentYear }} BTC-Races
+          <EText :style="styles.footerText">
+            © {{ currentYear }} Berlin Track Club
           </EText>
         </ESection>
       </EContainer>

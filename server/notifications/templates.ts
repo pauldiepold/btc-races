@@ -5,15 +5,14 @@ import type { NotificationType } from './types'
  * Fehlende Einträge → E-Mail-Delivery wird übersprungen (graceful skip).
  */
 export const EMAIL_TEMPLATE_MAP: Partial<Record<NotificationType, string>> = {
-  // Templates werden in späteren Issues erstellt:
-  // ladv_registered: 'LadvRegisteredEmail',
-  // ladv_canceled: 'LadvCanceledEmail',
-  // athlete_canceled_after_ladv: 'AthleteCanceledAfterLadvEmail',
-  // event_canceled: 'EventCanceledEmail',
-  // new_event: 'NewEventEmail',
-  // reminder_deadline_athlete: 'ReminderDeadlineAthleteEmail',
-  // reminder_deadline_admin: 'ReminderDeadlineAdminEmail',
-  // reminder_event: 'ReminderEventEmail',
+  ladv_registered: 'LadvRegisteredEmail',
+  ladv_canceled: 'LadvCanceledEmail',
+  athlete_canceled_after_ladv: 'AthleteCanceledAfterLadvEmail',
+  event_canceled: 'EventCanceledEmail',
+  new_event: 'NewEventEmail',
+  reminder_deadline_athlete: 'ReminderDeadlineAthleteEmail',
+  reminder_deadline_admin: 'ReminderDeadlineAdminEmail',
+  reminder_event: 'ReminderEventEmail',
 }
 
 /**

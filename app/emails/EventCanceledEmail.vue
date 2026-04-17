@@ -11,6 +11,7 @@ interface Props {
   registrationDeadline?: string
   eventVenue?: string
   eventLink?: string
+  reason?: string
 }
 
 withDefaults(defineProps<Props>(), {
@@ -21,17 +22,42 @@ withDefaults(defineProps<Props>(), {
   registrationDeadline: '10.03.2025',
   eventVenue: undefined,
   eventLink: 'https://btc-races.de/events/1',
+  reason: undefined,
 })
+
+const styles = {
+  reasonBox: {
+    backgroundColor: '#fafafa',
+    borderLeft: '4px solid #ffb700',
+    padding: '14px 16px',
+    margin: '16px 0',
+    borderRadius: '3px',
+  },
+  reasonLabel: {
+    margin: '0 0 4px 0',
+    fontSize: '12px',
+    fontWeight: '600' as const,
+    color: '#09090b',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.04em',
+  },
+  reasonText: {
+    margin: '0',
+    fontSize: '14px',
+    lineHeight: '1.5',
+    color: '#18181b',
+  },
+}
 </script>
 
 <template>
-  <EmailLayout header-title="Anmeldebestätigung">
+  <EmailLayout header-title="Wettkampf abgesagt">
     <EmailText>
       Hallo {{ firstName }},
     </EmailText>
 
     <EmailText>
-      Du bist jetzt zum folgenden Wettkampf angemeldet:
+      <strong>{{ eventName }}</strong> wurde abgesagt. Deine Anmeldung ist damit hinfällig — du musst nichts weiter tun.
     </EmailText>
 
     <EventDetails
@@ -42,5 +68,17 @@ withDefaults(defineProps<Props>(), {
       :event-venue="eventVenue"
       :event-link="eventLink"
     />
+
+    <ESection
+      v-if="reason"
+      :style="styles.reasonBox"
+    >
+      <EText :style="styles.reasonLabel">
+        Grund
+      </EText>
+      <EText :style="styles.reasonText">
+        {{ reason }}
+      </EText>
+    </ESection>
   </EmailLayout>
 </template>

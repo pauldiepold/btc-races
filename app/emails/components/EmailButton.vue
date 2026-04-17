@@ -4,19 +4,21 @@ interface Props {
   text: string
 }
 
-const { href, text } = defineProps<Props>()
+defineProps<Props>()
 
 const styles = {
   button: {
     display: 'inline-block',
-    backgroundColor: '#ffb700',
-    color: 'white',
+    backgroundColor: '#09090b',
+    color: '#ffffff',
     textDecoration: 'none',
-    padding: '8px 16px',
-    borderRadius: '5px',
-    margin: '5px 0 20px 0',
-    fontWeight: 'bold',
+    padding: '12px 24px',
+    borderRadius: '3px',
+    margin: '8px 0 16px 0',
+    fontSize: '14px',
+    fontWeight: '700' as const,
     textAlign: 'center' as const,
+    letterSpacing: '0.01em',
   },
 }
 </script>

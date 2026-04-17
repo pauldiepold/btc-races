@@ -6,10 +6,13 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 
 ## Auth
 
-- Magic-Link-Login (passwordless, E-Mail → Token mit 15 min TTL → Session-Cookie)
+- Magic-Link-Login (passwordless, E-Mail → Token mit 15 min TTL → Session-Cookie, single-use)
 - Session-Schutz: alle Routen außer `/login` und `/link-gesendet` erfordern Login (Client- + Server-Middleware)
 - Login-Sperre für inaktive Mitglieder (`membershipStatus !== 'active'`) — kein Status-Leak nach außen — #33
 - Login-Redirect-Flow: `?redirect=` Query-Parameter leitet nach Login auf Zielseite weiter — #33
+- Fehlerfeedback beim Login: Inline-Alert statt Toast, inkl. 404 bei unbekannter E-Mail — #51
+- Bot-Schutz via Cloudflare Turnstile (client- + serverseitig verifiziert) — #51
+- Rate-Limiting: max. 10 Versuche pro IP / 5 Minuten (Fixed Window via KV) — #51
 
 ---
 

@@ -1,12 +1,17 @@
 import { db, schema } from 'hub:db'
+import { kv } from 'hub:kv'
 import { eq } from 'drizzle-orm'
 import { randomBytes } from 'node:crypto'
 import { z } from 'zod'
 import { emailService } from '~~/server/email/service'
 import type { EmailMessage } from '~~/server/email/email.types'
 
+const RATE_LIMIT_MAX = 10
+const RATE_LIMIT_TTL = 300 // 5 Minuten
+
 const loginSchema = z.object({
   email: z.email('Bitte gib eine gültige E-Mail-Adresse ein'),
+  turnstileToken: z.string().min(1, 'Sicherheitsprüfung fehlt'),
   redirect: z.string().optional(),
 })
 
@@ -14,40 +19,61 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const runtimeConfig = useRuntimeConfig()
 
-  // Validierung mit Zod
   const result = loginSchema.safeParse(body)
 
   if (!result.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: result.error.message,
+      message: result.error.issues[0]?.message ?? 'Ungültige Eingabe',
     })
   }
 
-  const { email, redirect: rawRedirect } = result.data
+  const { email, turnstileToken, redirect: rawRedirect } = result.data
+
+  // 1. Turnstile-Token serverseitig verifizieren
+  await verifyTurnstileToken(turnstileToken, event)
+
+  // 2. Rate-Limiting: max. 10 Versuche pro IP in 5 Minuten (Fixed Window)
+  const ip = getRequestIP(event, { xForwardedFor: true }) ?? 'unknown'
+  const rateLimitKey = `login:ratelimit:${ip}`
+  const now = Date.now()
+  const record = await kv.getItem<{ count: number, resetAt: number }>(rateLimitKey)
+  const isExpired = !record || now >= record.resetAt
+
+  if (!isExpired && record!.count >= RATE_LIMIT_MAX) {
+    throw createError({
+      statusCode: 429,
+      message: 'Zu viele Anmeldeversuche. Bitte versuche es in 5 Minuten erneut.',
+    })
+  }
+
+  if (isExpired) {
+    await kv.setItem(rateLimitKey, { count: 1, resetAt: now + RATE_LIMIT_TTL * 1000 }, { ttl: RATE_LIMIT_TTL })
+  }
+  else {
+    await kv.setItem(rateLimitKey, { count: record!.count + 1, resetAt: record!.resetAt }, { ttl: Math.ceil((record!.resetAt - now) / 1000) })
+  }
+
   const redirectParam = rawRedirect?.startsWith('/') && !rawRedirect.startsWith('//')
     ? rawRedirect
     : undefined
 
-  // 1. Prüfen, ob der User existiert
+  // 3. User-Lookup — jetzt mit echtem Fehlerfeedback
   const user = await db.query.users.findFirst({
     where: eq(schema.users.email, email.toLowerCase()),
   })
 
   if (!user || user.membershipStatus !== 'active') {
-    // Kein Status-Leak nach außen — inaktive Mitglieder erhalten dieselbe Antwort wie nicht existierende
     console.log(`Login attempt for non-existent or inactive user: ${email}`)
-    return { message: 'Wenn die E-Mail existiert, wurde ein Magic Link gesendet.' }
+    throw createError({
+      statusCode: 404,
+      message: 'Diese E-Mail-Adresse ist uns nicht bekannt. Bitte prüfe deine Eingabe.',
+    })
   }
 
-  // 2. Token generieren
+  // 4. Token generieren und speichern
   const token = randomBytes(16).toString('base64url')
-  const expiresAt = new Date(Date.now() + 15 * 60 * 1000) // 15 Minuten
-
-  // 3. Alte Tokens des Users löschen und neues Token speichern
-  // Token-Bereinigung bewusst deaktiviert: Tokens laufen nach 15 min automatisch ab.
-  // Solange gültig, sind mehrere Klicks auf denselben Link erlaubt (z.B. Mail-Client-Vorschau).
-  // await db.delete(schema.authTokens).where(eq(schema.authTokens.userId, user.id))
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000)
 
   await db.insert(schema.authTokens).values({
     token,
@@ -55,7 +81,7 @@ export default defineEventHandler(async (event) => {
     expiresAt,
   })
 
-  // 4. Magic Link ausgeben (Console für Dev)
+  // 5. Magic Link senden
   const magicLinkBase = `${runtimeConfig.public.siteUrl}/magic-link/${token}`
   const magicLink = redirectParam
     ? `${magicLinkBase}?redirect=${encodeURIComponent(redirectParam)}`
@@ -85,10 +111,12 @@ export default defineEventHandler(async (event) => {
 
   await emailService.sendEmail(emailMessage)
 
-  console.log('---------------------------------------')
-  console.log(`Anmeldelink für ${email}:`)
-  console.log(magicLink)
-  console.log('---------------------------------------')
+  if (import.meta.dev) {
+    console.log('---------------------------------------')
+    console.log(`Anmeldelink für ${email}:`)
+    console.log(magicLink)
+    console.log('---------------------------------------')
+  }
 
-  return { message: 'Wenn die E-Mail existiert, wurde ein Magic Link gesendet.' }
+  return { message: 'Magic Link wurde gesendet.' }
 })

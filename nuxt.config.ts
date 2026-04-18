@@ -65,6 +65,12 @@ export default defineNuxtConfig({
     },
   },
 
+  routeRules: {
+    '/profil': { redirect: '/profil/meine-anmeldungen' },
+    '/meine-anmeldungen': { redirect: '/profil/meine-anmeldungen' },
+    '/events': { redirect: '/' },
+  },
+
   compatibilityDate: '2025-12-29',
 
   nitro: {

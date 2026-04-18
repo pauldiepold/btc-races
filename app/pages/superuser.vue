@@ -56,6 +56,25 @@ async function runSeed() {
     seedLoading.value = false
   }
 }
+
+const toast = useToast()
+const pushTestLoading = ref(false)
+const pushTestError = ref<string | null>(null)
+
+async function runPushTest() {
+  pushTestLoading.value = true
+  pushTestError.value = null
+  try {
+    await $fetch('/api/superuser/test-push', { method: 'POST' })
+    toast.add({ title: 'Test-Push gesendet', description: 'Sollte gleich auf deinem Gerät erscheinen.', color: 'success' })
+  }
+  catch (err: unknown) {
+    pushTestError.value = err instanceof Error ? err.message : 'Unbekannter Fehler'
+  }
+  finally {
+    pushTestLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -191,6 +210,34 @@ async function runSeed() {
         icon="i-ph-warning-bold"
         title="Sync fehlgeschlagen"
         :description="syncError"
+      />
+    </div>
+
+    <!-- Push-Test -->
+    <div class="rounded-[--ui-radius] border border-default p-6 space-y-5 mt-6">
+      <div>
+        <h2 class="font-display font-semibold text-highlighted text-base">
+          Push-Test
+        </h2>
+        <p class="text-sm text-muted mt-1">
+          Sendet eine Test-Push-Notification an alle Geräte, auf denen du selbst Push aktiviert hast.
+        </p>
+      </div>
+
+      <UButton
+        label="Test-Push senden"
+        icon="i-ph-bell-ringing-bold"
+        :loading="pushTestLoading"
+        @click="runPushTest"
+      />
+
+      <UAlert
+        v-if="pushTestError"
+        color="error"
+        variant="subtle"
+        icon="i-ph-warning-bold"
+        title="Push fehlgeschlagen"
+        :description="pushTestError"
       />
     </div>
   </UContainer>

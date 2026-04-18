@@ -44,7 +44,7 @@ async function logout() {
 
         <div class="py-4 border-b border-default space-y-3">
           <NuxtLink
-            to="/meine-anmeldungen"
+            to="/profil/meine-anmeldungen"
             class="flex items-center gap-3 text-sm text-default hover:text-primary transition-colors"
             @click="isOpen = false"
           >
@@ -53,6 +53,17 @@ async function logout() {
               class="size-5 text-muted shrink-0"
             />
             Meine Anmeldungen
+          </NuxtLink>
+          <NuxtLink
+            to="/profil/benachrichtigungen"
+            class="flex items-center gap-3 text-sm text-default hover:text-primary transition-colors"
+            @click="isOpen = false"
+          >
+            <UIcon
+              name="i-ph-bell-bold"
+              class="size-5 text-muted shrink-0"
+            />
+            Benachrichtigungen
           </NuxtLink>
           <NuxtLink
             v-if="isAdmin"
@@ -172,10 +183,10 @@ async function logout() {
 
             <div class="h-px bg-border mx-4" />
 
-            <!-- Meine Anmeldungen + Admin-Links -->
+            <!-- Profil + Admin-Links -->
             <div class="p-2">
               <NuxtLink
-                to="/meine-anmeldungen"
+                to="/profil/meine-anmeldungen"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-[--ui-radius] text-sm text-default hover:text-primary hover:bg-primary/10 transition-colors"
                 @click="isOpen = false"
               >
@@ -184,6 +195,17 @@ async function logout() {
                   class="size-5 shrink-0"
                 />
                 Meine Anmeldungen
+              </NuxtLink>
+              <NuxtLink
+                to="/profil/benachrichtigungen"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-[--ui-radius] text-sm text-default hover:text-primary hover:bg-primary/10 transition-colors"
+                @click="isOpen = false"
+              >
+                <UIcon
+                  name="i-ph-bell-bold"
+                  class="size-5 shrink-0"
+                />
+                Benachrichtigungen
               </NuxtLink>
               <NuxtLink
                 v-if="isAdmin"

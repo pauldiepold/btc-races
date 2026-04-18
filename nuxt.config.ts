@@ -14,6 +14,7 @@ export default defineNuxtConfig({
     'nuxt-og-image',
     '@nuxt/scripts',
     '@nuxtjs/turnstile',
+    '@vite-pwa/nuxt',
   ],
 
   devtools: { enabled: true },
@@ -45,6 +46,11 @@ export default defineNuxtConfig({
     emailSenderAddress: '',
     emailTestMode: false,
     emailTestAddress: '',
+
+    // Web Push (VAPID)
+    vapidPrivateKey: '',
+    vapidSubject: 'mailto:info@btc-races.de',
+
     turnstile: {
       secretKey: '', // override: NUXT_TURNSTILE_SECRET_KEY
     },
@@ -54,7 +60,15 @@ export default defineNuxtConfig({
     },
     public: {
       siteUrl: process.env.CF_PAGES_URL || 'http://localhost:3000',
+      vapidPublicKey: '',
+      turnstileSiteKey: '',
     },
+  },
+
+  routeRules: {
+    '/profil': { redirect: '/profil/meine-anmeldungen' },
+    '/meine-anmeldungen': { redirect: '/profil/meine-anmeldungen' },
+    '/events': { redirect: '/' },
   },
 
   compatibilityDate: '2025-12-29',
@@ -120,6 +134,55 @@ export default defineNuxtConfig({
     zeroRuntime: false,
     defaults: {
       cacheMaxAgeSeconds: 60 * 60 * 24,
+    },
+  },
+
+  pwa: {
+    strategies: 'injectManifest',
+    srcDir: 'service-worker',
+    filename: 'sw.ts',
+    registerType: 'autoUpdate',
+    injectManifest: {
+      globPatterns: [],
+    },
+    manifest: {
+      name: 'BTC Races — Wettkampfanmeldung',
+      short_name: 'BTC Races',
+      description: 'Wettkampf-Anmeldesystem des Berlin Track Club',
+      theme_color: '#ffb700',
+      background_color: '#18181b',
+      display: 'standalone',
+      start_url: '/',
+      icons: [
+        {
+          src: '/icons/icon-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'any',
+        },
+        {
+          src: '/icons/icon-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any',
+        },
+        {
+          src: '/icons/icon-maskable-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'maskable',
+        },
+        {
+          src: '/icons/icon-maskable-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable',
+        },
+      ],
+    },
+    devOptions: {
+      enabled: true,
+      type: 'module',
     },
   },
 

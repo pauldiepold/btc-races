@@ -63,4 +63,25 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 ## Superuser
 
 - Seed-Endpunkt (`POST /api/superuser/seed`) für Entwicklungs- und Preview-Daten
-- Superuser-Seite (`/superuser`) mit Seed-Trigger
+- Superuser-Seite (`/superuser`) mit Seed-Trigger und Push-Test-Trigger
+
+---
+
+## PWA
+
+- Installierbare PWA via `@vite-pwa/nuxt` (Manifest, Service Worker, Icons) — Voraussetzung für Web Push auf iOS — #59
+- `injectManifest`-Strategie mit eigenem Service Worker (`app/service-worker/sw.ts`) — `push` + `notificationclick` + minimaler `precacheAndRoute` für Nuxt-Update-Manifest
+- PWA-Icons (192/512, maskable, Apple-Touch-Icon 180) in `public/icons/` bzw. `public/apple-touch-icon.png`
+- Theme-Color `#ffb700` (BTC Yellow), Background `#18181b` (Zinc 900), Display `standalone`
+
+---
+
+## Push Notifications
+
+- VAPID-basierter Push-Service via `@block65/webcrypto-web-push` (Cloudflare-Workers-kompatibel) — #60
+- Subscription-API: `POST /api/push/subscribe` (Upsert), `DELETE /api/push/subscribe`, `GET /api/push/vapid-public-key`
+- Per-Endpoint-Zustellung mit automatischem Aufräumen abgelaufener Subscriptions (HTTP 410/404)
+- Composable `usePushNotifications` mit Support-/Permission-/Subscription-/iOS-/PWA-Detection und subscribe/unsubscribe — #61
+- Persistenter Top-Banner (`PushBanner.vue`) für nicht-abonnierte User, dismiss-Persistenz via localStorage
+- Modal (`PushModal.vue`) mit drei Modi: iOS-Installationsanleitung, Browser-blockiert-Hinweis, Aktivierungs-Flow mit Kategorie-Übersicht
+- Test-Push-Endpoint `POST /api/superuser/test-push` (sendet an alle Geräte des Superusers)

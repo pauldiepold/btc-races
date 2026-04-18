@@ -23,10 +23,10 @@
     "seed:preview": "curl -s -X POST https://develop.btc-races.pages.dev/api/cron/seed -H \"Authorization: Bearer $NUXT_CRON_TOKEN\"",
     "sync:members:preview": "curl -s -X POST https://develop.btc-races.pages.dev/api/cron/sync-members -H \"Authorization: Bearer $NUXT_CRON_TOKEN\"",
     "sync:members:prod": "curl -s -X POST https://btc-races.pages.dev/api/cron/sync-members -H \"Authorization: Bearer $NUXT_CRON_TOKEN\"",
-    "db:login": "wrangler login --no-browser",
-    "prepare": "husky"
+    "db:login": "wrangler login --no-browser"
   },
   "dependencies": {
+    "@block65/webcrypto-web-push": "^1.0.2",
     "@libsql/client": "^0.17.2",
     "@nuxt/fonts": "0.14.0",
     "@nuxt/scripts": "1.0.1",
@@ -56,9 +56,8 @@
     "@iconify-json/lucide": "^1.2.102",
     "@iconify-json/ph": "^1.2.2",
     "@nuxt/eslint": "^1.15.2",
+    "@vite-pwa/nuxt": "^1.1.1",
     "eslint": "^10.2.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.4.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.4",
     "vue-tsc": "^3.2.6"

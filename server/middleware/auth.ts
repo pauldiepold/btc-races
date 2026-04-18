@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
 
   // Cron-Routen verwenden Bearer-Token-Auth im Route-Handler selbst
   // Auth-Routen sind per Definition öffentlich (Login-Flow)
-  const publicPaths = ['/api/auth/', '/api/cron/']
+  const publicPaths = ['/api/auth/', '/api/cron/', '/api/push/vapid-public-key']
 
   const isPublicPath = publicPaths.some(publicPath => path.startsWith(publicPath))
 

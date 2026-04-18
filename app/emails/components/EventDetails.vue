@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import EmailButton from './EmailButton.vue'
+
 interface Props {
   eventName?: string
   eventDate?: string
@@ -14,28 +16,40 @@ const {
   eventLocation = 'Berlin',
   registrationDeadline = '10.03.2025',
   eventVenue,
+  eventLink,
 } = defineProps<Props>()
 
 const styles = {
   container: {
-    backgroundColor: '#f9f9f9',
-    padding: '15px',
-    borderRadius: '5px',
-    margin: '15px 0',
+    backgroundColor: '#fafafa',
+    border: '1px solid #e4e4e7',
+    borderRadius: '3px',
+    padding: '16px',
+    margin: '16px 0',
   },
   title: {
-    margin: '0 0 10px 0',
-    color: '#333',
-    fontSize: '18px',
-    fontWeight: 'bold',
+    margin: '0 0 12px 0',
+    color: '#09090b',
+    fontSize: '16px',
+    fontWeight: '700' as const,
+    letterSpacing: '-0.01em',
   },
-  detailText: {
-    margin: '5px 0',
-    color: '#333',
+  row: {
+    margin: '4px 0',
+    color: '#18181b',
     fontSize: '14px',
+    lineHeight: '1.5',
   },
   label: {
-    fontWeight: 'bold',
+    color: '#09090b',
+    fontWeight: '600' as const,
+  },
+  value: {
+    color: '#3f3f46',
+  },
+  buttonWrap: {
+    marginTop: '12px',
+    marginBottom: '0',
   },
 }
 </script>
@@ -43,25 +57,35 @@ const styles = {
 <template>
   <ESection :style="styles.container">
     <EHeading :style="styles.title">
-      Wettkampfdetails:
+      Wettkampf-Details
     </EHeading>
-    <EText :style="styles.detailText">
-      <strong :style="styles.label">Name:</strong> {{ eventName }}
+    <EText :style="styles.row">
+      <span :style="styles.label">Name: </span><span :style="styles.value">{{ eventName }}</span>
     </EText>
-    <EText :style="styles.detailText">
-      <strong :style="styles.label">Datum:</strong> {{ eventDate }}
+    <EText :style="styles.row">
+      <span :style="styles.label">Datum: </span><span :style="styles.value">{{ eventDate }}</span>
     </EText>
-    <EText :style="styles.detailText">
-      <strong :style="styles.label">Meldefrist:</strong> {{ registrationDeadline }}
+    <EText :style="styles.row">
+      <span :style="styles.label">Meldefrist: </span><span :style="styles.value">{{ registrationDeadline }}</span>
     </EText>
-    <EText :style="styles.detailText">
-      <strong :style="styles.label">Ort:</strong> {{ eventLocation }}
+    <EText :style="styles.row">
+      <span :style="styles.label">Ort: </span><span :style="styles.value">{{ eventLocation }}</span>
     </EText>
     <EText
       v-if="eventVenue"
-      :style="styles.detailText"
+      :style="styles.row"
     >
-      <strong :style="styles.label">Sportstätte:</strong> {{ eventVenue }}
+      <span :style="styles.label">Sportstätte: </span><span :style="styles.value">{{ eventVenue }}</span>
     </EText>
+
+    <ESection
+      v-if="eventLink"
+      :style="styles.buttonWrap"
+    >
+      <EmailButton
+        :href="eventLink"
+        text="Zum Event"
+      />
+    </ESection>
   </ESection>
 </template>

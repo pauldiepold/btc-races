@@ -118,8 +118,52 @@ async function sendPushToUsers(userIds: number[], payload: PushPayload): Promise
   }
 }
 
+export interface PushBroadcastStats {
+  subscriptions: number
+  users: number
+  sent: number
+  expired: number
+  failed: number
+}
+
+/**
+ * Sendet eine Push-Notification an ALLE registrierten Subscriptions im System.
+ * Gibt detaillierte Statistiken zurück. Nur für Admin-/Test-Zwecke gedacht.
+ */
+async function sendPushToAll(payload: PushPayload): Promise<PushBroadcastStats> {
+  const { db, schema } = await import('hub:db')
+
+  const subscriptions = await db.select().from(schema.pushSubscriptions)
+  const uniqueUsers = new Set(subscriptions.map(s => s.userId))
+
+  let sent = 0
+  let expired = 0
+  let failed = 0
+
+  for (const sub of subscriptions) {
+    try {
+      await sendPush(sub, payload)
+      sent++
+    }
+    catch (e) {
+      const message = e instanceof Error ? e.message : String(e)
+      if (message === 'subscription expired') expired++
+      else failed++
+    }
+  }
+
+  return {
+    subscriptions: subscriptions.length,
+    users: uniqueUsers.size,
+    sent,
+    expired,
+    failed,
+  }
+}
+
 export const pushService = {
   sendPush,
   sendPushToUser,
   sendPushToUsers,
+  sendPushToAll,
 }

@@ -60,13 +60,31 @@ async function runSeed() {
 const toast = useToast()
 const pushTestLoading = ref(false)
 const pushTestError = ref<string | null>(null)
+const pushTestConfirmOpen = ref(false)
+
+type PushTestResult = {
+  ok: boolean
+  stats: {
+    subscriptions: number
+    users: number
+    sent: number
+    expired: number
+    failed: number
+  }
+}
 
 async function runPushTest() {
+  pushTestConfirmOpen.value = false
   pushTestLoading.value = true
   pushTestError.value = null
   try {
-    await $fetch('/api/superuser/test-push', { method: 'POST' })
-    toast.add({ title: 'Test-Push gesendet', description: 'Sollte gleich auf deinem Gerät erscheinen.', color: 'success' })
+    const res = await $fetch<PushTestResult>('/api/superuser/test-push', { method: 'POST' })
+    const { sent, failed, expired, users, subscriptions } = res.stats
+    toast.add({
+      title: 'Test-Push versendet',
+      description: `${sent}/${subscriptions} Subscriptions (${users} User) · ${expired} abgelaufen · ${failed} Fehler`,
+      color: failed > 0 ? 'warning' : 'success',
+    })
   }
   catch (err: unknown) {
     pushTestError.value = err instanceof Error ? err.message : 'Unbekannter Fehler'
@@ -214,21 +232,23 @@ async function runPushTest() {
     </div>
 
     <!-- Push-Test -->
-    <div class="rounded-[--ui-radius] border border-default p-6 space-y-5 mt-6">
+    <div class="rounded-[--ui-radius] border border-error/40 p-6 space-y-5 mt-6">
       <div>
         <h2 class="font-display font-semibold text-highlighted text-base">
-          Push-Test
+          Push-Test an alle
         </h2>
         <p class="text-sm text-muted mt-1">
-          Sendet eine Test-Push-Notification an alle Geräte, auf denen du selbst Push aktiviert hast.
+          Sendet eine Test-Push-Notification an <span class="text-error font-medium">alle User mit aktivierter Push-Subscription</span>.
         </p>
       </div>
 
       <UButton
-        label="Test-Push senden"
+        label="Test-Push an alle senden"
         icon="i-ph-bell-ringing-bold"
+        color="error"
+        variant="subtle"
         :loading="pushTestLoading"
-        @click="runPushTest"
+        @click="pushTestConfirmOpen = true"
       />
 
       <UAlert
@@ -240,5 +260,40 @@ async function runPushTest() {
         :description="pushTestError"
       />
     </div>
+
+    <UModal v-model:open="pushTestConfirmOpen">
+      <template #content>
+        <div class="p-6 space-y-5">
+          <div class="flex items-start gap-3">
+            <UIcon
+              name="i-ph-warning-bold"
+              class="size-6 shrink-0 text-error"
+            />
+            <div>
+              <h3 class="font-display font-semibold text-highlighted text-base">
+                Test-Push an alle User senden?
+              </h3>
+              <p class="text-sm text-muted mt-1">
+                Diese Aktion versendet eine Test-Benachrichtigung an <span class="text-error font-medium">alle User mit aktivierter Push-Subscription</span>. Nur zum Testen verwenden.
+              </p>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 pt-2 border-t border-default">
+            <UButton
+              label="Abbrechen"
+              color="neutral"
+              variant="ghost"
+              @click="pushTestConfirmOpen = false"
+            />
+            <UButton
+              label="Ja, an alle senden"
+              color="error"
+              :loading="pushTestLoading"
+              @click="runPushTest"
+            />
+          </div>
+        </div>
+      </template>
+    </UModal>
   </UContainer>
 </template>

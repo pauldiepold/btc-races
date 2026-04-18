@@ -45,6 +45,7 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
   const url = (event.notification.data?.url as string | undefined) ?? '/'
+  const target = new URL(url, self.location.origin)
 
   event.waitUntil(
     (async () => {
@@ -53,19 +54,16 @@ self.addEventListener('notificationclick', (event) => {
         includeUncontrolled: true,
       })
 
+      // Tab mit identischem Pfad fokussieren, sonst neues Fenster öffnen.
+      // (client.navigate() vermeiden — wirft "The client is inactive".)
       for (const client of allClients) {
-        if ('focus' in client) {
-          try {
-            await client.navigate(url)
-          }
-          catch {
-            // navigate kann bei cross-origin oder fehlender Same-Origin fehlschlagen
-          }
+        const clientUrl = new URL(client.url)
+        if (clientUrl.pathname === target.pathname && 'focus' in client) {
           return client.focus()
         }
       }
 
-      return self.clients.openWindow(url)
+      return self.clients.openWindow(target.href)
     })(),
   )
 })

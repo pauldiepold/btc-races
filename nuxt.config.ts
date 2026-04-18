@@ -46,6 +46,11 @@ export default defineNuxtConfig({
     emailSenderAddress: '',
     emailTestMode: false,
     emailTestAddress: '',
+
+    // Web Push (VAPID)
+    vapidPrivateKey: '',
+    vapidSubject: 'mailto:info@btc-races.de',
+
     turnstile: {
       secretKey: '', // override: NUXT_TURNSTILE_SECRET_KEY
     },
@@ -55,6 +60,8 @@ export default defineNuxtConfig({
     },
     public: {
       siteUrl: process.env.CF_PAGES_URL || 'http://localhost:3000',
+      vapidPublicKey: '',
+      turnstileSiteKey: '',
     },
   },
 

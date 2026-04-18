@@ -30,8 +30,47 @@ export const EMAIL_SUBJECT_MAP: Record<NotificationType, (payload: Record<string
 }
 
 /**
- * Push-Payload-Builder pro Notification-Typ — Stub für spätere Implementierung.
+ * Push-Payload-Builder pro Notification-Typ.
  */
 export const PUSH_PAYLOAD_MAP: Partial<Record<NotificationType, (payload: Record<string, unknown>) => { title: string, body: string, url?: string }>> = {
-  // Wird in einem späteren Issue implementiert
+  ladv_registered: p => ({
+    title: 'LADV-Meldung',
+    body: `Du wurdest für ${p.eventName ?? 'einen Wettkampf'} gemeldet.`,
+    url: p.eventUrl as string | undefined,
+  }),
+  ladv_canceled: p => ({
+    title: 'LADV-Abmeldung',
+    body: `Deine Meldung für ${p.eventName ?? 'einen Wettkampf'} wurde zurückgezogen.`,
+    url: p.eventUrl as string | undefined,
+  }),
+  athlete_canceled_after_ladv: p => ({
+    title: 'Abmeldung nach LADV-Meldung',
+    body: `${p.athleteName ?? 'Ein Athlet'} hat sich von ${p.eventName ?? 'einem Wettkampf'} abgemeldet.`,
+    url: p.eventUrl as string | undefined,
+  }),
+  event_canceled: p => ({
+    title: 'Veranstaltung abgesagt',
+    body: `${p.eventName ?? 'Eine Veranstaltung'} wurde abgesagt.`,
+    url: p.eventUrl as string | undefined,
+  }),
+  new_event: p => ({
+    title: 'Neue Veranstaltung',
+    body: `${p.eventName ?? 'Eine neue Veranstaltung'} wurde veröffentlicht.`,
+    url: p.eventUrl as string | undefined,
+  }),
+  reminder_deadline_athlete: p => ({
+    title: 'Meldeschluss',
+    body: `Meldeschluss für ${p.eventName ?? 'einen Wettkampf'} steht bevor.`,
+    url: p.eventUrl as string | undefined,
+  }),
+  reminder_deadline_admin: p => ({
+    title: 'Admin-Erinnerung',
+    body: `Meldeschluss für ${p.eventName ?? 'einen Wettkampf'} steht bevor.`,
+    url: p.eventUrl as string | undefined,
+  }),
+  reminder_event: p => ({
+    title: 'Erinnerung',
+    body: `${p.eventName ?? 'Eine Veranstaltung'} findet bald statt.`,
+    url: p.eventUrl as string | undefined,
+  }),
 }

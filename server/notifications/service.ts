@@ -1,7 +1,8 @@
 import { and, eq, inArray } from 'drizzle-orm'
 import { emailService } from '~~/server/email/service'
 import { resolveChannelsForRecipient } from '~~/shared/utils/notifications'
-import { EMAIL_TEMPLATE_MAP, EMAIL_SUBJECT_MAP } from './templates'
+import { EMAIL_TEMPLATE_MAP, EMAIL_SUBJECT_MAP, PUSH_PAYLOAD_MAP } from './templates'
+import { pushService } from './push'
 import type {
   NotificationRecipient,
   NotificationType,
@@ -77,14 +78,18 @@ async function sendEmailDelivery(
 }
 
 /**
- * Push-Delivery-Stub — loggt nur, gibt immer Erfolg zurück.
+ * Sendet eine Push-Notification an alle Geräte eines Empfängers.
  */
 async function sendPushDelivery(
   type: NotificationType,
   recipient: NotificationRecipient,
-  _payload: Record<string, unknown>,
+  payload: Record<string, unknown>,
 ): Promise<string | null> {
-  console.log(`[Push Stub] Would send ${type} to user ${recipient.userId}`)
+  const payloadBuilder = PUSH_PAYLOAD_MAP[type]
+  if (!payloadBuilder) return `Push payload not found for type: ${type}`
+
+  const pushPayload = payloadBuilder(payload)
+  await pushService.sendPushToUser(recipient.userId, pushPayload)
   return null
 }
 

@@ -65,6 +65,7 @@ export interface NotificationPreferenceEntry {
   type: NotificationType
   label: string
   description: string
+  adminOnly: boolean
   email: NotificationPreferenceChannelState
   push: NotificationPreferenceChannelState
 }
@@ -107,6 +108,7 @@ export async function buildPreferencesResponse(
       type,
       label: meta.label,
       description: meta.description,
+      adminOnly: meta.adminOnly,
       email: resolveChannelState(type, 'email', defaults.email, overrideMap),
       push: resolveChannelState(type, 'push', defaults.push, overrideMap),
     }

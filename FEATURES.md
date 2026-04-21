@@ -67,6 +67,22 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 
 ---
 
+## Benachrichtigungen
+
+- Zentrales Notification-System als Abstraktionsschicht zwischen Trigger und Zustellkanal — Epic #55
+- DB-Tabellen: `notification_jobs`, `notification_deliveries`, `notification_preferences`, `push_subscriptions` — #56
+- `notificationService.send()` mit synchroner Verarbeitung, Preference-Resolution (mandatory > user override > default) und Per-Delivery-Logging — #57
+- E-Mail-Templates für alle acht Notification-Typen in `app/emails/` — #58
+- Preferences-UI unter `/profil/benachrichtigungen` (Tabelle mit E-Mail/Push-Toggles pro Kategorie, mandatory-Toggles disabled) — #63
+- Verdrahtete Trigger in API-Handlern (fire-and-forget, blockieren keine fachliche Aktion) — #64
+  - N-01 LADV-Meldung bestätigt → Mitglied (mit Disziplinen)
+  - N-02 LADV-Meldung zurückgezogen → Mitglied
+  - N-03 Athlet storniert nach bereits erfolgter LADV-Meldung → alle Admins
+  - N-04 Event abgesagt → alle aktiv Angemeldeten
+  - N-05 Neues Event (manuell oder via LADV-Import) → alle aktiven Mitglieder
+
+---
+
 ## PWA
 
 - Installierbare PWA via `@vite-pwa/nuxt` (Manifest, Service Worker, Icons) — Voraussetzung für Web Push auf iOS — #59

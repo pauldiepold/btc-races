@@ -1,5 +1,6 @@
 import { db, schema } from 'hub:db'
 import { z } from 'zod'
+import { triggerNewEventNotification } from '~~/server/notifications/triggers'
 
 const createEventSchema = z.object({
   type: z.enum(['competition', 'training', 'social']),
@@ -48,6 +49,14 @@ export default defineEventHandler(async (event) => {
   }).returning({ id: schema.events.id })
 
   const newId = inserted[0]!.id
+
+  triggerNewEventNotification({
+    id: newId,
+    name: data.name,
+    date: data.date ?? null,
+    location: data.location ?? null,
+    registrationDeadline: data.registrationDeadline ?? null,
+  })
 
   setResponseStatus(event, 201)
   return { id: encodeEventId(newId) }

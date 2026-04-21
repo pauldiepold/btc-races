@@ -110,15 +110,6 @@ export default defineEventHandler(async (event) => {
     )
   }
 
-  // E-Mail-Stubs
-  console.log(`[E-01] Anmeldung-Bestätigung → ${session.user.email}: "${dbEvent.name}"`)
-  if (dbEvent.registrationDeadline) {
-    const threeDaysFromNow = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
-    if (threeDaysFromNow > new Date(dbEvent.registrationDeadline)) {
-      console.log(`[E-05] Dringende Anmeldung (< 3 Tage) → Alle Admins: ${session.user.firstName} ${session.user.lastName} → "${dbEvent.name}"`)
-    }
-  }
-
   setResponseStatus(event, 201)
   return { id: registrationId }
 })

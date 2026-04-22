@@ -78,6 +78,10 @@ async function sendPushToUser(userId: number, payload: PushPayload): Promise<voi
     .from(schema.pushSubscriptions)
     .where(eq(schema.pushSubscriptions.userId, userId))
 
+  if (subscriptions.length === 0) {
+    throw new Error(`sendPushToUser called for userId ${userId} without active subscriptions`)
+  }
+
   const errors: Error[] = []
 
   for (const sub of subscriptions) {

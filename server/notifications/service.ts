@@ -1,8 +1,8 @@
 import { and, eq, inArray } from 'drizzle-orm'
 import { emailService } from '~~/server/email/service'
-import { resolveChannelsForRecipient } from '~~/shared/utils/notifications'
 import { EMAIL_TEMPLATE_MAP, EMAIL_SUBJECT_MAP, PUSH_PAYLOAD_MAP } from './templates'
 import { pushService } from './push'
+import { buildDeliveryTasks } from './delivery-builder'
 import type {
   NotificationRecipient,
   NotificationType,
@@ -97,11 +97,6 @@ async function sendPushDelivery(
 // Delivery-Loop — wird ausschließlich aus processQueue() aufgerufen
 // ---------------------------------------------------------------------------
 
-interface DeliveryTask {
-  recipient: NotificationRecipient
-  channel: 'email' | 'push'
-}
-
 export async function executeDeliveries(
   jobId: number,
   type: NotificationType,
@@ -110,18 +105,24 @@ export async function executeDeliveries(
 ): Promise<boolean> {
   const { db, schema } = await import('hub:db')
 
-  // Preferences für alle Recipients + Typ in einer Query
   const userIds = recipients.map(r => r.userId)
-  const preferences = userIds.length > 0
-    ? await db.select()
-        .from(schema.notificationPreferences)
-        .where(
-          and(
-            inArray(schema.notificationPreferences.userId, userIds),
-            eq(schema.notificationPreferences.notificationType, type),
+
+  // Preferences und Subscriptions parallel laden
+  const [preferences, subscriptionRows] = userIds.length > 0
+    ? await Promise.all([
+        db.select()
+          .from(schema.notificationPreferences)
+          .where(
+            and(
+              inArray(schema.notificationPreferences.userId, userIds),
+              eq(schema.notificationPreferences.notificationType, type),
+            ),
           ),
-        )
-    : []
+        db.select({ userId: schema.pushSubscriptions.userId })
+          .from(schema.pushSubscriptions)
+          .where(inArray(schema.pushSubscriptions.userId, userIds)),
+      ])
+    : [[], []]
 
   const prefsByUser = new Map<number, typeof preferences>()
   for (const pref of preferences) {
@@ -130,15 +131,9 @@ export async function executeDeliveries(
     prefsByUser.set(pref.userId, existing)
   }
 
-  // Alle (recipient × channel) Paare flachlegen → parallel abarbeiten
-  const tasks: DeliveryTask[] = []
-  for (const recipient of recipients) {
-    const userPrefs = prefsByUser.get(recipient.userId) ?? []
-    const channels = resolveChannelsForRecipient(type, userPrefs)
-    for (const channel of channels) {
-      tasks.push({ recipient, channel })
-    }
-  }
+  const subscribedUserIds = new Set(subscriptionRows.map(r => r.userId))
+
+  const tasks = buildDeliveryTasks(type, recipients, prefsByUser, subscribedUserIds)
 
   if (tasks.length === 0) return true
 

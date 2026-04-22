@@ -21,10 +21,6 @@ useHead({
     { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
     { name: 'apple-mobile-web-app-title', content: 'BTC Races' },
   ],
-  link: [
-    { rel: 'icon', href: '/favicon.ico' },
-    { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
-  ],
   htmlAttrs: {
     lang: 'de',
   },

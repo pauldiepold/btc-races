@@ -107,6 +107,7 @@ export default defineEventHandler(async (event) => {
     subject: 'Anmeldelink - BTC-Events',
     html,
     text,
+    bypassTestMode: true,
   }
 
   await emailService.sendEmail(emailMessage)

@@ -40,6 +40,8 @@ export interface EmailMessage {
   text: string
   /** Anhänge (optional) */
   attachments?: EmailAttachment[]
+  /** Test-Modus-Umleitung für diese E-Mail überspringen (z.B. Magic-Link) */
+  bypassTestMode?: boolean
 }
 
 /**

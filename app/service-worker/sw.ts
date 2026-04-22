@@ -1,13 +1,10 @@
 /// <reference lib="webworker" />
 
 import { precacheAndRoute } from 'workbox-precaching'
+import { setCatchHandler } from 'workbox-routing'
 
 declare const self: ServiceWorkerGlobalScope
 
-// Kanonisches Muster aus der vite-pwa-Doku: workbox-build injiziert die
-// Precache-Liste in `self.__WB_MANIFEST`. @vite-pwa/nuxt fügt drei Nuxt-Build-
-// Metadaten hinzu (`_nuxt/builds/latest.json` etc.), die für den PWA-autoUpdate-
-// Flow relevant sind — bewusst akzeptiert.
 precacheAndRoute(self.__WB_MANIFEST)
 
 self.addEventListener('install', () => {
@@ -16,6 +13,16 @@ self.addEventListener('install', () => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim())
+})
+
+setCatchHandler(async ({ event }) => {
+  if ((event as FetchEvent).request.destination === 'document') {
+    return new Response(
+      '<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Offline – BTC Races</title><style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100dvh;margin:0;background:#18181b;color:#fff}div{text-align:center}h1{color:#ffb700;font-size:1.5rem;margin-bottom:.5rem}p{color:#a1a1aa}</style></head><body><div><h1>Du bist offline</h1><p>Bitte überprüfe deine Internetverbindung.</p></div></body></html>',
+      { headers: { 'Content-Type': 'text/html; charset=utf-8' } },
+    )
+  }
+  return Response.error()
 })
 
 interface PushPayload {
@@ -36,7 +43,7 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title ?? 'BTC Races', {
       body: data.body,
-      icon: '/icons/icon-192x192.png',
+      icon: '/pwa-192x192.png',
       data: { url: data.url ?? '/' },
     }),
   )

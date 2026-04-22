@@ -21,7 +21,7 @@ name = "btc-races-cron-preview"
 
 [env.preview.triggers]
 crons = [
-  "*/5 * * * *",     # alle 5 Minuten
+  "* * * * *",     # alle 5 Minuten
 ]
 
 [env.preview.vars]

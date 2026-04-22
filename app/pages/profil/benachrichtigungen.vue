@@ -30,6 +30,28 @@ watchEffect(() => {
 
 const pushAvailable = computed(() => push.isGranted.value && push.isSubscribed.value)
 
+const userPreferences = computed(() => preferences.value.filter(p => !p.adminOnly))
+const adminPreferences = computed(() => preferences.value.filter(p => p.adminOnly))
+
+const sections = computed(() => {
+  const result: { key: string, title: string, description?: string, entries: NotificationPreferenceEntry[] }[] = [
+    {
+      key: 'user',
+      title: 'Persönliche Benachrichtigungen',
+      entries: userPreferences.value,
+    },
+  ]
+  if (adminPreferences.value.length) {
+    result.push({
+      key: 'admin',
+      title: 'Admin-Benachrichtigungen',
+      description: 'Benachrichtigungen für Coaches und Admins rund um Meldungen und Fristen.',
+      entries: adminPreferences.value,
+    })
+  }
+  return result
+})
+
 function openPushModal() {
   modalOpen.value = true
 }
@@ -124,76 +146,95 @@ async function toggle(entry: NotificationPreferenceEntry, channel: NotificationC
 
     <div
       v-else
-      class="rounded-[--ui-radius] border border-default overflow-hidden"
+      class="space-y-6"
     >
-      <div
-        class="hidden sm:grid grid-cols-[1fr_5rem_5rem] items-center gap-3 px-4 py-2.5 bg-elevated/60 text-xs font-medium uppercase tracking-wide text-muted"
+      <section
+        v-for="section in sections"
+        :key="section.key"
       >
-        <span>Kategorie</span>
-        <span class="text-center">E-Mail</span>
-        <span class="text-center">Push</span>
-      </div>
+        <div class="mb-2">
+          <h3 class="text-sm font-semibold text-highlighted">
+            {{ section.title }}
+          </h3>
+          <p
+            v-if="section.description"
+            class="text-xs text-muted mt-0.5"
+          >
+            {{ section.description }}
+          </p>
+        </div>
 
-      <ul class="divide-y divide-default">
-        <li
-          v-for="entry in preferences"
-          :key="entry.type"
-          class="px-4 py-3 grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_5rem_5rem] items-center gap-x-3 gap-y-3"
-        >
-          <div class="min-w-0 col-span-2 sm:col-span-1">
-            <p class="text-sm font-medium text-highlighted">
-              {{ entry.label }}
-            </p>
-            <p class="text-xs text-muted mt-0.5">
-              {{ entry.description }}
-            </p>
-          </div>
-
-          <!-- Mobile: Toggles mit Label unter dem Eintrag -->
-          <div class="flex items-center gap-6 justify-end sm:hidden col-span-2">
-            <div class="flex items-center gap-2">
-              <span class="text-xs text-muted">E-Mail</span>
-              <PreferenceToggle
-                :state="entry.email"
-                :push-available="pushAvailable"
-                channel="email"
-                @update="(val: boolean) => toggle(entry, 'email', val)"
-                @request-push="openPushModal"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="text-xs text-muted">Push</span>
-              <PreferenceToggle
-                :state="entry.push"
-                :push-available="pushAvailable"
-                channel="push"
-                @update="(val: boolean) => toggle(entry, 'push', val)"
-                @request-push="openPushModal"
-              />
-            </div>
+        <div class="rounded-[--ui-radius] border border-default overflow-hidden">
+          <div
+            class="hidden sm:grid grid-cols-[1fr_5rem_5rem] items-center gap-3 px-4 py-2.5 bg-elevated/60 text-xs font-medium uppercase tracking-wide text-muted"
+          >
+            <span>Kategorie</span>
+            <span class="text-center">E-Mail</span>
+            <span class="text-center">Push</span>
           </div>
 
-          <!-- Desktop: Spalten-Toggles -->
-          <div class="hidden sm:flex justify-center">
-            <PreferenceToggle
-              :state="entry.email"
-              :push-available="pushAvailable"
-              channel="email"
-              @update="(val: boolean) => toggle(entry, 'email', val)"
-              @request-push="openPushModal"
-            />
-          </div>
-          <div class="hidden sm:flex justify-center">
-            <PreferenceToggle
-              :state="entry.push"
-              :push-available="pushAvailable"
-              channel="push"
-              @update="(val: boolean) => toggle(entry, 'push', val)"
-              @request-push="openPushModal"
-            />
-          </div>
-        </li>
-      </ul>
+          <ul class="divide-y divide-default">
+            <li
+              v-for="entry in section.entries"
+              :key="entry.type"
+              class="px-4 py-3 grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_5rem_5rem] items-center gap-x-3 gap-y-3"
+            >
+              <div class="min-w-0 col-span-2 sm:col-span-1">
+                <p class="text-sm font-medium text-highlighted">
+                  {{ entry.label }}
+                </p>
+                <p class="text-xs text-muted mt-0.5">
+                  {{ entry.description }}
+                </p>
+              </div>
+
+              <!-- Mobile: Toggles mit Label unter dem Eintrag -->
+              <div class="flex items-center gap-6 justify-end sm:hidden col-span-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs text-muted">E-Mail</span>
+                  <PreferenceToggle
+                    :state="entry.email"
+                    :push-available="pushAvailable"
+                    channel="email"
+                    @update="(val: boolean) => toggle(entry, 'email', val)"
+                    @request-push="openPushModal"
+                  />
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs text-muted">Push</span>
+                  <PreferenceToggle
+                    :state="entry.push"
+                    :push-available="pushAvailable"
+                    channel="push"
+                    @update="(val: boolean) => toggle(entry, 'push', val)"
+                    @request-push="openPushModal"
+                  />
+                </div>
+              </div>
+
+              <!-- Desktop: Spalten-Toggles -->
+              <div class="hidden sm:flex justify-center">
+                <PreferenceToggle
+                  :state="entry.email"
+                  :push-available="pushAvailable"
+                  channel="email"
+                  @update="(val: boolean) => toggle(entry, 'email', val)"
+                  @request-push="openPushModal"
+                />
+              </div>
+              <div class="hidden sm:flex justify-center">
+                <PreferenceToggle
+                  :state="entry.push"
+                  :push-available="pushAvailable"
+                  channel="push"
+                  @update="(val: boolean) => toggle(entry, 'push', val)"
+                  @request-push="openPushModal"
+                />
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
     </div>
 
     <PushModal v-model:open="modalOpen" />

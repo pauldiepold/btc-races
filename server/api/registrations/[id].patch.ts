@@ -1,8 +1,10 @@
 import { db, schema } from 'hub:db'
-import { eq } from 'drizzle-orm'
+import { and, eq, isNotNull, isNull } from 'drizzle-orm'
 import { z } from 'zod'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import { getValidNextStatuses } from '~~/shared/utils/registration'
+import { notificationService } from '~~/server/notifications/service'
+import { formatEventDate } from '~~/shared/utils/events'
 
 const bodySchema = z.object({
   status: z.enum(['registered', 'canceled', 'maybe', 'yes', 'no']).optional(),
@@ -42,6 +44,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: 'Keine Berechtigung' })
   }
 
+  let shouldNotifyAdminsLadvCancel = false
+
   if (status !== undefined) {
     const dbEvent = await db.query.events.findFirst({
       where: eq(schema.events.id, registration.eventId),
@@ -63,9 +67,17 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // E-Mail-Stub bei Stornierung
-    if (status === 'canceled' || status === 'no') {
-      console.log(`[E-02] Stornierung-Bestätigung → ${session.user.email}: "${dbEvent.name}"`)
+    // N-03: Stornierung nach bereits erfolgter LADV-Meldung → Admins informieren
+    if (isCancelAction) {
+      const activeLadv = await db.query.registrationDisciplines.findFirst({
+        where: and(
+          eq(schema.registrationDisciplines.registrationId, id),
+          isNotNull(schema.registrationDisciplines.ladvRegisteredAt),
+          isNull(schema.registrationDisciplines.ladvCanceledAt),
+        ),
+        columns: { id: true },
+      })
+      shouldNotifyAdminsLadvCancel = !!activeLadv
     }
   }
 
@@ -78,5 +90,46 @@ export default defineEventHandler(async (event) => {
     })
     .where(eq(schema.registrations.id, id))
 
+  if (shouldNotifyAdminsLadvCancel) {
+    await sendAthleteCanceledAfterLadvNotification(registration.userId, registration.eventId)
+  }
+
   return { id }
 })
+
+async function sendAthleteCanceledAfterLadvNotification(userId: number, eventId: number) {
+  try {
+    const [user, dbEvent] = await Promise.all([
+      db.query.users.findFirst({
+        where: eq(schema.users.id, userId),
+        columns: { firstName: true, lastName: true },
+      }),
+      db.query.events.findFirst({
+        where: eq(schema.events.id, eventId),
+      }),
+    ])
+
+    if (!user || !dbEvent) return
+
+    const siteUrl = useRuntimeConfig().public.siteUrl
+
+    await notificationService.enqueue({
+      type: 'athlete_canceled_after_ladv',
+      recipients: 'all_admins',
+      payload: {
+        eventName: dbEvent.name,
+        eventDate: formatEventDate(dbEvent.date) ?? undefined,
+        eventLocation: dbEvent.location ?? undefined,
+        registrationDeadline: formatEventDate(dbEvent.registrationDeadline) ?? undefined,
+        eventLink: `${siteUrl}/${encodeEventId(eventId)}`,
+        memberFirstName: user.firstName ?? '',
+        memberLastName: user.lastName ?? '',
+        athleteName: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
+      },
+      eventId,
+    })
+  }
+  catch (err) {
+    console.error('[Notification] Fehler beim Erstellen des Jobs:', err)
+  }
+}

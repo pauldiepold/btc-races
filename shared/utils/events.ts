@@ -2,7 +2,7 @@ import type { EventPublicDetail, EventResponse } from '../types/events'
 
 const OG_EXCERPT_MAX = 160
 
-function formatOgDate(isoDate: string | null | undefined): string | null {
+export function formatEventDate(isoDate: string | null | undefined): string | null {
   if (!isoDate) return null
   const d = new Date(`${isoDate}T12:00:00`)
   if (Number.isNaN(d.getTime())) return null
@@ -24,7 +24,7 @@ export function isEventPublicDetail(e: EventResponse): e is EventPublicDetail {
 export function generateEventOgDescription(event: EventResponse): string {
   const parts: string[] = []
 
-  const dateStr = formatOgDate(event.date)
+  const dateStr = formatEventDate(event.date)
   if (dateStr) parts.push(dateStr)
 
   const locBits: string[] = []

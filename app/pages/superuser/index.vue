@@ -97,13 +97,29 @@ async function runPushTest() {
 
 <template>
   <UContainer class="py-10 lg:py-14 max-w-2xl">
-    <div class="mb-10">
+    <div class="mb-8">
       <h1 class="font-display font-semibold text-highlighted text-2xl">
         Superuser
       </h1>
       <p class="text-sm text-muted mt-1">
         Systemfunktionen
       </p>
+    </div>
+
+    <!-- Sub-Navigation -->
+    <div class="flex gap-2 mb-8 border-b border-default">
+      <NuxtLink
+        to="/superuser"
+        class="px-4 py-2 text-sm font-medium text-highlighted border-b-2 border-primary"
+      >
+        System
+      </NuxtLink>
+      <NuxtLink
+        to="/superuser/notifications"
+        class="px-4 py-2 text-sm font-medium text-muted hover:text-highlighted transition-colors border-b-2 border-transparent"
+      >
+        Notifications
+      </NuxtLink>
     </div>
 
     <!-- DB-Seed -->

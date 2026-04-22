@@ -1,0 +1,28 @@
+name = "btc-races-cron"
+main = "src/index.ts"
+compatibility_date = "2025-12-29"
+compatibility_flags = ["nodejs_compat"]
+
+# Berlin-Zeiten in UTC umgerechnet (Berlin = UTC+1/UTC+2).
+# Die stündlichen Zeiten sind konservativ für Winter-/Sommerzeit ausgelegt.
+[triggers]
+crons = [
+  "* * * * *",       # Queue verarbeiten — jede Minute
+  "0 7 * * *",       # Erinnerungen senden — täglich 8:00 Berliner Zeit (Winter) / 9:00 (Sommer)
+  "0 2 * * 7",       # Cleanup alte Jobs — Sonntag 3:00/4:00 Berliner Zeit
+]
+
+[vars]
+API_BASE_URL = "https://events.berlin-track-club.de"
+
+# Preview-Umgebung — seltener, zeigt auf die dev-URL.
+[env.preview]
+name = "btc-races-cron-preview"
+
+[env.preview.triggers]
+crons = [
+  "* * * * *",     # alle 5 Minuten
+]
+
+[env.preview.vars]
+API_BASE_URL = "https://develop.btc-races.pages.dev"

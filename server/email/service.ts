@@ -57,7 +57,7 @@ class EmailService {
       displayName: 'BTC Races',
     }
 
-    if (this.testMode) {
+    if (this.testMode && !message.bypassTestMode) {
       // Im Testmodus: Empfänger überschreiben und Betreff markieren
       const originalRecipients = message.to
         .map(r => `${r.displayName || ''} <${r.address}>`)

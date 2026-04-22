@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { LadvService } from '~~/server/external-apis/ladv/ladv.service'
 import { parseLadvIdFromUrl } from '~~/server/utils/ladv'
+import { triggerNewEventNotification } from '~~/server/notifications/triggers'
 
 const importSchema = z.object({
   url: z.string().url('Ungültige URL'),
@@ -65,6 +66,14 @@ export default defineEventHandler(async (event) => {
   }).returning({ id: schema.events.id })
 
   const newId = inserted[0]!.id
+
+  await triggerNewEventNotification({
+    id: newId,
+    name: normalized.name,
+    date: normalized.date,
+    location: normalized.location,
+    registrationDeadline: normalized.registration_deadline,
+  })
 
   setResponseStatus(event, 201)
   return { id: encodeEventId(newId) }

@@ -94,8 +94,13 @@ async function sendPushDelivery(
 }
 
 // ---------------------------------------------------------------------------
-// Delivery-Loop — von sendNotification() und processQueue() genutzt
+// Delivery-Loop — wird ausschließlich aus processQueue() aufgerufen
 // ---------------------------------------------------------------------------
+
+interface DeliveryTask {
+  recipient: NotificationRecipient
+  channel: 'email' | 'push'
+}
 
 export async function executeDeliveries(
   jobId: number,
@@ -105,7 +110,7 @@ export async function executeDeliveries(
 ): Promise<boolean> {
   const { db, schema } = await import('hub:db')
 
-  // Alle Preferences für diese Recipients + Typ in einer Query
+  // Preferences für alle Recipients + Typ in einer Query
   const userIds = recipients.map(r => r.userId)
   const preferences = userIds.length > 0
     ? await db.select()
@@ -118,7 +123,6 @@ export async function executeDeliveries(
         )
     : []
 
-  // Preferences nach userId gruppieren
   const prefsByUser = new Map<number, typeof preferences>()
   for (const pref of preferences) {
     const existing = prefsByUser.get(pref.userId) ?? []
@@ -126,100 +130,77 @@ export async function executeDeliveries(
     prefsByUser.set(pref.userId, existing)
   }
 
-  let anySuccess = false
-
+  // Alle (recipient × channel) Paare flachlegen → parallel abarbeiten
+  const tasks: DeliveryTask[] = []
   for (const recipient of recipients) {
     const userPrefs = prefsByUser.get(recipient.userId) ?? []
     const channels = resolveChannelsForRecipient(type, userPrefs)
-
     for (const channel of channels) {
-      let error: string | null = null
-
-      try {
-        if (channel === 'email') {
-          error = await sendEmailDelivery(type, recipient, payload)
-        }
-        else if (channel === 'push') {
-          error = await sendPushDelivery(type, recipient, payload)
-        }
-      }
-      catch (e) {
-        error = e instanceof Error ? e.message : String(e)
-      }
-
-      const success = error === null
-      if (success) anySuccess = true
-
-      await db.insert(schema.notificationDeliveries).values({
-        jobId,
-        channel,
-        recipientId: recipient.userId,
-        status: success ? 'sent' : 'failed',
-        error,
-        sentAt: success ? new Date() : null,
-      })
+      tasks.push({ recipient, channel })
     }
+  }
+
+  if (tasks.length === 0) return true
+
+  const results = await Promise.allSettled(tasks.map(async (task) => {
+    let error: string | null = null
+    try {
+      if (task.channel === 'email') {
+        error = await sendEmailDelivery(type, task.recipient, payload)
+      }
+      else {
+        error = await sendPushDelivery(type, task.recipient, payload)
+      }
+    }
+    catch (e) {
+      error = e instanceof Error ? e.message : String(e)
+    }
+    return { task, error }
+  }))
+
+  // Deliveries schreiben (sequenziell, günstig gegenüber den Versand-Calls)
+  let anySuccess = false
+  for (const r of results) {
+    if (r.status !== 'fulfilled') continue
+    const { task, error } = r.value
+    const success = error === null
+    if (success) anySuccess = true
+
+    await db.insert(schema.notificationDeliveries).values({
+      jobId,
+      channel: task.channel,
+      recipientId: task.recipient.userId,
+      status: success ? 'sent' : 'failed',
+      error,
+      sentAt: success ? new Date() : null,
+    })
   }
 
   return anySuccess
 }
 
 // ---------------------------------------------------------------------------
-// Public API
+// Public API — reine Queue: INSERT pending, Cron verarbeitet später
 // ---------------------------------------------------------------------------
 
-export async function sendNotification(options: SendNotificationOptions): Promise<SendNotificationResult> {
+export async function enqueueNotification(options: SendNotificationOptions): Promise<SendNotificationResult> {
   const { db, schema } = await import('hub:db')
   const { type, payload, eventId } = options
 
-  // 1. Recipients auflösen
   const recipients = await resolveRecipients(options.recipients)
 
-  // 2. Job erstellen (mit aufgelösten Recipients für Retry)
   const storedPayload = JSON.stringify({ ...payload, eventId, _recipients: recipients })
 
   const rows = await db.insert(schema.notificationJobs).values({
     type,
-    status: 'processing',
+    status: 'pending',
     payload: storedPayload,
-    attempts: 1,
+    attempts: 0,
   }).returning({ id: schema.notificationJobs.id })
 
-  const jobId = rows[0]!.id
-
-  // 3. Keine Empfänger → Job als done markieren
-  if (recipients.length === 0) {
-    await db.update(schema.notificationJobs)
-      .set({ status: 'done', processedAt: new Date() })
-      .where(eq(schema.notificationJobs.id, jobId))
-    return { jobId }
-  }
-
-  try {
-    // 4. Deliveries ausführen
-    const anySuccess = await executeDeliveries(jobId, type, recipients, payload)
-
-    // 5. Job-Status setzen
-    await db.update(schema.notificationJobs)
-      .set({
-        status: anySuccess ? 'done' : 'failed',
-        processedAt: new Date(),
-      })
-      .where(eq(schema.notificationJobs.id, jobId))
-  }
-  catch (e) {
-    await db.update(schema.notificationJobs)
-      .set({
-        status: 'failed',
-        error: e instanceof Error ? e.message : String(e),
-        processedAt: new Date(),
-      })
-      .where(eq(schema.notificationJobs.id, jobId))
-  }
-
-  return { jobId }
+  return { jobId: rows[0]!.id }
 }
 
 export const notificationService = {
-  send: sendNotification,
+  enqueue: enqueueNotification,
 }

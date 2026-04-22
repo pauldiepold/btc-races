@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
 
   // Nur Notification feuern, wenn tatsächlich mindestens eine Disziplin neu gemeldet wurde
   if (updated.length > 0) {
-    void sendLadvRegisteredNotification(registration.userId, registration.eventId)
+    await sendLadvRegisteredNotification(registration.userId, registration.eventId)
   }
 
   return { id }
@@ -80,7 +80,7 @@ async function sendLadvRegisteredNotification(userId: number, eventId: number) {
     const disciplines = activeDisciplines.map(d => d.discipline)
     const siteUrl = useRuntimeConfig().public.siteUrl
 
-    await notificationService.send({
+    await notificationService.enqueue({
       type: 'ladv_registered',
       recipients: [{
         userId: user.id,

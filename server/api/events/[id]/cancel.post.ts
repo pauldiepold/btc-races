@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
       .set({ cancelledAt: new Date(), updatedAt: new Date() })
       .where(eq(schema.events.id, id))
 
-    void sendEventCanceledNotification(id, dbEvent)
+    await sendEventCanceledNotification(id, dbEvent)
   }
 
   return { id: sqid }
@@ -61,7 +61,7 @@ async function sendEventCanceledNotification(
 
     const siteUrl = useRuntimeConfig().public.siteUrl
 
-    await notificationService.send({
+    await notificationService.enqueue({
       type: 'event_canceled',
       recipients: recipients.map(r => ({
         userId: r.userId,

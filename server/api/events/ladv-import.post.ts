@@ -67,7 +67,7 @@ export default defineEventHandler(async (event) => {
 
   const newId = inserted[0]!.id
 
-  triggerNewEventNotification({
+  await triggerNewEventNotification({
     id: newId,
     name: normalized.name,
     date: normalized.date,

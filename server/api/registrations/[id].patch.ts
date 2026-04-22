@@ -91,7 +91,7 @@ export default defineEventHandler(async (event) => {
     .where(eq(schema.registrations.id, id))
 
   if (shouldNotifyAdminsLadvCancel) {
-    void sendAthleteCanceledAfterLadvNotification(registration.userId, registration.eventId)
+    await sendAthleteCanceledAfterLadvNotification(registration.userId, registration.eventId)
   }
 
   return { id }
@@ -113,7 +113,7 @@ async function sendAthleteCanceledAfterLadvNotification(userId: number, eventId:
 
     const siteUrl = useRuntimeConfig().public.siteUrl
 
-    await notificationService.send({
+    await notificationService.enqueue({
       type: 'athlete_canceled_after_ladv',
       recipients: 'all_admins',
       payload: {

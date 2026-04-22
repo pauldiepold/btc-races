@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
 
   // Nur Notification feuern, wenn tatsächlich mindestens eine Disziplin neu abgemeldet wurde
   if (updated.length > 0) {
-    void sendLadvCanceledNotification(registration.userId, registration.eventId)
+    await sendLadvCanceledNotification(registration.userId, registration.eventId)
   }
 
   return { id }
@@ -63,7 +63,7 @@ async function sendLadvCanceledNotification(userId: number, eventId: number) {
 
     const siteUrl = useRuntimeConfig().public.siteUrl
 
-    await notificationService.send({
+    await notificationService.enqueue({
       type: 'ladv_canceled',
       recipients: [{
         userId: user.id,

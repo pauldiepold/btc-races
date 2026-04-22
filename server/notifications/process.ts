@@ -3,17 +3,44 @@ import { executeDeliveries } from './service'
 import type { NotificationRecipient, NotificationType } from './types'
 
 const MAX_ATTEMPTS = 3
+const PROCESSING_TIMEOUT_MS = 5 * 60 * 1000 // 5 Minuten
 
 /**
- * Verarbeitet fehlgeschlagene/hängende Jobs mit exponentiellem Backoff.
- * Wird vom Cron-Endpoint aufgerufen.
+ * Verarbeitet die Notification-Queue.
+ *
+ * Ablauf pro Lauf:
+ *   1. `processing`-Jobs älter als 5 Minuten → `failed` (verwaiste Jobs)
+ *   2. Retry-fähige Jobs (`pending` oder `failed`, attempts < 3) holen
+ *   3. Backoff-Filter für failed Jobs (exponentiell: 2, 4, 8 Min)
+ *   4. Pro Job: attempts++, Deliveries parallel ausführen, Status setzen
  */
-export async function processQueue(): Promise<{ processed: number, succeeded: number, failed: number }> {
+export async function processQueue(): Promise<{
+  processed: number
+  succeeded: number
+  failed: number
+  resetOrphans: number
+}> {
   const { db, schema } = await import('hub:db')
   const { eq } = await import('drizzle-orm')
   const now = Date.now()
 
-  // Retryable Jobs: (pending | failed) UND attempts < MAX_ATTEMPTS
+  // 1. Verwaiste `processing`-Jobs zurücksetzen
+  const orphanCutoff = new Date(now - PROCESSING_TIMEOUT_MS)
+  const orphaned = await db.update(schema.notificationJobs)
+    .set({
+      status: 'failed',
+      error: 'timeout: job stuck in processing',
+      processedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(schema.notificationJobs.status, 'processing'),
+        lt(schema.notificationJobs.processedAt, orphanCutoff),
+      ),
+    )
+    .returning({ id: schema.notificationJobs.id })
+
+  // 2. Retry-fähige Jobs
   const retryableJobs = await db.select()
     .from(schema.notificationJobs)
     .where(
@@ -23,7 +50,7 @@ export async function processQueue(): Promise<{ processed: number, succeeded: nu
       ),
     )
 
-  // Backoff-Filter in App-Code (einfacher als SQLite-Datumsrechnung)
+  // 3. Backoff-Filter (im App-Code; SQLite-Datumsrechnung ist fummelig)
   const eligibleJobs = retryableJobs.filter((job) => {
     if (!job.processedAt) return true
     const backoffMs = Math.pow(2, job.attempts) * 60 * 1000
@@ -35,26 +62,21 @@ export async function processQueue(): Promise<{ processed: number, succeeded: nu
 
   for (const job of eligibleJobs) {
     try {
-      // Attempts inkrementieren, Status auf processing
       await db.update(schema.notificationJobs)
         .set({ status: 'processing', attempts: job.attempts + 1 })
         .where(eq(schema.notificationJobs.id, job.id))
 
-      // Payload parsen und Recipients extrahieren
       const storedPayload = JSON.parse(job.payload) as Record<string, unknown>
       const recipients = (storedPayload._recipients ?? []) as NotificationRecipient[]
       const { _recipients: _, ...payload } = storedPayload
 
-      // Alte Deliveries für diesen Job löschen (frischer Retry)
+      // Alte Deliveries des Jobs verwerfen (frischer Retry)
       await db.delete(schema.notificationDeliveries)
         .where(eq(schema.notificationDeliveries.jobId, job.id))
 
-      const anySuccess = await executeDeliveries(
-        job.id,
-        job.type as NotificationType,
-        recipients,
-        payload,
-      )
+      const anySuccess = recipients.length === 0
+        ? true
+        : await executeDeliveries(job.id, job.type as NotificationType, recipients, payload)
 
       await db.update(schema.notificationJobs)
         .set({
@@ -78,5 +100,10 @@ export async function processQueue(): Promise<{ processed: number, succeeded: nu
     }
   }
 
-  return { processed: eligibleJobs.length, succeeded, failed }
+  return {
+    processed: eligibleJobs.length,
+    succeeded,
+    failed,
+    resetOrphans: orphaned.length,
+  }
 }

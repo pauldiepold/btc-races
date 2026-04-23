@@ -13,6 +13,7 @@ const loginSchema = z.object({
   email: z.email('Bitte gib eine gültige E-Mail-Adresse ein'),
   turnstileToken: z.string().min(1, 'Sicherheitsprüfung fehlt'),
   redirect: z.string().optional(),
+  claimId: z.uuid().optional(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -28,7 +29,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const { email, turnstileToken, redirect: rawRedirect } = result.data
+  const { email, turnstileToken, redirect: rawRedirect, claimId } = result.data
 
   // 1. Turnstile-Token serverseitig verifizieren
   await verifyTurnstileToken(turnstileToken, event)
@@ -81,10 +82,18 @@ export default defineEventHandler(async (event) => {
     expiresAt,
   })
 
+  // Optional: Claim für iOS-PWA-Polling anlegen (gleiche Lebensdauer wie Token)
+  if (claimId) {
+    await kv.setItem(`authclaim:${claimId}`, { status: 'pending' }, { ttl: 15 * 60 })
+  }
+
   // 5. Magic Link senden
   const magicLinkBase = `${runtimeConfig.public.siteUrl}/magic-link/${token}`
-  const magicLink = redirectParam
-    ? `${magicLinkBase}?redirect=${encodeURIComponent(redirectParam)}`
+  const params = new URLSearchParams()
+  if (redirectParam) params.set('redirect', redirectParam)
+  if (claimId) params.set('claim', claimId)
+  const magicLink = params.size > 0
+    ? `${magicLinkBase}?${params.toString()}`
     : magicLinkBase
 
   const htmlResult = await renderEmailComponent(

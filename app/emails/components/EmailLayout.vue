@@ -89,9 +89,9 @@ const styles = {
 
         <ESection :style="styles.header">
           <EImg
-            src="https://btc-races.pages.dev/logo-yellow.svg"
-            width="56"
-            height="56"
+            src="https://btc-races.pages.dev/pwa-64x64.png"
+            width="64"
+            height="64"
             alt="BTC-Races"
             :style="styles.logo"
           />

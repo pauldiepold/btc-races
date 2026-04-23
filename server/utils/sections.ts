@@ -1,4 +1,4 @@
-const ADMIN_SECTIONS = ['Coaches']
+const ADMIN_SECTIONS = ['Coaches', 'App-Admin']
 const SUPERUSER_EMAILS = ['paul@diepold.de']
 
 export function resolveRole(email: string, sections: string[]): 'member' | 'admin' | 'superuser' {

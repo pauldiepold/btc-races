@@ -2,6 +2,8 @@
 import { de } from '@nuxt/ui/locale'
 
 const { user } = useUserSession()
+const avatarUrlSmall = computed(() => user.value?.hasAvatar ? useAvatarUrl(user.value.id) : undefined)
+const avatarAlt = computed(() => `${user.value?.firstName ?? ''} ${user.value?.lastName ?? ''}`)
 
 useSeoMeta({
   description: 'Events des Berlin Track Clubs.',
@@ -50,6 +52,18 @@ useHead({
       </template>
 
       <template #right>
+        <!-- Mobile: Avatar wenn eingeloggt -->
+        <AuthState v-slot="{ loggedIn }">
+          <UAvatar
+            v-if="loggedIn"
+            :src="avatarUrlSmall"
+            :alt="avatarAlt"
+            size="sm"
+            class="lg:hidden mr-2"
+            :ui="{ root: 'ring ring-primary' }"
+          />
+        </AuthState>
+        <!-- Desktop: vollständiges UserMenu -->
         <div class="hidden lg:flex items-center">
           <UserMenu />
         </div>

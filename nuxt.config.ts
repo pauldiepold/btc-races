@@ -106,6 +106,8 @@ export default defineNuxtConfig({
         '@vue/devtools-core',
         '@vue/devtools-kit',
         'zod',
+        'workbox-precaching',
+        'workbox-routing',
       ],
     },
   },

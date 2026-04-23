@@ -118,7 +118,7 @@ function toggle(code: string) {
     <!-- Zwei Spalten auf Desktop, eine auf Mobile -->
     <div
       class="grid grid-cols-1 gap-6"
-      :class="hasLadvSidebar ? 'lg:grid-cols-[1fr_auto]' : ''"
+      :class="hasLadvSidebar ? 'lg:grid-cols-[2fr_1fr]' : ''"
     >
       <!-- LINKE SPALTE: Kern-Infos -->
       <div class="flex items-start gap-4">
@@ -353,7 +353,7 @@ function toggle(code: string) {
       <!-- RECHTE SPALTE: LADV-Details (nur Desktop) -->
       <div
         v-if="hasLadvSidebar"
-        class="hidden lg:block lg:w-56 xl:w-64 shrink-0 space-y-4"
+        class="hidden lg:block min-w-0 space-y-4"
       >
         <!-- Org-Infos -->
         <div

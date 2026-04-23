@@ -23,6 +23,32 @@ async function logout() {
 
 <template>
   <AuthState v-slot="{ loggedIn }">
+    <template v-if="!loggedIn">
+      <!-- Mobile: Login-Hinweis im aufgeklappten Menü -->
+      <template v-if="expanded">
+        <div class="pb-4 border-b border-default space-y-3">
+          <p class="text-sm text-muted">
+            Du bist nicht eingeloggt.
+          </p>
+          <UButton
+            to="/login"
+            icon="i-ph-sign-in-bold"
+            label="Zum Login"
+            color="primary"
+            block
+          />
+        </div>
+      </template>
+      <!-- Desktop: Login-Button direkt in der Header-Leiste -->
+      <UButton
+        v-else
+        to="/login"
+        icon="i-ph-sign-in-bold"
+        label="Login"
+        color="primary"
+        variant="soft"
+      />
+    </template>
     <div v-if="loggedIn">
       <template v-if="expanded">
         <div class="flex items-center gap-4 pb-4 border-b border-default">

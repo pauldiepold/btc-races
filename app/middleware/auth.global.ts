@@ -2,7 +2,7 @@ export default defineNuxtRouteMiddleware((to) => {
   const { loggedIn, user } = useUserSession()
 
   // Öffentlich zugängliche Seiten
-  if (to.path === '/' || to.path === '/login' || to.path === '/link-gesendet') {
+  if (to.path === '/' || to.path === '/login' || to.path === '/link-gesendet' || to.path === '/anmeldung-bestaetigt') {
     return
   }
 

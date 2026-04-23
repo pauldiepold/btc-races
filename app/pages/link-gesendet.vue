@@ -4,14 +4,52 @@ definePageMeta({
   colorMode: 'dark',
 })
 
-const { loggedIn } = useUserSession()
+const { loggedIn, fetch: refreshSession } = useUserSession()
+const { pollClaim } = useLoginClaim()
+const route = useRoute()
 
-// Weiterleitung zur Homepage, wenn bereits eingeloggt
+const claimId = typeof route.query.claim === 'string' ? route.query.claim : null
+const isPolling = ref(false)
+const claimExpired = ref(false)
+let stopPolling: (() => void) | null = null
+
+async function handleLoggedIn() {
+  stopPolling?.()
+  stopPolling = null
+  const redirect = typeof route.query.redirect === 'string' && route.query.redirect.startsWith('/')
+    ? route.query.redirect
+    : '/'
+  await navigateTo(redirect)
+}
+
+// Falls die Session direkt gesetzt wird (z. B. weil iOS den Magic-Link doch
+// in die PWA geroutet hat und Safari-Cookies geteilt werden), sofort weiter.
 watch(loggedIn, (isLoggedIn) => {
-  if (isLoggedIn) {
-    navigateTo('/')
-  }
+  if (isLoggedIn) handleLoggedIn()
 }, { immediate: true })
+
+onMounted(() => {
+  if (!claimId) return
+  isPolling.value = true
+  stopPolling = pollClaim(claimId, async (res) => {
+    if (res.status === 'ready') {
+      isPolling.value = false
+      await refreshSession()
+      await navigateTo(res.redirect || '/')
+    }
+    else if (res.status === 'expired') {
+      isPolling.value = false
+      claimExpired.value = true
+      stopPolling?.()
+      stopPolling = null
+    }
+  })
+})
+
+onBeforeUnmount(() => {
+  stopPolling?.()
+  stopPolling = null
+})
 </script>
 
 <template>
@@ -35,6 +73,21 @@ watch(loggedIn, (isLoggedIn) => {
           Wir haben dir einen Anmelde-Link per E-Mail zugeschickt. Klicke auf den Link in der E-Mail, um dich anzumelden.
         </p>
         <p
+          v-if="isPolling"
+          class="text-sm text-primary anim-item"
+          style="--delay: 190ms"
+        >
+          Die App wartet auf deine Bestätigung – du kannst einfach in der Mail auf den Link tippen und zurück zur App wechseln.
+        </p>
+        <p
+          v-else-if="claimExpired"
+          class="text-sm text-error anim-item"
+          style="--delay: 190ms"
+        >
+          Der Anmelde-Link ist abgelaufen. Bitte fordere einen neuen an.
+        </p>
+        <p
+          v-else
           class="text-sm text-dimmed anim-item"
           style="--delay: 190ms"
         >

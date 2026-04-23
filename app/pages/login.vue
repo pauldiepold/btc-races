@@ -3,6 +3,7 @@ import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
 import * as z from 'zod'
 
 const { loggedIn } = useUserSession()
+const { isIosPwa, createClaimId } = useLoginClaim()
 const route = useRoute()
 const loading = ref(false)
 const turnstileToken = ref('')
@@ -72,16 +73,19 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
   loading.value = true
   try {
     const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : undefined
+    const claimId = isIosPwa() ? createClaimId() : undefined
+
     await $fetch('/api/auth/login', {
       method: 'POST',
       body: {
         email: payload.data.email,
         turnstileToken: turnstileToken.value,
         ...(redirect ? { redirect } : {}),
+        ...(claimId ? { claimId } : {}),
       },
     })
 
-    navigateTo('/link-gesendet')
+    navigateTo(claimId ? `/link-gesendet?claim=${claimId}` : '/link-gesendet')
   }
   catch (e: unknown) {
     turnstile.value?.reset()

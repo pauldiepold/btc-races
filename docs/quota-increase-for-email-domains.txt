@@ -1,0 +1,68 @@
+Customer Information
+  Company name: Berlin Track Club e.V.
+  Company website: https://berlin-track-club.de
+  Provide a brief description of your business:
+  Berlin Track Club e.V. is a non-profit running and track & field sports
+  club based in Berlin, Germany. We organize training, club events and
+  competition registrations for our roughly 100 active members. Our Azure
+  tenant is enrolled in the Microsoft Non-Profit program. The Azure
+  Communication Services email integration is used by our internal
+  competition-registration web application ("BTC Wettkampfanmeldung") to
+  send transactional system emails to active club members.
+
+  Email Service Information
+  Subscription ID: 0accd120-cdb3-4726-9e3f-b14f8820e06c
+  Azure Communication Services Resource Name: btc-races-communication-services
+  Is your custom domain already set up and currently used for sending messages:
+  Yes. The custom domain berlin-track-club.de is verified in Azure
+  Communication Services (SPF/DKIM configured) and is already being used
+  in production to send transactional emails from
+  donotreply@berlin-track-club.de. We are now adding a second MailFrom
+  address (app@berlin-track-club.de) on the same verified domain.
+  Indicate the domain from which you are currently sending emails:
+  berlin-track-club.de
+
+  Usage Information
+  1. What type of emails do you send?
+  Transactional only. Specifically:
+    - Passwordless magic-link login emails (one-time sign-in links,
+      15-minute TTL) to authenticate club members in our registration app.
+    - Competition / event registration confirmations and status updates
+      sent in direct response to a member action.
+  No marketing, no promotional, no newsletter traffic is sent through
+  this resource.
+
+  2. Expected volume (≈100 active members; peaks occur when a popular
+     competition registration opens and many members sign in within a
+     short window):
+     - Maximum messages per minute: 30
+     - Maximum messages per hour:   200
+     - Maximum messages per day:    500
+
+  Additional Information
+  What is the source of the email addresses that you use for sending your messages?
+  Recipients are exclusively active members of Berlin Track Club e.V.
+  Their email addresses originate from our official membership database
+  (Campai), which members provided themselves when joining the club and
+  agreed to be contacted at for club-related purposes. We do not purchase,
+  rent, scrape or otherwise externally acquire address lists. The user
+  table in our application is synchronized from Campai via a server-side
+  job, so only currently active members can receive emails.
+
+  How do you currently manage and remove email addresses that have
+  unsubscribed or resulted in bounce backs from your mailing list?
+  Because we send only transactional, user-initiated messages (login
+  links and registration confirmations) to authenticated club members,
+  there is no marketing list and no unsubscribe link is required by law
+  for this category of mail. Address hygiene is handled on two levels:
+
+  1. Source-of-truth sync: when a member updates their email address or
+     leaves the club in our membership system (Campai), the change is
+     propagated to the application database via the member-sync job, so
+     outdated or revoked addresses stop receiving mail automatically.
+
+  2. Automated bounce handling: hard bounces and persistent delivery
+     failures reported by Azure Communication Services are processed
+     automatically and the affected address is suppressed from further
+     sends, in addition to the manual hygiene performed via Campai when
+     a member reports a delivery problem directly.

@@ -1,6 +1,6 @@
 import { and, eq, inArray } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
-import { diffEventCoreFields, type EventCoreField, type EventCoreSnapshot } from '~~/server/utils/diff-event-core-fields'
+import { diffEventCoreFields, type EventCoreField, type EventCoreSnapshot } from '~~/shared/utils/diff-event-core-fields'
 import { notificationService } from './service'
 import { formatEventDate } from '~~/shared/utils/events'
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { diffEventCoreFields, type EventCoreSnapshot } from '../../server/utils/diff-event-core-fields'
+import { diffEventCoreFields, type EventCoreSnapshot } from '../../shared/utils/diff-event-core-fields'
 
 const BASE_SNAPSHOT: EventCoreSnapshot = {
   date: '2026-05-12',

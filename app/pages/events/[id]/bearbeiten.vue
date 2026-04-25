@@ -3,6 +3,7 @@ import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import type { EventDetail } from '~~/shared/types/events'
 import { detectLadvDiff, type LadvDiff } from '~~/shared/utils/ladv'
+import { diffEventCoreFields, type EventCoreSnapshot } from '~~/shared/utils/diff-event-core-fields'
 import { Time } from '@internationalized/date'
 
 definePageMeta({ title: 'Event bearbeiten' })
@@ -95,11 +96,17 @@ const state = reactive<FormSchema>({
   priority: undefined,
 })
 
-// Formular mit Event-Daten vorbelegen, sobald geladen
+const baselineCoreSnapshot = ref<EventCoreSnapshot | null>(null)
+
+// Baseline der Kernfelder (date/startTime/location) kommt aus dem State nach dem
+// Befüllen — identisch mit PATCH-Body, kein Falsch-Alarm bevor state synchron ist.
 watch(
   event,
   (e) => {
-    if (!e) return
+    if (!e) {
+      baselineCoreSnapshot.value = null
+      return
+    }
     state.name = e.name
     state.date = dateString(e.date)
     state.startTime = e.startTime ?? ''
@@ -112,6 +119,11 @@ watch(
     state.raceType = e.raceType ?? undefined
     state.championshipType = e.championshipType ?? undefined
     state.priority = e.priority ?? undefined
+    baselineCoreSnapshot.value = {
+      date: state.date || null,
+      startTime: state.startTime || null,
+      location: state.location || null,
+    }
   },
   { immediate: true },
 )
@@ -152,6 +164,20 @@ const priorityItems = [
 ]
 
 const loading = ref(false)
+
+const currentCoreSnapshot = computed<EventCoreSnapshot>(() => ({
+  date: state.date || null,
+  startTime: state.startTime || null,
+  location: state.location || null,
+}))
+
+const showCoreFieldsChangedHint = computed(() => {
+  const baseline = baselineCoreSnapshot.value
+  if (!baseline) return false
+  return diffEventCoreFields(baseline, currentCoreSnapshot.value).length > 0
+})
+
+const CORE_FIELDS_CHANGED_HINT = 'Datum, Uhrzeit oder Ort wurde geändert. Beim Speichern werden alle Angemeldeten (zugesagt + vielleicht) per E-Mail und Push benachrichtigt.'
 
 async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
   loading.value = true
@@ -412,6 +438,15 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
           class="w-full"
         />
       </UFormField>
+
+      <UAlert
+        v-if="showCoreFieldsChangedHint"
+        color="info"
+        variant="subtle"
+        icon="i-lucide-bell"
+        :description="CORE_FIELDS_CHANGED_HINT"
+        class="text-sm"
+      />
 
       <div class="flex justify-end gap-3 pt-2">
         <UButton

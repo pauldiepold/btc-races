@@ -2,11 +2,10 @@
 import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EmailButton from './components/EmailButton.vue'
-import { formatEventDate } from '~~/shared/utils/events'
 
-export type EventChangedField = 'date' | 'startTime' | 'location'
+type EventChangedField = 'date' | 'startTime' | 'location'
 
-export interface EventChange {
+interface EventChange {
   field: EventChangedField
   before: string | null
   after: string | null
@@ -41,7 +40,15 @@ function formatStartTime(value: string): string {
 
 function displayValue(field: EventChangedField, value: string | null): string {
   if (value === null || value === '') return EMPTY_PLACEHOLDER
-  if (field === 'date') return formatEventDate(value) ?? value
+  if (field === 'date') {
+    const parsed = new Date(value)
+    if (Number.isNaN(parsed.getTime())) return value
+    return parsed.toLocaleDateString('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    })
+  }
   if (field === 'startTime') return formatStartTime(value)
   return value
 }

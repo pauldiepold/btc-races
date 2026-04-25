@@ -60,12 +60,56 @@ async function sendEmailDelivery(
 
   const subject = EMAIL_SUBJECT_MAP[type](payload)
   const templateProps = { ...payload, firstName: recipient.firstName }
+  const fallbackGreeting = recipient.firstName ? `Hallo ${recipient.firstName},` : 'Hallo,'
 
-  const htmlResult = await renderEmailComponent(templateName, templateProps, { pretty: true })
-  const textResult = await renderEmailComponent(templateName, templateProps, { plainText: true })
+  function buildEventChangedFallbackContent() {
+    const eventName = String(payload.eventName ?? 'Veranstaltung')
+    const eventLink = typeof payload.eventLink === 'string'
+      ? payload.eventLink
+      : (typeof payload.eventUrl === 'string' ? payload.eventUrl : undefined)
+    const lines = [
+      fallbackGreeting,
+      '',
+      `bei ${eventName} haben sich Details geändert.`,
+      'Bitte prüfe, ob du noch teilnehmen kannst.',
+    ]
+    if (eventLink) {
+      lines.push('', `Zum Event: ${eventLink}`)
+    }
 
-  const html = typeof htmlResult === 'string' ? htmlResult : htmlResult.html
-  const text = typeof textResult === 'string' ? textResult : textResult.html
+    return {
+      text: lines.join('\n'),
+      html: [
+        `<p>${fallbackGreeting}</p>`,
+        `<p>bei <strong>${eventName}</strong> haben sich Details geändert.<br>Bitte prüfe, ob du noch teilnehmen kannst.</p>`,
+        ...(eventLink ? [`<p><a href="${eventLink}">Zum Event</a></p>`] : []),
+      ].join(''),
+    }
+  }
+
+  let html = ''
+  let text = ''
+  try {
+    const htmlResult = await renderEmailComponent(templateName, templateProps, { pretty: true })
+    const textResult = await renderEmailComponent(templateName, templateProps, { plainText: true })
+
+    html = typeof htmlResult === 'string' ? htmlResult : htmlResult.html
+    text = typeof textResult === 'string' ? textResult : textResult.html
+  }
+  catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    const templateMissing = message.includes('template') && message.includes('not found')
+    if (type === 'event_changed' && templateMissing) {
+      // Fail-safe: verhindert Delivery-Ausfälle, falls Template-Registry zur Laufzeit unvollständig ist.
+      const fallback = buildEventChangedFallbackContent()
+      html = fallback.html
+      text = fallback.text
+      console.warn('[notifications] Fallback-Email für event_changed verwendet:', message)
+    }
+    else {
+      throw error
+    }
+  }
 
   await emailService.sendEmail({
     to: [{ address: recipient.email, displayName: recipient.firstName }],

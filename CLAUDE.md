@@ -72,6 +72,7 @@ Schutz:
 ### Email-Service
 
 Singleton in `server/email/service.ts`, Provider werden über `nuxt.config.ts` (`emailProvider`) konfiguriert. Eigene E-Mail-Templates sind Vue-Komponenten in `app/emails/` und werden via `nuxt-email-renderer` gerendert.
+Hinweis: Nach neuen/umbenannten Templates in `app/emails/` ggf. Dev-Server neu starten, damit die Template-Registry sicher aktualisiert wird.
 
 ### Member-Synchronisation
 

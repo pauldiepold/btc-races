@@ -62,6 +62,9 @@ Schutz:
 - Client: `app/middleware/auth.global.ts` — alle Routen außer `/login` und `/link-gesendet`
 - Server: `server/middleware/auth.ts` — schützt `/events/`-Routen
 
+### Email-Hinweis
+- Nach neuen/umbenannten Templates in `app/emails/` ggf. Dev-Server neu starten, damit die `nuxt-email-renderer`-Template-Registry sicher aktualisiert wird.
+
 ### Externe APIs
 - **Campai**: Mitgliederverwaltung — `server/external-apis/campai-contacts/`
 - **LADV**: Wettkampf-Daten — `server/utils/ladv.ts`

@@ -30,8 +30,11 @@ const fullName = computed(() =>
 async function markDone() {
   loading.value = true
   try {
-    const action = isRegister.value ? 'ladv-register' : 'ladv-cancel'
-    await $fetch(`/api/registrations/${props.todo.registrationId}/${action}`, { method: 'POST' })
+    const disciplines = isRegister.value ? props.todo.wishDisciplines : null
+    await $fetch(`/api/registrations/${props.todo.registrationId}/ladv-stand`, {
+      method: 'PUT',
+      body: { disciplines },
+    })
     emit('update:open', false)
     emit('done')
   }
@@ -77,17 +80,17 @@ async function markDone() {
           />
         </div>
 
-        <!-- Disziplinen -->
+        <!-- Diff -->
         <div>
           <p class="text-xs font-medium text-muted uppercase tracking-widest mb-2">
-            Disziplinen
+            Änderungen
           </p>
           <div class="flex flex-wrap gap-1.5">
             <LadvBadge
-              v-for="d in todo.disciplines"
-              :key="d.id"
-              :discipline="d.discipline"
-              :age-class="d.ageClass"
+              v-for="entry in todo.diff"
+              :key="`${entry.discipline}:${entry.ageClass}`"
+              :discipline="entry.discipline"
+              :age-class="entry.ageClass"
               size="md"
             />
           </div>

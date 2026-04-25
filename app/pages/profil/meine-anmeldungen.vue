@@ -110,7 +110,7 @@ const { data: registrations, status } = await useFetch<MyRegistration[]>('/api/m
             {{ REGISTRATION_STATUS_LABELS[reg.status] }}
           </UBadge>
           <UBadge
-            v-if="reg.event.type === 'ladv' && reg.disciplines.some(d => d.ladvRegisteredAt)"
+            v-if="reg.event.type === 'ladv' && reg.ladvDisciplines?.length"
             color="success"
             variant="outline"
             size="xs"

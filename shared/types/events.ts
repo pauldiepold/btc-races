@@ -51,6 +51,7 @@ export type LadvTodo = {
   ladvId: number | null
   registrationId: number
   diff: LadvRegistrationDiffEntry[]
+  wishDisciplines: RegistrationDisciplinePair[]
   userId: number
   firstName: string | null
   lastName: string | null

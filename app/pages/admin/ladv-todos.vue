@@ -16,7 +16,7 @@ const columns = [
   { key: 'date', label: 'Datum' },
   { key: 'type', label: 'Typ' },
   { key: 'person', label: 'Person' },
-  { key: 'disciplines', label: 'Disziplinen' },
+  { key: 'diff', label: 'Änderungen' },
   { key: 'action', label: '' },
 ]
 </script>
@@ -120,14 +120,14 @@ const columns = [
               {{ fullName(todo) }}
             </td>
 
-            <!-- Disziplinen -->
+            <!-- Diff -->
             <td class="px-4 py-3">
               <div class="flex flex-wrap gap-1">
                 <LadvBadge
-                  v-for="d in todo.disciplines"
-                  :key="d.id"
-                  :discipline="d.discipline"
-                  :age-class="d.ageClass"
+                  v-for="entry in todo.diff"
+                  :key="`${entry.discipline}:${entry.ageClass}`"
+                  :discipline="entry.discipline"
+                  :age-class="entry.ageClass"
                 />
               </div>
             </td>

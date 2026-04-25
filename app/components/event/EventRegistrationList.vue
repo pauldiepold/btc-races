@@ -143,13 +143,14 @@ function fullName(r: RegistrationDetail): string {
 
               <!-- Disziplinen (LADV) -->
               <div
-                v-if="reg.disciplines.length"
+                v-if="reg.wishDisciplines.length"
                 class="flex flex-wrap gap-1 mt-1.5"
               >
                 <LadvBadge
-                  v-for="d in reg.disciplines"
-                  :key="d.id"
+                  v-for="d in reg.wishDisciplines"
+                  :key="d.discipline"
                   :discipline="d.discipline"
+                  :age-class="d.ageClass"
                 />
               </div>
 

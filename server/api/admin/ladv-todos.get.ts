@@ -70,6 +70,7 @@ export default defineEventHandler(async (event) => {
       ladvId: row.ladvId,
       registrationId: row.registrationId,
       diff,
+      wishDisciplines,
       userId: row.userId,
       firstName: row.firstName,
       lastName: row.lastName,

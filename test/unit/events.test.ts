@@ -62,40 +62,15 @@ describe('generateEventOgDescription', () => {
     expect(generateEventOgDescription(e)).toContain('Kurzer Teaser')
   })
 
-  it('merges location with sportstaette when distinct', () => {
+  it('uses combined location string as-is (sportstaette is already merged at import)', () => {
     const e: EventPublicDetail = {
       ...baseEventFields(),
-      location: 'Hauptstraße 1',
-      ladvData: {
-        id: 1,
-        name: 'x',
-        sportstaette: 'Stadion XY',
-        meldAdresse: '',
-        meldEmail: '',
-        veranstalter: '',
-        ausrichter: '',
-        beschreibung: '',
-        datum: 0,
-        datumText: '',
-        meldDatum: 0,
-        meldDatumText: '',
-        abgesagt: false,
-        url: '',
-        tags: '',
-        kategorien: [],
-        ort: { id: 1, name: '', lv: '', land: '', lng: 0, lat: 0 },
-        veranstaltungen: [],
-        lvs: '',
-        landesverband: [],
-        links: [],
-        attachements: [],
-        wettbewerbe: [],
-      },
+      location: 'Stadion XY · Berlin',
+      ladvData: null,
       registrationCounts: {},
     }
     const s = generateEventOgDescription(e)
-    expect(s).toContain('Hauptstraße 1')
-    expect(s).toContain('Stadion XY')
+    expect(s).toContain('Stadion XY · Berlin')
   })
 
   it('handles null date, location and description with name fallback', () => {

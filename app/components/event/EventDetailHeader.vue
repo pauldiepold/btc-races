@@ -40,19 +40,11 @@ const showDeadline = computed(() =>
 )
 const isCancelled = computed(() => !!props.event.cancelledAt)
 
-// Ort: location + sportstaette zusammenführen
-const locationDisplay = computed(() => {
-  const parts: string[] = []
-  if (props.event.location) parts.push(props.event.location)
-  const s = props.event.ladvData?.sportstaette
-  if (s && s !== props.event.location) parts.push(s)
-  return parts.join(' · ')
-})
+const locationDisplay = computed(() => props.event.location ?? null)
 
 const locationMapsUrl = computed(() => {
-  const s = props.event.ladvData?.sportstaette
-  if (!s || !props.event.location) return null
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s}, ${props.event.location}`)}`
+  if (!props.event.location) return null
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(props.event.location)}`
 })
 
 // LADV Org-Infos

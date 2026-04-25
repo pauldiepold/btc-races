@@ -15,6 +15,13 @@
       "when": 1776452890639,
       "tag": "0001_spotty_lady_bullseye",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1777126221193,
+      "tag": "0002_regular_felicia_hardy",
+      "breakpoints": true
     }
   ]
 }

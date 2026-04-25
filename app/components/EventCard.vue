@@ -18,6 +18,10 @@ const hasDeadline = computed(() =>
 
 const deadlineDate = computed(() => toDate(props.event.registrationDeadline))
 const deadlineExpired = computed(() => !!deadlineDate.value && deadlineDate.value < new Date())
+const compactLocation = computed(() => {
+  if (!props.event.location) return null
+  return props.event.location.split(' · ')[0]?.trim() ?? null
+})
 
 const registrationStatusConfig: Record<string, { icon: string, label: string, color: BadgeColor }> = {
   registered: { icon: 'i-ph-check-circle', label: 'Angemeldet', color: 'success' },
@@ -96,14 +100,14 @@ const ownRegistration = computed(() => {
       <div class="flex items-center gap-3 mt-2 flex-wrap">
         <EventPriorityBadge :priority="event.priority" />
         <span
-          v-if="event.location"
+          v-if="compactLocation"
           class="text-xs text-muted flex items-center gap-1"
         >
           <UIcon
             name="i-ph-map-pin"
             class="size-3"
           />
-          {{ event.location }}
+          {{ compactLocation }}
         </span>
         <span class="text-xs text-muted flex items-center gap-1">
           <UIcon

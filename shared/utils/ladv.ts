@@ -43,7 +43,7 @@ export function detectLadvDiff(
   const ladvDate = timestampToDate(ladvData.datum)
   if ((event.date?.slice(0, 10) ?? null) !== ladvDate) diff.date = ladvDate
 
-  const ladvLocation = [ladvData.sportstaette, ladvData.ort.name].filter(Boolean).join(' · ')
+  const ladvLocation = [ladvData.ort.name, ladvData.sportstaette].filter(Boolean).join(' · ')
   if ((event.location ?? '') !== ladvLocation) diff.location = ladvLocation
 
   const ladvDeadline = timestampToDate(ladvData.meldDatum)

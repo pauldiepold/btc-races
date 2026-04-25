@@ -62,6 +62,9 @@ Schutz:
 - Client: `app/middleware/auth.global.ts` — alle Routen außer `/login` und `/link-gesendet`
 - Server: `server/middleware/auth.ts` — schützt `/events/`-Routen
 
+### Email-Hinweis
+- Nach neuen/umbenannten Templates in `app/emails/` ggf. Dev-Server neu starten, damit die `nuxt-email-renderer`-Template-Registry sicher aktualisiert wird.
+
 ### Externe APIs
 - **Campai**: Mitgliederverwaltung — `server/external-apis/campai-contacts/`
 - **LADV**: Wettkampf-Daten — `server/utils/ladv.ts`
@@ -70,7 +73,7 @@ Schutz:
 
 Jede Änderung mit eigenem Commit braucht ein Issue.
 
-**Normalfall**: Issue existiert vorab → Commit mit `Closes #123` im Commit-Body.
+**Normalfall**: Issue existiert vorab → Commit **immer** mit `Closes #123` im Commit-Body.
 
 **Kein Issue vorhanden**: Am Ende der Session per `gh issue create` ein kurzes Doku-Issue erstellen, Label `session-log`, dann im Commit schließen.
 
@@ -98,7 +101,8 @@ Jede Änderung mit eigenem Commit braucht ein Issue.
 
 - **Types**: `feat` | `fix` | `refactor` | `docs` | `chore` | `test`
 - **Scope**: Modul-Name (`auth`, `db`, `events`, `ui`, `api`, etc.)
-- **Issue-Referenz**: `Closes #123` im Commit-Body (nicht im Titel)
+- **Issue-Referenz**: `Closes #123` im Commit-Body (nicht im Titel) — verpflichtend pro Commit mit Issue-Bezug
+- **Vor Commit prüfen**: Fehlt `Closes #...`, wird nicht committed
 - Kein `Co-Authored-By`
 
 ## Testing

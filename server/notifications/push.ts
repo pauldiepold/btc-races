@@ -79,6 +79,7 @@ async function sendPushToUser(userId: number, payload: PushPayload): Promise<voi
     .where(eq(schema.pushSubscriptions.userId, userId))
 
   if (subscriptions.length === 0) {
+    console.warn('[push] sendPushToUser: no push_subscriptions row for user', { userId })
     throw new Error(`sendPushToUser called for userId ${userId} without active subscriptions`)
   }
 

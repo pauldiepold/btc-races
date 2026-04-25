@@ -38,6 +38,13 @@ interface NotificationsResponse {
   stats: { total: number, pending: number, processing: number, done: number, failed: number }
 }
 
+interface ProcessQueueResponse {
+  processed: number
+  succeeded: number
+  failed: number
+  resetOrphans: number
+}
+
 const statusOptions = [
   { value: 'all', label: 'Alle' },
   { value: 'pending', label: 'Ausstehend' },
@@ -51,6 +58,7 @@ const typeLabels: Record<NotificationType, string> = {
   ladv_canceled: 'LADV-Abmeldung',
   athlete_canceled_after_ladv: 'Storno nach LADV',
   event_canceled: 'Event abgesagt',
+  event_changed: 'Event geändert',
   new_event: 'Neues Event',
   reminder_deadline_athlete: 'Meldefrist (Athlet)',
   reminder_deadline_admin: 'Meldefrist (Admin)',
@@ -109,6 +117,7 @@ function formatDateTime(iso: string | null): string {
 }
 
 const retryLoading = ref<number | null>(null)
+const runQueueLoading = ref(false)
 const toast = useToast()
 
 async function retry(jobId: number) {
@@ -127,6 +136,31 @@ async function retry(jobId: number) {
   }
   finally {
     retryLoading.value = null
+  }
+}
+
+async function runQueue() {
+  runQueueLoading.value = true
+  try {
+    const result = await $fetch<ProcessQueueResponse>('/api/admin/notifications/process', {
+      method: 'POST',
+    })
+    toast.add({
+      title: 'Queue verarbeitet',
+      description: `Verarbeitet: ${result.processed} · Erfolgreich: ${result.succeeded} · Fehlgeschlagen: ${result.failed} · Zurückgesetzt: ${result.resetOrphans}`,
+      color: 'success',
+    })
+    await refresh()
+  }
+  catch (err: unknown) {
+    toast.add({
+      title: 'Queue-Lauf fehlgeschlagen',
+      description: err instanceof Error ? err.message : 'Unbekannter Fehler',
+      color: 'error',
+    })
+  }
+  finally {
+    runQueueLoading.value = false
   }
 }
 
@@ -230,6 +264,16 @@ function toggleExpand(id: number) {
         size="sm"
         :loading="loadStatus === 'pending'"
         @click="refresh()"
+      />
+      <UButton
+        icon="i-ph-play-circle"
+        label="Queue verarbeiten"
+        color="primary"
+        variant="solid"
+        size="sm"
+        :loading="runQueueLoading"
+        :disabled="runQueueLoading"
+        @click="runQueue()"
       />
     </div>
 

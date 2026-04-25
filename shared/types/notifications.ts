@@ -3,6 +3,7 @@ export type NotificationType
     | 'ladv_canceled'
     | 'athlete_canceled_after_ladv'
     | 'event_canceled'
+    | 'event_changed'
     | 'new_event'
     | 'reminder_deadline_athlete'
     | 'reminder_deadline_admin'
@@ -23,6 +24,7 @@ export const NOTIFICATION_DEFAULTS: Record<NotificationType, {
   ladv_canceled: { email: { default: true, mandatory: true }, push: { default: true, mandatory: false } },
   athlete_canceled_after_ladv: { email: { default: true, mandatory: true }, push: { default: true, mandatory: false } },
   event_canceled: { email: { default: true, mandatory: true }, push: { default: true, mandatory: false } },
+  event_changed: { email: { default: true, mandatory: false }, push: { default: true, mandatory: false } },
   new_event: { email: { default: false, mandatory: false }, push: { default: true, mandatory: false } },
   reminder_deadline_athlete: { email: { default: true, mandatory: false }, push: { default: true, mandatory: false } },
   reminder_deadline_admin: { email: { default: true, mandatory: false }, push: { default: true, mandatory: false } },

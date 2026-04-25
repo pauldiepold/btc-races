@@ -1,5 +1,6 @@
 import { db, schema } from 'hub:db'
 import { asc, eq, inArray } from 'drizzle-orm'
+import { triggerEventChangedNotification, toEventCoreSnapshot } from '~~/server/notifications/triggers'
 import { LadvService } from '~~/server/external-apis/ladv/ladv.service'
 import { isRunningDiscipline } from '~~/shared/utils/ladv-labels'
 import type { DisciplineDetail, EventDetail, RegistrationDetail } from '~~/shared/types/events'
@@ -37,6 +38,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 502, statusMessage: 'LADV nicht erreichbar' })
   }
 
+  const beforeCore = toEventCoreSnapshot(dbEvent)
+
   const now = new Date()
   const updates: Partial<typeof schema.events.$inferInsert> = {
     name: normalized.name,
@@ -61,6 +64,14 @@ export default defineEventHandler(async (event) => {
   const updatedEvent = await db.query.events.findFirst({
     where: eq(schema.events.id, id),
   })
+
+  if (updatedEvent) {
+    void triggerEventChangedNotification(
+      beforeCore,
+      toEventCoreSnapshot(updatedEvent),
+      updatedEvent,
+    )
+  }
 
   const isAdmin = session.user.role === 'admin' || session.user.role === 'superuser'
   const userId = session.user.id

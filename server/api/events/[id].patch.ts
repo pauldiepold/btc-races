@@ -1,6 +1,7 @@
 import { db, schema } from 'hub:db'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
+import { triggerEventChangedNotification, toEventCoreSnapshot } from '~~/server/notifications/triggers'
 
 const patchEventSchema = z.object({
   name: z.string().min(1, 'Name ist erforderlich').optional(),
@@ -64,6 +65,20 @@ export default defineEventHandler(async (event) => {
   if ('priority' in data && isAdmin && isCompetitionOrLadv) updates.priority = data.priority ?? null
 
   await db.update(schema.events).set(updates).where(eq(schema.events.id, id))
+
+  const coreBodyKeys = 'date' in data || 'startTime' in data || 'location' in data
+  if (coreBodyKeys) {
+    const updated = await db.query.events.findFirst({
+      where: eq(schema.events.id, id),
+    })
+    if (updated) {
+      void triggerEventChangedNotification(
+        toEventCoreSnapshot(dbEvent),
+        toEventCoreSnapshot(updated),
+        updated,
+      )
+    }
+  }
 
   return { id: sqid }
 })

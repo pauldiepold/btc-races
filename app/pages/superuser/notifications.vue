@@ -51,6 +51,7 @@ const typeLabels: Record<NotificationType, string> = {
   ladv_canceled: 'LADV-Abmeldung',
   athlete_canceled_after_ladv: 'Storno nach LADV',
   event_canceled: 'Event abgesagt',
+  event_changed: 'Event geändert',
   new_event: 'Neues Event',
   reminder_deadline_athlete: 'Meldefrist (Athlet)',
   reminder_deadline_admin: 'Meldefrist (Admin)',

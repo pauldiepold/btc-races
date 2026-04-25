@@ -9,6 +9,7 @@ export const EMAIL_TEMPLATE_MAP: Partial<Record<NotificationType, string>> = {
   ladv_canceled: 'LadvCanceledEmail',
   athlete_canceled_after_ladv: 'AthleteCanceledAfterLadvEmail',
   event_canceled: 'EventCanceledEmail',
+  event_changed: 'EventChangedEmail',
   new_event: 'NewEventEmail',
   reminder_deadline_athlete: 'ReminderDeadlineAthleteEmail',
   reminder_deadline_admin: 'ReminderDeadlineAdminEmail',
@@ -23,6 +24,7 @@ export const EMAIL_SUBJECT_MAP: Record<NotificationType, (payload: Record<string
   ladv_canceled: p => `LADV-Abmeldung: ${p.eventName ?? 'Wettkampf'}`,
   athlete_canceled_after_ladv: p => `Abmeldung nach LADV-Meldung: ${p.eventName ?? 'Wettkampf'}`,
   event_canceled: p => `Abgesagt: ${p.eventName ?? 'Veranstaltung'}`,
+  event_changed: p => `Änderung: ${p.eventName ?? 'Veranstaltung'}`,
   new_event: p => `Neue Veranstaltung: ${p.eventName ?? ''}`,
   reminder_deadline_athlete: p => `Meldeschluss: ${p.eventName ?? 'Wettkampf'}`,
   reminder_deadline_admin: p => `Admin-Erinnerung Meldeschluss: ${p.eventName ?? 'Wettkampf'}`,
@@ -51,6 +53,11 @@ export const PUSH_PAYLOAD_MAP: Partial<Record<NotificationType, (payload: Record
   event_canceled: p => ({
     title: 'Veranstaltung abgesagt',
     body: `${p.eventName ?? 'Eine Veranstaltung'} wurde abgesagt.`,
+    url: p.eventUrl as string | undefined,
+  }),
+  event_changed: p => ({
+    title: 'Veranstaltung geändert',
+    body: `${p.eventName ?? 'Eine Veranstaltung'} wurde geändert.`,
     url: p.eventUrl as string | undefined,
   }),
   new_event: p => ({

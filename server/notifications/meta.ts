@@ -32,6 +32,11 @@ export const NOTIFICATION_META: Record<NotificationType, NotificationMeta> = {
     description: 'Wenn ein Event abgesagt wird, für das du angemeldet bist.',
     adminOnly: false,
   },
+  event_changed: {
+    label: 'Event geändert',
+    description: 'Wenn sich Datum, Uhrzeit oder Ort eines Events ändern, für das du angemeldet bist.',
+    adminOnly: false,
+  },
   new_event: {
     label: 'Neues Event',
     description: 'Wenn ein neuer Wettkampf veröffentlicht wird.',

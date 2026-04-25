@@ -39,6 +39,13 @@ export default defineEventHandler(async (event) => {
 
   const now = new Date()
   const updates: Partial<typeof schema.events.$inferInsert> = {
+    name: normalized.name,
+    date: normalized.date,
+    startTime: normalized.start_time,
+    location: normalized.location,
+    registrationDeadline: normalized.registration_deadline,
+    raceType: normalized.race_type,
+    isWrc: normalized.is_wrc,
     ladvData: normalized.ladv_data,
     ladvLastSync: now,
     updatedAt: now,

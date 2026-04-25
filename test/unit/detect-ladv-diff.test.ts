@@ -34,7 +34,7 @@ const BASE_LADV: LadvAusschreibung = {
 const BASE_EVENT = {
   name: 'Abendsportfest Zehlendorf',
   date: '2024-06-15',
-  location: 'Stadion Zehlendorf · Berlin',
+  location: 'Berlin · Stadion Zehlendorf',
   registrationDeadline: '2024-08-01',
   raceType: 'track' as const,
 }
@@ -54,7 +54,7 @@ describe('detectLadvDiff', () => {
   it('detects location difference', () => {
     const event = { ...BASE_EVENT, location: 'Hamburg' }
     const diff = detectLadvDiff(event, BASE_LADV)
-    expect(diff.location).toBe('Stadion Zehlendorf · Berlin')
+    expect(diff.location).toBe('Berlin · Stadion Zehlendorf')
   })
 
   it('falls back to ort.name when sportstaette is empty', () => {
@@ -96,7 +96,7 @@ describe('detectLadvDiff', () => {
   it('handles null location in event as diff against LADV location', () => {
     const event = { ...BASE_EVENT, location: null }
     const diff = detectLadvDiff(event, BASE_LADV)
-    expect(diff.location).toBe('Stadion Zehlendorf · Berlin')
+    expect(diff.location).toBe('Berlin · Stadion Zehlendorf')
   })
 
   it('detects multiple diffs simultaneously', () => {
@@ -104,6 +104,6 @@ describe('detectLadvDiff', () => {
     const diff = detectLadvDiff(event, BASE_LADV)
     expect(Object.keys(diff)).toHaveLength(2)
     expect(diff.name).toBe('Abendsportfest Zehlendorf')
-    expect(diff.location).toBe('Stadion Zehlendorf · Berlin')
+    expect(diff.location).toBe('Berlin · Stadion Zehlendorf')
   })
 })

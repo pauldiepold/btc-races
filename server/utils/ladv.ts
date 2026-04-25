@@ -39,7 +39,7 @@ export function normalizeLadvData(raw: LadvAusschreibung): NormalizedLadvData {
     name: raw.name,
     date: timestampToDate(raw.datum),
     start_time: timestampToTime(raw.datum),
-    location: [raw.sportstaette, raw.ort.name].filter(Boolean).join(' · '),
+    location: [raw.ort.name, raw.sportstaette].filter(Boolean).join(' · '),
     registration_deadline: timestampToDate(raw.meldDatum),
     race_type: raw.kategorien.includes('bahn') ? 'track' : 'road',
     is_wrc: (raw.wrc ?? false) ? 1 : 0,

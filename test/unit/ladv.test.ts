@@ -86,7 +86,7 @@ describe('normalizeLadvData', () => {
   })
 
   it('combines sportstaette and ort.name as location', () => {
-    expect(normalizeLadvData(BASE_RAW).location).toBe('Stadion Zehlendorf · Berlin')
+    expect(normalizeLadvData(BASE_RAW).location).toBe('Berlin · Stadion Zehlendorf')
   })
 
   it('falls back to ort.name when sportstaette is empty', () => {

@@ -11,8 +11,8 @@ const toast = useToast()
 const push = usePushNotifications()
 const modalOpen = ref(false)
 
-onMounted(() => {
-  push.init()
+onMounted(async () => {
+  await push.init({ reconcile: true })
 })
 
 const { data, status, error, refresh } = await useFetch<NotificationPreferencesResponse>(
@@ -28,7 +28,17 @@ watchEffect(() => {
   }
 })
 
-const pushAvailable = computed(() => push.isGranted.value && push.isSubscribed.value)
+const pushSyncPending = computed(() => push.serverSyncStatus.value === 'pending')
+
+const showPushServerDrift = computed(
+  () =>
+    push.serverSyncStatus.value === 'failed'
+    && push.isSubscribed.value
+    && push.isGranted.value
+    && !push.needsInstallFirst.value,
+)
+
+const pushAvailable = computed(() => push.isPushChannelAvailable.value)
 
 const userPreferences = computed(() => preferences.value.filter(p => !p.adminOnly))
 const adminPreferences = computed(() => preferences.value.filter(p => p.adminOnly))
@@ -54,6 +64,20 @@ const sections = computed(() => {
 
 function openPushModal() {
   modalOpen.value = true
+}
+
+async function retryPushReconcile() {
+  await push.reconcileWithServer()
+  if (push.serverSyncStatus.value === 'synced') {
+    toast.add({ title: 'Push-Verbindung wiederhergestellt', color: 'success' })
+  }
+  else if (push.serverSyncStatus.value === 'failed') {
+    toast.add({
+      title: 'Verbindung fehlgeschlagen',
+      description: 'Bitte versuche es erneut.',
+      color: 'error',
+    })
+  }
 }
 
 async function toggle(entry: NotificationPreferenceEntry, channel: NotificationChannel, next: boolean) {
@@ -94,7 +118,51 @@ async function toggle(entry: NotificationPreferenceEntry, channel: NotificationC
     </div>
 
     <div
-      v-if="!pushAvailable"
+      v-if="pushSyncPending"
+      class="mb-5 rounded-[--ui-radius] border border-default bg-muted/50 p-4 flex items-start gap-3"
+    >
+      <UIcon
+        name="i-ph-arrows-clockwise"
+        class="size-5 text-muted shrink-0 mt-0.5 animate-spin"
+      />
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-highlighted">
+          Stelle die Push-Verbindung mit dem Server her …
+        </p>
+        <p class="text-xs text-muted mt-0.5">
+          Einen Moment, die Einstellungen werden abgeglichen.
+        </p>
+      </div>
+    </div>
+
+    <div
+      v-else-if="showPushServerDrift"
+      class="mb-5 rounded-[--ui-radius] border border-amber-500/40 bg-amber-500/10 p-4 flex items-start gap-3"
+    >
+      <UIcon
+        name="i-ph-warning"
+        class="size-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
+      />
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-highlighted">
+          Push auf dem Gerät erkannt, Server nicht erreicht
+        </p>
+        <p class="text-xs text-muted mt-0.5">
+          Dein Browser ist bereit, aber die Registrierung fehlt auf dem Server (z. B. nach einem Datenbank-Reset). Verbinde die Registrierung erneut.
+        </p>
+      </div>
+      <UButton
+        label="Erneut verbinden"
+        color="primary"
+        variant="soft"
+        size="xs"
+        icon="i-ph-arrows-clockwise"
+        @click="retryPushReconcile"
+      />
+    </div>
+
+    <div
+      v-else-if="!pushAvailable"
       class="mb-5 rounded-[--ui-radius] border border-default bg-muted/50 p-4 flex items-start gap-3"
     >
       <UIcon

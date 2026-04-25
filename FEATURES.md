@@ -106,6 +106,7 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - Subscription-API: `POST /api/push/subscribe` (Upsert), `DELETE /api/push/subscribe`, `GET /api/push/vapid-public-key`
 - Per-Endpoint-Zustellung mit automatischem Aufräumen abgelaufener Subscriptions (HTTP 410/404)
 - Composable `usePushNotifications` mit Support-/Permission-/Subscription-/iOS-/PWA-Detection und subscribe/unsubscribe — #61
+- Abgleich Browser-Push mit D1 auf `/profil/benachrichtigungen` (`reconcileWithServer`), Push-Toggles nur bei erfolgreichem Server-Sync — #109
 - Persistenter Top-Banner (`PushBanner.vue`) für nicht-abonnierte User, dismiss-Persistenz via localStorage
 - Modal (`PushModal.vue`) mit drei Modi: iOS-Installationsanleitung, Browser-blockiert-Hinweis, Aktivierungs-Flow mit Kategorie-Übersicht
 - Test-Push-Endpoint `POST /api/superuser/test-push` (sendet an alle Geräte des Superusers)

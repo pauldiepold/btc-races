@@ -70,7 +70,7 @@ Schutz:
 
 Jede Änderung mit eigenem Commit braucht ein Issue.
 
-**Normalfall**: Issue existiert vorab → Commit mit `Closes #123` im Commit-Body.
+**Normalfall**: Issue existiert vorab → Commit **immer** mit `Closes #123` im Commit-Body.
 
 **Kein Issue vorhanden**: Am Ende der Session per `gh issue create` ein kurzes Doku-Issue erstellen, Label `session-log`, dann im Commit schließen.
 
@@ -98,7 +98,8 @@ Jede Änderung mit eigenem Commit braucht ein Issue.
 
 - **Types**: `feat` | `fix` | `refactor` | `docs` | `chore` | `test`
 - **Scope**: Modul-Name (`auth`, `db`, `events`, `ui`, `api`, etc.)
-- **Issue-Referenz**: `Closes #123` im Commit-Body (nicht im Titel)
+- **Issue-Referenz**: `Closes #123` im Commit-Body (nicht im Titel) — verpflichtend pro Commit mit Issue-Bezug
+- **Vor Commit prüfen**: Fehlt `Closes #...`, wird nicht committed
 - Kein `Co-Authored-By`
 
 ## Testing

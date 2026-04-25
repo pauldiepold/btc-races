@@ -108,6 +108,7 @@ export default defineNuxtConfig({
         'zod',
         'workbox-precaching',
         'workbox-routing',
+        '@internationalized/date',
       ],
     },
   },

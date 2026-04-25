@@ -27,6 +27,11 @@ export const NOTIFICATION_META: Record<NotificationType, NotificationMeta> = {
     description: 'Wenn ein bereits gemeldetes Mitglied seine Anmeldung storniert.',
     adminOnly: true,
   },
+  athlete_changed_after_ladv: {
+    label: 'Wunschstand geändert nach LADV-Meldung',
+    description: 'Wenn ein Mitglied seinen Wunschstand ändert, nachdem der Coach bereits in LADV gemeldet hat.',
+    adminOnly: true,
+  },
   event_canceled: {
     label: 'Event abgesagt',
     description: 'Wenn ein Event abgesagt wird, für das du angemeldet bist.',

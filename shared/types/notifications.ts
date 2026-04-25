@@ -2,6 +2,7 @@ export type NotificationType
   = | 'ladv_registered'
     | 'ladv_canceled'
     | 'athlete_canceled_after_ladv'
+    | 'athlete_changed_after_ladv'
     | 'event_canceled'
     | 'event_changed'
     | 'new_event'
@@ -23,6 +24,7 @@ export const NOTIFICATION_DEFAULTS: Record<NotificationType, {
   ladv_registered: { email: { default: true, mandatory: true }, push: { default: true, mandatory: false } },
   ladv_canceled: { email: { default: true, mandatory: true }, push: { default: true, mandatory: false } },
   athlete_canceled_after_ladv: { email: { default: true, mandatory: true }, push: { default: true, mandatory: false } },
+  athlete_changed_after_ladv: { email: { default: true, mandatory: true }, push: { default: true, mandatory: false } },
   event_canceled: { email: { default: true, mandatory: true }, push: { default: true, mandatory: false } },
   event_changed: { email: { default: true, mandatory: false }, push: { default: true, mandatory: false } },
   new_event: { email: { default: false, mandatory: false }, push: { default: true, mandatory: false } },

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { diffLadvRegistration } from '../../shared/utils/ladv-diff'
+import { diffLadvRegistration, shouldNotifyAdminsOnWishChange } from '../../shared/utils/ladv-diff'
 
 describe('diffLadvRegistration', () => {
   it('returns empty diff for identical sets', () => {
@@ -67,5 +67,40 @@ describe('diffLadvRegistration', () => {
     const wish = [{ discipline: 'S5K', ageClass: 'M35' }]
 
     expect(diffLadvRegistration(wish, [])).toEqual(diffLadvRegistration(wish, null))
+  })
+})
+
+describe('shouldNotifyAdminsOnWishChange', () => {
+  const base = [{ discipline: 'S5K', ageClass: 'M35' }]
+
+  it('returns false when ladv is null (coach has not acted yet)', () => {
+    expect(shouldNotifyAdminsOnWishChange(base, [{ discipline: 'S10K', ageClass: 'M35' }], null)).toBe(false)
+  })
+
+  it('returns false when new wish matches ladv exactly (diff empty)', () => {
+    expect(shouldNotifyAdminsOnWishChange(base, base, base)).toBe(false)
+  })
+
+  it('returns false when wish has not changed, even if diff vs ladv is non-empty', () => {
+    const ladv = [{ discipline: 'S10K', ageClass: 'M35' }]
+    expect(shouldNotifyAdminsOnWishChange(base, base, ladv)).toBe(false)
+  })
+
+  it('returns true when wish changed and new wish differs from ladv', () => {
+    const ladv = [{ discipline: 'S5K', ageClass: 'M35' }]
+    const newWish = [{ discipline: 'S10K', ageClass: 'M35' }]
+    expect(shouldNotifyAdminsOnWishChange(base, newWish, ladv)).toBe(true)
+  })
+
+  it('returns true when ageClass changes and ladv still has old ageClass', () => {
+    const ladv = [{ discipline: 'S5K', ageClass: 'M35' }]
+    const newWish = [{ discipline: 'S5K', ageClass: 'M40' }]
+    expect(shouldNotifyAdminsOnWishChange(base, newWish, ladv)).toBe(true)
+  })
+
+  it('returns true when discipline added and ladv is non-empty', () => {
+    const ladv = [{ discipline: 'S5K', ageClass: 'M35' }]
+    const newWish = [{ discipline: 'S5K', ageClass: 'M35' }, { discipline: 'S10K', ageClass: 'M35' }]
+    expect(shouldNotifyAdminsOnWishChange(base, newWish, ladv)).toBe(true)
   })
 })

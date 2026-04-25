@@ -1,6 +1,7 @@
-import type { Event } from './db'
+import type { Event, RegistrationDisciplinePair } from './db'
 import type { LadvAusschreibung } from './ladv'
 import type { EventType, RegistrationStatus } from '../utils/registration'
+import type { LadvRegistrationDiffEntry } from '../utils/ladv-diff'
 
 // Event-IDs werden in der API als Sqid-Strings zurückgegeben (enkodierter Integer)
 export type EventListItem = Omit<Event, 'ladvData' | 'id'> & {
@@ -8,16 +9,6 @@ export type EventListItem = Omit<Event, 'ladvData' | 'id'> & {
   participantCount: number
   ownRegistrationStatus: 'registered' | 'canceled' | 'maybe' | 'yes' | 'no' | null
   ownRegistrationId: number | null
-}
-
-export type DisciplineDetail = {
-  id: number
-  discipline: string
-  ageClass: string
-  ladvRegisteredAt: Date | null
-  ladvRegisteredBy: number | null
-  ladvCanceledAt: Date | null
-  ladvCanceledBy: number | null
 }
 
 export type RegistrationDetail = {
@@ -29,7 +20,8 @@ export type RegistrationDetail = {
   status: 'registered' | 'canceled' | 'maybe' | 'yes' | 'no'
   notes: string | null
   createdAt: Date
-  disciplines: DisciplineDetail[]
+  wishDisciplines: RegistrationDisciplinePair[]
+  ladvDisciplines: RegistrationDisciplinePair[] | null
 }
 
 export type EventDetail = Omit<Event, 'ladvData' | 'id'> & {
@@ -51,12 +43,6 @@ export type EventListPublicItem = Omit<EventListItem, 'ownRegistrationStatus' | 
 export type EventResponse = EventDetail | EventPublicDetail
 export type EventListResponse = EventListItem[] | EventListPublicItem[]
 
-export type LadvTodoDiscipline = {
-  id: number
-  discipline: string
-  ageClass: string
-}
-
 export type LadvTodo = {
   type: 'register' | 'cancel'
   eventId: string // Sqid — wird für URL-Navigation genutzt
@@ -64,7 +50,7 @@ export type LadvTodo = {
   eventDate: string | null
   ladvId: number | null
   registrationId: number
-  disciplines: LadvTodoDiscipline[]
+  diff: LadvRegistrationDiffEntry[]
   userId: number
   firstName: string | null
   lastName: string | null
@@ -83,5 +69,6 @@ export type MyRegistration = {
     cancelledAt: Date | null
     registrationDeadline: string | null
   }
-  disciplines: DisciplineDetail[]
+  wishDisciplines: RegistrationDisciplinePair[]
+  ladvDisciplines: RegistrationDisciplinePair[] | null
 }

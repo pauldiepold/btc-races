@@ -54,3 +54,20 @@ export function diffLadvRegistration(
 
   return diffs
 }
+
+export function shouldNotifyAdminsOnWishChange(
+  prevWish: RegistrationDisciplinePair[],
+  newWish: RegistrationDisciplinePair[],
+  ladv: RegistrationDisciplinePair[] | null,
+): boolean {
+  if (ladv === null) return false
+  if (diffLadvRegistration(newWish, ladv).length === 0) return false
+
+  // Nur notifizieren wenn sich der Wunschstand tatsächlich geändert hat
+  const toKey = (pairs: RegistrationDisciplinePair[]) =>
+    [...pairs].sort((a, b) => a.discipline.localeCompare(b.discipline))
+      .map(p => `${p.discipline}:${p.ageClass}`)
+      .join('|')
+
+  return toKey(prevWish) !== toKey(newWish)
+}

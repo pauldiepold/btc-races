@@ -51,17 +51,10 @@ async function getAdminParticipantList(eventId: number): Promise<Array<{ name: s
   const rows = await db.select({
     firstName: schema.users.firstName,
     lastName: schema.users.lastName,
-    discipline: schema.registrationDisciplines.discipline,
+    wishDisciplines: schema.registrations.wishDisciplines,
   })
     .from(schema.registrations)
     .innerJoin(schema.users, eq(schema.registrations.userId, schema.users.id))
-    .leftJoin(
-      schema.registrationDisciplines,
-      and(
-        eq(schema.registrationDisciplines.registrationId, schema.registrations.id),
-        isNull(schema.registrationDisciplines.ladvCanceledAt),
-      ),
-    )
     .where(
       and(
         eq(schema.registrations.eventId, eventId),
@@ -69,19 +62,12 @@ async function getAdminParticipantList(eventId: number): Promise<Array<{ name: s
       ),
     )
 
-  // Disziplinen je User bündeln
-  const byUser = new Map<string, { name: string, disciplines: string[] }>()
-  for (const row of rows) {
+  return rows.map((row) => {
     const name = `${row.firstName ?? ''} ${row.lastName ?? ''}`.trim()
-    const entry = byUser.get(name) ?? { name, disciplines: [] }
-    if (row.discipline) entry.disciplines.push(row.discipline)
-    byUser.set(name, entry)
-  }
-
-  return [...byUser.values()].map(u => ({
-    name: u.name,
-    disciplines: u.disciplines.length > 0 ? [...new Set(u.disciplines)].join(', ') : undefined,
-  }))
+    const wish = (row.wishDisciplines as Array<{ discipline: string }> | null) ?? []
+    const disciplineList = [...new Set(wish.map(d => d.discipline))].join(', ')
+    return { name, disciplines: disciplineList || undefined }
+  })
 }
 
 function buildEventPayload(dbEvent: typeof schema.events.$inferSelect, siteUrl: string) {

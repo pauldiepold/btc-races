@@ -88,28 +88,20 @@ export default defineEventHandler(async (event) => {
     ? requestedStatus
     : getInitialStatus(dbEvent.type)
 
+  const wishDisciplines = (dbEvent.type === 'ladv' && disciplines && disciplines.length > 0)
+    ? disciplines
+    : []
+
   const insertedReg = await db.insert(schema.registrations).values({
     eventId: id,
     userId: session.user.id,
     status: initialStatus,
     notes: notes ?? null,
+    wishDisciplines,
     createdAt: now,
     updatedAt: now,
   }).returning({ id: schema.registrations.id })
 
-  const registrationId = insertedReg[0]!.id
-
-  if (dbEvent.type === 'ladv' && disciplines && disciplines.length > 0) {
-    await db.insert(schema.registrationDisciplines).values(
-      disciplines.map(d => ({
-        registrationId,
-        discipline: d.discipline,
-        ageClass: d.ageClass,
-        createdAt: now,
-      })),
-    )
-  }
-
   setResponseStatus(event, 201)
-  return { id: registrationId }
+  return { id: insertedReg[0]!.id }
 })

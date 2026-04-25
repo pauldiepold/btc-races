@@ -1,9 +1,10 @@
 import { db, schema } from 'hub:db'
-import { asc, eq, inArray, sql } from 'drizzle-orm'
+import { asc, eq, sql } from 'drizzle-orm'
 import type { LadvAusschreibung } from '~~/shared/types/ladv'
-import { compareDisciplines, isRunningDiscipline } from '~~/shared/utils/ladv-labels'
-import type { DisciplineDetail, EventDetail, EventPublicDetail, RegistrationDetail } from '~~/shared/types/events'
+import { isRunningDiscipline } from '~~/shared/utils/ladv-labels'
+import type { EventDetail, EventPublicDetail, RegistrationDetail } from '~~/shared/types/events'
 import type { RegistrationStatus } from '~~/shared/utils/registration'
+import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 
 const PUBLIC_EVENT_TYPES = ['ladv', 'competition'] as const
 
@@ -77,6 +78,8 @@ export default defineEventHandler(async (event): Promise<EventDetail | EventPubl
       status: schema.registrations.status,
       notes: schema.registrations.notes,
       createdAt: schema.registrations.createdAt,
+      wishDisciplines: schema.registrations.wishDisciplines,
+      ladvDisciplines: schema.registrations.ladvDisciplines,
     })
     .from(schema.registrations)
     .leftJoin(schema.users, eq(schema.registrations.userId, schema.users.id))
@@ -86,53 +89,21 @@ export default defineEventHandler(async (event): Promise<EventDetail | EventPubl
   const isAdmin = session.user!.role === 'admin' || session.user!.role === 'superuser'
   const userId = session.user!.id
 
-  let disciplines: typeof schema.registrationDisciplines.$inferSelect[] = []
-  if (regs.length > 0) {
-    const regIds = regs.map(r => r.id)
-    disciplines = await db
-      .select()
-      .from(schema.registrationDisciplines)
-      .where(inArray(schema.registrationDisciplines.registrationId, regIds))
-      .orderBy(asc(schema.registrationDisciplines.createdAt))
-  }
-
-  const regUserMap = new Map<number, number>(regs.map(r => [r.id, r.userId!]))
-  const disciplinesByRegId = new Map<number, DisciplineDetail[]>()
-
-  for (const d of disciplines) {
-    const regUserId = regUserMap.get(d.registrationId)
-    const showLadv = isAdmin || regUserId === userId
-
-    const item: DisciplineDetail = {
-      id: d.id,
-      discipline: d.discipline,
-      ageClass: d.ageClass,
-      ladvRegisteredAt: showLadv ? d.ladvRegisteredAt : null,
-      ladvRegisteredBy: showLadv ? d.ladvRegisteredBy : null,
-      ladvCanceledAt: showLadv ? d.ladvCanceledAt : null,
-      ladvCanceledBy: showLadv ? d.ladvCanceledBy : null,
+  const registrations: RegistrationDetail[] = regs.map((r) => {
+    const showLadv = isAdmin || r.userId === userId
+    return {
+      id: r.id,
+      userId: r.userId!,
+      firstName: r.firstName,
+      lastName: r.lastName,
+      hasAvatar: r.hasAvatar !== null,
+      status: r.status,
+      notes: r.notes,
+      createdAt: r.createdAt,
+      wishDisciplines: (r.wishDisciplines as RegistrationDisciplinePair[] | null) ?? [],
+      ladvDisciplines: showLadv ? (r.ladvDisciplines as RegistrationDisciplinePair[] | null) : null,
     }
-
-    const existing = disciplinesByRegId.get(d.registrationId) ?? []
-    existing.push(item)
-    disciplinesByRegId.set(d.registrationId, existing)
-  }
-
-  for (const discs of disciplinesByRegId.values()) {
-    discs.sort(compareDisciplines)
-  }
-
-  const registrations: RegistrationDetail[] = regs.map(r => ({
-    id: r.id,
-    userId: r.userId!,
-    firstName: r.firstName,
-    lastName: r.lastName,
-    hasAvatar: r.hasAvatar !== null,
-    status: r.status,
-    notes: r.notes,
-    createdAt: r.createdAt,
-    disciplines: disciplinesByRegId.get(r.id) ?? [],
-  }))
+  })
 
   const rawLadvData = dbEvent.ladvData as LadvAusschreibung | null
   const ladvData = rawLadvData

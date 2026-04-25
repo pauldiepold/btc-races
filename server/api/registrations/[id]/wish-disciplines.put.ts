@@ -2,14 +2,16 @@ import { db, schema } from 'hub:db'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
-import { getValidNextStatuses } from '~~/shared/utils/registration'
+import { shouldNotifyAdminsOnWishChange } from '~~/shared/utils/ladv-diff'
 import { notificationService } from '~~/server/notifications/service'
 import { formatEventDate } from '~~/shared/utils/events'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 
 const bodySchema = z.object({
-  status: z.enum(['registered', 'canceled', 'maybe', 'yes', 'no']).optional(),
-  notes: z.string().nullable().optional(),
+  disciplines: z.array(z.object({
+    discipline: z.string().min(1),
+    ageClass: z.string().min(1),
+  })).min(1),
 })
 
 export default defineEventHandler(async (event) => {
@@ -31,7 +33,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: result.error.issues[0]?.message ?? 'Validierungsfehler' })
   }
 
-  const { status, notes } = result.data
+  const { disciplines } = result.data
 
   const registration = await db.query.registrations.findFirst({
     where: eq(schema.registrations.id, id),
@@ -40,58 +42,42 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Anmeldung nicht gefunden' })
   }
 
-  // Nur eigene Anmeldung
   if (registration.userId !== session.user.id) {
     throw createError({ statusCode: 403, statusMessage: 'Keine Berechtigung' })
   }
 
-  let shouldNotifyAdmins = false
-
-  if (status !== undefined) {
-    const dbEvent = await db.query.events.findFirst({
-      where: eq(schema.events.id, registration.eventId),
-    })
-    if (!dbEvent) {
-      throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-    }
-
-    const validNext = getValidNextStatuses(registration.status, dbEvent.type)
-    if (!validNext.includes(status)) {
-      throw createError({ statusCode: 422, statusMessage: `Statusübergang von '${registration.status}' zu '${status}' nicht erlaubt` })
-    }
-
-    // Deadline-Check — außer bei cancel/no (Storno immer möglich)
-    const isCancelAction = status === 'canceled' || status === 'no'
-    if (!isCancelAction && (dbEvent.type === 'ladv' || dbEvent.type === 'competition')) {
-      if (isDeadlineExpired(dbEvent.registrationDeadline)) {
-        throw createError({ statusCode: 422, statusMessage: 'Meldefrist abgelaufen' })
-      }
-    }
-
-    // Stornierung nach bereits erfolgter LADV-Meldung → Admins informieren
-    if (isCancelAction) {
-      const ladvDisciplines = registration.ladvDisciplines as RegistrationDisciplinePair[] | null
-      shouldNotifyAdmins = ladvDisciplines !== null
-    }
+  const dbEvent = await db.query.events.findFirst({
+    where: eq(schema.events.id, registration.eventId),
+  })
+  if (!dbEvent) {
+    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
   }
+
+  if (dbEvent.type !== 'ladv') {
+    throw createError({ statusCode: 422, statusMessage: 'Disziplinen nur bei LADV-Events' })
+  }
+
+  if (isDeadlineExpired(dbEvent.registrationDeadline)) {
+    throw createError({ statusCode: 422, statusMessage: 'Meldefrist abgelaufen' })
+  }
+
+  const prevWish = (registration.wishDisciplines as RegistrationDisciplinePair[] | null) ?? []
+  const ladvDisciplines = registration.ladvDisciplines as RegistrationDisciplinePair[] | null
+  const doNotify = shouldNotifyAdminsOnWishChange(prevWish, disciplines, ladvDisciplines)
 
   await db
     .update(schema.registrations)
-    .set({
-      ...(status !== undefined ? { status } : {}),
-      ...(notes !== undefined ? { notes } : {}),
-      updatedAt: new Date(),
-    })
+    .set({ wishDisciplines: disciplines, updatedAt: new Date() })
     .where(eq(schema.registrations.id, id))
 
-  if (shouldNotifyAdmins) {
-    await sendAthleteChangedAfterLadvNotification(registration.userId, registration.eventId)
+  if (doNotify) {
+    void sendAthleteChangedNotification(registration.userId, registration.eventId)
   }
 
   return { id }
 })
 
-async function sendAthleteChangedAfterLadvNotification(userId: number, eventId: number) {
+async function sendAthleteChangedNotification(userId: number, eventId: number) {
   try {
     const [user, dbEvent] = await Promise.all([
       db.query.users.findFirst({

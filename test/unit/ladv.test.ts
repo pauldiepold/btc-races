@@ -85,8 +85,13 @@ describe('normalizeLadvData', () => {
     expect(normalizeLadvData(BASE_RAW).registration_deadline).toBe('2024-08-01')
   })
 
-  it('uses ort.name as location', () => {
-    expect(normalizeLadvData(BASE_RAW).location).toBe('Berlin')
+  it('combines sportstaette and ort.name as location', () => {
+    expect(normalizeLadvData(BASE_RAW).location).toBe('Stadion Zehlendorf · Berlin')
+  })
+
+  it('falls back to ort.name when sportstaette is empty', () => {
+    const raw = { ...BASE_RAW, sportstaette: '' }
+    expect(normalizeLadvData(raw).location).toBe('Berlin')
   })
 
   it('includes the raw ladv_data object', () => {

@@ -27,12 +27,7 @@ export function generateEventOgDescription(event: EventResponse): string {
   const dateStr = formatEventDate(event.date)
   if (dateStr) parts.push(dateStr)
 
-  const locBits: string[] = []
-  if (event.location) locBits.push(event.location)
-  const sport = event.ladvData?.sportstaette
-  if (sport && sport !== event.location) locBits.push(sport)
-  const locationStr = locBits.join(' · ')
-  if (locationStr) parts.push(locationStr)
+  if (event.location) parts.push(event.location)
 
   const excerpt = excerptForOg(event.description)
   if (excerpt) parts.push(excerpt)

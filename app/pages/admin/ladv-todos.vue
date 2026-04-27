@@ -5,7 +5,7 @@ definePageMeta({ layout: 'admin', title: 'Admin — LADV-Todos' })
 
 const { data: todos, refresh, status } = await useFetch<LadvTodo[]>('/api/admin/ladv-todos')
 
-const openTodo = ref<LadvTodo | null>(null)
+const openRegistrationId = ref<number | null>(null)
 
 function fullName(todo: LadvTodo): string {
   return [todo.firstName, todo.lastName].filter(Boolean).join(' ') || 'Unbekannt'
@@ -140,7 +140,7 @@ const columns = [
                 variant="ghost"
                 size="xs"
                 trailing-icon="i-ph-arrow-right"
-                @click="openTodo = todo"
+                @click="openRegistrationId = todo.registrationId"
               />
             </td>
           </tr>
@@ -148,11 +148,11 @@ const columns = [
       </table>
     </div>
 
-    <LadvTodoModal
-      v-if="openTodo"
-      :todo="openTodo"
-      :open="!!openTodo"
-      @update:open="!$event && (openTodo = null)"
+    <RegistrationCoachModal
+      v-if="openRegistrationId"
+      :registration-id="openRegistrationId"
+      :open="!!openRegistrationId"
+      @update:open="!$event && (openRegistrationId = null)"
       @done="refresh()"
     />
   </div>

@@ -14,6 +14,7 @@ const bodySchema = z.object({
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
+  const isAdmin = session.user.role === 'admin' || session.user.role === 'superuser'
   const rawId = getRouterParam(event, 'id')
 
   if (!rawId) {
@@ -40,8 +41,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Anmeldung nicht gefunden' })
   }
 
-  // Nur eigene Anmeldung
-  if (registration.userId !== session.user.id) {
+  // Nur eigene Anmeldung — außer für Admins
+  if (!isAdmin && registration.userId !== session.user.id) {
     throw createError({ statusCode: 403, statusMessage: 'Keine Berechtigung' })
   }
 
@@ -60,16 +61,17 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 422, statusMessage: `Statusübergang von '${registration.status}' zu '${status}' nicht erlaubt` })
     }
 
-    // Deadline-Check — außer bei cancel/no (Storno immer möglich)
     const isCancelAction = status === 'canceled' || status === 'no'
-    if (!isCancelAction && (dbEvent.type === 'ladv' || dbEvent.type === 'competition')) {
+
+    // Deadline-Check — außer bei cancel/no und außer für Admins
+    if (!isAdmin && !isCancelAction && (dbEvent.type === 'ladv' || dbEvent.type === 'competition')) {
       if (isDeadlineExpired(dbEvent.registrationDeadline)) {
         throw createError({ statusCode: 422, statusMessage: 'Meldefrist abgelaufen' })
       }
     }
 
-    // Stornierung nach bereits erfolgter LADV-Meldung → Admins informieren
-    if (isCancelAction) {
+    // Stornierung durch Athlet nach bereits erfolgter LADV-Meldung → Admins informieren
+    if (!isAdmin && isCancelAction) {
       const ladvDisciplines = registration.ladvDisciplines as RegistrationDisciplinePair[] | null
       shouldNotifyAdmins = ladvDisciplines !== null
     }

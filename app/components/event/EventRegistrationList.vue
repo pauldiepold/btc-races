@@ -9,7 +9,14 @@ const props = defineProps<{
   registrationCounts?: EventPublicRegistrationCounts
 }>()
 
+const emit = defineEmits<{ refresh: [] }>()
+
 const route = useRoute()
+const { session } = useUserSession()
+const isAdmin = computed(() =>
+  session.value?.user?.role === 'admin' || session.value?.user?.role === 'superuser',
+)
+const openRegistrationId = ref<number | null>(null)
 
 type TabKey = 'registered' | 'canceled' | 'maybe' | 'yes' | 'no'
 
@@ -128,6 +135,8 @@ function fullName(r: RegistrationDetail): string {
             v-for="reg in activeRegistrations"
             :key="reg.id"
             class="flex items-start gap-3 py-3"
+            :class="isAdmin && eventType === 'ladv' ? 'cursor-pointer hover:bg-elevated/50 rounded-lg px-2 -mx-2 transition-colors' : ''"
+            @click="isAdmin && eventType === 'ladv' ? openRegistrationId = reg.id : undefined"
           >
             <UAvatar
               :src="reg.hasAvatar ? useAvatarUrl(reg.userId) : undefined"
@@ -166,4 +175,12 @@ function fullName(r: RegistrationDetail): string {
       </template>
     </template>
   </div>
+
+  <RegistrationCoachModal
+    v-if="openRegistrationId"
+    :registration-id="openRegistrationId"
+    :open="!!openRegistrationId"
+    @update:open="!$event && (openRegistrationId = null)"
+    @done="openRegistrationId = null; emit('refresh')"
+  />
 </template>

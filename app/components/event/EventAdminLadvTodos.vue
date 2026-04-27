@@ -8,7 +8,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{ refresh: [] }>()
 
-const openTodo = ref<LadvTodo | null>(null)
+const openRegistrationId = ref<number | null>(null)
 
 const todos = computed<LadvTodo[]>(() => {
   const result: LadvTodo[] = []
@@ -90,7 +90,7 @@ function fullName(todo: LadvTodo): string {
         v-for="todo in todos"
         :key="`${todo.registrationId}:${todo.type}`"
         class="w-full flex items-center gap-3 py-3 text-left hover:bg-elevated/50 rounded-lg px-2 -mx-2 transition-colors"
-        @click="openTodo = todo"
+        @click="openRegistrationId = todo.registrationId"
       >
         <UAvatar
           :src="useAvatarUrl(todo.userId)"
@@ -126,11 +126,11 @@ function fullName(todo: LadvTodo): string {
       </button>
     </div>
 
-    <LadvTodoModal
-      v-if="openTodo"
-      :todo="openTodo"
-      :open="!!openTodo"
-      @update:open="!$event && (openTodo = null)"
+    <RegistrationCoachModal
+      v-if="openRegistrationId"
+      :registration-id="openRegistrationId"
+      :open="!!openRegistrationId"
+      @update:open="!$event && (openRegistrationId = null)"
       @done="emit('refresh')"
     />
   </div>

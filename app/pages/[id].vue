@@ -279,6 +279,7 @@ async function syncLadv() {
             v-else-if="privateDetail"
             :registrations="privateDetail.registrations"
             :event-type="event.type"
+            @refresh="refresh"
           />
 
           <div

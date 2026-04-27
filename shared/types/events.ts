@@ -1,5 +1,5 @@
 import type { Event, RegistrationDisciplinePair } from './db'
-import type { LadvAusschreibung } from './ladv'
+import type { LadvAusschreibung, LadvWettbewerb } from './ladv'
 import type { EventType, RegistrationStatus } from '../utils/registration'
 import type { LadvRegistrationDiffEntry } from '../utils/ladv-diff'
 
@@ -55,6 +55,25 @@ export type LadvTodo = {
   userId: number
   firstName: string | null
   lastName: string | null
+}
+
+export type RegistrationCoachView = {
+  id: number
+  status: RegistrationStatus
+  notes: string | null
+  userId: number
+  firstName: string | null
+  lastName: string | null
+  hasAvatar: boolean
+  wishDisciplines: RegistrationDisciplinePair[]
+  ladvDisciplines: RegistrationDisciplinePair[] | null
+  event: {
+    id: string
+    name: string
+    date: string | null
+    ladvId: number | null
+    wettbewerbe: LadvWettbewerb[]
+  }
 }
 
 export type MyRegistration = {

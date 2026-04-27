@@ -55,6 +55,34 @@ export function diffLadvRegistration(
   return diffs
 }
 
+export type LadvIndicator = 'none' | 'ok' | 'diff' | 'pending'
+
+type RegistrationLadvIndicatorInput = {
+  status: 'registered' | 'canceled' | 'maybe' | 'yes' | 'no' | null
+  wishDisciplines: RegistrationDisciplinePair[]
+  ladvDisciplines: RegistrationDisciplinePair[] | null
+}
+
+export function getRegistrationLadvIndicator(reg: RegistrationLadvIndicatorInput): LadvIndicator {
+  if (reg.status === 'registered'
+    && diffLadvRegistration(reg.wishDisciplines, reg.ladvDisciplines).length > 0) {
+    return 'diff'
+  }
+
+  if (reg.status === 'canceled'
+    && reg.ladvDisciplines !== null
+    && reg.ladvDisciplines.length > 0) {
+    return 'pending'
+  }
+
+  if (reg.ladvDisciplines !== null
+    && diffLadvRegistration(reg.wishDisciplines, reg.ladvDisciplines).length === 0) {
+    return 'ok'
+  }
+
+  return 'none'
+}
+
 export function shouldNotifyAdminsOnWishChange(
   prevWish: RegistrationDisciplinePair[],
   newWish: RegistrationDisciplinePair[],

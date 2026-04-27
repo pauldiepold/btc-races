@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { diffLadvRegistration, shouldNotifyAdminsOnWishChange } from '../../shared/utils/ladv-diff'
+import { diffLadvRegistration, getRegistrationLadvIndicator, shouldNotifyAdminsOnWishChange } from '../../shared/utils/ladv-diff'
 
 describe('diffLadvRegistration', () => {
   it('returns empty diff for identical sets', () => {
@@ -102,5 +102,65 @@ describe('shouldNotifyAdminsOnWishChange', () => {
     const ladv = [{ discipline: 'S5K', ageClass: 'M35' }]
     const newWish = [{ discipline: 'S5K', ageClass: 'M35' }, { discipline: 'S10K', ageClass: 'M35' }]
     expect(shouldNotifyAdminsOnWishChange(base, newWish, ladv)).toBe(true)
+  })
+})
+
+describe('getRegistrationLadvIndicator', () => {
+  const pair = (discipline: string, ageClass: string) => ({ discipline, ageClass })
+
+  it('returns "none" when registered without wish or ladv state', () => {
+    expect(getRegistrationLadvIndicator({
+      status: 'registered',
+      wishDisciplines: [],
+      ladvDisciplines: null,
+    })).toBe('none')
+  })
+
+  it('returns "diff" when registered with wish but no ladv state yet', () => {
+    expect(getRegistrationLadvIndicator({
+      status: 'registered',
+      wishDisciplines: [pair('S5K', 'M35')],
+      ladvDisciplines: null,
+    })).toBe('diff')
+  })
+
+  it('returns "ok" when registered and wish matches ladv exactly', () => {
+    expect(getRegistrationLadvIndicator({
+      status: 'registered',
+      wishDisciplines: [pair('S5K', 'M35')],
+      ladvDisciplines: [pair('S5K', 'M35')],
+    })).toBe('ok')
+  })
+
+  it('returns "diff" when registered and ladv has different age class', () => {
+    expect(getRegistrationLadvIndicator({
+      status: 'registered',
+      wishDisciplines: [pair('S5K', 'M35')],
+      ladvDisciplines: [pair('S5K', 'M40')],
+    })).toBe('diff')
+  })
+
+  it('returns "pending" when canceled but ladv still has entries', () => {
+    expect(getRegistrationLadvIndicator({
+      status: 'canceled',
+      wishDisciplines: [],
+      ladvDisciplines: [pair('S5K', 'M35')],
+    })).toBe('pending')
+  })
+
+  it('returns "none" when canceled and ladv is null', () => {
+    expect(getRegistrationLadvIndicator({
+      status: 'canceled',
+      wishDisciplines: [pair('S5K', 'M35')],
+      ladvDisciplines: null,
+    })).toBe('none')
+  })
+
+  it('returns "ok" when canceled and ladv is empty array (coach already cleared)', () => {
+    expect(getRegistrationLadvIndicator({
+      status: 'canceled',
+      wishDisciplines: [],
+      ladvDisciplines: [],
+    })).toBe('ok')
   })
 })

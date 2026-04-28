@@ -7,7 +7,7 @@ export type AdminMemberListItem = {
   firstName: string | null
   lastName: string | null
   email: string
-  hasAvatar: boolean
+  avatarUrl: string | null
 }
 
 export default defineEventHandler(async (event): Promise<AdminMemberListItem[]> => {
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event): Promise<AdminMemberListItem[]> 
       firstName: schema.users.firstName,
       lastName: schema.users.lastName,
       email: schema.users.email,
-      avatarUrl: schema.users.avatarUrl,
+      avatarSmall: schema.users.avatarSmall,
     })
     .from(schema.users)
     .where(eq(schema.users.membershipStatus, 'active'))
@@ -30,6 +30,6 @@ export default defineEventHandler(async (event): Promise<AdminMemberListItem[]> 
     firstName: r.firstName,
     lastName: r.lastName,
     email: r.email,
-    hasAvatar: r.avatarUrl !== null,
+    avatarUrl: r.avatarSmall ? `/api/avatar/${r.id}` : null,
   }))
 })

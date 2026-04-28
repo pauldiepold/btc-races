@@ -1,0 +1,69 @@
+<script setup lang="ts">
+import EmailLayout from './components/EmailLayout.vue'
+import EmailText from './components/EmailText.vue'
+import EventDetails from './components/EventDetails.vue'
+
+interface Props {
+  firstName?: string
+  memberFirstName?: string
+  memberLastName?: string
+  eventName?: string
+  eventDate?: string
+  eventLocation?: string
+  registrationDeadline?: string
+  eventVenue?: string
+  eventLink?: string
+}
+
+const {
+  firstName = 'Team',
+  memberFirstName = 'Max',
+  memberLastName = 'Mustermann',
+} = defineProps<Props>()
+
+const styles = {
+  alertBox: {
+    backgroundColor: '#fafafa',
+    borderLeft: '4px solid #ffb700',
+    padding: '14px 16px',
+    margin: '16px 0',
+    borderRadius: '3px',
+  },
+  alertText: {
+    margin: '0',
+    fontSize: '14px',
+    lineHeight: '1.5',
+    color: '#18181b',
+    fontWeight: '600' as const,
+  },
+}
+
+const memberFullName = `${memberFirstName} ${memberLastName}`
+</script>
+
+<template>
+  <EmailLayout header-title="Wunschstand geändert">
+    <EmailText>
+      Hallo {{ firstName }},
+    </EmailText>
+
+    <EmailText>
+      <strong>{{ memberFullName }}</strong> hat den Wunschstand für <strong>{{ eventName }}</strong> geändert — bitte prüfe, ob die LADV-Meldung angepasst werden muss.
+    </EmailText>
+
+    <ESection :style="styles.alertBox">
+      <EText :style="styles.alertText">
+        Mögliche LADV-Anpassung erforderlich.
+      </EText>
+    </ESection>
+
+    <EventDetails
+      :event-name="eventName"
+      :event-date="eventDate"
+      :event-location="eventLocation"
+      :registration-deadline="registrationDeadline"
+      :event-venue="eventVenue"
+      :event-link="eventLink"
+    />
+  </EmailLayout>
+</template>

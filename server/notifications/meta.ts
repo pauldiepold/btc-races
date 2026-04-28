@@ -12,6 +12,16 @@ export interface NotificationMeta {
  * UI-Metadaten pro NotificationType. Reihenfolge der Keys bestimmt die Reihenfolge in der UI.
  */
 export const NOTIFICATION_META: Record<NotificationType, NotificationMeta> = {
+  admin_registered_member: {
+    label: 'Admin hat mich angemeldet',
+    description: 'Wenn ein Admin dich für einen Wettkampf angemeldet hat.',
+    adminOnly: false,
+  },
+  admin_changed_member_registration: {
+    label: 'Admin hat meine Anmeldung geändert',
+    description: 'Wenn ein Admin deine bestehende Anmeldung geändert hat.',
+    adminOnly: false,
+  },
   ladv_registered: {
     label: 'LADV-Meldung bestätigt',
     description: 'Wenn der Coach dich für einen Wettkampf in LADV gemeldet hat.',
@@ -21,11 +31,6 @@ export const NOTIFICATION_META: Record<NotificationType, NotificationMeta> = {
     label: 'LADV-Abmeldung',
     description: 'Wenn der Coach dich wieder aus LADV abgemeldet hat.',
     adminOnly: false,
-  },
-  athlete_canceled_after_ladv: {
-    label: 'Stornierung nach LADV-Meldung',
-    description: 'Wenn ein bereits gemeldetes Mitglied seine Anmeldung storniert.',
-    adminOnly: true,
   },
   athlete_changed_after_ladv: {
     label: 'Wunschstand geändert nach LADV-Meldung',

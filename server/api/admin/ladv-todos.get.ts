@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
       userId: schema.users.id,
       firstName: schema.users.firstName,
       lastName: schema.users.lastName,
+      avatarSmall: schema.users.avatarSmall,
       _typeOrder: typeOrder,
     })
     .from(schema.registrations)
@@ -74,6 +75,7 @@ export default defineEventHandler(async (event) => {
       userId: row.userId,
       firstName: row.firstName,
       lastName: row.lastName,
+      avatarUrl: row.avatarSmall ? `/api/avatar/${row.userId}` : null,
     })
   }
 

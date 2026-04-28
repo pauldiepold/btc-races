@@ -16,7 +16,7 @@ export type RegistrationDetail = {
   userId: number
   firstName: string | null
   lastName: string | null
-  hasAvatar: boolean
+  avatarUrl: string | null
   status: 'registered' | 'canceled' | 'maybe' | 'yes' | 'no'
   notes: string | null
   createdAt: Date
@@ -55,6 +55,7 @@ export type LadvTodo = {
   userId: number
   firstName: string | null
   lastName: string | null
+  avatarUrl: string | null
 }
 
 export type RegistrationCoachView = {
@@ -64,7 +65,7 @@ export type RegistrationCoachView = {
   userId: number
   firstName: string | null
   lastName: string | null
-  hasAvatar: boolean
+  avatarUrl: string | null
   wishDisciplines: RegistrationDisciplinePair[]
   ladvDisciplines: RegistrationDisciplinePair[] | null
   event: {

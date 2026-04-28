@@ -269,6 +269,7 @@ async function submit() {
           <div class="space-y-3">
             <UInput
               v-model="searchQuery"
+              class="w-full"
               icon="i-ph-magnifying-glass"
               placeholder="Mitglied suchen (Name oder E-Mail)…"
               size="md"
@@ -306,7 +307,7 @@ async function submit() {
                 @click="selectMember(m)"
               >
                 <UAvatar
-                  :src="m.hasAvatar ? useAvatarUrl(m.id) : undefined"
+                  :src="m.avatarUrl ?? undefined"
                   :alt="memberFullName(m)"
                   size="sm"
                 />
@@ -343,11 +344,11 @@ async function submit() {
             </div>
           </div>
 
-          <div class="flex justify-end pt-1 border-t border-default">
+          <div class="flex justify-end pt-3 border-t border-default">
             <UButton
               label="Abbrechen"
               color="neutral"
-              variant="ghost"
+              variant="subtle"
               @click="emit('update:open', false)"
             />
           </div>
@@ -358,7 +359,7 @@ async function submit() {
           <!-- Selected Member -->
           <div class="flex items-center gap-3 p-3 rounded-[--ui-radius] bg-elevated">
             <UAvatar
-              :src="selectedMember.hasAvatar ? useAvatarUrl(selectedMember.id) : undefined"
+              :src="selectedMember.avatarUrl ?? undefined"
               :alt="memberFullName(selectedMember)"
               size="md"
             />
@@ -571,7 +572,7 @@ async function submit() {
           </div>
 
           <!-- Footer -->
-          <div class="flex justify-end gap-2 pt-1 border-t border-default">
+          <div class="flex justify-end gap-2 pt-3 border-t border-default">
             <UButton
               label="Abbrechen"
               color="neutral"

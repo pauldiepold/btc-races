@@ -29,6 +29,7 @@ const todos = computed<LadvTodo[]>(() => {
           userId: reg.userId,
           firstName: reg.firstName,
           lastName: reg.lastName,
+          avatarUrl: reg.avatarUrl,
         })
       }
     }
@@ -47,6 +48,7 @@ const todos = computed<LadvTodo[]>(() => {
         userId: reg.userId,
         firstName: reg.firstName,
         lastName: reg.lastName,
+        avatarUrl: reg.avatarUrl,
       })
     }
   }
@@ -93,7 +95,7 @@ function fullName(todo: LadvTodo): string {
         @click="openRegistrationId = todo.registrationId"
       >
         <UAvatar
-          :src="useAvatarUrl(todo.userId)"
+          :src="todo.avatarUrl ?? undefined"
           :alt="`${todo.firstName ?? ''} ${todo.lastName ?? ''}`"
           size="sm"
           class="shrink-0"

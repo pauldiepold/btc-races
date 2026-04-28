@@ -5,10 +5,11 @@ import type { NotificationType } from './types'
  * Fehlende Einträge → E-Mail-Delivery wird übersprungen (graceful skip).
  */
 export const EMAIL_TEMPLATE_MAP: Partial<Record<NotificationType, string>> = {
+  admin_registered_member: 'AdminRegisteredMemberEmail',
+  admin_changed_member_registration: 'AdminChangedMemberRegistrationEmail',
   ladv_registered: 'LadvRegisteredEmail',
   ladv_canceled: 'LadvCanceledEmail',
-  athlete_canceled_after_ladv: 'AthleteCanceledAfterLadvEmail',
-  athlete_changed_after_ladv: 'AthleteCanceledAfterLadvEmail',
+  athlete_changed_after_ladv: 'AthleteChangedAfterLadvEmail',
   event_canceled: 'EventCanceledEmail',
   event_changed: 'EventChangedEmail',
   new_event: 'NewEventEmail',
@@ -21,9 +22,10 @@ export const EMAIL_TEMPLATE_MAP: Partial<Record<NotificationType, string>> = {
  * Dynamische Betreffzeilen pro Notification-Typ.
  */
 export const EMAIL_SUBJECT_MAP: Record<NotificationType, (payload: Record<string, unknown>) => string> = {
+  admin_registered_member: p => `Anmeldung: ${p.eventName ?? 'Wettkampf'}`,
+  admin_changed_member_registration: p => `Anmeldung geändert: ${p.eventName ?? 'Wettkampf'}`,
   ladv_registered: p => `LADV-Meldung: ${p.eventName ?? 'Wettkampf'}`,
   ladv_canceled: p => `LADV-Abmeldung: ${p.eventName ?? 'Wettkampf'}`,
-  athlete_canceled_after_ladv: p => `Abmeldung nach LADV-Meldung: ${p.eventName ?? 'Wettkampf'}`,
   athlete_changed_after_ladv: p => `Wunschstand geändert: ${p.eventName ?? 'Wettkampf'}`,
   event_canceled: p => `Abgesagt: ${p.eventName ?? 'Veranstaltung'}`,
   event_changed: p => `Änderung: ${p.eventName ?? 'Veranstaltung'}`,
@@ -37,6 +39,16 @@ export const EMAIL_SUBJECT_MAP: Record<NotificationType, (payload: Record<string
  * Push-Payload-Builder pro Notification-Typ.
  */
 export const PUSH_PAYLOAD_MAP: Partial<Record<NotificationType, (payload: Record<string, unknown>) => { title: string, body: string, url?: string }>> = {
+  admin_registered_member: p => ({
+    title: 'Anmeldung',
+    body: `Du wurdest für ${p.eventName ?? 'einen Wettkampf'} angemeldet.`,
+    url: p.eventLink as string | undefined,
+  }),
+  admin_changed_member_registration: p => ({
+    title: 'Anmeldung geändert',
+    body: `Deine Anmeldung für ${p.eventName ?? 'einen Wettkampf'} wurde geändert.`,
+    url: p.eventLink as string | undefined,
+  }),
   ladv_registered: p => ({
     title: 'LADV-Meldung',
     body: `Du wurdest für ${p.eventName ?? 'einen Wettkampf'} gemeldet.`,
@@ -45,11 +57,6 @@ export const PUSH_PAYLOAD_MAP: Partial<Record<NotificationType, (payload: Record
   ladv_canceled: p => ({
     title: 'LADV-Abmeldung',
     body: `Deine Meldung für ${p.eventName ?? 'einen Wettkampf'} wurde zurückgezogen.`,
-    url: p.eventUrl as string | undefined,
-  }),
-  athlete_canceled_after_ladv: p => ({
-    title: 'Abmeldung nach LADV-Meldung',
-    body: `${p.athleteName ?? 'Ein Athlet'} hat sich von ${p.eventName ?? 'einem Wettkampf'} abgemeldet.`,
     url: p.eventUrl as string | undefined,
   }),
   athlete_changed_after_ladv: p => ({

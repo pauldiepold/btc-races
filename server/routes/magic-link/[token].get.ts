@@ -67,7 +67,7 @@ export default defineEventHandler(async (event) => {
     lastName: user.lastName ?? '',
     role: user.role ?? 'member',
     sections: user.sections ?? [],
-    hasAvatar: !!user.avatarSmall,
+    avatarUrl: user.avatarSmall ? `/api/avatar/${user.id}` : null,
     hasLadvStartpass: user.hasLadvStartpass === 1,
     birthYear: user.birthday ? new Date(user.birthday).getFullYear() : null,
     gender: user.gender ?? null,

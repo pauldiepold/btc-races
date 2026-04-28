@@ -6,7 +6,7 @@ declare module '#auth-utils' {
     email: string
     role: 'member' | 'admin' | 'superuser'
     sections: string[]
-    hasAvatar: boolean
+    avatarUrl: string | null
     hasLadvStartpass: boolean
     birthYear: number | null
     gender: 'm' | 'w' | null

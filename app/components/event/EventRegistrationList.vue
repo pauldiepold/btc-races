@@ -221,7 +221,7 @@ function ladvIndicatorMeta(reg: RegistrationDetail) {
             @click="isAdmin && eventType === 'ladv' ? openRegistrationId = reg.id : undefined"
           >
             <UAvatar
-              :src="reg.hasAvatar ? useAvatarUrl(reg.userId) : undefined"
+              :src="reg.avatarUrl ?? undefined"
               :alt="`${reg.firstName ?? ''} ${reg.lastName ?? ''}`"
               size="sm"
               class="mt-0.5 shrink-0"

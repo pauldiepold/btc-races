@@ -47,11 +47,13 @@ export default defineEventHandler(async (event) => {
   }
 
   let shouldNotifyAdmins = false
+  let shouldNotifyMember = false
+  let dbEvent: Awaited<ReturnType<typeof db.query.events.findFirst>> | null = null
 
   if (status !== undefined) {
-    const dbEvent = await db.query.events.findFirst({
+    dbEvent = await db.query.events.findFirst({
       where: eq(schema.events.id, registration.eventId),
-    })
+    }) ?? null
     if (!dbEvent) {
       throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
     }
@@ -77,6 +79,11 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  // Admin ändert fremde Anmeldung → Mitglied informieren
+  if (isAdmin && registration.userId !== session.user.id) {
+    shouldNotifyMember = true
+  }
+
   await db
     .update(schema.registrations)
     .set({
@@ -90,8 +97,48 @@ export default defineEventHandler(async (event) => {
     await sendAthleteChangedAfterLadvNotification(registration.userId, registration.eventId)
   }
 
+  if (shouldNotifyMember) {
+    void sendAdminChangedRegistrationNotification(registration.userId, registration.eventId, dbEvent)
+  }
+
   return { id }
 })
+
+type EventRow = Awaited<ReturnType<typeof db.query.events.findFirst>>
+
+async function sendAdminChangedRegistrationNotification(userId: number, eventId: number, cachedEvent: EventRow | null) {
+  try {
+    const [user, dbEvent] = await Promise.all([
+      db.query.users.findFirst({
+        where: eq(schema.users.id, userId),
+        columns: { id: true, email: true, firstName: true },
+      }),
+      cachedEvent
+        ? Promise.resolve(cachedEvent)
+        : db.query.events.findFirst({ where: eq(schema.events.id, eventId) }),
+    ])
+
+    if (!user || !dbEvent) return
+
+    const siteUrl = useRuntimeConfig().public.siteUrl
+
+    await notificationService.enqueue({
+      type: 'admin_changed_member_registration',
+      recipients: [{ userId: user.id, email: user.email, firstName: user.firstName ?? undefined }],
+      payload: {
+        eventName: dbEvent.name,
+        eventDate: formatEventDate(dbEvent.date) ?? undefined,
+        eventLocation: dbEvent.location ?? undefined,
+        registrationDeadline: formatEventDate(dbEvent.registrationDeadline) ?? undefined,
+        eventLink: `${siteUrl}/${encodeEventId(eventId)}`,
+      },
+      eventId,
+    })
+  }
+  catch (err) {
+    console.error('[Notification] Fehler beim Erstellen des Jobs (admin_changed_member_registration):', err)
+  }
+}
 
 async function sendAthleteChangedAfterLadvNotification(userId: number, eventId: number) {
   try {

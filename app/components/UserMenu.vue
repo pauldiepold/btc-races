@@ -4,7 +4,7 @@ const colorMode = useColorMode()
 const isOpen = ref(false)
 
 const isAdmin = computed(() => session.value?.user?.role === 'admin' || session.value?.user?.role === 'superuser')
-const avatarUrlSmall = computed(() => user.value?.hasAvatar ? useAvatarUrl(user.value.id) : undefined)
+const avatarUrlSmall = computed(() => user.value?.avatarUrl ?? undefined)
 const avatarAlt = computed(() => `${user.value?.firstName ?? ''} ${user.value?.lastName ?? ''}`)
 const isSuperuser = computed(() => session.value?.user?.role === 'superuser')
 

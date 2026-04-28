@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
     userId: row.userId,
     firstName: row.firstName,
     lastName: row.lastName,
-    hasAvatar: row.avatarSmall !== null,
+    avatarUrl: row.avatarSmall ? `/api/avatar/${row.userId}` : null,
     wishDisciplines: (row.wishDisciplines as RegistrationDisciplinePair[] | null) ?? [],
     ladvDisciplines: row.ladvDisciplines as RegistrationDisciplinePair[] | null,
     event: {

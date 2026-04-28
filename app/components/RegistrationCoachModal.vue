@@ -160,7 +160,7 @@ async function save() {
         <div class="flex items-start justify-between gap-3">
           <div class="flex items-center gap-3 min-w-0">
             <UAvatar
-              :src="reg.hasAvatar ? useAvatarUrl(reg.userId) : undefined"
+              :src="reg.avatarUrl ?? undefined"
               :alt="`${reg.firstName ?? ''} ${reg.lastName ?? ''}`"
               size="md"
               class="shrink-0"

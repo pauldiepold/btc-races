@@ -2,7 +2,7 @@
 import { de } from '@nuxt/ui/locale'
 
 const { user } = useUserSession()
-const avatarUrlSmall = computed(() => user.value?.hasAvatar ? useAvatarUrl(user.value.id) : undefined)
+const avatarUrlSmall = computed(() => user.value?.avatarUrl ?? undefined)
 const avatarAlt = computed(() => `${user.value?.firstName ?? ''} ${user.value?.lastName ?? ''}`)
 
 useSeoMeta({

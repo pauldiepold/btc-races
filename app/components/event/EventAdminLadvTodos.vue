@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { EventDetail, LadvTodo } from '~~/shared/types/events'
+import { diffLadvRegistration } from '~~/shared/utils/ladv-diff'
 
 const props = defineProps<{
   event: EventDetail
@@ -7,16 +8,15 @@ const props = defineProps<{
 
 const emit = defineEmits<{ refresh: [] }>()
 
-const openTodo = ref<LadvTodo | null>(null)
+const openRegistrationId = ref<number | null>(null)
 
 const todos = computed<LadvTodo[]>(() => {
   const result: LadvTodo[] = []
 
   for (const reg of props.event.registrations) {
-    // register-Todo: status=registered und mind. eine Disziplin ohne ladvRegisteredAt
     if (reg.status === 'registered') {
-      const pending = reg.disciplines.filter(d => !d.ladvRegisteredAt)
-      if (pending.length > 0) {
+      const diff = diffLadvRegistration(reg.wishDisciplines, reg.ladvDisciplines)
+      if (diff.length > 0) {
         result.push({
           type: 'register',
           eventId: props.event.id,
@@ -24,18 +24,18 @@ const todos = computed<LadvTodo[]>(() => {
           eventDate: props.event.date,
           ladvId: props.event.ladvId,
           registrationId: reg.id,
-          disciplines: pending.map(d => ({ id: d.id, discipline: d.discipline, ageClass: d.ageClass })),
+          diff,
+          wishDisciplines: reg.wishDisciplines,
           userId: reg.userId,
           firstName: reg.firstName,
           lastName: reg.lastName,
+          avatarUrl: reg.avatarUrl,
         })
       }
     }
 
-    // cancel-Todo: mind. eine Disziplin hat ladvRegisteredAt aber kein ladvCanceledAt
-    const toCancel = reg.disciplines.filter(d => d.ladvRegisteredAt && !d.ladvCanceledAt)
-    // Nur relevant wenn die Anmeldung canceled wurde (= Person hat abgemeldet)
-    if (reg.status === 'canceled' && toCancel.length > 0) {
+    if (reg.status === 'canceled' && reg.ladvDisciplines && reg.ladvDisciplines.length > 0) {
+      const diff = reg.ladvDisciplines.map(d => ({ type: 'remove' as const, discipline: d.discipline, ageClass: d.ageClass }))
       result.push({
         type: 'cancel',
         eventId: props.event.id,
@@ -43,10 +43,12 @@ const todos = computed<LadvTodo[]>(() => {
         eventDate: props.event.date,
         ladvId: props.event.ladvId,
         registrationId: reg.id,
-        disciplines: toCancel.map(d => ({ id: d.id, discipline: d.discipline, ageClass: d.ageClass })),
+        diff,
+        wishDisciplines: reg.wishDisciplines,
         userId: reg.userId,
         firstName: reg.firstName,
         lastName: reg.lastName,
+        avatarUrl: reg.avatarUrl,
       })
     }
   }
@@ -90,10 +92,10 @@ function fullName(todo: LadvTodo): string {
         v-for="todo in todos"
         :key="`${todo.registrationId}:${todo.type}`"
         class="w-full flex items-center gap-3 py-3 text-left hover:bg-elevated/50 rounded-lg px-2 -mx-2 transition-colors"
-        @click="openTodo = todo"
+        @click="openRegistrationId = todo.registrationId"
       >
         <UAvatar
-          :src="useAvatarUrl(todo.userId)"
+          :src="todo.avatarUrl ?? undefined"
           :alt="`${todo.firstName ?? ''} ${todo.lastName ?? ''}`"
           size="sm"
           class="shrink-0"
@@ -111,10 +113,10 @@ function fullName(todo: LadvTodo): string {
           </div>
           <div class="flex flex-wrap gap-1 mt-1">
             <LadvBadge
-              v-for="d in todo.disciplines"
-              :key="d.id"
-              :discipline="d.discipline"
-              :age-class="d.ageClass"
+              v-for="entry in todo.diff"
+              :key="`${entry.discipline}:${entry.ageClass}`"
+              :discipline="entry.discipline"
+              :age-class="entry.ageClass"
             />
           </div>
         </div>
@@ -126,11 +128,11 @@ function fullName(todo: LadvTodo): string {
       </button>
     </div>
 
-    <LadvTodoModal
-      v-if="openTodo"
-      :todo="openTodo"
-      :open="!!openTodo"
-      @update:open="!$event && (openTodo = null)"
+    <RegistrationCoachModal
+      v-if="openRegistrationId"
+      :registration-id="openRegistrationId"
+      :open="!!openRegistrationId"
+      @update:open="!$event && (openRegistrationId = null)"
       @done="emit('refresh')"
     />
   </div>

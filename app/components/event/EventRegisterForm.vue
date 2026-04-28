@@ -193,70 +193,76 @@ async function changeStatus(status: string) {
 
 // ─── LADV Disziplinen: bestehende Anmeldung ───────────────────────────────────
 
-const ownRegDisciplineCodes = computed(() =>
-  new Set(ownReg.value?.disciplines.map(d => d.discipline) ?? []),
+const localDisciplines = ref<{ discipline: string, ageClass: string }[]>([])
+
+watch(ownReg, (reg) => {
+  localDisciplines.value = reg ? [...reg.wishDisciplines] : []
+}, { immediate: true })
+
+const localDisciplineCodes = computed(() =>
+  new Set<string>(localDisciplines.value.map(d => d.discipline)),
 )
+
+const hasChanges = computed(() => {
+  if (!ownReg.value) return false
+  const toKey = (arr: { discipline: string, ageClass: string }[]) =>
+    [...arr].sort((a, b) => a.discipline.localeCompare(b.discipline)).map(d => `${d.discipline}:${d.ageClass}`).join('|')
+  return toKey(localDisciplines.value) !== toKey(ownReg.value.wishDisciplines)
+})
 
 const showAddExisting = ref(false)
 const addExistingCode = ref('')
 const addExistingAgeClass = ref('')
-const addExistingLoading = ref(false)
-const removeDiscLoading = ref<number | null>(null)
+const saveLoading = ref(false)
 
-const addExistingDisciplineItems = computed(() => buildDisciplineItems(ownRegDisciplineCodes.value))
+const addExistingDisciplineItems = computed(() => buildDisciplineItems(localDisciplineCodes.value))
 const addExistingAgeClassItems = computed(() => buildAgeClassItems(addExistingCode.value))
 
 watch(addExistingCode, (code) => {
   addExistingAgeClass.value = code ? autoAgeClass(code) : ''
 })
 
-async function addExistingDiscipline() {
-  if (!ownReg.value || !addExistingCode.value || !addExistingAgeClass.value) return
-  addExistingLoading.value = true
-  try {
-    await $fetch(`/api/registrations/${ownReg.value.id}/disciplines`, {
-      method: 'POST',
-      body: { discipline: addExistingCode.value, ageClass: addExistingAgeClass.value },
-    })
-    addExistingCode.value = ''
-    addExistingAgeClass.value = ''
-    showAddExisting.value = false
-    emit('refresh')
-  }
-  catch (err: unknown) {
-    const status = (err as { status?: number }).status
-    if (status === 409) {
-      toast.add({ title: 'Disziplin bereits vorhanden', color: 'warning' })
-    }
-    else {
-      toast.add({ title: 'Fehler beim Hinzufügen', color: 'error' })
-    }
-  }
-  finally {
-    addExistingLoading.value = false
-  }
+function addExistingDiscipline() {
+  if (!addExistingCode.value || !addExistingAgeClass.value) return
+  localDisciplines.value.push({ discipline: addExistingCode.value, ageClass: addExistingAgeClass.value })
+  addExistingCode.value = ''
+  addExistingAgeClass.value = ''
+  showAddExisting.value = false
 }
 
-async function removeDiscipline(disciplineId: number) {
+function removeLocalDiscipline(disciplineCode: string) {
+  localDisciplines.value = localDisciplines.value.filter(d => d.discipline !== disciplineCode)
+}
+
+function cancelDisciplineChanges() {
+  localDisciplines.value = ownReg.value ? [...ownReg.value.wishDisciplines] : []
+  showAddExisting.value = false
+  addExistingCode.value = ''
+  addExistingAgeClass.value = ''
+}
+
+async function saveWishDisciplines() {
   if (!ownReg.value) return
-  removeDiscLoading.value = disciplineId
+  saveLoading.value = true
   try {
-    await $fetch(`/api/registrations/${ownReg.value.id}/disciplines/${disciplineId}`, {
-      method: 'DELETE',
+    await $fetch(`/api/registrations/${ownReg.value.id}/wish-disciplines`, {
+      method: 'PUT',
+      body: { disciplines: localDisciplines.value },
     })
+    toast.add({ title: 'Disziplinen gespeichert', color: 'success' })
     emit('refresh')
   }
   catch (err: unknown) {
     const status = (err as { status?: number }).status
-    if (status === 422) {
+    if (status === 422 || status === 400) {
       toast.add({ title: 'Mindestens eine Disziplin muss verbleiben', color: 'error' })
     }
     else {
-      toast.add({ title: 'Fehler beim Entfernen', color: 'error' })
+      toast.add({ title: 'Fehler beim Speichern', color: 'error' })
     }
   }
   finally {
-    removeDiscLoading.value = null
+    saveLoading.value = false
   }
 }
 
@@ -383,8 +389,8 @@ async function saveNotes() {
 
         <div class="space-y-2">
           <div
-            v-for="disc in ownReg.disciplines"
-            :key="disc.id"
+            v-for="disc in localDisciplines"
+            :key="disc.discipline"
             class="flex items-center gap-3 rounded-[--ui-radius] bg-default border border-default px-3 py-2.5"
           >
             <div class="flex-1 min-w-0 space-y-1">
@@ -397,7 +403,7 @@ async function saveNotes() {
                   variant="subtle"
                 />
                 <UBadge
-                  v-if="disc.ladvRegisteredAt"
+                  v-if="ownReg.ladvDisciplines?.some(d => d.discipline === disc.discipline)"
                   color="success"
                   variant="subtle"
                   size="sm"
@@ -406,12 +412,6 @@ async function saveNotes() {
                   Bei LADV angemeldet
                 </UBadge>
               </div>
-              <p
-                v-if="disc.ladvRegisteredAt"
-                class="text-xs text-muted"
-              >
-                Diese Disziplin wurde bereits bei LADV angemeldet — bei Änderungen bitte Admin informieren.
-              </p>
             </div>
 
             <UButton
@@ -419,9 +419,8 @@ async function saveNotes() {
               color="neutral"
               variant="ghost"
               size="xs"
-              :disabled="ownReg.disciplines.length <= 1"
-              :loading="removeDiscLoading === disc.id"
-              @click="removeDiscipline(disc.id)"
+              :disabled="localDisciplines.length <= 1"
+              @click="removeLocalDiscipline(disc.discipline)"
             />
           </div>
         </div>
@@ -453,7 +452,6 @@ async function saveNotes() {
                 size="sm"
                 variant="outline"
                 :disabled="!addExistingCode || !addExistingAgeClass"
-                :loading="addExistingLoading"
                 @click="addExistingDiscipline"
               />
               <UButton
@@ -476,6 +474,31 @@ async function saveNotes() {
             @click="showAddExisting = true"
           />
         </div>
+
+        <!-- Speichern / Abbrechen -->
+        <template v-if="hasChanges">
+          <p class="text-xs text-muted">
+            Coaches werden informiert, falls du bereits bei LADV gemeldet wurdest.
+          </p>
+          <div class="flex gap-2">
+            <UButton
+              label="Speichern"
+              size="sm"
+              color="primary"
+              variant="outline"
+              :loading="saveLoading"
+              @click="saveWishDisciplines"
+            />
+            <UButton
+              label="Abbrechen"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              :disabled="saveLoading"
+              @click="cancelDisciplineChanges"
+            />
+          </div>
+        </template>
       </div>
 
       <!-- Notiz -->

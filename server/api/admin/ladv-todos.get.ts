@@ -1,6 +1,7 @@
 import { db, schema } from 'hub:db'
-import { eq, and, isNull, isNotNull, or, sql, asc } from 'drizzle-orm'
+import { eq, and, or, isNotNull, sql, asc } from 'drizzle-orm'
 import { requireAdmin } from '~~/server/utils/auth'
+import { diffLadvRegistration } from '~~/shared/utils/ladv-diff'
 import type { LadvTodo } from '~~/shared/types/events'
 
 const typeOrder = sql<number>`CASE WHEN ${schema.registrations.status} = 'registered' THEN 0 ELSE 1 END`
@@ -11,24 +12,21 @@ export default defineEventHandler(async (event) => {
 
   const rows = await db
     .select({
+      registrationId: schema.registrations.id,
+      status: schema.registrations.status,
+      wishDisciplines: schema.registrations.wishDisciplines,
+      ladvDisciplines: schema.registrations.ladvDisciplines,
       eventId: schema.events.id,
       eventName: schema.events.name,
       eventDate: schema.events.date,
       ladvId: schema.events.ladvId,
-      registrationId: schema.registrations.id,
-      disciplineId: schema.registrationDisciplines.id,
-      discipline: schema.registrationDisciplines.discipline,
-      ageClass: schema.registrationDisciplines.ageClass,
       userId: schema.users.id,
       firstName: schema.users.firstName,
       lastName: schema.users.lastName,
+      avatarSmall: schema.users.avatarSmall,
       _typeOrder: typeOrder,
     })
-    .from(schema.registrationDisciplines)
-    .innerJoin(
-      schema.registrations,
-      eq(schema.registrationDisciplines.registrationId, schema.registrations.id),
-    )
+    .from(schema.registrations)
     .innerJoin(
       schema.events,
       and(
@@ -38,46 +36,48 @@ export default defineEventHandler(async (event) => {
     )
     .innerJoin(schema.users, eq(schema.registrations.userId, schema.users.id))
     .where(
-      and(
-        isNull(schema.registrationDisciplines.ladvCanceledAt),
-        or(
-          and(
-            eq(schema.registrations.status, 'registered'),
-            isNull(schema.registrationDisciplines.ladvRegisteredAt),
-          ),
-          and(
-            eq(schema.registrations.status, 'canceled'),
-            isNotNull(schema.registrationDisciplines.ladvRegisteredAt),
-          ),
+      or(
+        eq(schema.registrations.status, 'registered'),
+        and(
+          eq(schema.registrations.status, 'canceled'),
+          isNotNull(schema.registrations.ladvDisciplines),
         ),
       ),
     )
     .orderBy(dateNullsLast, asc(schema.events.date), asc(typeOrder), asc(schema.users.lastName))
 
-  // Gruppieren: eine LadvTodo pro registrationId + type
-  const grouped = new Map<string, LadvTodo>()
+  const todos: LadvTodo[] = []
+
   for (const row of rows) {
-    const type = row._typeOrder === 0 ? 'register' as const : 'cancel' as const
-    const key = `${row.registrationId}:${type}`
-    const existing = grouped.get(key)
-    if (existing) {
-      existing.disciplines.push({ id: row.disciplineId, discipline: row.discipline, ageClass: row.ageClass })
+    const wishDisciplines = (row.wishDisciplines as { discipline: string, ageClass: string }[] | null) ?? []
+    const ladvDisciplines = row.ladvDisciplines as { discipline: string, ageClass: string }[] | null
+
+    let diff
+
+    if (row.status === 'canceled') {
+      if (!ladvDisciplines || ladvDisciplines.length === 0) continue
+      diff = ladvDisciplines.map(d => ({ type: 'remove' as const, discipline: d.discipline, ageClass: d.ageClass }))
     }
     else {
-      grouped.set(key, {
-        type,
-        eventId: encodeEventId(row.eventId),
-        eventName: row.eventName,
-        eventDate: row.eventDate,
-        ladvId: row.ladvId,
-        registrationId: row.registrationId,
-        disciplines: [{ id: row.disciplineId, discipline: row.discipline, ageClass: row.ageClass }],
-        userId: row.userId,
-        firstName: row.firstName,
-        lastName: row.lastName,
-      })
+      diff = diffLadvRegistration(wishDisciplines, ladvDisciplines)
+      if (diff.length === 0) continue
     }
+
+    todos.push({
+      type: row.status === 'registered' ? 'register' : 'cancel',
+      eventId: encodeEventId(row.eventId),
+      eventName: row.eventName,
+      eventDate: row.eventDate,
+      ladvId: row.ladvId,
+      registrationId: row.registrationId,
+      diff,
+      wishDisciplines,
+      userId: row.userId,
+      firstName: row.firstName,
+      lastName: row.lastName,
+      avatarUrl: row.avatarSmall ? `/api/avatar/${row.userId}` : null,
+    })
   }
 
-  return [...grouped.values()] satisfies LadvTodo[]
+  return todos satisfies LadvTodo[]
 })

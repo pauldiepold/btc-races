@@ -81,6 +81,13 @@ async function uncancel() {
   }
 }
 
+// Admin Proxy-Anmeldung
+const adminRegisterModal = ref(false)
+
+async function onAdminRegisterDone() {
+  await refresh()
+}
+
 // LADV Sync
 const syncLoading = ref(false)
 
@@ -222,6 +229,16 @@ async function syncLadv() {
               />
               <UButton
                 v-if="isAdmin && !isCancelled"
+                icon="i-ph-user-plus"
+                label="Person anmelden"
+                color="primary"
+                variant="outline"
+                size="sm"
+                block
+                @click="adminRegisterModal = true"
+              />
+              <UButton
+                v-if="isAdmin && !isCancelled"
                 icon="i-ph-x-circle"
                 label="Event absagen"
                 color="error"
@@ -279,6 +296,7 @@ async function syncLadv() {
             v-else-if="privateDetail"
             :registrations="privateDetail.registrations"
             :event-type="event.type"
+            @refresh="refresh"
           />
 
           <div
@@ -329,5 +347,12 @@ async function syncLadv() {
         </div>
       </template>
     </UModal>
+
+    <AdminRegisterMemberModal
+      v-if="privateDetail && isAdmin"
+      v-model:open="adminRegisterModal"
+      :event="privateDetail"
+      @done="onAdminRegisterDone"
+    />
   </UContainer>
 </template>

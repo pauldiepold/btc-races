@@ -80,6 +80,8 @@ export const registrations = sqliteTable('registrations', {
   userId: integer({ mode: 'number' }).notNull().references(() => users.id, { onDelete: 'cascade' }),
   status: text().notNull().$type<'registered' | 'canceled' | 'maybe' | 'yes' | 'no'>(),
   notes: text(),
+  wishDisciplines: text({ mode: 'json' }).$type<import('~~/shared/types/db').RegistrationDisciplinePair[]>().notNull().default(sql`'[]'`),
+  ladvDisciplines: text({ mode: 'json' }).$type<import('~~/shared/types/db').RegistrationDisciplinePair[] | null>(),
 
   createdAt: integer({ mode: 'timestamp' })
     .notNull()
@@ -89,26 +91,6 @@ export const registrations = sqliteTable('registrations', {
     .default(sql`(unixepoch())`),
 }, t => [
   unique().on(t.eventId, t.userId),
-])
-
-// Disziplin-Einträge pro Anmeldung (nur bei type=ladv)
-export const registrationDisciplines = sqliteTable('registration_disciplines', {
-  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-  registrationId: integer({ mode: 'number' }).notNull().references(() => registrations.id, { onDelete: 'cascade' }),
-  discipline: text().notNull(),
-  ageClass: text().notNull(),
-
-  // LADV-Operationsfelder (pro Disziplin)
-  ladvRegisteredAt: integer({ mode: 'timestamp' }),
-  ladvRegisteredBy: integer({ mode: 'number' }).references(() => users.id, { onDelete: 'set null' }),
-  ladvCanceledAt: integer({ mode: 'timestamp' }),
-  ladvCanceledBy: integer({ mode: 'number' }).references(() => users.id, { onDelete: 'set null' }),
-
-  createdAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
-}, t => [
-  unique().on(t.registrationId, t.discipline),
 ])
 
 // Kommentare & Ankündigungen zu Events

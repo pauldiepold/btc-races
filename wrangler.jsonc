@@ -7,7 +7,7 @@
 		"nodejs_compat"
 	],
 	"vars": {
-		"NUXT_EMAIL_SENDER_ADDRESS": "donotreply@berlin-track-club.de",
+		"NUXT_EMAIL_SENDER_ADDRESS": "app@berlin-track-club.de",
 		"NUXT_EMAIL_TEST_MODE": "true",
 		"NUXT_EMAIL_PROVIDER": "azure-fetch"
 	},
@@ -28,7 +28,7 @@
 	"env": {
 		"preview": {
 			"vars": {
-				"NUXT_EMAIL_SENDER_ADDRESS": "donotreply@berlin-track-club.de",
+				"NUXT_EMAIL_SENDER_ADDRESS": "app@berlin-track-club.de",
 				"NUXT_EMAIL_TEST_MODE": "true",
 				"NUXT_EMAIL_PROVIDER": "azure-fetch"
 			},

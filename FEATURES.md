@@ -40,6 +40,7 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - Anmeldung bearbeiten (Startnummer, Notiz, Altersklasse)
 - LADV-Anmeldung und -Abmeldung über interne Proxy-Endpunkte
 - Eigene Anmeldungen unter `/meine-anmeldungen` einsehen
+- Admin-Proxy-Anmeldung: Admins können auf jeder Event-Detailseite Mitglieder direkt anmelden — User-Search + typ-spezifisches Formular, reaktiviert stornierte Anmeldungen, bei LADV optional sofortiger LADV-Stand — #118
 
 ---
 
@@ -47,8 +48,10 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 
 - Admin-Bereich (`/admin`) mit Übersicht offener LADV-Todos
 - LADV-Todo-Liste: sortiert nach Meldefrist, gruppiert nach dringlich/normal — #20
+- Anmeldeliste am LADV-Event: pro Person ein LADV-Status-Badge (ok / Diff / Abmelden offen / kein Stand) plus Summary-Zeile mit Zählern für Admins — #117
 - Avatar-Verwaltung (`/admin/avatare`): Campai-Avatare über Browser-Proxy laden und in D1 cachen — #4
 - Member-Sync manuell auslösen (ruft Campai-API auf, aktualisiert `users`-Tabelle)
+- Mitglieder-Listen-Endpoint `GET /api/admin/members` (admin-only, aktive Mitglieder mit Avatar-Flag) — #118
 
 ---
 
@@ -73,14 +76,16 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - DB-Tabellen: `notification_jobs`, `notification_deliveries`, `notification_preferences`, `push_subscriptions` — #56
 - `notificationService.enqueue()` legt Jobs (`status='pending'`) in die D1-Queue — API-Handler blockieren nur für den INSERT (<50ms), Zustellung erfolgt asynchron
 - Preference-Resolution (mandatory > user override > default) und Per-Delivery-Logging beim Versand — #57
-- E-Mail-Templates für alle acht Notification-Typen in `app/emails/` — #58
+- E-Mail-Templates für alle Notification-Typen in `app/emails/` — #58
 - Preferences-UI unter `/profil/benachrichtigungen` (Tabelle mit E-Mail/Push-Toggles pro Kategorie, mandatory-Toggles disabled) — #63
-- Verdrahtete Trigger in API-Handlern (legen jeweils einen Queue-Job an) — #64
+- Verdrahtete Trigger in API-Handlern (legen jeweils einen Queue-Job an) — #64, #119
   - N-01 LADV-Meldung bestätigt → Mitglied (mit Disziplinen)
   - N-02 LADV-Meldung zurückgezogen → Mitglied
-  - N-03 Athlet storniert nach bereits erfolgter LADV-Meldung → alle Admins
+  - N-03 Athlet ändert Wunschstand/Status nach erfolgter LADV-Meldung → alle Admins (`athlete_changed_after_ladv` ersetzt N-03 aus #119)
   - N-04 Event abgesagt → alle aktiv Angemeldeten
   - N-05 Neues Event (manuell oder via LADV-Import) → alle aktiven Mitglieder
+  - Admin meldet Mitglied an (`admin_registered_member`) → Mitglied; bei sofortigem LADV-Stand stattdessen N-01 — #119
+  - Admin ändert Anmeldung eines Mitglieds (`admin_changed_member_registration`) → Mitglied — #119
 - Queue-Worker `processQueue()` verarbeitet `pending | failed` Jobs parallel per `Promise.allSettled` (Recipients × Channels), mit Exponential-Backoff (max. 3 Versuche) und Timeout-Reset für >5 min hängende `processing`-Jobs
 - Cron-Endpoints (Bearer-Auth via `NUXT_CRON_TOKEN`): — #65
   - `POST /api/cron/process-notifications` — Queue abarbeiten (jede Minute)

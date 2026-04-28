@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import type { BadgeColor } from '~~/shared/utils/registration-ui'
 import type { EventPublicRegistrationCounts, RegistrationDetail } from '~~/shared/types/events'
+import { getRegistrationLadvIndicator, type LadvIndicator } from '~~/shared/utils/ladv-diff'
 import { REGISTRATION_STATUS_BADGE_COLORS, getRegistrationTabConfig } from '~~/shared/utils/registration-ui'
 
 const props = defineProps<{
@@ -9,7 +11,60 @@ const props = defineProps<{
   registrationCounts?: EventPublicRegistrationCounts
 }>()
 
+const emit = defineEmits<{ refresh: [] }>()
+
 const route = useRoute()
+const { session } = useUserSession()
+const isAdmin = computed(() =>
+  session.value?.user?.role === 'admin' || session.value?.user?.role === 'superuser',
+)
+const openRegistrationId = ref<number | null>(null)
+
+const showAdminLadvUi = computed(() =>
+  isAdmin.value && props.eventType === 'ladv' && !props.publicMode,
+)
+
+const LADV_INDICATOR_META: Record<LadvIndicator, {
+  color: BadgeColor
+  icon: string
+  label: string
+  tooltip: string
+}> = {
+  ok: {
+    color: 'success',
+    icon: 'i-ph-check-circle',
+    label: 'LADV ok',
+    tooltip: 'Wunsch- und LADV-Stand stimmen überein.',
+  },
+  diff: {
+    color: 'warning',
+    icon: 'i-ph-warning-circle',
+    label: 'Diff',
+    tooltip: 'Wunsch- und LADV-Stand weichen ab — Coach-Aktion offen.',
+  },
+  pending: {
+    color: 'error',
+    icon: 'i-ph-x-circle',
+    label: 'Abmelden offen',
+    tooltip: 'Athlet ist abgemeldet, in LADV aber noch eingetragen.',
+  },
+  none: {
+    color: 'neutral',
+    icon: 'i-ph-circle-dashed',
+    label: 'Kein Stand',
+    tooltip: 'Noch kein LADV-Stand erfasst.',
+  },
+}
+
+const SUMMARY_ORDER: LadvIndicator[] = ['ok', 'diff', 'pending', 'none']
+
+const summaryCounts = computed<Record<LadvIndicator, number>>(() => {
+  const counts: Record<LadvIndicator, number> = { none: 0, ok: 0, diff: 0, pending: 0 }
+  for (const reg of props.registrations ?? []) {
+    counts[getRegistrationLadvIndicator(reg)] += 1
+  }
+  return counts
+})
 
 type TabKey = 'registered' | 'canceled' | 'maybe' | 'yes' | 'no'
 
@@ -57,6 +112,10 @@ const totalCount = computed(() => {
 function fullName(r: RegistrationDetail): string {
   return [r.firstName, r.lastName].filter(Boolean).join(' ') || 'Unbekannt'
 }
+
+function ladvIndicatorMeta(reg: RegistrationDetail) {
+  return LADV_INDICATOR_META[getRegistrationLadvIndicator(reg)]
+}
 </script>
 
 <template>
@@ -64,6 +123,36 @@ function fullName(r: RegistrationDetail): string {
     <h2 class="font-display font-semibold text-highlighted mb-4">
       Anmeldungen
     </h2>
+
+    <!-- LADV-Status-Summary (Admin + LADV-Event) -->
+    <div
+      v-if="showAdminLadvUi && (registrations?.length ?? 0) > 0"
+      class="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-muted"
+    >
+      <template
+        v-for="(indicator, idx) in SUMMARY_ORDER"
+        :key="indicator"
+      >
+        <span
+          v-if="idx > 0"
+          class="text-muted/50 select-none"
+        >·</span>
+        <span class="inline-flex items-center gap-1.5">
+          <UIcon
+            :name="LADV_INDICATOR_META[indicator].icon"
+            :class="[
+              'size-4',
+              indicator === 'ok' ? 'text-success' : '',
+              indicator === 'diff' ? 'text-warning' : '',
+              indicator === 'pending' ? 'text-error' : '',
+              indicator === 'none' ? 'text-muted' : '',
+            ]"
+          />
+          <span class="text-highlighted font-medium tabular-nums">{{ summaryCounts[indicator] }}</span>
+          <span>{{ LADV_INDICATOR_META[indicator].label }}</span>
+        </span>
+      </template>
+    </div>
 
     <!-- Globaler Leer-Zustand -->
     <div
@@ -128,9 +217,11 @@ function fullName(r: RegistrationDetail): string {
             v-for="reg in activeRegistrations"
             :key="reg.id"
             class="flex items-start gap-3 py-3"
+            :class="isAdmin && eventType === 'ladv' ? 'cursor-pointer hover:bg-elevated/50 rounded-lg px-2 -mx-2 transition-colors' : ''"
+            @click="isAdmin && eventType === 'ladv' ? openRegistrationId = reg.id : undefined"
           >
             <UAvatar
-              :src="reg.hasAvatar ? useAvatarUrl(reg.userId) : undefined"
+              :src="reg.avatarUrl ?? undefined"
               :alt="`${reg.firstName ?? ''} ${reg.lastName ?? ''}`"
               size="sm"
               class="mt-0.5 shrink-0"
@@ -139,17 +230,30 @@ function fullName(r: RegistrationDetail): string {
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-sm font-medium text-highlighted">{{ fullName(reg) }}</span>
+                <UTooltip
+                  v-if="showAdminLadvUi"
+                  :text="ladvIndicatorMeta(reg).tooltip"
+                >
+                  <UBadge
+                    :icon="ladvIndicatorMeta(reg).icon"
+                    :label="ladvIndicatorMeta(reg).label"
+                    :color="ladvIndicatorMeta(reg).color"
+                    variant="subtle"
+                    size="xs"
+                  />
+                </UTooltip>
               </div>
 
               <!-- Disziplinen (LADV) -->
               <div
-                v-if="reg.disciplines.length"
+                v-if="reg.wishDisciplines.length"
                 class="flex flex-wrap gap-1 mt-1.5"
               >
                 <LadvBadge
-                  v-for="d in reg.disciplines"
-                  :key="d.id"
+                  v-for="d in reg.wishDisciplines"
+                  :key="d.discipline"
                   :discipline="d.discipline"
+                  :age-class="d.ageClass"
                 />
               </div>
 
@@ -165,4 +269,12 @@ function fullName(r: RegistrationDetail): string {
       </template>
     </template>
   </div>
+
+  <RegistrationCoachModal
+    v-if="openRegistrationId"
+    :registration-id="openRegistrationId"
+    :open="!!openRegistrationId"
+    @update:open="!$event && (openRegistrationId = null)"
+    @done="openRegistrationId = null; emit('refresh')"
+  />
 </template>

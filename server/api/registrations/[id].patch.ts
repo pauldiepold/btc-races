@@ -1,10 +1,11 @@
 import { db, schema } from 'hub:db'
-import { and, eq, isNotNull, isNull } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import { getValidNextStatuses } from '~~/shared/utils/registration'
 import { notificationService } from '~~/server/notifications/service'
 import { formatEventDate } from '~~/shared/utils/events'
+import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 
 const bodySchema = z.object({
   status: z.enum(['registered', 'canceled', 'maybe', 'yes', 'no']).optional(),
@@ -13,6 +14,7 @@ const bodySchema = z.object({
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
+  const isAdmin = session.user.role === 'admin' || session.user.role === 'superuser'
   const rawId = getRouterParam(event, 'id')
 
   if (!rawId) {
@@ -39,17 +41,19 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Anmeldung nicht gefunden' })
   }
 
-  // Nur eigene Anmeldung
-  if (registration.userId !== session.user.id) {
+  // Nur eigene Anmeldung — außer für Admins
+  if (!isAdmin && registration.userId !== session.user.id) {
     throw createError({ statusCode: 403, statusMessage: 'Keine Berechtigung' })
   }
 
-  let shouldNotifyAdminsLadvCancel = false
+  let shouldNotifyAdmins = false
+  let shouldNotifyMember = false
+  let dbEvent: Awaited<ReturnType<typeof db.query.events.findFirst>> | null = null
 
   if (status !== undefined) {
-    const dbEvent = await db.query.events.findFirst({
+    dbEvent = await db.query.events.findFirst({
       where: eq(schema.events.id, registration.eventId),
-    })
+    }) ?? null
     if (!dbEvent) {
       throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
     }
@@ -59,26 +63,25 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 422, statusMessage: `Statusübergang von '${registration.status}' zu '${status}' nicht erlaubt` })
     }
 
-    // Deadline-Check — außer bei cancel/no (Storno immer möglich)
     const isCancelAction = status === 'canceled' || status === 'no'
-    if (!isCancelAction && (dbEvent.type === 'ladv' || dbEvent.type === 'competition')) {
+
+    // Deadline-Check — außer bei cancel/no und außer für Admins
+    if (!isAdmin && !isCancelAction && (dbEvent.type === 'ladv' || dbEvent.type === 'competition')) {
       if (isDeadlineExpired(dbEvent.registrationDeadline)) {
         throw createError({ statusCode: 422, statusMessage: 'Meldefrist abgelaufen' })
       }
     }
 
-    // N-03: Stornierung nach bereits erfolgter LADV-Meldung → Admins informieren
-    if (isCancelAction) {
-      const activeLadv = await db.query.registrationDisciplines.findFirst({
-        where: and(
-          eq(schema.registrationDisciplines.registrationId, id),
-          isNotNull(schema.registrationDisciplines.ladvRegisteredAt),
-          isNull(schema.registrationDisciplines.ladvCanceledAt),
-        ),
-        columns: { id: true },
-      })
-      shouldNotifyAdminsLadvCancel = !!activeLadv
+    // Stornierung durch Athlet nach bereits erfolgter LADV-Meldung → Admins informieren
+    if (!isAdmin && isCancelAction) {
+      const ladvDisciplines = registration.ladvDisciplines as RegistrationDisciplinePair[] | null
+      shouldNotifyAdmins = ladvDisciplines !== null
     }
+  }
+
+  // Admin ändert fremde Anmeldung → Mitglied informieren
+  if (isAdmin && registration.userId !== session.user.id) {
+    shouldNotifyMember = true
   }
 
   await db
@@ -90,14 +93,54 @@ export default defineEventHandler(async (event) => {
     })
     .where(eq(schema.registrations.id, id))
 
-  if (shouldNotifyAdminsLadvCancel) {
-    await sendAthleteCanceledAfterLadvNotification(registration.userId, registration.eventId)
+  if (shouldNotifyAdmins) {
+    await sendAthleteChangedAfterLadvNotification(registration.userId, registration.eventId)
+  }
+
+  if (shouldNotifyMember) {
+    void sendAdminChangedRegistrationNotification(registration.userId, registration.eventId, dbEvent)
   }
 
   return { id }
 })
 
-async function sendAthleteCanceledAfterLadvNotification(userId: number, eventId: number) {
+type EventRow = Awaited<ReturnType<typeof db.query.events.findFirst>>
+
+async function sendAdminChangedRegistrationNotification(userId: number, eventId: number, cachedEvent: EventRow | null) {
+  try {
+    const [user, dbEvent] = await Promise.all([
+      db.query.users.findFirst({
+        where: eq(schema.users.id, userId),
+        columns: { id: true, email: true, firstName: true },
+      }),
+      cachedEvent
+        ? Promise.resolve(cachedEvent)
+        : db.query.events.findFirst({ where: eq(schema.events.id, eventId) }),
+    ])
+
+    if (!user || !dbEvent) return
+
+    const siteUrl = useRuntimeConfig().public.siteUrl
+
+    await notificationService.enqueue({
+      type: 'admin_changed_member_registration',
+      recipients: [{ userId: user.id, email: user.email, firstName: user.firstName ?? undefined }],
+      payload: {
+        eventName: dbEvent.name,
+        eventDate: formatEventDate(dbEvent.date) ?? undefined,
+        eventLocation: dbEvent.location ?? undefined,
+        registrationDeadline: formatEventDate(dbEvent.registrationDeadline) ?? undefined,
+        eventLink: `${siteUrl}/${encodeEventId(eventId)}`,
+      },
+      eventId,
+    })
+  }
+  catch (err) {
+    console.error('[Notification] Fehler beim Erstellen des Jobs (admin_changed_member_registration):', err)
+  }
+}
+
+async function sendAthleteChangedAfterLadvNotification(userId: number, eventId: number) {
   try {
     const [user, dbEvent] = await Promise.all([
       db.query.users.findFirst({
@@ -114,7 +157,7 @@ async function sendAthleteCanceledAfterLadvNotification(userId: number, eventId:
     const siteUrl = useRuntimeConfig().public.siteUrl
 
     await notificationService.enqueue({
-      type: 'athlete_canceled_after_ladv',
+      type: 'athlete_changed_after_ladv',
       recipients: 'all_admins',
       payload: {
         eventName: dbEvent.name,

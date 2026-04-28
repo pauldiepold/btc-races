@@ -77,7 +77,6 @@ export async function runSeed(): Promise<{ result: string }> {
   console.log('🗑️  Clearing database...')
   await db.delete(schema.reactions)
   await db.delete(schema.eventComments)
-  await db.delete(schema.registrationDisciplines)
   await db.delete(schema.registrations)
   await db.delete(schema.notificationDeliveries)
   await db.delete(schema.notificationJobs)
@@ -337,22 +336,17 @@ export async function runSeed(): Promise<{ result: string }> {
         ? faker.helpers.arrayElement(['registered', 'registered', 'registered', 'canceled'] as const)
         : faker.helpers.arrayElement(['yes', 'yes', 'maybe', 'no'] as const)
 
-      const insertedReg = await db.insert(schema.registrations).values({
+      const wishDisciplines = (eventType === 'ladv' && ladvWettbewerbe.length > 0)
+        ? [faker.helpers.arrayElement(ladvWettbewerbe)].map(d => ({ discipline: d.disziplinNew, ageClass: d.klasseNew }))
+        : []
+
+      await db.insert(schema.registrations).values({
         eventId,
         userId,
         status,
         notes: faker.datatype.boolean(0.3) ? faker.lorem.sentence() : null,
-      }).returning({ id: schema.registrations.id })
-      const regId = insertedReg[0]!.id
-
-      if ((eventType === 'ladv') && ladvWettbewerbe.length > 0) {
-        const disc = faker.helpers.arrayElement(ladvWettbewerbe)
-        await db.insert(schema.registrationDisciplines).values({
-          registrationId: regId,
-          discipline: disc.disziplinNew,
-          ageClass: disc.klasseNew,
-        })
-      }
+        wishDisciplines,
+      })
     }
   }
 
@@ -376,54 +370,41 @@ export async function runSeed(): Promise<{ result: string }> {
       .filter(w => isRunningDiscipline(w.disziplinNew))
     const disc = wettbewerbe[0] ?? { disziplinNew: 'L5K0', klasseNew: 'M30' }
 
-    // Szenario 1: Kevin — bereits bei LADV angemeldet (E-03-Flow testbar)
-    const reg1 = await db.insert(schema.registrations).values({
+    const disciplinePair = { discipline: disc.disziplinNew, ageClass: disc.klasseNew }
+
+    // Szenario 1: Kevin — Wunschstand gesetzt, LADV-Stand ebenfalls (Coach hat bereits gemeldet)
+    await db.insert(schema.registrations).values({
       eventId: firstLadvEventId,
       userId: kevinId,
       status: 'registered',
       notes: 'Freue mich drauf!',
-    }).returning({ id: schema.registrations.id })
-    await db.insert(schema.registrationDisciplines).values({
-      registrationId: reg1[0]!.id,
-      discipline: disc.disziplinNew,
-      ageClass: disc.klasseNew,
-      ladvRegisteredAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-      ladvRegisteredBy: adminId,
+      wishDisciplines: [disciplinePair],
+      ladvDisciplines: [disciplinePair],
     })
 
     // Szenario 2: Lisa — kein Startpass, kann sich nicht bei LADV-Events anmelden (F-22-Flow)
     // Lisa bekommt KEINE Anmeldung bei LADV-Events — der Fehler soll beim Versuch auftreten
 
     // Szenario 3: Admin — abgesagt nach LADV-Meldung (E-04-Flow testbar)
-    const reg3 = await db.insert(schema.registrations).values({
+    // ladvDisciplines !== null → Coach muss in LADV abmelden
+    await db.insert(schema.registrations).values({
       eventId: firstLadvEventId,
       userId: adminId,
       status: 'canceled',
       notes: null,
-    }).returning({ id: schema.registrations.id })
-    await db.insert(schema.registrationDisciplines).values({
-      registrationId: reg3[0]!.id,
-      discipline: disc.disziplinNew,
-      ageClass: disc.klasseNew,
-      ladvRegisteredAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-      ladvRegisteredBy: adminId,
-      ladvCanceledAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-      ladvCanceledBy: adminId,
+      wishDisciplines: [disciplinePair],
+      ladvDisciplines: [disciplinePair],
     })
 
     // Szenario 4: Paul — angemeldet, Disziplin gewählt, aber noch NICHT bei LADV eingereicht
-    // → häufigster Ausgangszustand für E-03, Admin-View zeigt "ausstehend"
-    const reg4 = await db.insert(schema.registrations).values({
+    // ladvDisciplines: null → Coach hat noch nicht gemeldet → Todo vorhanden
+    await db.insert(schema.registrations).values({
       eventId: firstLadvEventId,
       userId: paulId,
       status: 'registered',
       notes: null,
-    }).returning({ id: schema.registrations.id })
-    await db.insert(schema.registrationDisciplines).values({
-      registrationId: reg4[0]!.id,
-      discipline: disc.disziplinNew,
-      ageClass: disc.klasseNew,
-      // ladvRegisteredAt absichtlich null → noch nicht bei LADV eingereicht
+      wishDisciplines: [disciplinePair],
+      ladvDisciplines: null,
     })
   }
 

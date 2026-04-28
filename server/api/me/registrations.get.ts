@@ -1,6 +1,7 @@
 import { db, schema } from 'hub:db'
-import { asc, desc, eq, inArray, sql } from 'drizzle-orm'
-import type { MyRegistration, DisciplineDetail } from '~~/shared/types/events'
+import { desc, eq, sql } from 'drizzle-orm'
+import type { MyRegistration } from '~~/shared/types/events'
+import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
@@ -12,6 +13,8 @@ export default defineEventHandler(async (event) => {
       status: schema.registrations.status,
       notes: schema.registrations.notes,
       createdAt: schema.registrations.createdAt,
+      wishDisciplines: schema.registrations.wishDisciplines,
+      ladvDisciplines: schema.registrations.ladvDisciplines,
       eventId: schema.events.id,
       eventName: schema.events.name,
       eventDate: schema.events.date,
@@ -27,38 +30,13 @@ export default defineEventHandler(async (event) => {
       desc(schema.events.date),
     )
 
-  if (regs.length === 0) {
-    return [] as MyRegistration[]
-  }
-
-  const regIds = regs.map(r => r.id)
-  const disciplines = await db
-    .select()
-    .from(schema.registrationDisciplines)
-    .where(inArray(schema.registrationDisciplines.registrationId, regIds))
-    .orderBy(asc(schema.registrationDisciplines.createdAt))
-
-  const disciplinesByRegId = new Map<number, DisciplineDetail[]>()
-  for (const d of disciplines) {
-    const item: DisciplineDetail = {
-      id: d.id,
-      discipline: d.discipline,
-      ageClass: d.ageClass,
-      ladvRegisteredAt: d.ladvRegisteredAt,
-      ladvRegisteredBy: d.ladvRegisteredBy,
-      ladvCanceledAt: d.ladvCanceledAt,
-      ladvCanceledBy: d.ladvCanceledBy,
-    }
-    const existing = disciplinesByRegId.get(d.registrationId) ?? []
-    existing.push(item)
-    disciplinesByRegId.set(d.registrationId, existing)
-  }
-
   return regs.map((r): MyRegistration => ({
     id: r.id,
     status: r.status,
     notes: r.notes,
     createdAt: r.createdAt,
+    wishDisciplines: (r.wishDisciplines as RegistrationDisciplinePair[] | null) ?? [],
+    ladvDisciplines: r.ladvDisciplines as RegistrationDisciplinePair[] | null,
     event: {
       id: encodeEventId(r.eventId),
       name: r.eventName,
@@ -67,6 +45,5 @@ export default defineEventHandler(async (event) => {
       cancelledAt: r.eventCancelledAt,
       registrationDeadline: r.eventRegistrationDeadline,
     },
-    disciplines: disciplinesByRegId.get(r.id) ?? [],
   }))
 })

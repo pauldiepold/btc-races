@@ -40,6 +40,7 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - Anmeldung bearbeiten (Startnummer, Notiz, Altersklasse)
 - LADV-Anmeldung und -Abmeldung über interne Proxy-Endpunkte
 - Eigene Anmeldungen unter `/meine-anmeldungen` einsehen
+- Admin-Proxy-Anmeldung: Admins können auf jeder Event-Detailseite Mitglieder direkt anmelden — User-Search + typ-spezifisches Formular, reaktiviert stornierte Anmeldungen, bei LADV optional sofortiger LADV-Stand — #118
 
 ---
 
@@ -50,6 +51,7 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - Anmeldeliste am LADV-Event: pro Person ein LADV-Status-Badge (ok / Diff / Abmelden offen / kein Stand) plus Summary-Zeile mit Zählern für Admins — #117
 - Avatar-Verwaltung (`/admin/avatare`): Campai-Avatare über Browser-Proxy laden und in D1 cachen — #4
 - Member-Sync manuell auslösen (ruft Campai-API auf, aktualisiert `users`-Tabelle)
+- Mitglieder-Listen-Endpoint `GET /api/admin/members` (admin-only, aktive Mitglieder mit Avatar-Flag) — #118
 
 ---
 

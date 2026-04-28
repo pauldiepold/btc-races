@@ -42,7 +42,11 @@ export default defineEventHandler(async (event) => {
 
   await db
     .update(schema.registrations)
-    .set({ ladvDisciplines: disciplines, updatedAt: new Date() })
+    .set({
+      ladvDisciplines: disciplines,
+      ...(disciplines !== null ? { wishDisciplines: disciplines } : {}),
+      updatedAt: new Date(),
+    })
     .where(eq(schema.registrations.id, id))
 
   void sendLadvStandNotification(registration.userId, registration.eventId, disciplines)

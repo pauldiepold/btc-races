@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { RegistrationCoachView } from '~~/shared/types/events'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
-import { diffLadvRegistration } from '~~/shared/utils/ladv-diff'
 import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
 
 const props = defineProps<{
@@ -21,7 +20,6 @@ const { data: reg, status: fetchStatus } = await useFetch<RegistrationCoachView>
   () => `/api/registrations/${props.registrationId}`,
 )
 
-// LADV-Stand editor state — null → init from wish, non-null → keep
 const editorDisciplines = ref<RegistrationDisciplinePair[]>([])
 const selectedStatus = ref<string>('')
 
@@ -33,12 +31,14 @@ watch(reg, (val) => {
   selectedStatus.value = val.status
 }, { immediate: true })
 
-const diff = computed(() =>
-  diffLadvRegistration(editorDisciplines.value, reg.value?.ladvDisciplines ?? []),
-)
-
 const fullName = computed(() =>
   [reg.value?.firstName, reg.value?.lastName].filter(Boolean).join(' ') || 'Unbekannt',
+)
+
+const isCanceled = computed(() => selectedStatus.value === 'canceled')
+
+const ctaLabel = computed(() =>
+  isCanceled.value ? 'Die Meldung ist in LADV storniert' : 'Dieser Stand ist in LADV gemeldet',
 )
 
 // Wettbewerbe für Selects
@@ -97,23 +97,19 @@ const ladvRegisterUrl = computed(() => ladvId.value ? `https://ladv.de/meldung/a
 const ladvListUrl = computed(() => ladvId.value ? `https://ladv.de/meldung/anmeldungen/${ladvId.value}` : undefined)
 
 // Status options
-const statusOptions = computed(() => {
-  const current = reg.value?.status
-  if (!current) return []
-  // For LADV events: registered ↔ canceled
-  const all = [
-    { label: 'Angemeldet', value: 'registered' },
-    { label: 'Storniert', value: 'canceled' },
-  ]
-  return all
-})
+const statusOptions = [
+  { label: 'Angemeldet', value: 'registered' },
+  { label: 'Storniert', value: 'canceled' },
+]
 
 async function save() {
   loading.value = true
   try {
+    const disciplines = isCanceled.value ? null : editorDisciplines.value
+
     await $fetch(`/api/registrations/${props.registrationId}/ladv-stand`, {
       method: 'PUT',
-      body: { disciplines: editorDisciplines.value },
+      body: { disciplines },
     })
 
     if (selectedStatus.value !== reg.value?.status) {
@@ -157,185 +153,164 @@ async function save() {
         class="p-6 space-y-5"
       >
         <!-- Header -->
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex items-center gap-3 min-w-0">
-            <UAvatar
-              :src="reg.avatarUrl ?? undefined"
-              :alt="`${reg.firstName ?? ''} ${reg.lastName ?? ''}`"
-              size="md"
-              class="shrink-0"
-            />
-            <div class="min-w-0">
-              <p class="font-semibold text-highlighted text-base">
-                {{ fullName }}
-              </p>
-              <p class="text-sm text-muted mt-0.5">
-                {{ reg.event.name }}
-              </p>
-            </div>
-          </div>
-          <UBadge
-            v-if="diff.length > 0"
-            :label="reg.status === 'canceled' ? 'Von LADV abmelden' : 'In LADV anmelden'"
-            :color="reg.status === 'canceled' ? 'error' : 'info'"
-            variant="subtle"
+        <div class="flex items-center gap-3">
+          <UAvatar
+            :src="reg.avatarUrl ?? undefined"
+            :alt="`${reg.firstName ?? ''} ${reg.lastName ?? ''}`"
+            size="md"
             class="shrink-0"
           />
+          <div class="min-w-0">
+            <p class="font-semibold text-highlighted text-base">
+              {{ fullName }}
+            </p>
+            <p class="text-sm text-muted mt-0.5">
+              {{ reg.event.name }}
+            </p>
+          </div>
         </div>
 
-        <!-- Wunschstand (read-only) -->
+        <!-- Disziplinen -->
         <div>
           <p class="text-xs font-medium text-muted uppercase tracking-widest mb-2">
-            Wunschstand (Athlet)
+            In LADV gemeldet
           </p>
-          <div
-            v-if="reg.wishDisciplines.length"
-            class="flex flex-wrap gap-1.5"
-          >
-            <LadvBadge
-              v-for="d in reg.wishDisciplines"
-              :key="d.discipline"
-              :discipline="d.discipline"
-              :age-class="d.ageClass"
-              size="sm"
+
+          <template v-if="!isCanceled">
+            <div
+              v-if="editorDisciplines.length"
+              class="space-y-2 mb-2"
+            >
+              <div
+                v-for="(entry, i) in editorDisciplines"
+                :key="i"
+                class="flex items-center gap-2"
+              >
+                <div class="flex-1 flex items-center justify-between gap-3 rounded border border-default px-3 py-1.5">
+                  <span class="text-sm font-medium text-highlighted">{{ ladvDisciplineLabel(entry.discipline) }}</span>
+                  <span class="text-xs text-muted shrink-0">{{ ladvAgeClassLabel(entry.ageClass) }}</span>
+                </div>
+                <UButton
+                  icon="i-ph-x"
+                  color="neutral"
+                  variant="ghost"
+                  size="xs"
+                  @click="removeRow(i)"
+                />
+              </div>
+            </div>
+
+            <!-- Add-Row -->
+            <div
+              v-if="showAddRow"
+              class="mt-2 rounded-md border border-default bg-elevated p-3 space-y-2"
+            >
+              <USelect
+                v-model="addCode"
+                :items="availableDisciplineItems"
+                placeholder="Disziplin wählen"
+                size="sm"
+                class="w-full"
+              />
+              <USelect
+                v-model="addAgeClass"
+                :items="addAgeClassItems"
+                placeholder="Altersklasse wählen"
+                size="sm"
+                class="w-full"
+                :disabled="!addCode"
+              />
+              <div class="flex justify-end gap-2 pt-1">
+                <UButton
+                  label="Abbrechen"
+                  color="neutral"
+                  variant="ghost"
+                  size="sm"
+                  @click="showAddRow = false"
+                />
+                <UButton
+                  label="Hinzufügen"
+                  icon="i-ph-plus"
+                  color="primary"
+                  variant="solid"
+                  size="sm"
+                  :disabled="!addCode || !addAgeClass"
+                  @click="confirmAddRow"
+                />
+              </div>
+            </div>
+
+            <UButton
+              v-if="!showAddRow && availableDisciplineItems.length > 0"
+              icon="i-ph-plus"
+              label="Disziplin hinzufügen"
+              color="neutral"
+              variant="ghost"
+              size="xs"
+              class="mt-1"
+              @click="showAddRow = true"
             />
-          </div>
+
+            <p
+              v-if="editorDisciplines.length === 0 && !showAddRow"
+              class="flex items-center gap-1.5 text-xs text-error mt-1"
+            >
+              <UIcon
+                name="i-ph-warning"
+                class="size-3.5 shrink-0"
+              />
+              Mindestens eine Disziplin erforderlich.
+            </p>
+          </template>
+
           <p
             v-else
             class="text-sm text-muted italic"
           >
-            Keine Disziplinen gewählt
+            Storniert — keine Disziplinen gemeldet.
           </p>
         </div>
 
-        <!-- LADV-Stand Editor -->
-        <div>
-          <p class="text-xs font-medium text-muted uppercase tracking-widest mb-2">
-            LADV-Stand (Coach)
-          </p>
-
-          <div
-            v-if="editorDisciplines.length"
-            class="space-y-2 mb-2"
-          >
-            <div
-              v-for="(entry, i) in editorDisciplines"
-              :key="i"
-              class="flex items-center gap-2"
-            >
-              <UBadge
-                :label="`${ladvDisciplineLabel(entry.discipline)} · ${ladvAgeClassLabel(entry.ageClass)}`"
-                color="neutral"
-                variant="outline"
-                size="sm"
-                class="flex-1"
-              />
-              <UButton
-                icon="i-ph-x"
-                color="neutral"
-                variant="ghost"
-                size="xs"
-                @click="removeRow(i)"
-              />
-            </div>
-          </div>
-
-          <!-- Add-Row -->
-          <div
-            v-if="showAddRow"
-            class="flex items-center gap-2 mt-2"
-          >
-            <USelect
-              v-model="addCode"
-              :items="availableDisciplineItems"
-              placeholder="Disziplin"
-              size="sm"
-              class="flex-1"
-            />
-            <USelect
-              v-model="addAgeClass"
-              :items="addAgeClassItems"
-              placeholder="AK"
-              size="sm"
-              class="w-24"
-              :disabled="!addCode"
-            />
-            <UButton
-              icon="i-ph-check"
-              color="primary"
-              variant="ghost"
-              size="sm"
-              :disabled="!addCode || !addAgeClass"
-              @click="confirmAddRow"
-            />
-            <UButton
-              icon="i-ph-x"
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              @click="showAddRow = false"
-            />
-          </div>
-
+        <!-- LADV-Direktlinks (kompakt) -->
+        <div
+          v-if="ladvId"
+          class="flex gap-2"
+        >
           <UButton
-            v-if="!showAddRow && availableDisciplineItems.length > 0"
-            icon="i-ph-plus"
-            label="Disziplin hinzufügen"
+            :to="ladvRegisterUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            icon="i-ph-arrow-up-right-bold"
+            :label="isCanceled ? 'In LADV abmelden' : 'Zur LADV-Meldung'"
+            color="neutral"
+            variant="soft"
+            size="sm"
+            class="flex-1"
+          />
+          <UButton
+            :to="ladvListUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            icon="i-ph-list"
+            label="Zur Meldeliste"
             color="neutral"
             variant="ghost"
-            size="xs"
-            class="mt-1"
-            @click="showAddRow = true"
+            size="sm"
           />
         </div>
 
-        <!-- Diff-Vorschau -->
-        <div v-if="diff.length > 0">
-          <p class="text-xs font-medium text-muted uppercase tracking-widest mb-2">
-            Änderungen auf ladv.de
-          </p>
-          <div class="space-y-1.5">
-            <div
-              v-for="entry in diff"
-              :key="`${entry.discipline}:${entry.ageClass}`"
-              class="flex items-center gap-2"
-            >
-              <UIcon
-                :name="entry.type === 'add' ? 'i-ph-plus-circle' : entry.type === 'remove' ? 'i-ph-minus-circle' : 'i-ph-arrow-right'"
-                :class="entry.type === 'add' ? 'text-success' : entry.type === 'remove' ? 'text-error' : 'text-warning'"
-                class="size-4 shrink-0"
-              />
-              <LadvBadge
-                :discipline="entry.discipline"
-                :age-class="entry.ageClass"
-                size="sm"
-                :variant="entry.type === 'add' ? 'subtle' : 'outline'"
-              />
-              <span
-                v-if="entry.type === 'update'"
-                class="text-xs text-muted"
-              >
-                (war: {{ ladvAgeClassLabel(entry.previousAgeClass) }})
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div
-          v-else
-          class="flex items-center gap-2 text-xs text-muted"
-        >
-          <UIcon
-            name="i-ph-check-circle"
-            class="size-4 text-success"
-          />
-          Keine Änderungen gegenüber dem aktuellen LADV-Stand.
-        </div>
-
-        <!-- Status-Picker -->
+        <!-- Status (sekundär) -->
         <div>
-          <p class="text-xs font-medium text-muted uppercase tracking-widest mb-2">
-            Anmeldestatus
+          <p class="text-xs font-medium text-muted uppercase tracking-widest mb-1">
+            Anmeldestatus ändern
+          </p>
+          <p class="text-xs text-muted mb-2">
+            Aktuell:
+            <span class="font-medium text-highlighted">{{ selectedStatus === 'canceled' ? 'Storniert' : 'Angemeldet' }}</span>
+            <span
+              v-if="selectedStatus !== reg?.status"
+              class="text-warning ml-1"
+            >· ungespeichert</span>
           </p>
           <div class="flex gap-2">
             <UButton
@@ -343,56 +318,37 @@ async function save() {
               :key="opt.value"
               :label="opt.label"
               :color="selectedStatus === opt.value ? (opt.value === 'canceled' ? 'error' : 'primary') : 'neutral'"
-              :variant="selectedStatus === opt.value ? 'solid' : 'outline'"
+              :variant="selectedStatus === opt.value ? 'outline' : 'outline'"
               size="sm"
               @click="selectedStatus = opt.value"
             />
           </div>
         </div>
 
-        <!-- LADV-Direktlinks -->
-        <div
-          v-if="ladvId"
-          class="flex flex-col gap-2"
-        >
-          <UButton
-            :to="ladvRegisterUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            icon="i-ph-user-plus"
-            label="In LADV anmelden"
-            color="neutral"
-            variant="outline"
-            trailing-icon="i-ph-arrow-up-right-bold"
-            size="sm"
-            block
+        <!-- E-Mail-Info -->
+        <p class="flex items-center gap-1.5 text-xs text-muted">
+          <UIcon
+            name="i-ph-envelope"
+            class="size-3.5 shrink-0"
           />
-          <UButton
-            :to="ladvListUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            icon="i-ph-list"
-            label="LADV-Anmeldeliste"
-            color="neutral"
-            variant="ghost"
-            trailing-icon="i-ph-arrow-up-right-bold"
-            size="sm"
-            block
-          />
-        </div>
+          {{ reg.firstName ?? 'Der Athlet' }} wird über diese Änderung per E-Mail informiert.
+        </p>
 
         <!-- Footer -->
-        <div class="flex justify-end gap-2 pt-1 border-t border-default">
+        <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-1 border-t border-default">
           <UButton
-            label="Schließen"
+            label="Abbrechen"
             color="neutral"
             variant="ghost"
+            class="w-full sm:w-auto justify-center"
             @click="emit('update:open', false)"
           />
           <UButton
-            label="Speichern"
-            color="primary"
+            :label="ctaLabel"
+            :color="isCanceled ? 'error' : 'primary'"
+            :disabled="!isCanceled && editorDisciplines.length === 0"
             :loading="loading"
+            class="w-full sm:w-auto justify-center"
             @click="save"
           />
         </div>

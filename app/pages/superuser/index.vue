@@ -57,6 +57,25 @@ async function runSeed() {
   }
 }
 
+const goliveLoading = ref(false)
+const goliveResult = ref<SeedResult | null>(null)
+const goliveError = ref<string | null>(null)
+
+async function runGolive() {
+  goliveLoading.value = true
+  goliveResult.value = null
+  goliveError.value = null
+  try {
+    goliveResult.value = await $fetch<SeedResult>('/api/superuser/seed-golive', { method: 'POST' })
+  }
+  catch (err: unknown) {
+    goliveError.value = err instanceof Error ? err.message : 'Unbekannter Fehler'
+  }
+  finally {
+    goliveLoading.value = false
+  }
+}
+
 const toast = useToast()
 const pushTestLoading = ref(false)
 const pushTestError = ref<string | null>(null)
@@ -164,6 +183,51 @@ async function runPushTest() {
         icon="i-ph-warning-bold"
         title="Seed fehlgeschlagen"
         :description="seedError"
+      />
+    </div>
+
+    <!-- Go-Live-Seed -->
+    <div class="rounded-[--ui-radius] border border-warning/40 p-6 space-y-5 mt-6">
+      <div>
+        <h2 class="font-display font-semibold text-highlighted text-base">
+          Go-Live-Seed
+        </h2>
+        <p class="text-sm text-muted mt-1">
+          DB leeren, Campai-Sync ausführen, Superuser anlegen und Produktions-Events importieren. <span class="text-warning font-medium">Nur einmalig vor dem Go-Live ausführen.</span>
+        </p>
+      </div>
+
+      <UButton
+        label="Go-Live-Seed ausführen"
+        icon="i-ph-rocket-launch-bold"
+        color="warning"
+        variant="subtle"
+        :loading="goliveLoading"
+        @click="runGolive"
+      />
+
+      <!-- Ergebnis -->
+      <div
+        v-if="goliveResult"
+        class="rounded-[--ui-radius] bg-success/10 border border-success/20 p-4"
+      >
+        <div class="flex items-center gap-2 text-sm font-medium text-success">
+          <UIcon
+            name="i-ph-check-circle-bold"
+            class="size-4 shrink-0"
+          />
+          {{ goliveResult.result }}
+        </div>
+      </div>
+
+      <!-- Fehler -->
+      <UAlert
+        v-if="goliveError"
+        color="error"
+        variant="subtle"
+        icon="i-ph-warning-bold"
+        title="Go-Live-Seed fehlgeschlagen"
+        :description="goliveError"
       />
     </div>
 

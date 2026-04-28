@@ -1,0 +1,208 @@
+{
+  "id": 47642,
+  "name": "32. midsommar - EAP Meeting + U18 Team Challenge",
+  "sportstaette": "Mommsenstadion",
+  "meldAdresse": null,
+  "meldEmail": "lucas.jakubczyk@scc-leichtathletik.de",
+  "veranstalter": "SCC Berlin",
+  "ausrichter": "SCC Berlin",
+  "beschreibung": "World Athletics Ranking Competition – Kategorie F\r\nEAP Circuit-Meeting\r\nTop-Athleten: Anfragen bitte über berlin@eap-circuit.org oder leichtathletik@scc-berlin.de an!\r\n\r\nU18 Team Challenge - Anfragen bitte über lucas.jakubczyk@scc-leichtathletik.de\r\nMJU18 (2009/2010) - 110m Hü (15,50) | Weitsprung (6,40) | Speerwurf (50,00)\r\nWJU18 (2009/2010) - 100m (12,60) | 400m (61,00) | Dreisprung (10,90)\r\n6 Teilnehmer pro Disziplin",
+  "datum": 1781906400000,
+  "datumText": "20.06.2026",
+  "meldDatum": 1781388000000,
+  "meldDatumText": "14.06.2026",
+  "abgesagt": false,
+  "url": "https://ladv.de/ausschreibung/detail/47642/32.-midsommar--EAP-Meeting--U18-Team-Challenge-Berlin-Charlottenburg.htm",
+  "wrc": true,
+  "tags": "aktive,jugend,bahn,national",
+  "kategorien": [
+    "aktive",
+    "jugend",
+    "bahn",
+    "national"
+  ],
+  "ort": {
+    "id": 1376,
+    "name": "Berlin-Charlottenburg",
+    "lv": "BE",
+    "land": "DEU",
+    "lng": 13.3,
+    "lat": 52.5167
+  },
+  "veranstaltungen": [],
+  "lvs": "BE",
+  "landesverband": [
+    "BE"
+  ],
+  "links": [
+    {
+      "name": "Veranstaltungsseite",
+      "url": "https://www.scc-berlin-leichtathletik.de/events/scc-sportfeste/11-scc-berlin/295-midsommar-meeting"
+    }
+  ],
+  "attachements": [
+    {
+      "name": "Ausschreibung und Zeitplan (Stand 31.3.2026)",
+      "extension": ".pdf",
+      "url": "https://ladv.de/ausschreibung/datei/493098"
+    }
+  ],
+  "wettbewerbe": [
+    {
+      "disziplin": "400",
+      "klasse": "W",
+      "disziplinNew": "L400",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "SPE",
+      "klasse": "W",
+      "disziplinNew": "TSPE_0600",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "400H",
+      "klasse": "W",
+      "disziplinNew": "H400_0762",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "200",
+      "klasse": "W",
+      "disziplinNew": "L200",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "W",
+      "disziplinNew": "L100",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "800",
+      "klasse": "W",
+      "disziplinNew": "L800",
+      "klasseNew": "W"
+    },
+    {
+      "disziplin": "75",
+      "klasse": "M13",
+      "disziplinNew": "L75",
+      "klasseNew": "M13"
+    },
+    {
+      "disziplin": "400",
+      "klasse": "M",
+      "disziplinNew": "L400",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "200",
+      "klasse": "M",
+      "disziplinNew": "L200",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "WEI",
+      "klasse": "M",
+      "disziplinNew": "TWEI",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "400H",
+      "klasse": "M",
+      "disziplinNew": "H400_0914",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "M",
+      "disziplinNew": "L100",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "3K0",
+      "klasse": "M",
+      "disziplinNew": "L3K0",
+      "klasseNew": "M"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "W15",
+      "disziplinNew": "L100",
+      "klasseNew": "W15"
+    },
+    {
+      "disziplin": "75",
+      "klasse": "W12",
+      "disziplinNew": "L75",
+      "klasseNew": "W12"
+    },
+    {
+      "disziplin": "WEI",
+      "klasse": "MJB",
+      "disziplinNew": "TWEI",
+      "klasseNew": "MJU18"
+    },
+    {
+      "disziplin": "SPE",
+      "klasse": "MJB",
+      "disziplinNew": "TSPE_0700",
+      "klasseNew": "MJU18"
+    },
+    {
+      "disziplin": "110H",
+      "klasse": "MJB",
+      "disziplinNew": "H110_0914",
+      "klasseNew": "MJU18"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "M15",
+      "disziplinNew": "L100",
+      "klasseNew": "M15"
+    },
+    {
+      "disziplin": "400",
+      "klasse": "WJB",
+      "disziplinNew": "L400",
+      "klasseNew": "WJU18"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "WJB",
+      "disziplinNew": "L100",
+      "klasseNew": "WJU18"
+    },
+    {
+      "disziplin": "DRE",
+      "klasse": "WJB",
+      "disziplinNew": "TDRE",
+      "klasseNew": "WJU18"
+    },
+    {
+      "disziplin": "75",
+      "klasse": "W13",
+      "disziplinNew": "L75",
+      "klasseNew": "W13"
+    },
+    {
+      "disziplin": "75",
+      "klasse": "M12",
+      "disziplinNew": "L75",
+      "klasseNew": "M12"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "M14",
+      "disziplinNew": "L100",
+      "klasseNew": "M14"
+    },
+    {
+      "disziplin": "100",
+      "klasse": "W14",
+      "disziplinNew": "L100",
+      "klasseNew": "W14"
+    }
+  ]
+}

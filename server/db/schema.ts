@@ -93,36 +93,6 @@ export const registrations = sqliteTable('registrations', {
   unique().on(t.eventId, t.userId),
 ])
 
-// Kommentare & Ankündigungen zu Events
-export const eventComments = sqliteTable('event_comments', {
-  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-  eventId: integer({ mode: 'number' }).notNull().references(() => events.id, { onDelete: 'cascade' }),
-  userId: integer({ mode: 'number' }).notNull().references(() => users.id, { onDelete: 'cascade' }),
-  type: text().notNull().$type<'comment' | 'announcement'>(),
-  body: text().notNull(),
-
-  createdAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
-  updatedAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
-})
-
-// Emoji-Reaktionen auf Kommentare (Schema only, kein UI in v2)
-export const reactions = sqliteTable('reactions', {
-  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-  commentId: integer({ mode: 'number' }).notNull().references(() => eventComments.id, { onDelete: 'cascade' }),
-  userId: integer({ mode: 'number' }).notNull().references(() => users.id, { onDelete: 'cascade' }),
-  emoji: text().notNull(),
-
-  createdAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
-}, t => [
-  unique().on(t.commentId, t.userId, t.emoji),
-])
-
 // Notification-Jobs (Queue + Log)
 export const notificationJobs = sqliteTable('notification_jobs', {
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),

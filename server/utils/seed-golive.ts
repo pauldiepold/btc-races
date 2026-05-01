@@ -47,8 +47,6 @@ export async function runGolive(): Promise<{ result: string }> {
 
   // ─── Schritt 1: DB leeren ─────────────────────────────────────────────────
   console.log('🗑️  Clearing database...')
-  await db.delete(schema.reactions)
-  await db.delete(schema.eventComments)
   await db.delete(schema.registrations)
   await db.delete(schema.notificationDeliveries)
   await db.delete(schema.notificationJobs)

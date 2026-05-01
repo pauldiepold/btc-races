@@ -56,34 +56,6 @@ Typen für client/server-sharing in `shared/types/` ablegen (auto-importiert):
 export type User = typeof schema.users.$inferSelect
 ```
 
-### Authentication
-
-Magic-Link-Flow:
-1. `POST /api/auth/login` — prüft ob E-Mail in `users`-Tabelle existiert, erstellt Token in `authTokens` (15 min TTL), sendet E-Mail
-2. `GET /verify?token=...` — validiert Token, setzt Session via `setUserSession()`
-3. `POST /api/auth/logout` — löscht Session
-
-Session-Objekt: `{ id, email, firstName, lastName, role, sections, avatarUrl, loggedInAt }`
-
-Schutz:
-- Client: `app/middleware/auth.global.ts` — alle Routen außer `/login` und `/link-gesendet`
-- Server: `server/middleware/auth.ts` — schützt `/events/`-Routen
-
-### Email-Service
-
-Singleton in `server/email/service.ts`, Provider werden über `nuxt.config.ts` (`emailProvider`) konfiguriert. Eigene E-Mail-Templates sind Vue-Komponenten in `app/emails/` und werden via `nuxt-email-renderer` gerendert.
-Hinweis: Nach neuen/umbenannten Templates in `app/emails/` ggf. Dev-Server neu starten, damit die Template-Registry sicher aktualisiert wird.
-
-### Member-Synchronisation
-
-Nitro-Task `server/tasks/sync-members.ts`: Synct aktive Mitglieder von der Campai-API in die lokale `users`-Tabelle. Wird per `POST /api/cron/sync-members` (Bearer-Token) ausgelöst.
-
-### Externe APIs
-
-- **Campai**: Mitgliederverwaltung — `server/external-apis/campai-contacts/`
-- **LADV**: Wettkampf-Daten (Schema vorhanden, noch nicht vollständig implementiert)
-- Typen manuell in `server/utils/ladv.ts` (LADV) und `server/external-apis/campai-contacts/contacts.service.ts` (Campai) definiert
-
 ## Testing
 
 Setup: `vitest` — nur Unit Tests für pure Business-Logik.
@@ -105,54 +77,11 @@ Tests liegen in `test/unit/`. Nach einer Feature-Session: `/test` aufrufen.
 - Drizzle-Queries / Datenbankzugriffe
 - Vue-Komponenten
 
-### Hinweis beim Implementieren
-Am Ende jeder Feature-Session prüfen: Enthält der neue Code pure, testbare Logik? Falls ja, kurz darauf hinweisen und `/test` anbieten.
+## Commit & GitHub
 
-## Umgebungsvariablen
+Am Ende jeder Session `/commit` aufrufen — der Skill übernimmt Issue-Anlage, FEATURES.md-Update und Commit.
 
-Siehe `.env.example`
 
-## GitHub Issues Workflow
+## Neue E-Mail Templates
 
-Jede Änderung mit eigenem Commit braucht ein Issue.
-
-**Normalfall**: Issue existiert vorab → Commit mit `Closes #123` im Commit-Body.
-
-**Kein Issue vorhanden**: Am Ende der Session vor dem Commit erstelle ich per `gh issue create` ein kurzes Doku-Issue und schließe es im Commit. Label: `session-log`.
-
-**Epics**: Offenes Sammel-Issue mit Checklist (`- [ ] #123`) auf zugehörige Issues. Bleibt offen bis alle Sub-Issues geschlossen sind.
-
-### Labels
-
-| Label | Verwendung |
-|---|---|
-| `feature` | Neue Funktionalität |
-| `enhancement` | Verbesserung eines bestehenden Features |
-| `bug` | Etwas funktioniert nicht wie erwartet |
-| `chore` | Tech-Debt, Dependencies, Konfiguration |
-| `epic` | Sammelt zusammengehörige Issues via Checklist — bleibt offen |
-| `blocked` | Wartet auf externe Info oder Abhängigkeit |
-| `session-log` | Nachträgliche Doku für kleinere Änderungen ohne Vorab-Issue |
-| `documentation` | Reine Doku-Änderungen (README, CLAUDE.md, etc.) |
-| `question` | Offene Frage oder Klärungsbedarf |
-| `wontfix` | Wird bewusst nicht umgesetzt |
-| `duplicate` | Doppeltes Issue |
-
-## Git-Commit-Konvention
-
-`<type>(<scope>): <beschreibung>`
-
-- **Types**: `feat` | `fix` | `refactor` | `docs` | `chore` | `test`
-- **Scope**: Modul-Name (`auth`, `db`, `events`, `ui`, `api`, etc.)
-- **Issue-Referenz**: `Closes #123` im Commit-Body (nicht im Titel)
-- Max. 1 Commit pro Session — Docs-Änderungen (FEATURES.md, CLAUDE.md) im selben Commit
-- Kein `Co-Authored-By`
-
-## Historische Planungsdokumente
-
-Unter `planning/` liegen ältere Implementierungspläne aus der initialen Entwicklungsphase. Diese sind eingefroren und werden nicht mehr aktiv gepflegt — GitHub Issues haben diese Funktion übernommen.
-
-<!-- skilld -->
-Before modifying code, evaluate each installed skill against the current task.
-For each skill, determine YES/NO relevance and invoke all YES skills before proceeding.
-<!-- /skilld -->
+- Email-Templates: "Dev-Server nach neuen Templates neu starten" ist ein nicht-offensichtlicher Gotcha

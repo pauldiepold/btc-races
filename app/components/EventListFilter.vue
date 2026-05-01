@@ -21,23 +21,8 @@ const props = defineProps<{
   publicMode?: boolean
 }>()
 
-const typeFilterItems = computed(() => {
-  if (props.publicMode) {
-    return [
-      { label: 'Alle Events', value: undefined },
-      { label: 'Wettkampf', value: 'competition' },
-    ]
-  }
-  return [
-    { label: 'Alle Events', value: undefined },
-    { label: 'Wettkampf', value: 'competition' },
-    { label: 'Training', value: 'training' },
-    { label: 'Social', value: 'social' },
-  ]
-})
-
 const isCreateModalOpen = ref(false)
-const isFilterPopoverOpen = ref(false)
+const isMoreFiltersOpen = ref(false)
 
 const createOptions: { type: CreateEventType, label: string, description: string, icon: string }[] = [
   { type: 'ladv', label: 'LADV-Import', description: 'Wettkampf aus der LADV-Datenbank importieren', icon: 'i-ph-download-simple' },
@@ -46,26 +31,7 @@ const createOptions: { type: CreateEventType, label: string, description: string
   { type: 'social', label: 'Social', description: 'Gemeinschaftsevent anlegen', icon: 'i-ph-confetti' },
 ]
 
-const timeRangeItems = [
-  { label: 'Alle', value: 'all' },
-  { label: 'Vergangene', value: 'past' },
-  { label: 'Kommende', value: 'upcoming' },
-]
-
-const raceTypeItems = [
-  { label: 'Bahn und Straße', value: undefined },
-  { label: 'Bahn', value: 'track' },
-  { label: 'Straße', value: 'road' },
-]
-
-const championshipItems = [
-  { label: 'Alle Wertungen', value: undefined },
-  { label: 'BBM', value: 'bbm' },
-  { label: 'NDM', value: 'ndm' },
-  { label: 'DM', value: 'dm' },
-]
-
-const activeSecondaryFilterCount = computed(() => {
+const activeFilterCount = computed(() => {
   let count = 0
   if (typeFilter.value) count++
   if (raceTypeFilter.value) count++
@@ -77,6 +43,11 @@ const activeSecondaryFilterCount = computed(() => {
   return count
 })
 
+const moreFiltersActive = computed(() =>
+  !!(raceTypeFilter.value || championshipFilter.value || priorityFilter.value
+    || wrcFilter.value || disciplineFilter.value || ageClassFilter.value),
+)
+
 const disciplineItems = computed(() => [
   { label: 'Alle Disziplinen', value: undefined },
   ...props.availableDisciplines.map(d => ({ label: ladvDisciplineLabel(d), value: d })),
@@ -87,7 +58,7 @@ const ageClassItems = computed(() => [
   ...props.availableAgeClasses.map(ak => ({ label: ladvAgeClassLabel(ak), value: ak })),
 ])
 
-function resetSecondaryFilters() {
+function resetFilters() {
   typeFilter.value = undefined
   raceTypeFilter.value = undefined
   championshipFilter.value = undefined
@@ -95,7 +66,6 @@ function resetSecondaryFilters() {
   wrcFilter.value = false
   disciplineFilter.value = undefined
   ageClassFilter.value = undefined
-  isFilterPopoverOpen.value = false
 }
 
 async function handleCreate(type: CreateEventType) {
@@ -110,12 +80,16 @@ async function handleCreate(type: CreateEventType) {
 </script>
 
 <template>
-  <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center">
-    <div
-      v-if="!publicMode"
-      class="flex justify-end sm:order-last sm:ml-auto"
-    >
+  <div class="mb-4 flex flex-col gap-2">
+    <div class="flex items-center gap-2">
+      <UInput
+        v-model="searchQuery"
+        placeholder="Suchen..."
+        icon="i-ph-magnifying-glass"
+        class="flex-1 min-w-0"
+      />
       <UModal
+        v-if="!publicMode"
         v-model:open="isCreateModalOpen"
         title="Event erstellen"
         description="Wähle, welche Art von Event du anlegen möchtest."
@@ -151,155 +125,188 @@ async function handleCreate(type: CreateEventType) {
         </template>
       </UModal>
     </div>
-    <UInput
-      v-model="searchQuery"
-      placeholder="Suchen..."
-      icon="i-ph-magnifying-glass"
-      class="flex-1 min-w-0 sm:order-first"
-    />
-    <div class="flex items-center gap-2">
-      <USelect
-        v-model="timeRange"
-        :items="timeRangeItems"
-        value-key="value"
-        label-key="label"
-        class="flex-1 sm:w-36 sm:flex-none"
-      />
-      <UPopover v-model:open="isFilterPopoverOpen">
+
+    <div class="flex flex-wrap items-center gap-y-2 gap-x-4">
+      <!-- Typ: auf Mobile zuerst und immer sichtbar -->
+      <div
+        v-if="!publicMode"
+        class="flex gap-1"
+      >
         <UButton
-          :color="activeSecondaryFilterCount ? 'primary' : 'neutral'"
+          size="sm"
+          :icon="eventTypeIcons['ladv']"
           variant="outline"
-          icon="i-ph-funnel"
-          :label="activeSecondaryFilterCount ? `Filtern (${activeSecondaryFilterCount})` : 'Filtern'"
+          :color="typeFilter === 'competition' ? 'primary' : 'neutral'"
+          label="Wettkampf"
+          @click="typeFilter = typeFilter === 'competition' ? undefined : 'competition'"
         />
-        <template #content>
-          <div class="p-3 w-64 space-y-3">
-            <div class="space-y-1.5">
-              <p class="text-xs font-medium text-muted uppercase tracking-widest">
-                Typ
-              </p>
-              <USelect
-                v-model="typeFilter"
-                :items="typeFilterItems"
-                placeholder="Alle Events"
-                value-key="value"
-                label-key="label"
-                class="w-full"
-              />
-            </div>
-            <div
-              v-if="hasRaceTypeEvents"
-              class="space-y-1.5"
-            >
-              <p class="text-xs font-medium text-muted uppercase tracking-widest">
-                Streckentyp
-              </p>
-              <USelect
-                v-model="raceTypeFilter"
-                :items="raceTypeItems"
-                placeholder="Bahn und Straße"
-                value-key="value"
-                label-key="label"
-                class="w-full"
-              />
-            </div>
-            <div
-              v-if="hasChampionshipEvents"
-              class="space-y-1.5"
-            >
-              <p class="text-xs font-medium text-muted uppercase tracking-widest">
-                Meisterschaft
-              </p>
-              <USelect
-                v-model="championshipFilter"
-                :items="championshipItems"
-                placeholder="Alle Wertungen"
-                value-key="value"
-                label-key="label"
-                class="w-full"
-              />
-            </div>
-            <div
-              v-if="hasPriorityEvents"
-              class="space-y-1.5"
-            >
-              <p class="text-xs font-medium text-muted uppercase tracking-widest">
-                Priorität
-              </p>
-              <USelect
-                v-model="priorityFilter"
-                :items="[
-                  { label: 'Alle', value: undefined },
-                  { label: 'A-Rennen', value: 'A' },
-                  { label: 'B-Rennen', value: 'B' },
-                  { label: 'C-Rennen', value: 'C' },
-                ]"
-                placeholder="Alle"
-                value-key="value"
-                label-key="label"
-                class="w-full"
-              />
-            </div>
-            <div
-              v-if="hasWrcEvents"
-              class="flex items-center justify-between"
-            >
-              <p class="text-xs font-medium text-muted uppercase tracking-widest">
-                WRC
-              </p>
-              <UCheckbox
-                v-model="wrcFilter"
-                label="Nur WRC"
-              />
-            </div>
-            <div
-              v-if="availableDisciplines.length > 0"
-              class="space-y-1.5"
-            >
-              <p class="text-xs font-medium text-muted uppercase tracking-widest">
-                Disziplin
-              </p>
-              <USelect
-                v-model="disciplineFilter"
-                :items="disciplineItems"
-                placeholder="Alle Disziplinen"
-                value-key="value"
-                label-key="label"
-                class="w-full"
-              />
-            </div>
-            <div
-              v-if="availableAgeClasses.length > 0"
-              class="space-y-1.5"
-            >
-              <p class="text-xs font-medium text-muted uppercase tracking-widest">
-                Altersklasse
-              </p>
-              <USelect
-                v-model="ageClassFilter"
-                :items="ageClassItems"
-                placeholder="Alle Altersklassen"
-                value-key="value"
-                label-key="label"
-                class="w-full"
-              />
-            </div>
-            <div
-              v-if="activeSecondaryFilterCount"
-              class="pt-2 border-t border-default"
-            >
-              <UButton
-                size="xs"
-                color="neutral"
-                variant="ghost"
-                icon="i-ph-x"
-                label="Zurücksetzen"
-                @click="resetSecondaryFilters"
-              />
-            </div>
+        <UButton
+          size="sm"
+          :icon="eventTypeIcons['training']"
+          variant="outline"
+          :color="typeFilter === 'training' ? 'primary' : 'neutral'"
+          label="Training"
+          @click="typeFilter = typeFilter === 'training' ? undefined : 'training'"
+        />
+        <UButton
+          size="sm"
+          :icon="eventTypeIcons['social']"
+          variant="outline"
+          :color="typeFilter === 'social' ? 'primary' : 'neutral'"
+          label="Social"
+          @click="typeFilter = typeFilter === 'social' ? undefined : 'social'"
+        />
+      </div>
+
+      <!-- Mobile: weiterer Filter-Toggle, rechtsbündig -->
+      <UButton
+        class="ml-auto sm:hidden"
+        size="sm"
+        variant="outline"
+        :color="isMoreFiltersOpen || moreFiltersActive ? 'primary' : 'neutral'"
+        icon="i-ph-magnifying-glass-plus"
+        @click="isMoreFiltersOpen = !isMoreFiltersOpen"
+      />
+
+      <!-- Restliche Filter: auf Mobile versteckt bis Toggle, auf Desktop immer via contents -->
+      <div
+        :class="[
+          'sm:contents',
+          isMoreFiltersOpen ? 'flex flex-wrap items-center gap-y-2 gap-x-4 w-full' : 'hidden',
+        ]"
+      >
+        <div class="flex gap-1">
+          <UButton
+            size="sm"
+            variant="outline"
+            :color="timeRange === 'past' ? 'primary' : 'neutral'"
+            label="Vergangene"
+            @click="timeRange = timeRange === 'past' ? 'upcoming' : 'past'"
+          />
+          <UButton
+            size="sm"
+            variant="outline"
+            :color="timeRange === 'upcoming' ? 'primary' : 'neutral'"
+            label="Kommende"
+            @click="timeRange = timeRange === 'upcoming' ? 'all' : 'upcoming'"
+          />
+        </div>
+
+        <template v-if="hasRaceTypeEvents">
+          <div class="flex gap-1">
+            <UButton
+              size="sm"
+              variant="outline"
+              :color="raceTypeFilter === 'track' ? 'primary' : 'neutral'"
+              label="Bahn"
+              @click="raceTypeFilter = raceTypeFilter === 'track' ? undefined : 'track'"
+            />
+            <UButton
+              size="sm"
+              variant="outline"
+              :color="raceTypeFilter === 'road' ? 'primary' : 'neutral'"
+              label="Straße"
+              @click="raceTypeFilter = raceTypeFilter === 'road' ? undefined : 'road'"
+            />
           </div>
         </template>
-      </UPopover>
+
+        <template v-if="hasChampionshipEvents">
+          <div class="flex gap-1">
+            <UButton
+              size="sm"
+              variant="outline"
+              :color="championshipFilter === 'bbm' ? 'primary' : 'neutral'"
+              label="BBM"
+              @click="championshipFilter = championshipFilter === 'bbm' ? undefined : 'bbm'"
+            />
+            <UButton
+              size="sm"
+              variant="outline"
+              :color="championshipFilter === 'ndm' ? 'primary' : 'neutral'"
+              label="NDM"
+              @click="championshipFilter = championshipFilter === 'ndm' ? undefined : 'ndm'"
+            />
+            <UButton
+              size="sm"
+              variant="outline"
+              :color="championshipFilter === 'dm' ? 'primary' : 'neutral'"
+              label="DM"
+              @click="championshipFilter = championshipFilter === 'dm' ? undefined : 'dm'"
+            />
+          </div>
+        </template>
+
+        <template v-if="hasPriorityEvents">
+          <div class="flex gap-1">
+            <UButton
+              size="sm"
+              variant="outline"
+              :color="priorityFilter === 'A' ? 'primary' : 'neutral'"
+              label="A"
+              @click="priorityFilter = priorityFilter === 'A' ? undefined : 'A'"
+            />
+            <UButton
+              size="sm"
+              variant="outline"
+              :color="priorityFilter === 'B' ? 'primary' : 'neutral'"
+              label="B"
+              @click="priorityFilter = priorityFilter === 'B' ? undefined : 'B'"
+            />
+            <UButton
+              size="sm"
+              variant="outline"
+              :color="priorityFilter === 'C' ? 'primary' : 'neutral'"
+              label="C"
+              @click="priorityFilter = priorityFilter === 'C' ? undefined : 'C'"
+            />
+          </div>
+        </template>
+
+        <template v-if="hasWrcEvents">
+          <UButton
+            size="sm"
+            variant="outline"
+            :color="wrcFilter ? 'primary' : 'neutral'"
+            label="WRC"
+            @click="wrcFilter = !wrcFilter"
+          />
+        </template>
+
+        <template v-if="availableDisciplines.length > 0">
+          <USelect
+            v-model="disciplineFilter"
+            :items="disciplineItems"
+            placeholder="Disziplin"
+            value-key="value"
+            label-key="label"
+            size="sm"
+            class="w-40"
+          />
+        </template>
+
+        <template v-if="availableAgeClasses.length > 0">
+          <USelect
+            v-model="ageClassFilter"
+            :items="ageClassItems"
+            placeholder="Altersklasse"
+            value-key="value"
+            label-key="label"
+            size="sm"
+            class="w-36"
+          />
+        </template>
+
+        <UButton
+          v-if="activeFilterCount"
+          size="xs"
+          color="neutral"
+          variant="ghost"
+          icon="i-ph-x"
+          label="Zurücksetzen"
+          @click="resetFilters"
+        />
+      </div>
     </div>
   </div>
 </template>

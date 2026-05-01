@@ -221,7 +221,7 @@ async function syncLadv() {
               <UButton
                 :to="`/events/${id}/bearbeiten`"
                 icon="i-ph-pencil-simple"
-                label="Bearbeiten"
+                label="Event bearbeiten"
                 color="neutral"
                 variant="outline"
                 size="sm"

@@ -2,6 +2,16 @@ import { db, schema } from 'hub:db'
 import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt, or, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import type { EventListItem, EventListPublicItem } from '~~/shared/types/events'
+import type { LadvAusschreibung } from '~~/shared/types/ladv'
+
+function extractLadvFields(rawLadvData: unknown) {
+  const ladvData = rawLadvData as LadvAusschreibung | null
+  const wettbewerbe = ladvData?.wettbewerbe ?? []
+  return {
+    disciplines: [...new Set(wettbewerbe.map(w => w.disziplinNew).filter(Boolean))],
+    ageClasses: [...new Set(wettbewerbe.map(w => w.klasseNew).filter(Boolean))],
+  }
+}
 
 const berlinDateFormatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' })
 
@@ -63,6 +73,7 @@ export default defineEventHandler(async (event): Promise<EventListItem[] | Event
         isWrc: schema.events.isWrc,
         priority: schema.events.priority,
         ladvId: schema.events.ladvId,
+        ladvData: schema.events.ladvData,
         ladvLastSync: schema.events.ladvLastSync,
         createdAt: schema.events.createdAt,
         updatedAt: schema.events.updatedAt,
@@ -77,7 +88,7 @@ export default defineEventHandler(async (event): Promise<EventListItem[] | Event
         timeRange === 'past' ? desc(schema.events.date) : asc(schema.events.date),
       )
 
-    return events.map(e => ({ ...e, id: encodeEventId(e.id) }))
+    return events.map(({ ladvData, ...e }) => ({ ...e, id: encodeEventId(e.id), ...extractLadvFields(ladvData) }))
   }
 
   const userId = session.user!.id
@@ -100,6 +111,7 @@ export default defineEventHandler(async (event): Promise<EventListItem[] | Event
       isWrc: schema.events.isWrc,
       priority: schema.events.priority,
       ladvId: schema.events.ladvId,
+      ladvData: schema.events.ladvData,
       ladvLastSync: schema.events.ladvLastSync,
       createdBy: schema.events.createdBy,
       createdAt: schema.events.createdAt,
@@ -117,5 +129,5 @@ export default defineEventHandler(async (event): Promise<EventListItem[] | Event
       timeRange === 'past' ? desc(schema.events.date) : asc(schema.events.date),
     )
 
-  return events.map(e => ({ ...e, id: encodeEventId(e.id) }))
+  return events.map(({ ladvData, ...e }) => ({ ...e, id: encodeEventId(e.id), ...extractLadvFields(ladvData) }))
 })

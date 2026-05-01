@@ -22,6 +22,9 @@ const searchQuery = ref('')
 const raceTypeFilter = ref<'track' | 'road' | undefined>(undefined)
 const championshipFilter = ref<'bbm' | 'ndm' | 'dm' | undefined>(undefined)
 const priorityFilter = ref<'A' | 'B' | 'C' | undefined>(undefined)
+const wrcFilter = ref(false)
+const disciplineFilter = ref<string | undefined>(undefined)
+const ageClassFilter = ref<string | undefined>(undefined)
 
 const { data: events, status } = await useFetch<EventListItem[] | EventListPublicItem[]>('/api/events', {
   query: computed(() => ({
@@ -33,12 +36,32 @@ const { data: events, status } = await useFetch<EventListItem[] | EventListPubli
 const hasRaceTypeEvents = computed(() => (events.value ?? []).some(e => e.raceType))
 const hasChampionshipEvents = computed(() => (events.value ?? []).some(e => e.championshipType && e.championshipType !== 'none'))
 const hasPriorityEvents = computed(() => (events.value ?? []).some(e => e.priority))
+const hasWrcEvents = computed(() => (events.value ?? []).some(e => e.isWrc))
+
+const availableDisciplines = computed(() => {
+  const all = new Set<string>()
+  for (const e of (events.value ?? [])) {
+    for (const d of e.disciplines) all.add(d)
+  }
+  return [...all].sort((a, b) => disciplineSortIndex(a) - disciplineSortIndex(b))
+})
+
+const availableAgeClasses = computed(() => {
+  const all = new Set<string>()
+  for (const e of (events.value ?? [])) {
+    for (const ak of e.ageClasses) all.add(ak)
+  }
+  return [...all].sort((a, b) => ageClassSortIndex(a) - ageClassSortIndex(b))
+})
 
 const filteredEvents = computed(() => {
   return (events.value ?? []).filter((e) => {
     if (raceTypeFilter.value && e.raceType !== raceTypeFilter.value) return false
     if (championshipFilter.value && e.championshipType !== championshipFilter.value) return false
     if (priorityFilter.value && e.priority !== priorityFilter.value) return false
+    if (wrcFilter.value && !e.isWrc) return false
+    if (disciplineFilter.value && !e.disciplines.includes(disciplineFilter.value)) return false
+    if (ageClassFilter.value && !e.ageClasses.includes(ageClassFilter.value)) return false
     if (searchQuery.value) {
       const q = searchQuery.value.toLowerCase()
       return (
@@ -99,9 +122,15 @@ const steps = [
           v-model:race-type-filter="raceTypeFilter"
           v-model:championship-filter="championshipFilter"
           v-model:priority-filter="priorityFilter"
+          v-model:wrc-filter="wrcFilter"
+          v-model:discipline-filter="disciplineFilter"
+          v-model:age-class-filter="ageClassFilter"
           :has-race-type-events="hasRaceTypeEvents"
           :has-championship-events="hasChampionshipEvents"
           :has-priority-events="hasPriorityEvents"
+          :has-wrc-events="hasWrcEvents"
+          :available-disciplines="availableDisciplines"
+          :available-age-classes="availableAgeClasses"
           :public-mode="!loggedIn"
         />
 

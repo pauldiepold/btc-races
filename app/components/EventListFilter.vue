@@ -7,11 +7,17 @@ const typeFilter = defineModel<string | undefined>('typeFilter')
 const raceTypeFilter = defineModel<'track' | 'road' | undefined>('raceTypeFilter')
 const championshipFilter = defineModel<'bbm' | 'ndm' | 'dm' | undefined>('championshipFilter')
 const priorityFilter = defineModel<'A' | 'B' | 'C' | undefined>('priorityFilter')
+const wrcFilter = defineModel<boolean>('wrcFilter', { default: false })
+const disciplineFilter = defineModel<string | undefined>('disciplineFilter')
+const ageClassFilter = defineModel<string | undefined>('ageClassFilter')
 
 const props = defineProps<{
   hasRaceTypeEvents: boolean
   hasChampionshipEvents: boolean
   hasPriorityEvents: boolean
+  hasWrcEvents: boolean
+  availableDisciplines: string[]
+  availableAgeClasses: string[]
   publicMode?: boolean
 }>()
 
@@ -67,14 +73,30 @@ const activeSecondaryFilterCount = computed(() => {
   if (raceTypeFilter.value) count++
   if (championshipFilter.value) count++
   if (priorityFilter.value) count++
+  if (wrcFilter.value) count++
+  if (disciplineFilter.value) count++
+  if (ageClassFilter.value) count++
   return count
 })
+
+const disciplineItems = computed(() => [
+  { label: 'Alle Disziplinen', value: undefined },
+  ...props.availableDisciplines.map(d => ({ label: ladvDisciplineLabel(d), value: d })),
+])
+
+const ageClassItems = computed(() => [
+  { label: 'Alle Altersklassen', value: undefined },
+  ...props.availableAgeClasses.map(ak => ({ label: ladvAgeClassLabel(ak), value: ak })),
+])
 
 function resetSecondaryFilters() {
   typeFilter.value = undefined
   raceTypeFilter.value = undefined
   championshipFilter.value = undefined
   priorityFilter.value = undefined
+  wrcFilter.value = false
+  disciplineFilter.value = undefined
+  ageClassFilter.value = undefined
   isFilterPopoverOpen.value = false
 }
 
@@ -215,6 +237,50 @@ async function handleCreate(type: CreateEventType) {
                   { label: 'C-Rennen', value: 'C' },
                 ]"
                 placeholder="Alle"
+                value-key="value"
+                label-key="label"
+                class="w-full"
+              />
+            </div>
+            <div
+              v-if="hasWrcEvents"
+              class="flex items-center justify-between"
+            >
+              <p class="text-xs font-medium text-muted uppercase tracking-widest">
+                WRC
+              </p>
+              <UCheckbox
+                v-model="wrcFilter"
+                label="Nur WRC"
+              />
+            </div>
+            <div
+              v-if="availableDisciplines.length > 0"
+              class="space-y-1.5"
+            >
+              <p class="text-xs font-medium text-muted uppercase tracking-widest">
+                Disziplin
+              </p>
+              <USelect
+                v-model="disciplineFilter"
+                :items="disciplineItems"
+                placeholder="Alle Disziplinen"
+                value-key="value"
+                label-key="label"
+                class="w-full"
+              />
+            </div>
+            <div
+              v-if="availableAgeClasses.length > 0"
+              class="space-y-1.5"
+            >
+              <p class="text-xs font-medium text-muted uppercase tracking-widest">
+                Altersklasse
+              </p>
+              <USelect
+                v-model="ageClassFilter"
+                :items="ageClassItems"
+                placeholder="Alle Altersklassen"
                 value-key="value"
                 label-key="label"
                 class="w-full"

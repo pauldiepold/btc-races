@@ -43,7 +43,7 @@ const availableDisciplines = computed(() => {
   for (const e of (events.value ?? [])) {
     for (const d of e.disciplines) all.add(d)
   }
-  return [...all].sort((a, b) => disciplineSortIndex(a) - disciplineSortIndex(b))
+  return [...all].filter(isRunningDiscipline).sort((a, b) => disciplineSortIndex(a) - disciplineSortIndex(b))
 })
 
 const availableAgeClasses = computed(() => {
@@ -51,7 +51,7 @@ const availableAgeClasses = computed(() => {
   for (const e of (events.value ?? [])) {
     for (const ak of e.ageClasses) all.add(ak)
   }
-  return [...all].sort((a, b) => ageClassSortIndex(a) - ageClassSortIndex(b))
+  return [...all].filter(ak => !ladvAgeClassLabel(ak).includes('Kinder')).sort((a, b) => ageClassSortIndex(a) - ageClassSortIndex(b))
 })
 
 const filteredEvents = computed(() => {

@@ -25,13 +25,11 @@ const typeFilterItems = computed(() => {
   if (props.publicMode) {
     return [
       { label: 'Alle Events', value: undefined },
-      { label: 'LADV', value: 'ladv' },
       { label: 'Wettkampf', value: 'competition' },
     ]
   }
   return [
     { label: 'Alle Events', value: undefined },
-    { label: 'LADV', value: 'ladv' },
     { label: 'Wettkampf', value: 'competition' },
     { label: 'Training', value: 'training' },
     { label: 'Social', value: 'social' },

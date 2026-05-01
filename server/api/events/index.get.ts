@@ -38,7 +38,10 @@ export default defineEventHandler(async (event): Promise<EventListItem[] | Event
   const conditions = []
 
   if (isAuthenticated) {
-    if (type) {
+    if (type === 'competition') {
+      conditions.push(inArray(schema.events.type, ['ladv', 'competition']))
+    }
+    else if (type) {
       conditions.push(eq(schema.events.type, type))
     }
   }

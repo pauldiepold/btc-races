@@ -18,7 +18,7 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 
 ## Events
 
-- Event-Liste (`GET /api/events`) mit Filterung nach Typ (`ladv`, `competition`, `training`, `social`) und Status
+- Event-Liste (`GET /api/events`) mit Filterung nach Typ (`ladv`, `competition`, `training`, `social`) und Status; im Filter werden `ladv` und `competition` als "Wettkampf" zusammengefasst — #126
 - Event-Listen-Filter: WRC-Toggle, Disziplin- und Altersklassen-Select (aus LADV-Daten extrahiert, clientseitig gefiltert) — #124
 - Sortierung: aktive Events aufsteigend nach Datum, vergangene Events absteigend
 - Event-Detail-Seite mit LADV-Daten, Anhängen (direkt als Datei öffnen), Anmeldeformular und Admin-Sektion

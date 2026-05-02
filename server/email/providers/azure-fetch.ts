@@ -142,7 +142,7 @@ export class AzureFetchEmailProvider extends BaseEmailProvider {
   protected async sendEmailInternal(emailMessage: EmailMessage): Promise<void> {
     const sender = emailMessage.from || {
       address: this.senderAddress,
-      displayName: 'BTC Races',
+      displayName: 'Berlin Track Club',
     }
 
     // Azure Email API Payload

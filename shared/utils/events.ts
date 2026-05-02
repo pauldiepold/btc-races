@@ -21,7 +21,9 @@ export function isEventPublicDetail(e: EventResponse): e is EventPublicDetail {
   return 'registrationCounts' in e
 }
 
-export function generateEventOgDescription(event: EventResponse): string {
+export function generateEventOgDescription(event: EventResponse | undefined): string {
+  if (!event) return 'Wettkampf – Berlin Track Club'
+
   const parts: string[] = []
 
   const dateStr = formatEventDate(event.date)
@@ -37,5 +39,5 @@ export function generateEventOgDescription(event: EventResponse): string {
   const name = event.name?.trim()
   if (name) return name
 
-  return 'Wettkampf – Berlin Track Club'
+  return 'Event – Berlin Track Club'
 }

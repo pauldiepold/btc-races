@@ -51,7 +51,7 @@ const styles = {
     </EmailText>
 
     <EmailText>
-      Du hast einen Anmeldelink für BTC-Races angefordert.
+      Du hast einen Anmeldelink für Berlin Track Club angefordert.
     </EmailText>
 
     <EmailButton

@@ -81,7 +81,7 @@ function close() {
             Auf dem iPhone nur als installierte App möglich
           </p>
           <p class="text-sm text-muted">
-            Apple erlaubt Web-Push auf iOS nur, wenn du BTC Races zuerst zum Home-Bildschirm hinzufügst.
+            Apple erlaubt Web-Push auf iOS nur, wenn du Berlin Track Club zuerst zum Home-Bildschirm hinzufügst.
           </p>
         </div>
 

@@ -9,7 +9,7 @@ export class LocalEmailProvider extends BaseEmailProvider {
   protected async sendEmailInternal(emailMessage: EmailMessage): Promise<void> {
     const sender = emailMessage.from || {
       address: 'local@btc-races.com',
-      displayName: 'BTC Races (Local)',
+      displayName: 'Berlin Track Club (Local)',
     }
 
     console.log('=== Lokale E-Mail (nicht wirklich gesendet) ===')

@@ -23,7 +23,7 @@ definePageMeta({
           class="text-muted anim-item"
           style="--delay: 140ms"
         >
-          Du kannst dieses Fenster schließen und zurück zur BTC-Races-App wechseln. Die App loggt dich automatisch ein.
+          Du kannst dieses Fenster schließen und zurück zur Berlin-Track-Club-App wechseln. Die App loggt dich automatisch ein.
         </p>
         <UButton
           to="/"

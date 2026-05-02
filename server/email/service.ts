@@ -54,7 +54,7 @@ class EmailService {
     // Wenn kein Absender angegeben ist, wird ein Standard-Absender verwendet
     const from = message.from || {
       address: this.senderAddress,
-      displayName: 'BTC Races',
+      displayName: 'Berlin Track Club',
     }
 
     if (this.testMode && !message.bypassTestMode) {

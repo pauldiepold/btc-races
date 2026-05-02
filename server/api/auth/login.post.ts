@@ -113,7 +113,7 @@ export default defineEventHandler(async (event) => {
 
   const emailMessage: EmailMessage = {
     to: [{ address: user.email, displayName: `${user.firstName} ${user.lastName}` }],
-    subject: 'Anmeldelink - BTC-Events',
+    subject: 'Anmeldelink - Berlin Track Club',
     html,
     text,
     bypassTestMode: true,

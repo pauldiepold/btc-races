@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   await requireSuperuser(event)
 
   const stats = await pushService.sendPushToAll({
-    title: 'BTC Races — Test',
+    title: 'Berlin Track Club — Test',
     body: 'Push-Test erfolgreich. Wenn du das siehst, läuft alles.',
     url: '/',
   })

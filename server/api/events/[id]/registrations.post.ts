@@ -3,6 +3,8 @@ import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import { getInitialStatus } from '~~/shared/utils/registration'
+import { notificationService } from '~~/server/notifications/service'
+import { formatEventDate } from '~~/shared/utils/events'
 
 const bodySchema = z.object({
   notes: z.string().optional(),
@@ -102,6 +104,34 @@ export default defineEventHandler(async (event) => {
     updatedAt: now,
   }).returning({ id: schema.registrations.id })
 
+  if (dbEvent.type === 'ladv') {
+    void sendRegistrationConfirmationNotification(session.user, dbEvent)
+  }
+
   setResponseStatus(event, 201)
   return { id: insertedReg[0]!.id }
 })
+
+async function sendRegistrationConfirmationNotification(
+  user: { id: number, email: string, firstName: string },
+  dbEvent: NonNullable<Awaited<ReturnType<typeof db.query.events.findFirst>>>,
+) {
+  try {
+    const siteUrl = useRuntimeConfig().public.siteUrl
+    await notificationService.enqueue({
+      type: 'registration_confirmation',
+      recipients: [{ userId: user.id, email: user.email, firstName: user.firstName }],
+      payload: {
+        eventName: dbEvent.name,
+        eventDate: formatEventDate(dbEvent.date) ?? undefined,
+        eventLocation: dbEvent.location ?? undefined,
+        registrationDeadline: formatEventDate(dbEvent.registrationDeadline) ?? undefined,
+        eventLink: `${siteUrl}/${encodeEventId(dbEvent.id)}`,
+      },
+      eventId: dbEvent.id,
+    })
+  }
+  catch (err) {
+    console.error('[Notification] Fehler beim Erstellen des Jobs (registration_confirmation):', err)
+  }
+}

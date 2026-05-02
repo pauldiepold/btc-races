@@ -6,6 +6,7 @@ import { decodeEventId } from '~~/server/utils/sqids'
 import { validateAdminRegistration } from '~~/server/utils/admin-register'
 import { notificationService } from '~~/server/notifications/service'
 import { formatEventDate } from '~~/shared/utils/events'
+import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
 
 const bodySchema = z.object({
   userId: z.number().int().positive(),
@@ -19,7 +20,7 @@ const bodySchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event)
+  const adminSession = await requireAdmin(event)
 
   const sqid = getRouterParam(event, 'id')
   if (!sqid) throw createError({ statusCode: 400, statusMessage: 'Fehlende Event-ID' })
@@ -94,7 +95,7 @@ export default defineEventHandler(async (event) => {
     registrationId = inserted[0]!.id
   }
 
-  void sendAdminRegisteredNotification(targetUser, dbEvent, wishDisciplines, setLadv)
+  void sendAdminRegisteredNotification(targetUser, dbEvent, wishDisciplines, setLadv, adminSession.user.firstName)
 
   setResponseStatus(event, 201)
   return { id: registrationId }
@@ -108,6 +109,7 @@ async function sendAdminRegisteredNotification(
   dbEvent: EventRow,
   wishDisciplines: { discipline: string, ageClass: string }[] | null,
   setLadv: boolean,
+  adminFirstName: string,
 ) {
   try {
     const siteUrl = useRuntimeConfig().public.siteUrl
@@ -124,7 +126,7 @@ async function sendAdminRegisteredNotification(
       await notificationService.enqueue({
         type: 'ladv_registered',
         recipients: [recipient],
-        payload: { ...basePayload, disciplines: wishDisciplines.map(d => d.discipline) },
+        payload: { ...basePayload, disciplines: wishDisciplines.map(d => `${ladvDisciplineLabel(d.discipline)} (${ladvAgeClassLabel(d.ageClass)})`) },
         eventId: dbEvent.id,
       })
     }
@@ -134,8 +136,9 @@ async function sendAdminRegisteredNotification(
         recipients: [recipient],
         payload: {
           ...basePayload,
+          adminFirstName,
           ...(wishDisciplines && wishDisciplines.length > 0
-            ? { disciplines: wishDisciplines.map(d => d.discipline) }
+            ? { disciplines: wishDisciplines.map(d => `${ladvDisciplineLabel(d.discipline)} (${ladvAgeClassLabel(d.ageClass)})`) }
             : {}),
         },
         eventId: dbEvent.id,

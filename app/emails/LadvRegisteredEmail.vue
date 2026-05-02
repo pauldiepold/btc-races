@@ -72,7 +72,7 @@ const styles = {
       :style="styles.disciplineBox"
     >
       <EText :style="styles.disciplineLabel">
-        Gemeldete Disziplinen
+        Deine gemeldeten Disziplinen
       </EText>
       <EText :style="styles.disciplineList">
         {{ disciplines.join(', ') }}

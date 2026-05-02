@@ -415,11 +415,11 @@ async function saveNotes() {
             </div>
 
             <UButton
+              v-if="!deadlineExpired"
               icon="i-ph-x"
               color="neutral"
               variant="ghost"
               size="xs"
-              :disabled="localDisciplines.length <= 1"
               @click="removeLocalDiscipline(disc.discipline)"
             />
           </div>
@@ -477,7 +477,16 @@ async function saveNotes() {
 
         <!-- Speichern / Abbrechen -->
         <template v-if="hasChanges">
-          <p class="text-xs text-muted">
+          <p
+            v-if="localDisciplines.length === 0"
+            class="text-xs text-error"
+          >
+            Mindestens eine Disziplin erforderlich.
+          </p>
+          <p
+            v-else
+            class="text-xs text-muted"
+          >
             Coaches werden informiert, falls du bereits bei LADV gemeldet wurdest.
           </p>
           <div class="flex gap-2">
@@ -487,6 +496,7 @@ async function saveNotes() {
               color="primary"
               variant="outline"
               :loading="saveLoading"
+              :disabled="localDisciplines.length === 0"
               @click="saveWishDisciplines"
             />
             <UButton

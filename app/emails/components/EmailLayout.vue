@@ -73,6 +73,7 @@ const styles = {
   },
   footerText: {
     margin: '4px 0',
+    fontSize: '10px',
   },
 }
 </script>

@@ -15,9 +15,12 @@ const {
   eventDate = '15.03.2025',
   eventLocation = 'Berlin',
   registrationDeadline = '10.03.2025',
-  eventVenue,
   eventLink,
 } = defineProps<Props>()
+
+const mapsUrl = eventLocation
+  ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(eventLocation)}`
+  : null
 
 const styles = {
   container: {
@@ -47,6 +50,10 @@ const styles = {
   value: {
     color: '#3f3f46',
   },
+  link: {
+    color: '#3f3f46',
+    textDecoration: 'underline',
+  },
   buttonWrap: {
     marginTop: '12px',
     marginBottom: '0',
@@ -65,19 +72,27 @@ const styles = {
     <EText :style="styles.row">
       <span :style="styles.label">Datum: </span><span :style="styles.value">{{ eventDate }}</span>
     </EText>
-    <EText :style="styles.row">
-      <span :style="styles.label">Meldefrist: </span><span :style="styles.value">{{ registrationDeadline }}</span>
-    </EText>
-    <EText :style="styles.row">
-      <span :style="styles.label">Ort: </span><span :style="styles.value">{{ eventLocation }}</span>
-    </EText>
     <EText
-      v-if="eventVenue"
+      v-if="registrationDeadline"
       :style="styles.row"
     >
-      <span :style="styles.label">Sportstätte: </span><span :style="styles.value">{{ eventVenue }}</span>
+      <span :style="styles.label">Meldefrist: </span><span :style="styles.value">{{ registrationDeadline }}</span>
     </EText>
-
+    <EText
+      v-if="eventLocation"
+      :style="styles.row"
+    >
+      <span :style="styles.label">Ort: </span>
+      <a
+        v-if="mapsUrl"
+        :href="mapsUrl"
+        :style="styles.link"
+      >{{ eventLocation }}</a>
+      <span
+        v-else
+        :style="styles.value"
+      >{{ eventLocation }}</span>
+    </EText>
     <ESection
       v-if="eventLink"
       :style="styles.buttonWrap"

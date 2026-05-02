@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { requireAdmin } from '~~/server/utils/auth'
 import { notificationService } from '~~/server/notifications/service'
 import { formatEventDate } from '~~/shared/utils/events'
+import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
 
 const bodySchema = z.object({
   disciplines: z.array(z.object({
@@ -86,7 +87,7 @@ async function sendLadvStandNotification(
       await notificationService.enqueue({
         type: 'ladv_registered',
         recipients: [recipient],
-        payload: { ...basePayload, disciplines: disciplines.map(d => d.discipline) },
+        payload: { ...basePayload, disciplines: disciplines.map(d => `${ladvDisciplineLabel(d.discipline)} (${ladvAgeClassLabel(d.ageClass)})`) },
         eventId,
       })
     }

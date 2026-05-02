@@ -5,6 +5,7 @@ import EventDetails from './components/EventDetails.vue'
 
 interface Props {
   firstName?: string
+  adminFirstName?: string
   eventName?: string
   eventDate?: string
   eventLocation?: string
@@ -16,13 +17,14 @@ interface Props {
 
 const {
   firstName = 'Max',
+  adminFirstName,
   eventName = 'Herbstmeeting 2025',
   eventDate = '15.03.2025',
   eventLocation = 'Berlin',
   registrationDeadline = '10.03.2025',
   eventVenue,
   eventLink = 'https://btc-races.de/events/1',
-  disciplines,
+  disciplines = ['100m', '200m'],
 } = defineProps<Props>()
 
 const styles = {
@@ -55,7 +57,7 @@ const styles = {
     </EmailText>
 
     <EmailText>
-      ein Admin hat dich für <strong>{{ eventName }}</strong> angemeldet.
+      {{ adminFirstName ?? 'Ein Admin' }} hat dich für <strong>{{ eventName }}</strong> angemeldet.
     </EmailText>
 
     <EventDetails
@@ -72,7 +74,7 @@ const styles = {
       :style="styles.disciplineBox"
     >
       <EText :style="styles.disciplineLabel">
-        Gewünschte Disziplinen
+        Gemeldete Disziplinen
       </EText>
       <EText :style="styles.disciplineList">
         {{ disciplines.join(', ') }}

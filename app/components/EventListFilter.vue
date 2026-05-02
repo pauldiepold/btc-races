@@ -160,11 +160,11 @@ async function handleCreate(type: CreateEventType) {
 
       <!-- Mobile: weiterer Filter-Toggle, rechtsbündig -->
       <UButton
-        class="ml-auto sm:hidden"
+        class="ml-auto sm:hidden "
         size="sm"
         variant="outline"
         :color="isMoreFiltersOpen || moreFiltersActive ? 'primary' : 'neutral'"
-        icon="i-ph-magnifying-glass-plus"
+        icon="i-ph-funnel"
         @click="isMoreFiltersOpen = !isMoreFiltersOpen"
       />
 

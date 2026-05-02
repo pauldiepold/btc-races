@@ -8,7 +8,6 @@ export default defineNuxtConfig({
     '@nuxthub/core',
     'nuxt-auth-utils',
     '@pinia/nuxt',
-    '@pinia/colada-nuxt',
     'nuxt-email-renderer',
     '@nuxt/fonts',
     'nuxt-og-image',

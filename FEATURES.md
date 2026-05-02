@@ -80,6 +80,7 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - Preference-Resolution (mandatory > user override > default) und Per-Delivery-Logging beim Versand — #57
 - E-Mail-Templates für alle Notification-Typen in `app/emails/` — #58
 - Preferences-UI unter `/profil/benachrichtigungen` (Tabelle mit E-Mail/Push-Toggles pro Kategorie, mandatory-Toggles disabled) — #63
+- Trigger zentral in `server/notifications/triggers.ts` (alle als `triggerXxxNotification`) — Endpoints rufen synchron awaited auf, damit der Job-INSERT in Cloudflare Workers nicht durch Response-Termination verloren geht — #133
 - Verdrahtete Trigger in API-Handlern (legen jeweils einen Queue-Job an) — #64, #119, #129
   - N-01 LADV-Meldung bestätigt → Mitglied (mit lesbaren Disziplin-/AK-Labels)
   - N-02 LADV-Meldung zurückgezogen → Mitglied
@@ -90,7 +91,7 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
   - N-09 Anmeldebestätigung bei Anmeldung zu LADV-Wettkampf → Mitglied (`registration_confirmation`) — #129
   - Admin meldet Mitglied an (`admin_registered_member`) → Mitglied; bei sofortigem LADV-Stand stattdessen N-01; inkl. Admin-Name in E-Mail — #119, #129
   - Admin ändert Anmeldung eines Mitglieds (`admin_changed_member_registration`) → Mitglied; inkl. Admin-Name in E-Mail — #119, #129
-- Queue-Worker `processQueue()` verarbeitet `pending | failed` Jobs parallel per `Promise.allSettled` (Recipients × Channels), mit Exponential-Backoff (max. 3 Versuche) und Timeout-Reset für >5 min hängende `processing`-Jobs
+- Queue-Worker `processQueue()` verarbeitet `pending | failed` Jobs parallel per `Promise.allSettled` (Recipients × Channels), mit Exponential-Backoff (max. 3 Versuche), 15 s Per-Send-Timeout pro Email/Push und Timeout-Reset für >5 min hängende `processing`-Jobs — #133
 - Cron-Endpoints (Bearer-Auth via `NUXT_CRON_TOKEN`): — #65
   - `POST /api/cron/process-notifications` — Queue abarbeiten (jede Minute)
   - `POST /api/cron/send-reminders` — N-06 (Meldefrist Athlet, 5 Tage), N-07 (Meldefrist Admin, 3 Tage), N-08 (Event in 2 Tagen) inkl. Deduplizierung über `notification_jobs`

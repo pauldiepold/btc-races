@@ -137,6 +137,28 @@ async function sendPushDelivery(
   return null
 }
 
+// Per-Send-Timeout: schützt den Cron-Worker davor, dass ein hängender Email-Render
+// oder ein nicht antwortender ACS-/Web-Push-Endpoint den ganzen Job-Lauf in Cloudflares
+// Wall-Clock-Limit reißt. Bei Timeout wird die Delivery als `failed` geloggt und der
+// Job kann sauber abgeschlossen werden — Retry läuft dann via Backoff.
+const SEND_TIMEOUT_MS = 15_000
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`timeout: ${label} > ${ms}ms`)), ms)
+    promise.then(
+      (value) => {
+        clearTimeout(timer)
+        resolve(value)
+      },
+      (error) => {
+        clearTimeout(timer)
+        reject(error)
+      },
+    )
+  })
+}
+
 // ---------------------------------------------------------------------------
 // Delivery-Loop — wird ausschließlich aus processQueue() aufgerufen
 // ---------------------------------------------------------------------------
@@ -184,12 +206,10 @@ export async function executeDeliveries(
   const results = await Promise.allSettled(tasks.map(async (task) => {
     let error: string | null = null
     try {
-      if (task.channel === 'email') {
-        error = await sendEmailDelivery(type, task.recipient, payload)
-      }
-      else {
-        error = await sendPushDelivery(type, task.recipient, payload)
-      }
+      const sendPromise = task.channel === 'email'
+        ? sendEmailDelivery(type, task.recipient, payload)
+        : sendPushDelivery(type, task.recipient, payload)
+      error = await withTimeout(sendPromise, SEND_TIMEOUT_MS, `${task.channel} send`)
     }
     catch (e) {
       error = e instanceof Error ? e.message : String(e)

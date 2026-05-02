@@ -3,8 +3,7 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import { shouldNotifyAdminsOnWishChange } from '~~/shared/utils/ladv-diff'
-import { notificationService } from '~~/server/notifications/service'
-import { formatEventDate } from '~~/shared/utils/events'
+import { triggerAthleteChangedAfterLadvNotification } from '~~/server/notifications/triggers'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 
 const bodySchema = z.object({
@@ -71,45 +70,8 @@ export default defineEventHandler(async (event) => {
     .where(eq(schema.registrations.id, id))
 
   if (doNotify) {
-    void sendAthleteChangedNotification(registration.userId, registration.eventId)
+    await triggerAthleteChangedAfterLadvNotification(registration.userId, registration.eventId)
   }
 
   return { id }
 })
-
-async function sendAthleteChangedNotification(userId: number, eventId: number) {
-  try {
-    const [user, dbEvent] = await Promise.all([
-      db.query.users.findFirst({
-        where: eq(schema.users.id, userId),
-        columns: { firstName: true, lastName: true },
-      }),
-      db.query.events.findFirst({
-        where: eq(schema.events.id, eventId),
-      }),
-    ])
-
-    if (!user || !dbEvent) return
-
-    const siteUrl = useRuntimeConfig().public.siteUrl
-
-    await notificationService.enqueue({
-      type: 'athlete_changed_after_ladv',
-      recipients: 'all_admins',
-      payload: {
-        eventName: dbEvent.name,
-        eventDate: formatEventDate(dbEvent.date) ?? undefined,
-        eventLocation: dbEvent.location ?? undefined,
-        registrationDeadline: formatEventDate(dbEvent.registrationDeadline) ?? undefined,
-        eventLink: `${siteUrl}/${encodeEventId(eventId)}`,
-        memberFirstName: user.firstName ?? '',
-        memberLastName: user.lastName ?? '',
-        athleteName: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
-      },
-      eventId,
-    })
-  }
-  catch (err) {
-    console.error('[Notification] Fehler beim Erstellen des Jobs:', err)
-  }
-}

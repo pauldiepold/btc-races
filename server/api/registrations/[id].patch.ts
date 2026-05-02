@@ -3,8 +3,10 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import { getValidNextStatuses } from '~~/shared/utils/registration'
-import { notificationService } from '~~/server/notifications/service'
-import { formatEventDate } from '~~/shared/utils/events'
+import {
+  triggerAdminChangedRegistrationNotification,
+  triggerAthleteCanceledAfterLadvNotification,
+} from '~~/server/notifications/triggers'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 
 const bodySchema = z.object({
@@ -48,12 +50,11 @@ export default defineEventHandler(async (event) => {
 
   let shouldNotifyAdmins = false
   let shouldNotifyMember = false
-  let dbEvent: Awaited<ReturnType<typeof db.query.events.findFirst>> | null = null
 
   if (status !== undefined) {
-    dbEvent = await db.query.events.findFirst({
+    const dbEvent = await db.query.events.findFirst({
       where: eq(schema.events.id, registration.eventId),
-    }) ?? null
+    })
     if (!dbEvent) {
       throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
     }
@@ -94,86 +95,12 @@ export default defineEventHandler(async (event) => {
     .where(eq(schema.registrations.id, id))
 
   if (shouldNotifyAdmins) {
-    await sendAthleteCanceledAfterLadvNotification(registration.userId, registration.eventId)
+    await triggerAthleteCanceledAfterLadvNotification(registration.userId, registration.eventId)
   }
 
   if (shouldNotifyMember) {
-    void sendAdminChangedRegistrationNotification(registration.userId, registration.eventId, dbEvent, session.user.firstName)
+    await triggerAdminChangedRegistrationNotification(registration.userId, registration.eventId, session.user.firstName)
   }
 
   return { id }
 })
-
-type EventRow = Awaited<ReturnType<typeof db.query.events.findFirst>>
-
-async function sendAdminChangedRegistrationNotification(userId: number, eventId: number, cachedEvent: EventRow | null, adminFirstName: string) {
-  try {
-    const [user, dbEvent] = await Promise.all([
-      db.query.users.findFirst({
-        where: eq(schema.users.id, userId),
-        columns: { id: true, email: true, firstName: true },
-      }),
-      cachedEvent
-        ? Promise.resolve(cachedEvent)
-        : db.query.events.findFirst({ where: eq(schema.events.id, eventId) }),
-    ])
-
-    if (!user || !dbEvent) return
-
-    const siteUrl = useRuntimeConfig().public.siteUrl
-
-    await notificationService.enqueue({
-      type: 'admin_changed_member_registration',
-      recipients: [{ userId: user.id, email: user.email, firstName: user.firstName ?? undefined }],
-      payload: {
-        eventName: dbEvent.name,
-        eventDate: formatEventDate(dbEvent.date) ?? undefined,
-        eventLocation: dbEvent.location ?? undefined,
-        registrationDeadline: formatEventDate(dbEvent.registrationDeadline) ?? undefined,
-        eventLink: `${siteUrl}/${encodeEventId(eventId)}`,
-        adminFirstName,
-      },
-      eventId,
-    })
-  }
-  catch (err) {
-    console.error('[Notification] Fehler beim Erstellen des Jobs (admin_changed_member_registration):', err)
-  }
-}
-
-async function sendAthleteCanceledAfterLadvNotification(userId: number, eventId: number) {
-  try {
-    const [user, dbEvent] = await Promise.all([
-      db.query.users.findFirst({
-        where: eq(schema.users.id, userId),
-        columns: { firstName: true, lastName: true },
-      }),
-      db.query.events.findFirst({
-        where: eq(schema.events.id, eventId),
-      }),
-    ])
-
-    if (!user || !dbEvent) return
-
-    const siteUrl = useRuntimeConfig().public.siteUrl
-
-    await notificationService.enqueue({
-      type: 'athlete_canceled_after_ladv',
-      recipients: 'all_admins',
-      payload: {
-        eventName: dbEvent.name,
-        eventDate: formatEventDate(dbEvent.date) ?? undefined,
-        eventLocation: dbEvent.location ?? undefined,
-        registrationDeadline: formatEventDate(dbEvent.registrationDeadline) ?? undefined,
-        eventLink: `${siteUrl}/${encodeEventId(eventId)}`,
-        memberFirstName: user.firstName ?? '',
-        memberLastName: user.lastName ?? '',
-        athleteName: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
-      },
-      eventId,
-    })
-  }
-  catch (err) {
-    console.error('[Notification] Fehler beim Erstellen des Jobs (athlete_canceled_after_ladv):', err)
-  }
-}

@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
   })
 
   if (updatedEvent) {
-    void triggerEventChangedNotification(
+    await triggerEventChangedNotification(
       beforeCore,
       toEventCoreSnapshot(updatedEvent),
       updatedEvent,

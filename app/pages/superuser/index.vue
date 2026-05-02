@@ -342,36 +342,36 @@ async function runPushTest() {
     </div>
 
     <UModal v-model:open="pushTestConfirmOpen">
-      <template #content>
-        <div class="p-6 space-y-5">
-          <div class="flex items-start gap-3">
-            <UIcon
-              name="i-ph-warning-bold"
-              class="size-6 shrink-0 text-error"
-            />
-            <div>
-              <h3 class="font-display font-semibold text-highlighted text-base">
-                Test-Push an alle User senden?
-              </h3>
-              <p class="text-sm text-muted mt-1">
-                Diese Aktion versendet eine Test-Benachrichtigung an <span class="text-error font-medium">alle User mit aktivierter Push-Subscription</span>. Nur zum Testen verwenden.
-              </p>
-            </div>
+      <template #body>
+        <div class="flex items-start gap-3">
+          <UIcon
+            name="i-ph-warning-bold"
+            class="size-6 shrink-0 text-error"
+          />
+          <div>
+            <h3 class="font-display font-semibold text-highlighted text-base">
+              Test-Push an alle User senden?
+            </h3>
+            <p class="text-sm text-muted mt-1">
+              Diese Aktion versendet eine Test-Benachrichtigung an <span class="text-error font-medium">alle User mit aktivierter Push-Subscription</span>. Nur zum Testen verwenden.
+            </p>
           </div>
-          <div class="flex justify-end gap-2 pt-2 border-t border-default">
-            <UButton
-              label="Abbrechen"
-              color="neutral"
-              variant="ghost"
-              @click="pushTestConfirmOpen = false"
-            />
-            <UButton
-              label="Ja, an alle senden"
-              color="error"
-              :loading="pushTestLoading"
-              @click="runPushTest"
-            />
-          </div>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex gap-2 ml-auto">
+          <UButton
+            label="Abbrechen"
+            color="neutral"
+            variant="ghost"
+            @click="pushTestConfirmOpen = false"
+          />
+          <UButton
+            label="Ja, an alle senden"
+            color="error"
+            :loading="pushTestLoading"
+            @click="runPushTest"
+          />
         </div>
       </template>
     </UModal>

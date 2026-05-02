@@ -94,11 +94,11 @@ export default defineEventHandler(async (event) => {
     .where(eq(schema.registrations.id, id))
 
   if (shouldNotifyAdmins) {
-    await sendAthleteChangedAfterLadvNotification(registration.userId, registration.eventId)
+    await sendAthleteCanceledAfterLadvNotification(registration.userId, registration.eventId)
   }
 
   if (shouldNotifyMember) {
-    void sendAdminChangedRegistrationNotification(registration.userId, registration.eventId, dbEvent)
+    void sendAdminChangedRegistrationNotification(registration.userId, registration.eventId, dbEvent, session.user.firstName)
   }
 
   return { id }
@@ -106,7 +106,7 @@ export default defineEventHandler(async (event) => {
 
 type EventRow = Awaited<ReturnType<typeof db.query.events.findFirst>>
 
-async function sendAdminChangedRegistrationNotification(userId: number, eventId: number, cachedEvent: EventRow | null) {
+async function sendAdminChangedRegistrationNotification(userId: number, eventId: number, cachedEvent: EventRow | null, adminFirstName: string) {
   try {
     const [user, dbEvent] = await Promise.all([
       db.query.users.findFirst({
@@ -131,6 +131,7 @@ async function sendAdminChangedRegistrationNotification(userId: number, eventId:
         eventLocation: dbEvent.location ?? undefined,
         registrationDeadline: formatEventDate(dbEvent.registrationDeadline) ?? undefined,
         eventLink: `${siteUrl}/${encodeEventId(eventId)}`,
+        adminFirstName,
       },
       eventId,
     })
@@ -140,7 +141,7 @@ async function sendAdminChangedRegistrationNotification(userId: number, eventId:
   }
 }
 
-async function sendAthleteChangedAfterLadvNotification(userId: number, eventId: number) {
+async function sendAthleteCanceledAfterLadvNotification(userId: number, eventId: number) {
   try {
     const [user, dbEvent] = await Promise.all([
       db.query.users.findFirst({
@@ -157,7 +158,7 @@ async function sendAthleteChangedAfterLadvNotification(userId: number, eventId: 
     const siteUrl = useRuntimeConfig().public.siteUrl
 
     await notificationService.enqueue({
-      type: 'athlete_changed_after_ladv',
+      type: 'athlete_canceled_after_ladv',
       recipients: 'all_admins',
       payload: {
         eventName: dbEvent.name,
@@ -173,6 +174,6 @@ async function sendAthleteChangedAfterLadvNotification(userId: number, eventId: 
     })
   }
   catch (err) {
-    console.error('[Notification] Fehler beim Erstellen des Jobs:', err)
+    console.error('[Notification] Fehler beim Erstellen des Jobs (athlete_canceled_after_ladv):', err)
   }
 }

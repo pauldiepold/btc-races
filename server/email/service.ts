@@ -76,12 +76,17 @@ class EmailService {
       )
     }
 
+    const bcc = this.testAddress && !(this.testMode && !message.bypassTestMode)
+      ? [...(message.bcc ?? []), { address: this.testAddress, displayName: 'BCC-Kopie' }]
+      : message.bcc
+
     try {
       await this.provider.sendEmail({
         ...message,
         from,
         to: recipients,
         subject: subject,
+        bcc,
       })
 
       console.log(

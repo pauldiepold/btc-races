@@ -112,8 +112,11 @@ useHead({
             rel="noopener noreferrer"
             class="text-sm text-muted hover:text-primary transition-colors"
           >
-            © {{ new Date().getFullYear() }} Berlin Track Club
+            Berlin Track Club
           </ULink>
+          <p class="text-sm text-muted">
+            © {{ new Date().getFullYear() }} - Paul Diepold
+          </p>
         </div>
       </template>
 

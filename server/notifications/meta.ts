@@ -32,9 +32,19 @@ export const NOTIFICATION_META: Record<NotificationType, NotificationMeta> = {
     description: 'Wenn der Coach dich wieder aus LADV abgemeldet hat.',
     adminOnly: false,
   },
+  registration_confirmation: {
+    label: 'Anmeldebestätigung',
+    description: 'Wenn du dich erfolgreich für einen LADV-Wettkampf angemeldet hast.',
+    adminOnly: false,
+  },
   athlete_changed_after_ladv: {
     label: 'Wunschstand geändert nach LADV-Meldung',
     description: 'Wenn ein Mitglied seinen Wunschstand ändert, nachdem der Coach bereits in LADV gemeldet hat.',
+    adminOnly: true,
+  },
+  athlete_canceled_after_ladv: {
+    label: 'Anmeldung storniert nach LADV-Meldung',
+    description: 'Wenn ein Mitglied seine Anmeldung storniert, nachdem der Coach bereits in LADV gemeldet hat.',
     adminOnly: true,
   },
   event_canceled: {

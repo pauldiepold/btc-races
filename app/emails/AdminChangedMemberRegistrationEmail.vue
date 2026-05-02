@@ -5,6 +5,7 @@ import EventDetails from './components/EventDetails.vue'
 
 interface Props {
   firstName?: string
+  adminFirstName?: string
   eventName?: string
   eventDate?: string
   eventLocation?: string
@@ -15,6 +16,7 @@ interface Props {
 
 const {
   firstName = 'Max',
+  adminFirstName,
   eventName = 'Herbstmeeting 2025',
   eventDate = '15.03.2025',
   eventLocation = 'Berlin',
@@ -31,7 +33,7 @@ const {
     </EmailText>
 
     <EmailText>
-      ein Admin hat deine Anmeldung für <strong>{{ eventName }}</strong> geändert. Bitte prüfe deinen aktuellen Anmeldestatus in der App.
+      {{ adminFirstName ?? 'Ein Admin' }} hat deine Anmeldung für <strong>{{ eventName }}</strong> geändert. Bitte prüfe deinen aktuellen Anmeldestatus in der App.
     </EmailText>
 
     <EventDetails

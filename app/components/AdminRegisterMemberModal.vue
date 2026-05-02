@@ -252,343 +252,352 @@ async function submit() {
     :ui="{ content: 'sm:max-w-lg' }"
     @update:open="emit('update:open', $event)"
   >
-    <template #content>
-      <div class="p-6 space-y-5">
-        <!-- Header -->
-        <div>
-          <p class="text-base font-semibold text-highlighted">
-            Person anmelden
-          </p>
-          <p class="text-sm text-muted mt-0.5">
-            {{ event.name }}
-          </p>
+    <template #header>
+      <div>
+        <p class="text-base font-semibold text-highlighted">
+          Person anmelden
+        </p>
+        <p class="text-sm text-muted mt-0.5">
+          {{ event.name }}
+        </p>
+      </div>
+    </template>
+
+    <template #body>
+      <!-- Step 1: Auswahl -->
+      <div
+        v-if="!selectedMember"
+        class="space-y-3"
+      >
+        <UInput
+          v-model="searchQuery"
+          class="w-full"
+          icon="i-ph-magnifying-glass"
+          placeholder="Mitglied suchen (Name oder E-Mail)…"
+          size="md"
+          :loading="membersLoading"
+          autofocus
+        />
+
+        <div
+          v-if="!membersLoading && members.length === 0"
+          class="text-sm text-muted px-1 py-4 text-center"
+        >
+          Keine Mitglieder geladen.
         </div>
 
-        <!-- Step 1: Auswahl -->
-        <template v-if="!selectedMember">
-          <div class="space-y-3">
-            <UInput
-              v-model="searchQuery"
-              class="w-full"
-              icon="i-ph-magnifying-glass"
-              placeholder="Mitglied suchen (Name oder E-Mail)…"
-              size="md"
-              :loading="membersLoading"
-              autofocus
-            />
+        <div
+          v-else-if="filteredMembers.length === 0"
+          class="text-sm text-muted px-1 py-4 text-center"
+        >
+          Keine Treffer.
+        </div>
 
-            <div
-              v-if="!membersLoading && members.length === 0"
-              class="text-sm text-muted px-1 py-4 text-center"
-            >
-              Keine Mitglieder geladen.
-            </div>
-
-            <div
-              v-else-if="filteredMembers.length === 0"
-              class="text-sm text-muted px-1 py-4 text-center"
-            >
-              Keine Treffer.
-            </div>
-
-            <div
-              v-else
-              class="space-y-1 max-h-96 overflow-y-auto"
-            >
-              <button
-                v-for="m in visibleMembers"
-                :key="m.id"
-                type="button"
-                class="w-full flex items-center gap-3 rounded-[--ui-radius] px-3 py-2 text-left transition-colors"
-                :class="statusInfo(m.registrationStatus)?.blocked
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:bg-elevated'"
-                :disabled="statusInfo(m.registrationStatus)?.blocked"
-                @click="selectMember(m)"
-              >
-                <UAvatar
-                  :src="m.avatarUrl ?? undefined"
-                  :alt="memberFullName(m)"
-                  size="sm"
-                />
-                <div class="min-w-0 flex-1">
-                  <p class="text-sm font-medium text-highlighted truncate">
-                    {{ memberFullName(m) }}
-                  </p>
-                  <p class="text-xs text-muted truncate">
-                    {{ m.email }}
-                  </p>
-                </div>
-                <div
-                  v-if="statusInfo(m.registrationStatus)"
-                  class="shrink-0 text-right"
-                >
-                  <UBadge
-                    :label="statusInfo(m.registrationStatus)!.label"
-                    :color="statusInfo(m.registrationStatus)!.color"
-                    variant="subtle"
-                    size="sm"
-                  />
-                  <p class="text-[10px] text-muted mt-0.5">
-                    {{ statusInfo(m.registrationStatus)!.hint }}
-                  </p>
-                </div>
-              </button>
-
-              <p
-                v-if="filteredMembers.length > visibleMembers.length"
-                class="text-xs text-muted text-center pt-2"
-              >
-                {{ filteredMembers.length - visibleMembers.length }} weitere — bitte Suche verfeinern.
-              </p>
-            </div>
-          </div>
-
-          <div class="flex justify-end pt-3 border-t border-default">
-            <UButton
-              label="Abbrechen"
-              color="neutral"
-              variant="subtle"
-              @click="emit('update:open', false)"
-            />
-          </div>
-        </template>
-
-        <!-- Step 2: Form -->
-        <template v-else>
-          <!-- Selected Member -->
-          <div class="flex items-center gap-3 p-3 rounded-[--ui-radius] bg-elevated">
+        <div
+          v-else
+          class="space-y-1 max-h-96 overflow-y-auto"
+        >
+          <button
+            v-for="m in visibleMembers"
+            :key="m.id"
+            type="button"
+            class="w-full flex items-center gap-3 rounded-[--ui-radius] px-3 py-2 text-left transition-colors"
+            :class="statusInfo(m.registrationStatus)?.blocked
+              ? 'opacity-50 cursor-not-allowed'
+              : 'hover:bg-elevated'"
+            :disabled="statusInfo(m.registrationStatus)?.blocked"
+            @click="selectMember(m)"
+          >
             <UAvatar
-              :src="selectedMember.avatarUrl ?? undefined"
-              :alt="memberFullName(selectedMember)"
-              size="md"
+              :src="m.avatarUrl ?? undefined"
+              :alt="memberFullName(m)"
+              size="sm"
             />
             <div class="min-w-0 flex-1">
               <p class="text-sm font-medium text-highlighted truncate">
-                {{ memberFullName(selectedMember) }}
+                {{ memberFullName(m) }}
               </p>
               <p class="text-xs text-muted truncate">
-                {{ selectedMember.email }}
+                {{ m.email }}
               </p>
             </div>
-            <UButton
-              icon="i-ph-arrow-left"
-              label="Andere"
-              color="neutral"
-              variant="ghost"
-              size="xs"
-              @click="backToSearch"
-            />
+            <div
+              v-if="statusInfo(m.registrationStatus)"
+              class="shrink-0 text-right"
+            >
+              <UBadge
+                :label="statusInfo(m.registrationStatus)!.label"
+                :color="statusInfo(m.registrationStatus)!.color"
+                variant="subtle"
+                size="sm"
+              />
+              <p class="text-[10px] text-muted mt-0.5">
+                {{ statusInfo(m.registrationStatus)!.hint }}
+              </p>
+            </div>
+          </button>
+
+          <p
+            v-if="filteredMembers.length > visibleMembers.length"
+            class="text-xs text-muted text-center pt-2"
+          >
+            {{ filteredMembers.length - visibleMembers.length }} weitere — bitte Suche verfeinern.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 2: Form -->
+      <div
+        v-else
+        class="space-y-5"
+      >
+        <!-- Selected Member -->
+        <div class="flex items-center gap-3 p-3 rounded-[--ui-radius] bg-elevated">
+          <UAvatar
+            :src="selectedMember.avatarUrl ?? undefined"
+            :alt="memberFullName(selectedMember)"
+            size="md"
+          />
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-medium text-highlighted truncate">
+              {{ memberFullName(selectedMember) }}
+            </p>
+            <p class="text-xs text-muted truncate">
+              {{ selectedMember.email }}
+            </p>
+          </div>
+          <UButton
+            icon="i-ph-arrow-left"
+            label="Andere"
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            @click="backToSearch"
+          />
+        </div>
+
+        <UAlert
+          v-if="selectedReactivation"
+          icon="i-ph-arrow-clockwise"
+          color="warning"
+          variant="subtle"
+          title="Stornierte Anmeldung"
+          description="Die bestehende stornierte Anmeldung wird reaktiviert. Ein bereits gesetzter LADV-Stand bleibt erhalten — bei Bedarf nachträglich im Coach-Modal anpassen."
+        />
+
+        <!-- LADV: Disziplinen -->
+        <div
+          v-if="event.type === 'ladv'"
+          class="space-y-2"
+        >
+          <p class="text-xs font-medium text-muted uppercase tracking-widest">
+            Disziplinen
+          </p>
+
+          <div
+            v-if="pendingDisciplines.length"
+            class="space-y-1.5"
+          >
+            <div
+              v-for="(d, i) in pendingDisciplines"
+              :key="i"
+              class="flex items-center gap-3 rounded-[--ui-radius] bg-default border border-default px-3 py-2"
+            >
+              <div class="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-medium text-highlighted">{{ ladvDisciplineLabel(d.discipline) }}</span>
+                <LadvBadge
+                  :age-class="d.ageClass"
+                  variant="subtle"
+                />
+              </div>
+              <UButton
+                icon="i-ph-x"
+                color="neutral"
+                variant="ghost"
+                size="xs"
+                aria-label="Disziplin entfernen"
+                @click="removePending(i)"
+              />
+            </div>
           </div>
 
-          <UAlert
-            v-if="selectedReactivation"
-            icon="i-ph-arrow-clockwise"
-            color="warning"
-            variant="subtle"
-            title="Stornierte Anmeldung"
-            description="Die bestehende stornierte Anmeldung wird reaktiviert. Ein bereits gesetzter LADV-Stand bleibt erhalten — bei Bedarf nachträglich im Coach-Modal anpassen."
+          <div
+            v-if="showAddNew"
+            class="rounded-[--ui-radius] border border-default p-3 space-y-2"
+          >
+            <USelect
+              v-model="addNewCode"
+              :items="addNewDisciplineItems"
+              placeholder="Disziplin wählen…"
+              size="sm"
+              class="w-full"
+            />
+            <USelect
+              v-if="addNewCode"
+              v-model="addNewAgeClass"
+              :items="addNewAgeClassItems"
+              placeholder="Altersklasse wählen…"
+              size="sm"
+              class="w-full"
+            />
+            <div class="flex gap-2">
+              <UButton
+                label="Hinzufügen"
+                size="sm"
+                variant="outline"
+                :disabled="!addNewCode || !addNewAgeClass"
+                @click="confirmAddNew"
+              />
+              <UButton
+                label="Abbrechen"
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                @click="showAddNew = false; addNewCode = ''; addNewAgeClass = ''"
+              />
+            </div>
+          </div>
+
+          <UButton
+            v-else-if="addNewDisciplineItems.length > 0"
+            label="Disziplin hinzufügen"
+            icon="i-ph-plus"
+            color="neutral"
+            variant="outline"
+            size="sm"
+            @click="showAddNew = true"
           />
 
-          <!-- LADV: Disziplinen -->
-          <div
-            v-if="event.type === 'ladv'"
-            class="space-y-2"
+          <p
+            v-if="pendingDisciplines.length === 0"
+            class="text-xs text-muted"
           >
-            <p class="text-xs font-medium text-muted uppercase tracking-widest">
-              Disziplinen
-            </p>
+            Mindestens eine Disziplin erforderlich.
+          </p>
+        </div>
 
-            <div
-              v-if="pendingDisciplines.length"
-              class="space-y-1.5"
-            >
-              <div
-                v-for="(d, i) in pendingDisciplines"
-                :key="i"
-                class="flex items-center gap-3 rounded-[--ui-radius] bg-default border border-default px-3 py-2"
-              >
-                <div class="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
-                  <span class="text-sm font-medium text-highlighted">{{ ladvDisciplineLabel(d.discipline) }}</span>
-                  <LadvBadge
-                    :age-class="d.ageClass"
-                    variant="subtle"
-                  />
-                </div>
-                <UButton
-                  icon="i-ph-x"
-                  color="neutral"
-                  variant="ghost"
-                  size="xs"
-                  aria-label="Disziplin entfernen"
-                  @click="removePending(i)"
-                />
-              </div>
-            </div>
-
-            <div
-              v-if="showAddNew"
-              class="rounded-[--ui-radius] border border-default p-3 space-y-2"
-            >
-              <USelect
-                v-model="addNewCode"
-                :items="addNewDisciplineItems"
-                placeholder="Disziplin wählen…"
-                size="sm"
-                class="w-full"
-              />
-              <USelect
-                v-if="addNewCode"
-                v-model="addNewAgeClass"
-                :items="addNewAgeClassItems"
-                placeholder="Altersklasse wählen…"
-                size="sm"
-                class="w-full"
-              />
-              <div class="flex gap-2">
-                <UButton
-                  label="Hinzufügen"
-                  size="sm"
-                  variant="outline"
-                  :disabled="!addNewCode || !addNewAgeClass"
-                  @click="confirmAddNew"
-                />
-                <UButton
-                  label="Abbrechen"
-                  color="neutral"
-                  variant="ghost"
-                  size="sm"
-                  @click="showAddNew = false; addNewCode = ''; addNewAgeClass = ''"
-                />
-              </div>
-            </div>
-
+        <!-- Competition: Status-Picker -->
+        <div
+          v-else-if="event.type === 'competition'"
+          class="space-y-2"
+        >
+          <p class="text-xs font-medium text-muted uppercase tracking-widest">
+            Status
+          </p>
+          <div class="flex gap-2">
             <UButton
-              v-else-if="addNewDisciplineItems.length > 0"
-              label="Disziplin hinzufügen"
-              icon="i-ph-plus"
-              color="neutral"
-              variant="outline"
+              label="Anmelden"
+              :color="status === 'registered' ? 'success' : 'neutral'"
+              :variant="status === 'registered' ? 'solid' : 'outline'"
               size="sm"
-              @click="showAddNew = true"
-            />
-
-            <p
-              v-if="pendingDisciplines.length === 0"
-              class="text-xs text-muted"
-            >
-              Mindestens eine Disziplin erforderlich.
-            </p>
-          </div>
-
-          <!-- Competition: Status-Picker -->
-          <div
-            v-else-if="event.type === 'competition'"
-            class="space-y-2"
-          >
-            <p class="text-xs font-medium text-muted uppercase tracking-widest">
-              Status
-            </p>
-            <div class="flex gap-2">
-              <UButton
-                label="Anmelden"
-                :color="status === 'registered' ? 'success' : 'neutral'"
-                :variant="status === 'registered' ? 'solid' : 'outline'"
-                size="sm"
-                @click="status = 'registered'"
-              />
-              <UButton
-                label="Vielleicht"
-                :color="status === 'maybe' ? 'warning' : 'neutral'"
-                :variant="status === 'maybe' ? 'solid' : 'outline'"
-                size="sm"
-                @click="status = 'maybe'"
-              />
-            </div>
-            <UAlert
-              v-if="showDeadlineWarning"
-              icon="i-ph-warning"
-              color="warning"
-              variant="subtle"
-              title="Meldefrist abgelaufen"
-              description="Die offizielle Frist ist bereits vorbei. Trotzdem anmelden?"
-            />
-          </div>
-
-          <!-- Training / Social: Status-Picker -->
-          <div
-            v-else
-            class="space-y-2"
-          >
-            <p class="text-xs font-medium text-muted uppercase tracking-widest">
-              Status
-            </p>
-            <div class="flex gap-2">
-              <UButton
-                label="Ja"
-                :color="status === 'yes' ? 'success' : 'neutral'"
-                :variant="status === 'yes' ? 'solid' : 'outline'"
-                size="sm"
-                @click="status = 'yes'"
-              />
-              <UButton
-                label="Vielleicht"
-                :color="status === 'maybe' ? 'warning' : 'neutral'"
-                :variant="status === 'maybe' ? 'solid' : 'outline'"
-                size="sm"
-                @click="status = 'maybe'"
-              />
-              <UButton
-                label="Nein"
-                :color="status === 'no' ? 'error' : 'neutral'"
-                :variant="status === 'no' ? 'solid' : 'outline'"
-                size="sm"
-                @click="status = 'no'"
-              />
-            </div>
-          </div>
-
-          <!-- Notiz -->
-          <div class="space-y-2">
-            <p class="text-xs font-medium text-muted uppercase tracking-widest">
-              Notiz <span class="normal-case font-normal text-muted">(optional)</span>
-            </p>
-            <UTextarea
-              v-model="notes"
-              placeholder="Für alle Mitglieder sichtbar…"
-              class="w-full"
-              :rows="1"
-              autoresize
-            />
-          </div>
-
-          <!-- LADV: setLadvStandImmediately -->
-          <div v-if="event.type === 'ladv'">
-            <UCheckbox
-              v-model="setLadvStandImmediately"
-              label="Ich habe in LADV bereits gemeldet"
-              description="Setzt den LADV-Stand direkt identisch zum Wunschstand."
-            />
-          </div>
-
-          <!-- Footer -->
-          <div class="flex justify-end gap-2 pt-3 border-t border-default">
-            <UButton
-              label="Abbrechen"
-              color="neutral"
-              variant="ghost"
-              @click="emit('update:open', false)"
+              @click="status = 'registered'"
             />
             <UButton
-              :label="selectedReactivation ? 'Reaktivieren' : 'Anmelden'"
-              color="primary"
-              :loading="submitting"
-              :disabled="!canSubmit"
-              @click="submit"
+              label="Vielleicht"
+              :color="status === 'maybe' ? 'warning' : 'neutral'"
+              :variant="status === 'maybe' ? 'solid' : 'outline'"
+              size="sm"
+              @click="status = 'maybe'"
             />
           </div>
-        </template>
+          <UAlert
+            v-if="showDeadlineWarning"
+            icon="i-ph-warning"
+            color="warning"
+            variant="subtle"
+            title="Meldefrist abgelaufen"
+            description="Die offizielle Frist ist bereits vorbei. Trotzdem anmelden?"
+          />
+        </div>
+
+        <!-- Training / Social: Status-Picker -->
+        <div
+          v-else
+          class="space-y-2"
+        >
+          <p class="text-xs font-medium text-muted uppercase tracking-widest">
+            Status
+          </p>
+          <div class="flex gap-2">
+            <UButton
+              label="Ja"
+              :color="status === 'yes' ? 'success' : 'neutral'"
+              :variant="status === 'yes' ? 'solid' : 'outline'"
+              size="sm"
+              @click="status = 'yes'"
+            />
+            <UButton
+              label="Vielleicht"
+              :color="status === 'maybe' ? 'warning' : 'neutral'"
+              :variant="status === 'maybe' ? 'solid' : 'outline'"
+              size="sm"
+              @click="status = 'maybe'"
+            />
+            <UButton
+              label="Nein"
+              :color="status === 'no' ? 'error' : 'neutral'"
+              :variant="status === 'no' ? 'solid' : 'outline'"
+              size="sm"
+              @click="status = 'no'"
+            />
+          </div>
+        </div>
+
+        <!-- Notiz -->
+        <div class="space-y-2">
+          <p class="text-xs font-medium text-muted uppercase tracking-widest">
+            Notiz <span class="normal-case font-normal text-muted">(optional)</span>
+          </p>
+          <UTextarea
+            v-model="notes"
+            placeholder="Für alle Mitglieder sichtbar…"
+            class="w-full"
+            :rows="1"
+            autoresize
+          />
+        </div>
+
+        <!-- LADV: setLadvStandImmediately -->
+        <div v-if="event.type === 'ladv'">
+          <UCheckbox
+            v-model="setLadvStandImmediately"
+            label="Ich habe in LADV bereits gemeldet"
+            description="Setzt den LADV-Stand direkt identisch zum Wunschstand."
+          />
+        </div>
       </div>
+    </template>
+
+    <template #footer>
+      <!-- Step 1: nur Abbrechen -->
+      <template v-if="!selectedMember">
+        <UButton
+          label="Abbrechen"
+          color="neutral"
+          variant="subtle"
+          class="ml-auto"
+          @click="emit('update:open', false)"
+        />
+      </template>
+
+      <!-- Step 2: Abbrechen + Anmelden -->
+      <template v-else>
+        <div class="flex gap-2 ml-auto">
+          <UButton
+            label="Abbrechen"
+            color="neutral"
+            variant="ghost"
+            @click="emit('update:open', false)"
+          />
+          <UButton
+            :label="selectedReactivation ? 'Reaktivieren' : 'Anmelden'"
+            color="primary"
+            :loading="submitting"
+            :disabled="!canSubmit"
+            @click="submit"
+          />
+        </div>
+      </template>
     </template>
   </UModal>
 </template>

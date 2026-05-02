@@ -137,39 +137,47 @@ async function save() {
     :open="open"
     @update:open="emit('update:open', $event)"
   >
-    <template #content>
-      <!-- Laden -->
-      <div
-        v-if="fetchStatus === 'pending'"
-        class="p-6 space-y-4"
-      >
+    <!-- Laden -->
+    <template
+      v-if="fetchStatus === 'pending'"
+      #content
+    >
+      <div class="p-6 space-y-4">
         <USkeleton class="h-12 w-full" />
         <USkeleton class="h-24 w-full" />
         <USkeleton class="h-24 w-full" />
       </div>
+    </template>
 
-      <div
-        v-else-if="reg"
-        class="p-6 space-y-5"
-      >
-        <!-- Header -->
-        <div class="flex items-center gap-3">
-          <UAvatar
-            :src="reg.avatarUrl ?? undefined"
-            :alt="`${reg.firstName ?? ''} ${reg.lastName ?? ''}`"
-            size="md"
-            class="shrink-0"
-          />
-          <div class="min-w-0">
-            <p class="font-semibold text-highlighted text-base">
-              {{ fullName }}
-            </p>
-            <p class="text-sm text-muted mt-0.5">
-              {{ reg.event.name }}
-            </p>
-          </div>
+    <!-- Geladen: Header -->
+    <template
+      v-if="reg"
+      #header
+    >
+      <div class="flex items-center gap-3">
+        <UAvatar
+          :src="reg.avatarUrl ?? undefined"
+          :alt="`${reg.firstName ?? ''} ${reg.lastName ?? ''}`"
+          size="md"
+          class="shrink-0"
+        />
+        <div class="min-w-0">
+          <p class="font-semibold text-highlighted text-base">
+            {{ fullName }}
+          </p>
+          <p class="text-sm text-muted mt-0.5">
+            {{ reg.event.name }}
+          </p>
         </div>
+      </div>
+    </template>
 
+    <!-- Geladen: Body -->
+    <template
+      v-if="reg"
+      #body
+    >
+      <div class="space-y-5">
         <!-- Disziplinen -->
         <div>
           <p class="text-xs font-medium text-muted uppercase tracking-widest mb-2">
@@ -333,25 +341,30 @@ async function save() {
           />
           {{ reg.firstName ?? 'Der Athlet' }} wird über diese Änderung per E-Mail informiert.
         </p>
+      </div>
+    </template>
 
-        <!-- Footer -->
-        <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-1 border-t border-default">
-          <UButton
-            label="Abbrechen"
-            color="neutral"
-            variant="ghost"
-            class="w-full sm:w-auto justify-center"
-            @click="emit('update:open', false)"
-          />
-          <UButton
-            :label="ctaLabel"
-            :color="isCanceled ? 'error' : 'primary'"
-            :disabled="!isCanceled && editorDisciplines.length === 0"
-            :loading="loading"
-            class="w-full sm:w-auto justify-center"
-            @click="save"
-          />
-        </div>
+    <!-- Geladen: Footer -->
+    <template
+      v-if="reg"
+      #footer
+    >
+      <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 w-full">
+        <UButton
+          label="Abbrechen"
+          color="neutral"
+          variant="ghost"
+          class="sm:w-auto justify-center"
+          @click="emit('update:open', false)"
+        />
+        <UButton
+          :label="ctaLabel"
+          :color="isCanceled ? 'error' : 'primary'"
+          :disabled="!isCanceled && editorDisciplines.length === 0"
+          :loading="loading"
+          class="sm:w-auto justify-center"
+          @click="save"
+        />
       </div>
     </template>
   </UModal>

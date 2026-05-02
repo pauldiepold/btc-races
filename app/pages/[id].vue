@@ -314,36 +314,36 @@ async function syncLadv() {
 
     <!-- Absagen-Bestätigungsdialog -->
     <UModal v-model:open="cancelModal">
-      <template #content>
-        <div class="p-6 space-y-4">
-          <div class="flex items-start gap-3">
-            <UIcon
-              name="i-ph-warning-circle"
-              class="size-5 text-error shrink-0 mt-0.5"
-            />
-            <div>
-              <p class="font-semibold text-highlighted">
-                Event absagen?
-              </p>
-              <p class="text-sm text-muted mt-1">
-                Das Event wird als abgesagt markiert. Bestehende Anmeldungen bleiben erhalten. Die Absage kann rückgängig gemacht werden.
-              </p>
-            </div>
+      <template #body>
+        <div class="flex items-start gap-3">
+          <UIcon
+            name="i-ph-warning-circle"
+            class="size-5 text-error shrink-0 mt-0.5"
+          />
+          <div>
+            <p class="font-semibold text-highlighted">
+              Event absagen?
+            </p>
+            <p class="text-sm text-muted mt-1">
+              Das Event wird als abgesagt markiert. Bestehende Anmeldungen bleiben erhalten. Die Absage kann rückgängig gemacht werden.
+            </p>
           </div>
-          <div class="flex justify-end gap-2">
-            <UButton
-              label="Abbrechen"
-              color="neutral"
-              variant="ghost"
-              @click="cancelModal = false"
-            />
-            <UButton
-              label="Ja, absagen"
-              color="error"
-              :loading="cancelLoading"
-              @click="confirmCancel"
-            />
-          </div>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex gap-2 ml-auto">
+          <UButton
+            label="Abbrechen"
+            color="neutral"
+            variant="ghost"
+            @click="cancelModal = false"
+          />
+          <UButton
+            label="Ja, absagen"
+            color="error"
+            :loading="cancelLoading"
+            @click="confirmCancel"
+          />
         </div>
       </template>
     </UModal>

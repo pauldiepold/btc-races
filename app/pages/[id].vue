@@ -9,7 +9,8 @@ const toast = useToast()
 const config = useRuntimeConfig()
 const id = route.params.id as string
 
-const { data: event, status, refresh } = useFetch<EventResponse>(`/api/events/${id}`, {
+const { data: event, status, refresh } = await useFetch<EventResponse>(`/api/events/${id}`, {
+  key: `event-${id}`,
   onResponseError({ response }) {
     if (response.status === 404) {
       toast.add({ title: 'Event nicht gefunden', color: 'error' })
@@ -19,18 +20,24 @@ const { data: event, status, refresh } = useFetch<EventResponse>(`/api/events/${
 })
 
 useHead(() => ({
-  title: event.value?.name ?? 'Event',
+  title: event.value ? `${event.value.name} | Berlin Track Club` : 'Event | Berlin Track Club',
 }))
 
 useSeoMeta({
-  description: computed(() => event.value ? generateEventOgDescription(event.value) : undefined),
-  ogTitle: computed(() => event.value?.name),
-  ogDescription: computed(() => event.value ? generateEventOgDescription(event.value) : undefined),
+  title: () => event.value ? `${event.value.name} | Berlin Track Club` : 'Event | Berlin Track Club',
+  ogTitle: () => event.value ? `${event.value.name} | Berlin Track Club` : 'Event | Berlin Track Club',
+
+  description: () => generateEventOgDescription(event.value),
+  ogDescription: () => generateEventOgDescription(event.value),
+
+  twitterTitle: () => event.value ? `${event.value.name} | Berlin Track Club` : 'Event | Berlin Track Club',
+  twitterDescription: () => generateEventOgDescription(event.value),
+
   ogUrl: `${config.public.siteUrl}/${id}`,
   ogType: 'website',
 })
 
-defineOgImage('Default', { title: 'Events - Berlin Track Club' }, [
+defineOgImage('Default', { title: 'Berlin Track Club' }, [
   { key: 'og', width: 1200, height: 630 },
   { key: 'whatsapp', width: 600, height: 600 },
 ])

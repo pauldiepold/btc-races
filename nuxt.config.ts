@@ -8,7 +8,6 @@ export default defineNuxtConfig({
     '@nuxthub/core',
     'nuxt-auth-utils',
     '@pinia/nuxt',
-    '@pinia/colada-nuxt',
     'nuxt-email-renderer',
     '@nuxt/fonts',
     'nuxt-og-image',
@@ -21,7 +20,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: 'BTC Events',
+      title: 'Berlin Track Club',
       link: [
         { rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
         { rel: 'icon', href: '/logo-yellow.svg', sizes: 'any', type: 'image/svg+xml' },
@@ -154,9 +153,9 @@ export default defineNuxtConfig({
       globPatterns: [],
     },
     manifest: {
-      name: 'BTC Races — Wettkampfanmeldung',
-      short_name: 'BTC Races',
-      description: 'Wettkampf-Anmeldesystem des Berlin Track Club',
+      name: 'Berlin Track Club',
+      short_name: 'Berlin Track Club',
+      description: 'Wettkampf & Trainingsverwaltung des Berlin Track Clubs',
       lang: 'de',
       theme_color: '#ffb700',
       background_color: '#18181b',

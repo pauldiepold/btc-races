@@ -26,9 +26,9 @@ const isMoreFiltersOpen = ref(false)
 
 const createOptions: { type: CreateEventType, label: string, description: string, icon: string }[] = [
   { type: 'ladv', label: 'LADV-Import', description: 'Wettkampf aus der LADV-Datenbank importieren', icon: 'i-ph-download-simple' },
-  { type: 'competition', label: 'Wettkampf', description: 'Wettkampf manuell anlegen', icon: 'i-ph-trophy' },
-  { type: 'training', label: 'Training', description: 'Trainingstermin erstellen', icon: 'i-ph-lightning' },
-  { type: 'social', label: 'Social', description: 'Gemeinschaftsevent anlegen', icon: 'i-ph-confetti' },
+  { type: 'competition', label: 'Wettkampf', description: 'Wettkampf manuell anlegen', icon: eventTypeIcons['competition'] ?? '' },
+  { type: 'training', label: 'Training', description: 'Trainingstermin erstellen', icon: eventTypeIcons['training'] ?? '' },
+  { type: 'social', label: 'Social', description: 'Gemeinschaftsevent anlegen', icon: eventTypeIcons['social'] ?? '' },
 ]
 
 const activeFilterCount = computed(() => {

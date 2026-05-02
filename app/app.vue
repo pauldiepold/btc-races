@@ -6,11 +6,11 @@ const avatarUrlSmall = computed(() => user.value?.avatarUrl ?? undefined)
 const avatarAlt = computed(() => `${user.value?.firstName ?? ''} ${user.value?.lastName ?? ''}`)
 
 useSeoMeta({
-  description: 'Events des Berlin Track Clubs.',
-  ogTitle: 'BTC Events',
-  ogDescription: 'Events des Berlin Track Clubs.',
-  twitterTitle: 'BTC Events',
-  twitterDescription: 'Events des Berlin Track Clubs.',
+  description: 'Wettkampf & Trainingsverwaltung des Berlin Track Clubs',
+  ogTitle: 'Berlin Track Club',
+  ogDescription: 'Wettkampf & Trainingsverwaltung des Berlin Track Clubs',
+  twitterTitle: 'Berlin Track Club',
+  twitterDescription: 'Wettkampf & Trainingsverwaltung des Berlin Track Clubs',
   twitterCard: 'summary_large_image',
 })
 
@@ -21,7 +21,7 @@ useHead({
     { name: 'mobile-web-app-capable', content: 'yes' },
     { name: 'apple-mobile-web-app-capable', content: 'yes' },
     { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
-    { name: 'apple-mobile-web-app-title', content: 'BTC Races' },
+    { name: 'apple-mobile-web-app-title', content: 'Berlin Track Club' },
   ],
   htmlAttrs: {
     lang: 'de',
@@ -38,7 +38,7 @@ useHead({
     }"
   >
     <UHeader
-      title="BTC Events"
+      title="Berlin Track Club"
     >
       <template #title>
         <div class="group flex items-center gap-6">
@@ -47,7 +47,7 @@ useHead({
             alt="BTC Logo"
             class="size-14 text-yellow-500 transform transition-transform duration-300 group-hover:scale-110"
           />
-          <span class="font-display font-semibold">BTC Events</span>
+          <span class="font-display font-semibold">Berlin Track Club</span>
         </div>
       </template>
 

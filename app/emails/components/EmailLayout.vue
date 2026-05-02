@@ -90,10 +90,10 @@ const styles = {
 
         <ESection :style="styles.header">
           <EImg
-            src="https://btc-races.pages.dev/pwa-64x64.png"
+            src="https://events.berlin-track-club.de/pwa-64x64.png"
             width="64"
             height="64"
-            alt="BTC-Races"
+            alt="Berlin Track Club"
             :style="styles.logo"
           />
           <EHeading :style="styles.headerTitle">

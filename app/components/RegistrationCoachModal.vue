@@ -115,7 +115,7 @@ async function save() {
     if (selectedStatus.value !== reg.value?.status) {
       await $fetch(`/api/registrations/${props.registrationId}`, {
         method: 'PATCH',
-        body: { status: selectedStatus.value },
+        body: { status: selectedStatus.value, silent: true },
       })
     }
 

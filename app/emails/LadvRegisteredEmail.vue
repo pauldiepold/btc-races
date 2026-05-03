@@ -49,7 +49,10 @@ const styles = {
 </script>
 
 <template>
-  <EmailLayout header-title="LADV-Meldung bestätigt">
+  <EmailLayout
+    header-title="LADV-Meldung bestätigt"
+    show-unsubscribe
+  >
     <EmailText>
       Hallo {{ firstName }},
     </EmailText>

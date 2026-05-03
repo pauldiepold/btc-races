@@ -11,17 +11,41 @@ interface Props {
   registrationDeadline?: string
   eventVenue?: string
   eventLink?: string
+  disciplines?: string[]
 }
 
-withDefaults(defineProps<Props>(), {
-  firstName: 'Max',
-  eventName: 'Herbstmeeting 2025',
-  eventDate: '15.03.2025',
-  eventLocation: 'Berlin',
-  registrationDeadline: '10.03.2025',
-  eventVenue: undefined,
-  eventLink: 'https://btc-races.de/events/1',
-})
+const {
+  firstName = 'Max',
+  eventName = 'Herbstmeeting 2025',
+  eventDate = '15.03.2025',
+  eventLocation = 'Berlin',
+  registrationDeadline = '10.03.2025',
+  eventVenue,
+  eventLink = 'https://btc-races.de/events/1',
+  disciplines = ['100m', '200m'],
+} = defineProps<Props>()
+
+const styles = {
+  disciplineBox: {
+    backgroundColor: '#fafafa',
+    border: '1px solid #e4e4e7',
+    borderRadius: '3px',
+    padding: '12px 16px',
+    margin: '8px 0 16px 0',
+  },
+  disciplineLabel: {
+    margin: '0 0 6px 0',
+    fontSize: '13px',
+    fontWeight: '600' as const,
+    color: '#09090b',
+  },
+  disciplineList: {
+    margin: '0',
+    fontSize: '14px',
+    color: '#3f3f46',
+    lineHeight: '1.6',
+  },
+}
 </script>
 
 <template>
@@ -36,6 +60,18 @@ withDefaults(defineProps<Props>(), {
     <EmailText>
       die Meldefrist für <strong>{{ eventName }}</strong> endet am <strong>{{ registrationDeadline }}</strong>. Falls du deine Meldung noch anpassen willst, tu das jetzt.
     </EmailText>
+
+    <ESection
+      v-if="disciplines && disciplines.length > 0"
+      :style="styles.disciplineBox"
+    >
+      <EText :style="styles.disciplineLabel">
+        Deine angemeldeten Disziplinen
+      </EText>
+      <EText :style="styles.disciplineList">
+        {{ disciplines.join(', ') }}
+      </EText>
+    </ESection>
 
     <EventDetails
       :event-name="eventName"

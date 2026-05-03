@@ -57,9 +57,9 @@ function onUpdate(value: boolean) {
     />
 
     <UIcon
-      v-if="state.mandatory"
       name="i-ph-lock-simple"
       class="size-3.5 text-muted"
+      :class="{ invisible: !state.mandatory }"
     />
   </div>
 </template>

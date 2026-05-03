@@ -9,7 +9,6 @@ interface Participant {
 }
 
 interface Props {
-  firstName?: string
   eventName?: string
   eventDate?: string
   eventLocation?: string
@@ -20,7 +19,6 @@ interface Props {
 }
 
 const {
-  firstName = 'Team',
   participants = [
     { name: 'Max Mustermann', disciplines: '100m, 200m' },
     { name: 'Erika Musterfrau', disciplines: '800m' },
@@ -72,7 +70,7 @@ const participantCount = participants?.length ?? 0
     show-unsubscribe
   >
     <EmailText>
-      Hallo {{ firstName }},
+      Liebe Coaches,
     </EmailText>
 
     <EmailText>

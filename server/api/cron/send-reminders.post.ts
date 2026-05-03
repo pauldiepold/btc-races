@@ -3,7 +3,9 @@ import { and, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm'
 import { notificationService } from '~~/server/notifications/service'
 import { formatEventDate } from '~~/shared/utils/events'
 import { addDaysToIsoDate, todayIsoDate } from '~~/shared/utils/reminder-dates'
+import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
 import type { NotificationType } from '~~/shared/types/notifications'
+import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 
 interface ReminderResult {
   type: NotificationType
@@ -32,10 +34,11 @@ async function hasExistingJob(type: NotificationType, eventId: number): Promise<
 }
 
 async function getRegisteredRecipients(eventId: number) {
-  return db.select({
+  const rows = await db.select({
     userId: schema.users.id,
     email: schema.users.email,
     firstName: schema.users.firstName,
+    wishDisciplines: schema.registrations.wishDisciplines,
   })
     .from(schema.registrations)
     .innerJoin(schema.users, eq(schema.registrations.userId, schema.users.id))
@@ -45,6 +48,17 @@ async function getRegisteredRecipients(eventId: number) {
         inArray(schema.registrations.status, ['registered', 'yes']),
       ),
     )
+
+  return rows.map((row) => {
+    const wish = (row.wishDisciplines as RegistrationDisciplinePair[] | null) ?? []
+    const disciplines = wish.map(d => `${ladvDisciplineLabel(d.discipline)} (${ladvAgeClassLabel(d.ageClass)})`)
+    return {
+      userId: row.userId,
+      email: row.email,
+      firstName: row.firstName ?? undefined,
+      disciplines: disciplines.length > 0 ? disciplines : undefined,
+    }
+  })
 }
 
 async function getAdminParticipantList(eventId: number): Promise<Array<{ name: string, disciplines?: string }>> {
@@ -133,6 +147,7 @@ export default defineEventHandler(async (event) => {
               userId: r.userId,
               email: r.email,
               firstName: r.firstName ?? undefined,
+              disciplines: r.disciplines,
             })),
             payload,
             eventId: dbEvent.id,

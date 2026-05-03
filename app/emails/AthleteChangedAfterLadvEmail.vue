@@ -4,7 +4,6 @@ import EmailText from './components/EmailText.vue'
 import EventDetails from './components/EventDetails.vue'
 
 interface Props {
-  firstName?: string
   memberFirstName?: string
   memberLastName?: string
   eventName?: string
@@ -16,7 +15,6 @@ interface Props {
 }
 
 const {
-  firstName = 'Team',
   memberFirstName = 'Max',
   memberLastName = 'Mustermann',
 } = defineProps<Props>()
@@ -42,9 +40,12 @@ const memberFullName = `${memberFirstName} ${memberLastName}`
 </script>
 
 <template>
-  <EmailLayout header-title="Wunschstand geändert">
+  <EmailLayout
+    header-title="Wunschstand geändert"
+    show-unsubscribe
+  >
     <EmailText>
-      Hallo {{ firstName }},
+      Liebe Coaches,
     </EmailText>
 
     <EmailText>

@@ -31,7 +31,7 @@ const styles = {
 <template>
   <ESection :style="styles.container">
     <EText :style="styles.text">
-      Diese Benachrichtigung kannst du in deinen
+      Deine Benachrichtigungen kannst du in deinen
       <ELink
         :href="preferencesUrl"
         :style="styles.link"

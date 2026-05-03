@@ -59,7 +59,11 @@ async function sendEmailDelivery(
   if (!recipient.email) return 'No email address'
 
   const subject = EMAIL_SUBJECT_MAP[type](payload)
-  const templateProps = { ...payload, firstName: recipient.firstName }
+  const templateProps = {
+    ...payload,
+    firstName: recipient.firstName,
+    ...(recipient.disciplines ? { disciplines: recipient.disciplines } : {}),
+  }
   const fallbackGreeting = recipient.firstName ? `Hallo ${recipient.firstName},` : 'Hallo,'
 
   function buildEventChangedFallbackContent() {

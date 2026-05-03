@@ -12,6 +12,7 @@ import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 const bodySchema = z.object({
   status: z.enum(['registered', 'canceled', 'maybe', 'yes', 'no']).optional(),
   notes: z.string().nullable().optional(),
+  silent: z.boolean().optional(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -34,7 +35,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: result.error.issues[0]?.message ?? 'Validierungsfehler' })
   }
 
-  const { status, notes } = result.data
+  const { status, notes, silent } = result.data
 
   const registration = await db.query.registrations.findFirst({
     where: eq(schema.registrations.id, id),
@@ -74,14 +75,15 @@ export default defineEventHandler(async (event) => {
     }
 
     // Stornierung durch Athlet nach bereits erfolgter LADV-Meldung → Admins informieren
-    if (!isAdmin && isCancelAction) {
+    if (registration.userId === session.user.id && isCancelAction) {
       const ladvDisciplines = registration.ladvDisciplines as RegistrationDisciplinePair[] | null
       shouldNotifyAdmins = ladvDisciplines !== null
     }
   }
 
   // Admin ändert fremde Anmeldung → Mitglied informieren
-  if (isAdmin && registration.userId !== session.user.id) {
+  // (außer der Aufrufer signalisiert, dass eine spezifischere Notification bereits gesendet wurde)
+  if (isAdmin && registration.userId !== session.user.id && !silent) {
     shouldNotifyMember = true
   }
 

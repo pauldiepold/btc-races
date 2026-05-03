@@ -19,8 +19,12 @@ const hasDeadline = computed(() =>
 const deadlineDate = computed(() => toDate(props.event.registrationDeadline))
 const deadlineExpired = computed(() => !!deadlineDate.value && deadlineDate.value < new Date())
 const compactLocation = computed(() => {
-  if (!props.event.location) return null
-  return props.event.location.split(' · ')[0]?.trim() ?? null
+  const location = props.event.location
+  if (!location) return null
+
+  const [first, second] = location.split('·').map(s => s.trim())
+
+  return second || first || null
 })
 
 const registrationStatusConfig: Record<string, { icon: string, label: string, color: BadgeColor }> = {
@@ -109,7 +113,10 @@ const ownRegistration = computed(() => {
           />
           {{ compactLocation }}
         </span>
-        <span class="text-xs text-muted flex items-center gap-1">
+        <span
+          v-if="event.participantCount && event.participantCount > 0"
+          class="text-xs text-muted flex items-center gap-1"
+        >
           <UIcon
             name="i-ph-users"
             class="size-3"

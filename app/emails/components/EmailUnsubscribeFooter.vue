@@ -3,7 +3,7 @@ interface Props {
   baseUrl?: string
 }
 
-const { baseUrl = 'https://btc-races.de' } = defineProps<Props>()
+const { baseUrl = 'https://events.berlin-track-club.de' } = defineProps<Props>()
 
 const preferencesUrl = `${baseUrl}/profil/benachrichtigungen`
 
@@ -34,11 +34,10 @@ const styles = {
       Deine Benachrichtigungen kannst du in deinen
       <ELink
         :href="preferencesUrl"
-        :style="styles.link"
+        :style="{ ...styles.link, whiteSpace: 'nowrap' }"
       >
-        Einstellungen
+        Einstellungen&nbsp;abbestellen.
       </ELink>
-      abbestellen.
     </EText>
   </ESection>
 </template>

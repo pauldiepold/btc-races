@@ -513,58 +513,66 @@ async function saveNotes() {
 
       <!-- Notiz -->
       <div class="space-y-2">
-        <p class="text-xs font-medium text-muted uppercase tracking-widest">
-          Öffentliche Notiz
-        </p>
-
-        <div
-          v-if="editingNotes"
-          class="space-y-2"
-        >
-          <UTextarea
-            v-model="editedNotes"
-            placeholder="Für alle Mitglieder sichtbar…"
-            class="w-full"
-            :rows="1"
-            autoresize
-          />
-          <div class="flex gap-2">
-            <UButton
-              label="Speichern"
-              color="neutral"
-              variant="outline"
-              size="sm"
-              :loading="notesLoading"
-              @click="saveNotes"
+        <template v-if="editingNotes">
+          <p class="text-xs font-medium text-muted uppercase tracking-widest">
+            Öffentliche Notiz
+          </p>
+          <div class="space-y-2">
+            <UTextarea
+              v-model="editedNotes"
+              placeholder="Für alle Mitglieder sichtbar…"
+              class="w-full"
+              :rows="1"
+              autoresize
             />
+            <div class="flex gap-2">
+              <UButton
+                label="Speichern"
+                color="neutral"
+                variant="outline"
+                size="sm"
+                :loading="notesLoading"
+                @click="saveNotes"
+              />
+              <UButton
+                label="Abbrechen"
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                @click="editingNotes = false"
+              />
+            </div>
+          </div>
+        </template>
+
+        <template v-else-if="ownReg.notes">
+          <p class="text-xs font-medium text-muted uppercase tracking-widest">
+            Öffentliche Notiz
+          </p>
+          <div class="flex items-start gap-2">
+            <p class="text-sm flex-1 text-default italic">
+              {{ ownReg.notes }}
+            </p>
             <UButton
-              label="Abbrechen"
+              icon="i-ph-pencil-simple"
               color="neutral"
               variant="ghost"
-              size="sm"
-              @click="editingNotes = false"
+              size="xs"
+              @click="startEditNotes"
             />
           </div>
-        </div>
+        </template>
 
-        <div
-          v-else
-          class="flex items-start gap-2"
-        >
-          <p
-            class="text-sm flex-1"
-            :class="ownReg.notes ? 'text-default italic' : 'text-muted'"
-          >
-            {{ ownReg.notes ?? 'Keine Notiz' }}
-          </p>
+        <template v-else>
           <UButton
-            icon="i-ph-pencil-simple"
+            label="Öffentliche Notiz hinzufügen"
+            icon="i-ph-plus"
             color="neutral"
             variant="ghost"
-            size="xs"
+            size="sm"
             @click="startEditNotes"
           />
-        </div>
+        </template>
       </div>
     </div>
 

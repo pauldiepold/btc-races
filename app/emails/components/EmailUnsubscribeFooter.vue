@@ -3,7 +3,7 @@ interface Props {
   baseUrl?: string
 }
 
-const { baseUrl = 'https://btc-races.de' } = defineProps<Props>()
+const { baseUrl = 'https://events.berlin-track-club.de' } = defineProps<Props>()
 
 const preferencesUrl = `${baseUrl}/profil/benachrichtigungen`
 
@@ -36,9 +36,9 @@ const styles = {
         :href="preferencesUrl"
         :style="styles.link"
       >
-        Einstellungen
-      </ELink>
-      abbestellen.
+        Einstellungen</
+      ELink> abbestellen.
+      </elink>
     </EText>
   </ESection>
 </template>

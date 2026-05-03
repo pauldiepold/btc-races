@@ -25,6 +25,8 @@ function routeSchedule(cron: string): CronTarget | null {
       return { path: '/api/cron/send-reminders', description: 'send reminders' }
     case '0 2 * * 0':
       return { path: '/api/cron/cleanup-notifications', description: 'cleanup notifications' }
+    case '0 1 * * *':
+      return { path: '/api/cron/sync-ladv-events', description: 'sync LADV events' }
     default:
       return null
   }

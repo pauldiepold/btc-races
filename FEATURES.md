@@ -27,6 +27,7 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - Event absagen und reaktivieren
 - LADV-Event importieren via LADV-ID (`POST /api/events/ladv-import`)
 - LADV-Daten synchronisieren (`POST /api/events/[id]/sync`)
+- Nächtlicher LADV-Bulk-Sync: alle noch kommenden LADV-Events täglich via Cron aktualisiert; manuell überschriebene Felder bleiben erhalten (`detectLadvDiff`) — #136
 - Google-Maps-Suchlink für LADV-Veranstaltungsort
 - Event-Priorität A / B / C für `ladv`- und `competition`-Events — #23
 - Öffentliche Event-Detailseite für nicht eingeloggte Gäste: Registrierungszähler sichtbar, Login-CTA statt Anmeldeformular — #36
@@ -98,7 +99,7 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
   - `POST /api/cron/process-notifications` — Queue abarbeiten (jede Minute)
   - `POST /api/cron/send-reminders` — N-06 (Meldefrist Athlet, 5 Tage, inkl. Wunsch-Disziplinen in der E-Mail), N-07 (Meldefrist Admin, 3 Tage), N-08 (Event in 2 Tagen) inkl. Deduplizierung über `notification_jobs` — #140
   - `POST /api/cron/cleanup-notifications` — löscht `done`-Jobs älter als 90 Tage (Deliveries via Cascade)
-- Cron-Trigger via separaten Cloudflare-Worker (`cron-worker/`) — pingt die Nuxt-Cron-Endpoints gemäß Schedule (`* * * * *`, `0 7 * * *`, `0 2 * * 0`), weil Cloudflare Pages keine nativen Cron-Triggers hat
+- Cron-Trigger via separaten Cloudflare-Worker (`cron-worker/`) — pingt die Nuxt-Cron-Endpoints gemäß Schedule (`* * * * *`, `0 7 * * *`, `0 2 * * 0`, `0 1 * * *`), weil Cloudflare Pages keine nativen Cron-Triggers hat
 - Superuser-Dashboard `/superuser/notifications` — Liste aller Jobs mit Status-/Typ-Filtern, Paginierung, expandierbaren Delivery-Details und Retry-Button für `failed`-Jobs — #66
 
 ---

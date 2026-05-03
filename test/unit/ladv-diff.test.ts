@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { diffLadvRegistration, getRegistrationLadvIndicator, shouldNotifyAdminsOnWishChange } from '../../shared/utils/ladv-diff'
+import { diffLadvRegistration, getCoachModalLineState, getCoachModalRemovals, getRegistrationLadvIndicator, shouldNotifyAdminsOnWishChange } from '../../shared/utils/ladv-diff'
 
 describe('diffLadvRegistration', () => {
   it('returns empty diff for identical sets', () => {
@@ -102,6 +102,75 @@ describe('shouldNotifyAdminsOnWishChange', () => {
     const ladv = [{ discipline: 'S5K', ageClass: 'M35' }]
     const newWish = [{ discipline: 'S5K', ageClass: 'M35' }, { discipline: 'S10K', ageClass: 'M35' }]
     expect(shouldNotifyAdminsOnWishChange(base, newWish, ladv)).toBe(true)
+  })
+})
+
+describe('getCoachModalLineState', () => {
+  it('returns ok when discipline exists in ladv with same age class', () => {
+    const ladv = [{ discipline: 'S5K', ageClass: 'M35' }]
+    expect(getCoachModalLineState({ discipline: 'S5K', ageClass: 'M35' }, ladv))
+      .toEqual({ type: 'ok' })
+  })
+
+  it('returns add when discipline does not exist in ladv', () => {
+    const ladv = [{ discipline: 'S5K', ageClass: 'M35' }]
+    expect(getCoachModalLineState({ discipline: 'S10K', ageClass: 'M35' }, ladv))
+      .toEqual({ type: 'add' })
+  })
+
+  it('returns update with previousAgeClass when ageClass differs', () => {
+    const ladv = [{ discipline: 'S5K', ageClass: 'M35' }]
+    expect(getCoachModalLineState({ discipline: 'S5K', ageClass: 'M40' }, ladv))
+      .toEqual({ type: 'update', previousAgeClass: 'M35' })
+  })
+
+  it('returns initial when ladv is null', () => {
+    expect(getCoachModalLineState({ discipline: 'S5K', ageClass: 'M35' }, null))
+      .toEqual({ type: 'initial' })
+  })
+
+  it('returns add when ladv is empty array (not initial)', () => {
+    expect(getCoachModalLineState({ discipline: 'S5K', ageClass: 'M35' }, []))
+      .toEqual({ type: 'add' })
+  })
+})
+
+describe('getCoachModalRemovals', () => {
+  it('returns ladv entries that are not in editor', () => {
+    const editor = [{ discipline: 'S5K', ageClass: 'M35' }]
+    const ladv = [
+      { discipline: 'S5K', ageClass: 'M35' },
+      { discipline: 'S10K', ageClass: 'M35' },
+    ]
+    expect(getCoachModalRemovals(editor, ladv)).toEqual([
+      { discipline: 'S10K', ageClass: 'M35' },
+    ])
+  })
+
+  it('does not include entries present in editor regardless of ageClass', () => {
+    const editor = [{ discipline: 'S5K', ageClass: 'M40' }]
+    const ladv = [{ discipline: 'S5K', ageClass: 'M35' }]
+    expect(getCoachModalRemovals(editor, ladv)).toEqual([])
+  })
+
+  it('returns empty array when ladv is null', () => {
+    expect(getCoachModalRemovals([{ discipline: 'S5K', ageClass: 'M35' }], null))
+      .toEqual([])
+  })
+
+  it('returns empty array when ladv is empty', () => {
+    expect(getCoachModalRemovals([{ discipline: 'S5K', ageClass: 'M35' }], []))
+      .toEqual([])
+  })
+
+  it('preserves ladv input order across multiple removals', () => {
+    const editor: { discipline: string, ageClass: string }[] = []
+    const ladv = [
+      { discipline: 'S10K', ageClass: 'M35' },
+      { discipline: 'L800', ageClass: 'M35' },
+      { discipline: 'S5K', ageClass: 'M35' },
+    ]
+    expect(getCoachModalRemovals(editor, ladv)).toEqual(ladv)
   })
 })
 

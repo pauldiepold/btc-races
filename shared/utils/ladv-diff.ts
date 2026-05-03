@@ -83,6 +83,32 @@ export function getRegistrationLadvIndicator(reg: RegistrationLadvIndicatorInput
   return 'none'
 }
 
+export type CoachModalLineState
+  = | { type: 'ok' }
+    | { type: 'add' }
+    | { type: 'initial' }
+    | { type: 'update', previousAgeClass: string }
+
+export function getCoachModalLineState(
+  line: RegistrationDisciplinePair,
+  ladv: RegistrationDisciplinePair[] | null,
+): CoachModalLineState {
+  if (ladv === null) return { type: 'initial' }
+  const match = ladv.find(d => d.discipline === line.discipline)
+  if (!match) return { type: 'add' }
+  if (match.ageClass !== line.ageClass) return { type: 'update', previousAgeClass: match.ageClass }
+  return { type: 'ok' }
+}
+
+export function getCoachModalRemovals(
+  editor: RegistrationDisciplinePair[],
+  ladv: RegistrationDisciplinePair[] | null,
+): RegistrationDisciplinePair[] {
+  if (!ladv || ladv.length === 0) return []
+  const editorCodes = new Set(editor.map(d => d.discipline))
+  return ladv.filter(d => !editorCodes.has(d.discipline))
+}
+
 export function shouldNotifyAdminsOnWishChange(
   prevWish: RegistrationDisciplinePair[],
   newWish: RegistrationDisciplinePair[],

@@ -15,14 +15,14 @@ interface Props {
 }
 
 const {
-  firstName = 'Max',
-  eventName = 'Herbstmeeting 2025',
-  eventDate = '15.03.2025',
-  eventLocation = 'Berlin',
-  registrationDeadline = '10.03.2025',
+  firstName,
+  eventName,
+  eventDate,
+  eventLocation,
+  registrationDeadline,
   eventVenue,
-  eventLink = 'https://btc-races.de/events/1',
-  disciplines = ['100m', '200m'],
+  eventLink,
+  disciplines = [],
 } = defineProps<Props>()
 
 const styles = {

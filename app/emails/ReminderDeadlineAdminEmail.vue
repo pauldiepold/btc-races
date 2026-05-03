@@ -19,11 +19,7 @@ interface Props {
 }
 
 const {
-  participants = [
-    { name: 'Max Mustermann', disciplines: '100m, 200m' },
-    { name: 'Erika Musterfrau', disciplines: '800m' },
-    { name: 'Jonas Schmidt' },
-  ],
+  participants = [],
 } = defineProps<Props>()
 
 const styles = {

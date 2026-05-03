@@ -409,7 +409,7 @@ async function saveNotes() {
                   size="sm"
                   icon="i-ph-check-circle"
                 >
-                  Bei LADV angemeldet
+                  Bei LADV gemeldet
                 </UBadge>
               </div>
             </div>

@@ -8,7 +8,7 @@
 	],
 	"vars": {
 		"NUXT_EMAIL_SENDER_ADDRESS": "app@berlin-track-club.de",
-		"NUXT_EMAIL_TEST_MODE": "true",
+		"NUXT_EMAIL_TEST_MODE": "false",
 		"NUXT_EMAIL_PROVIDER": "azure-fetch"
 	},
 	"d1_databases": [

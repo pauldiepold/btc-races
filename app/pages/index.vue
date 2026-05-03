@@ -76,7 +76,7 @@ const steps = [
   {
     number: '01',
     title: 'Event auswählen',
-    description: 'Stöbere durch die anstehenden Wettkämpfe und such dir deinen nächsten Start.',
+    description: 'Stöbere durch die anstehenden Wettkämpfe.',
   },
   {
     number: '02',
@@ -86,7 +86,7 @@ const steps = [
   {
     number: '03',
     title: 'Starten',
-    description: 'Die Coaches kümmern sich um die LADV-Einschreibung und informieren dich per E-Mail.',
+    description: 'Die Coaches kümmern sich um die LADV-Meldung und du wirst per E-Mail informiert.',
   },
 ]
 </script>
@@ -236,7 +236,7 @@ const steps = [
             Fragen oder Probleme?
           </p>
           <UButton
-            to="https://app.campai.com/pt/9a0cd/rooms/room/688357998a5abe1409d4fc8e/channel"
+            to="https://app.campai.com/pt/9a0cd/rooms/room/68824da1b5ee20b6a537866d/channel"
             target="_blank"
             rel="noopener noreferrer"
             color="neutral"
@@ -245,7 +245,7 @@ const steps = [
             trailing-icon="i-ph-arrow-up-right-bold"
             block
           >
-            BTC Community
+            Campai
           </UButton>
         </div>
       </aside>

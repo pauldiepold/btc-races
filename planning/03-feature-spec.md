@@ -295,7 +295,7 @@ Ausgetretene Mitglieder (nicht mehr in Campai aktiv) erhalten `membershipStatus 
 
 **Akzeptanzkriterien:**
 - Grundlegende Teilnehmerliste (Name, Status, Disziplin, Notiz) für alle eingeloggten Mitglieder sichtbar — auch auf der Detailseite (F-02)
-- Admins sehen zusätzlich: LADV-Operationsstatus aller Angemeldeten — "Noch nicht bei LADV gemeldet" / "Bei LADV angemeldet am [Datum] von [Coach]" / "Bei LADV abgemeldet am [Datum] von [Coach]"
+- Admins sehen zusätzlich: LADV-Operationsstatus aller Angemeldeten — "Noch nicht bei LADV gemeldet" / "Bei LADV gemeldet am [Datum] von [Coach]" / "Bei LADV abgemeldet am [Datum] von [Coach]"
 - Jedes Mitglied sieht den eigenen LADV-Operationsstatus
 - Admin-Ansicht: filterbar nach Anmeldestatus
 - CSV-Export oder copy-paste-freundliche Darstellung: **Could**
@@ -651,7 +651,7 @@ Pro Event mit Anmeldungen werden 0–3 zufällige Mitglieder-Kommentare generier
 | Zustand                      | Bedingung                                    | Wer setzt |
 |------------------------------|----------------------------------------------|-----------|
 | Noch nicht bei LADV gemeldet | `ladv_registered_at IS NULL`                 | —         |
-| Bei LADV angemeldet          | `ladv_registered_at IS NOT NULL`             | Admin     |
+| Bei LADV gemeldet          | `ladv_registered_at IS NOT NULL`             | Admin     |
 | Bei LADV abgemeldet          | `ladv_canceled_at IS NOT NULL`               | Admin     |
 
 **Kritischer Grenzfall:** Ein Mitglied hat `status = 'canceled'` gesetzt, aber `ladv_registered_at` ist bereits gesetzt (Kevin hat die Person vorher bei LADV angemeldet). In diesem Fall muss die UI für den Admin deutlich sichtbar machen: "X hat abgesagt — LADV-Abmeldung noch ausstehend."

@@ -8,6 +8,10 @@ defineOgImage('Default', { title: 'Events - Berlin Track Club' }, [
   { key: 'whatsapp', width: 600, height: 600 },
 ])
 
+useHead(() => ({
+  title: `Events | Berlin Track Club`,
+}))
+
 const typeFilter = ref<string | undefined>(undefined)
 const timeRange = ref('upcoming')
 const searchQuery = ref('')

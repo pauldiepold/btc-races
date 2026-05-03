@@ -10,10 +10,16 @@ const router = useRouter()
 const tabs = [
   { label: 'LADV-Todos', value: 'ladv-todos', icon: 'i-ph-list-checks' },
   { label: 'Avatare', value: 'avatare', icon: 'i-ph-users-four' },
+  { label: 'Sync', value: 'sync', icon: 'i-ph-arrows-clockwise' },
 ]
 
 const activeTab = computed({
-  get: () => route.path.split('/').pop() === 'avatare' ? 'avatare' : 'ladv-todos',
+  get: () => {
+    const last = route.path.split('/').pop()
+    if (last === 'avatare') return 'avatare'
+    if (last === 'sync') return 'sync'
+    return 'ladv-todos'
+  },
   set: (value: string) => router.push(`/admin/${value}`),
 })
 </script>

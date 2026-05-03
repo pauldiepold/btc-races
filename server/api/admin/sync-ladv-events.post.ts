@@ -1,7 +1,7 @@
-import { requireSuperuser } from '~~/server/utils/auth'
+import { requireAdmin } from '~~/server/utils/auth'
 import { runSyncLadvEvents } from '~~/server/utils/sync-ladv-events'
 
 export default defineEventHandler(async (event) => {
-  await requireSuperuser(event)
+  await requireAdmin(event)
   return await runSyncLadvEvents()
 })

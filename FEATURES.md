@@ -53,7 +53,7 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - LADV-Todo-Liste: sortiert nach Meldefrist, gruppiert nach dringlich/normal — #20
 - Anmeldeliste am LADV-Event: pro Person ein LADV-Status-Badge (ok / Diff / Abmelden offen / kein Stand) plus Summary-Zeile mit Zählern für Admins — #117
 - Avatar-Verwaltung (`/admin/avatare`): Campai-Avatare über Browser-Proxy laden und in D1 cachen — #4
-- Member-Sync manuell auslösen (ruft Campai-API auf, aktualisiert `users`-Tabelle)
+- Sync-Seite (`/admin/sync`): Campai-Mitgliedersync und LADV-Events-Bulk-Sync manuell anstoßen (zugänglich für Admin + Superuser)
 - Mitglieder-Listen-Endpoint `GET /api/admin/members` (admin-only, aktive Mitglieder mit Avatar-Flag) — #118
 
 ---

@@ -30,6 +30,7 @@ export type EventDetail = Omit<Event, 'ladvData' | 'id'> & {
   id: string
   ladvData: LadvAusschreibung | null
   registrations: RegistrationDetail[]
+  createdByName: string | null
 }
 
 export type EventPublicRegistrationCounts = Partial<Record<RegistrationStatus, number>>

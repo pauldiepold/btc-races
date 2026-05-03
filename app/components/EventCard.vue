@@ -49,21 +49,21 @@ const ownRegistration = computed(() => {
     :class="{ 'opacity-50': event.cancelledAt }"
   >
     <!-- Datum-Block -->
-    <div class="shrink-0 flex flex-col items-center w-10 gap-0.5">
+    <div class="shrink-0 flex flex-col items-center w-10">
       <span
         v-if="weekday"
         class="text-[10px] text-muted uppercase tracking-wide leading-none"
       >{{ weekday }}</span>
-      <span class="text-base font-bold text-highlighted tabular-nums leading-none">
+      <span class="text-base font-bold text-highlighted leading-none mt-1.5 font-numeric">
         {{ day ?? '--' }}
       </span>
       <span
         v-if="month"
-        class="text-xs text-primary uppercase tracking-wide"
+        class="text-[10px] text-primary uppercase tracking-wide leading-none mt-0.5"
       >{{ month }}</span>
       <span
         v-if="event.startTime"
-        class="text-xs text-muted tabular-nums"
+        class="text-[10px] text-muted leading-none mt-1.5 font-numeric"
       >{{ event.startTime }}</span>
     </div>
 
@@ -72,7 +72,7 @@ const ownRegistration = computed(() => {
 
     <!-- Event-Infos -->
     <div class="flex-1 min-w-0">
-      <!-- Titel-Zeile: Typ-Icon + Name + Anmeldestatus (rechts) -->
+      <!-- Titel-Zeile: Typ-Icon + Name + Abgesagt -->
       <div class="flex items-center gap-2">
         <UIcon
           :name="eventTypeIcons[event.type]"
@@ -87,40 +87,15 @@ const ownRegistration = computed(() => {
           size="xs"
           class="shrink-0"
         />
-        <UBadge
-          v-if="ownRegistration"
-          :icon="ownRegistration.icon"
-          :label="ownRegistration.label"
-          :color="ownRegistration.color"
-          variant="subtle"
-          size="xs"
-          class="ml-auto shrink-0"
-        />
-        <UBadge
-          v-else-if="hasDeadline && !deadlineExpired"
-          label="Offen"
-          color="success"
-          variant="subtle"
-          size="xs"
-          class="ml-auto shrink-0"
-        />
       </div>
-      <!-- Meta-Zeile: Priorität, Ort, Typ-Details -->
-      <div class="flex items-center gap-3 mt-2 flex-wrap">
-        <EventPriorityBadge :priority="event.priority" />
+      <!-- Zeile 2: Teilnehmer + Ort -->
+      <div
+        v-if="compactLocation || 'ownRegistrationStatus' in event"
+        class="flex items-center gap-2 mt-1.5 text-xs text-muted"
+      >
         <span
-          v-if="compactLocation"
-          class="text-xs text-muted flex items-center gap-1"
-        >
-          <UIcon
-            name="i-ph-map-pin"
-            class="size-3"
-          />
-          {{ compactLocation }}
-        </span>
-        <span
-          v-if="event.participantCount && event.participantCount > 0"
-          class="text-xs text-muted flex items-center gap-1"
+          v-if="'ownRegistrationStatus' in event"
+          class="flex items-center gap-1"
         >
           <UIcon
             name="i-ph-users"
@@ -128,6 +103,23 @@ const ownRegistration = computed(() => {
           />
           {{ event.participantCount }}
         </span>
+        <span
+          v-if="compactLocation"
+          class="flex items-center gap-1"
+        >
+          <UIcon
+            name="i-ph-map-pin"
+            class="size-3"
+          />
+          {{ compactLocation }}
+        </span>
+      </div>
+      <!-- Zeile 3: Typ-Badges + Anmeldestatus -->
+      <div
+        v-if="event.priority !== 'none' || event.raceType || (event.championshipType && event.championshipType !== 'none') || ownRegistration || (hasDeadline && !deadlineExpired)"
+        class="flex items-center gap-2 mt-1.5 flex-wrap"
+      >
+        <EventPriorityBadge :priority="event.priority" />
         <UBadge
           v-if="event.raceType"
           :label="eventRaceTypeLabels[event.raceType]"
@@ -139,6 +131,21 @@ const ownRegistration = computed(() => {
           v-if="event.championshipType && event.championshipType !== 'none'"
           :label="eventChampionshipLabels[event.championshipType]"
           color="neutral"
+          variant="subtle"
+          size="xs"
+        />
+        <UBadge
+          v-if="ownRegistration"
+          :icon="ownRegistration.icon"
+          :label="ownRegistration.label"
+          :color="ownRegistration.color"
+          variant="subtle"
+          size="xs"
+        />
+        <UBadge
+          v-else-if="hasDeadline && !deadlineExpired"
+          label="Offen"
+          color="success"
           variant="subtle"
           size="xs"
         />

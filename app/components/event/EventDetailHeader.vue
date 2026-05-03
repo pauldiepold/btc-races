@@ -120,26 +120,30 @@ function toggle(code: string) {
         <!-- Datum-Block -->
         <div
           v-if="eventDate"
-          class="shrink-0 flex flex-col items-center w-10 pt-0.5 gap-0.5"
+          class="shrink-0 flex flex-col items-center w-10 pt-0.5"
         >
-          <span class="text-xs text-muted uppercase tracking-wide">{{ weekday }}</span>
-          <span class="text-2xl font-bold text-highlighted tabular-nums leading-none">
-            {{ day }}
-          </span>
-          <span class="text-xs text-primary uppercase tracking-wide">
-            {{ month }}
+          <span
+            v-if="weekday"
+            class="text-xs text-muted uppercase tracking-wide leading-none"
+          >{{ weekday }}</span>
+          <span class="text-2xl font-bold text-highlighted leading-none mt-1.5 font-numeric">
+            {{ day ?? '--' }}
           </span>
           <span
+            v-if="month"
+            class="text-xs text-primary uppercase tracking-wide leading-none mt-0.5"
+          >{{ month }}</span>
+          <span
             v-if="startTime"
-            class="text-xs text-muted tabular-nums"
+            class="text-xs text-muted leading-none mt-1.5 font-numeric"
           >{{ startTime }}</span>
           <span
             v-if="endTime"
-            class="text-xs text-muted tabular-nums"
+            class="text-xs text-muted leading-none font-numeric"
           >–{{ endTime }}</span>
           <span
             v-else-if="durationDisplay && !startTime"
-            class="text-xs text-muted"
+            class="text-xs text-muted leading-none"
           >{{ durationDisplay }}</span>
         </div>
 
@@ -256,6 +260,18 @@ function toggle(code: string) {
             class="mt-3 text-base text-default leading-relaxed"
           >
             {{ event.description }}
+          </p>
+
+          <!-- Erstellt von -->
+          <p
+            v-if="'createdByName' in event && event.createdByName"
+            class="flex items-center gap-1.5 mt-3 text-xs text-muted"
+          >
+            <UIcon
+              name="i-ph-user"
+              class="size-3.5 shrink-0"
+            />
+            Erstellt von {{ event.createdByName }}
           </p>
 
           <!-- LADV-Sidebar-Inhalt auf Mobile -->

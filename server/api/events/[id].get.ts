@@ -113,11 +113,22 @@ export default defineEventHandler(async (event): Promise<EventDetail | EventPubl
       }
     : null
 
+  const creator = dbEvent.createdBy
+    ? await db.query.users.findFirst({
+        where: eq(schema.users.id, dbEvent.createdBy),
+        columns: { firstName: true, lastName: true },
+      })
+    : null
+  const createdByName = creator
+    ? [creator.firstName, creator.lastName ? `${creator.lastName[0]}.` : null].filter(Boolean).join(' ') || null
+    : null
+
   const result: EventDetail = {
     ...dbEvent,
     id: sqid,
     ladvData,
     registrations,
+    createdByName,
   }
 
   return result

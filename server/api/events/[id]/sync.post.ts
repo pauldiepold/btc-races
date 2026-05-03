@@ -115,11 +115,22 @@ export default defineEventHandler(async (event) => {
     ? { ...rawLadvData, wettbewerbe: (rawLadvData.wettbewerbe ?? []).filter(w => isRunningDiscipline(w.disziplinNew)) }
     : null
 
+  const creator = updatedEvent!.createdBy
+    ? await db.query.users.findFirst({
+        where: eq(schema.users.id, updatedEvent!.createdBy),
+        columns: { firstName: true, lastName: true },
+      })
+    : null
+  const createdByName = creator
+    ? [creator.firstName, creator.lastName ? `${creator.lastName[0]}.` : null].filter(Boolean).join(' ') || null
+    : null
+
   const result: EventDetail = {
     ...updatedEvent!,
     id: sqid,
     ladvData,
     registrations,
+    createdByName,
   }
 
   return result

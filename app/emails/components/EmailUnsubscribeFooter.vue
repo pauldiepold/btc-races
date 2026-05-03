@@ -34,11 +34,10 @@ const styles = {
       Deine Benachrichtigungen kannst du in deinen
       <ELink
         :href="preferencesUrl"
-        :style="styles.link"
+        :style="{ ...styles.link, whiteSpace: 'nowrap' }"
       >
-        Einstellungen</
-      ELink> abbestellen.
-      </elink>
+        Einstellungen&nbsp;abbestellen.
+      </ELink>
     </EText>
   </ESection>
 </template>

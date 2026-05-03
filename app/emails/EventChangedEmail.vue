@@ -97,7 +97,10 @@ const styles = {
 </script>
 
 <template>
-  <EmailLayout header-title="Wettkampf geändert">
+  <EmailLayout
+    header-title="Wettkampf geändert"
+    show-unsubscribe
+  >
     <EmailText>
       Hallo {{ firstName }},
     </EmailText>

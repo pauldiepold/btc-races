@@ -27,6 +27,7 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - Event absagen und reaktivieren
 - LADV-Event importieren via LADV-ID (`POST /api/events/ladv-import`)
 - LADV-Daten synchronisieren (`POST /api/events/[id]/sync`)
+- Nächtlicher LADV-Bulk-Sync: alle noch kommenden LADV-Events täglich via Cron aktualisiert; manuell überschriebene Felder bleiben erhalten (`detectLadvDiff`) — #136
 - Google-Maps-Suchlink für LADV-Veranstaltungsort
 - Event-Priorität A / B / C für `ladv`- und `competition`-Events — #23
 - Öffentliche Event-Detailseite für nicht eingeloggte Gäste: Registrierungszähler sichtbar, Login-CTA statt Anmeldeformular — #36
@@ -51,8 +52,9 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - Admin-Bereich (`/admin`) mit Übersicht offener LADV-Todos
 - LADV-Todo-Liste: sortiert nach Meldefrist, gruppiert nach dringlich/normal — #20
 - Anmeldeliste am LADV-Event: pro Person ein LADV-Status-Badge (ok / Diff / Abmelden offen / kein Stand) plus Summary-Zeile mit Zählern für Admins — #117
+- Coach-Modal zur LADV-Pflege: zeigt aktuellen Wunschstand mit Diff-Badges pro Disziplin (gemeldet / anmelden / AK ändern) und separatem Block für abzumeldende Disziplinen — #138
 - Avatar-Verwaltung (`/admin/avatare`): Campai-Avatare über Browser-Proxy laden und in D1 cachen — #4
-- Member-Sync manuell auslösen (ruft Campai-API auf, aktualisiert `users`-Tabelle)
+- Sync-Seite (`/admin/sync`): Campai-Mitgliedersync und LADV-Events-Bulk-Sync manuell anstoßen (zugänglich für Admin + Superuser)
 - Mitglieder-Listen-Endpoint `GET /api/admin/members` (admin-only, aktive Mitglieder mit Avatar-Flag) — #118
 
 ---
@@ -79,7 +81,8 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - `notificationService.enqueue()` legt Jobs (`status='pending'`) in die D1-Queue — API-Handler blockieren nur für den INSERT (<50ms), Zustellung erfolgt asynchron
 - Preference-Resolution (mandatory > user override > default) und Per-Delivery-Logging beim Versand — #57
 - E-Mail-Templates für alle Notification-Typen in `app/emails/` — #58
-- Preferences-UI unter `/profil/benachrichtigungen` (Tabelle mit E-Mail/Push-Toggles pro Kategorie, mandatory-Toggles disabled) — #63
+- Preferences-UI unter `/profil/benachrichtigungen` (E-Mail/Push-Toggles pro Kategorie, mandatory-Toggles disabled, zusammengehörige Typen in einer Gruppe) — #63, #140
+- Trigger zentral in `server/notifications/triggers.ts` (alle als `triggerXxxNotification`) — Endpoints rufen synchron awaited auf, damit der Job-INSERT in Cloudflare Workers nicht durch Response-Termination verloren geht — #133
 - Verdrahtete Trigger in API-Handlern (legen jeweils einen Queue-Job an) — #64, #119, #129
   - N-01 LADV-Meldung bestätigt → Mitglied (mit lesbaren Disziplin-/AK-Labels)
   - N-02 LADV-Meldung zurückgezogen → Mitglied
@@ -90,12 +93,14 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
   - N-09 Anmeldebestätigung bei Anmeldung zu LADV-Wettkampf → Mitglied (`registration_confirmation`) — #129
   - Admin meldet Mitglied an (`admin_registered_member`) → Mitglied; bei sofortigem LADV-Stand stattdessen N-01; inkl. Admin-Name in E-Mail — #119, #129
   - Admin ändert Anmeldung eines Mitglieds (`admin_changed_member_registration`) → Mitglied; inkl. Admin-Name in E-Mail — #119, #129
-- Queue-Worker `processQueue()` verarbeitet `pending | failed` Jobs parallel per `Promise.allSettled` (Recipients × Channels), mit Exponential-Backoff (max. 3 Versuche) und Timeout-Reset für >5 min hängende `processing`-Jobs
+  - `silent`-Flag in `PATCH /api/registrations/[id]`: unterdrückt die generische `admin_changed_member_registration`-Notification wenn der Aufrufer bereits eine spezifischere Notification verschickt hat — #140
+  - Admin-E-Mails (`athlete_canceled_after_ladv`, `athlete_changed_after_ladv`, `reminder_deadline_admin`) verwenden "Liebe Coaches" als Anrede — #140
+- Queue-Worker `processQueue()` verarbeitet `pending | failed` Jobs parallel per `Promise.allSettled` (Recipients × Channels), mit Exponential-Backoff (max. 3 Versuche), 15 s Per-Send-Timeout pro Email/Push und Timeout-Reset für >5 min hängende `processing`-Jobs — #133
 - Cron-Endpoints (Bearer-Auth via `NUXT_CRON_TOKEN`): — #65
   - `POST /api/cron/process-notifications` — Queue abarbeiten (jede Minute)
-  - `POST /api/cron/send-reminders` — N-06 (Meldefrist Athlet, 5 Tage), N-07 (Meldefrist Admin, 3 Tage), N-08 (Event in 2 Tagen) inkl. Deduplizierung über `notification_jobs`
+  - `POST /api/cron/send-reminders` — N-06 (Meldefrist Athlet, 5 Tage, inkl. Wunsch-Disziplinen in der E-Mail), N-07 (Meldefrist Admin, 3 Tage), N-08 (Event in 2 Tagen) inkl. Deduplizierung über `notification_jobs` — #140
   - `POST /api/cron/cleanup-notifications` — löscht `done`-Jobs älter als 90 Tage (Deliveries via Cascade)
-- Cron-Trigger via separaten Cloudflare-Worker (`cron-worker/`) — pingt die Nuxt-Cron-Endpoints gemäß Schedule (`* * * * *`, `0 7 * * *`, `0 2 * * 0`), weil Cloudflare Pages keine nativen Cron-Triggers hat
+- Cron-Trigger via separaten Cloudflare-Worker (`cron-worker/`) — pingt die Nuxt-Cron-Endpoints gemäß Schedule (`* * * * *`, `0 7 * * *`, `0 2 * * 0`, `0 1 * * *`), weil Cloudflare Pages keine nativen Cron-Triggers hat
 - Superuser-Dashboard `/superuser/notifications` — Liste aller Jobs mit Status-/Typ-Filtern, Paginierung, expandierbaren Delivery-Details und Retry-Button für `failed`-Jobs — #66
 
 ---

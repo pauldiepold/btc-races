@@ -1,7 +1,6 @@
 import { db, schema } from 'hub:db'
-import { and, eq, notInArray } from 'drizzle-orm'
-import { notificationService } from '~~/server/notifications/service'
-import { formatEventDate } from '~~/shared/utils/events'
+import { eq } from 'drizzle-orm'
+import { triggerEventCanceledNotification } from '~~/server/notifications/triggers'
 
 export default defineEventHandler(async (event) => {
   const sqid = getRouterParam(event, 'id')
@@ -30,55 +29,8 @@ export default defineEventHandler(async (event) => {
       .set({ cancelledAt: new Date(), updatedAt: new Date() })
       .where(eq(schema.events.id, id))
 
-    await sendEventCanceledNotification(id, dbEvent)
+    await triggerEventCanceledNotification(id)
   }
 
   return { id: sqid }
 })
-
-async function sendEventCanceledNotification(
-  eventId: number,
-  dbEvent: typeof schema.events.$inferSelect,
-) {
-  try {
-    // Alle aktiv angemeldeten Mitglieder (ohne Storno)
-    const recipients = await db
-      .select({
-        userId: schema.users.id,
-        email: schema.users.email,
-        firstName: schema.users.firstName,
-      })
-      .from(schema.registrations)
-      .innerJoin(schema.users, eq(schema.registrations.userId, schema.users.id))
-      .where(
-        and(
-          eq(schema.registrations.eventId, eventId),
-          notInArray(schema.registrations.status, ['canceled', 'no']),
-        ),
-      )
-
-    if (recipients.length === 0) return
-
-    const siteUrl = useRuntimeConfig().public.siteUrl
-
-    await notificationService.enqueue({
-      type: 'event_canceled',
-      recipients: recipients.map(r => ({
-        userId: r.userId,
-        email: r.email,
-        firstName: r.firstName ?? undefined,
-      })),
-      payload: {
-        eventName: dbEvent.name,
-        eventDate: formatEventDate(dbEvent.date) ?? undefined,
-        eventLocation: dbEvent.location ?? undefined,
-        registrationDeadline: formatEventDate(dbEvent.registrationDeadline) ?? undefined,
-        eventLink: `${siteUrl}/${encodeEventId(eventId)}`,
-      },
-      eventId,
-    })
-  }
-  catch (err) {
-    console.error('[Notification] Fehler beim Erstellen des Jobs:', err)
-  }
-}

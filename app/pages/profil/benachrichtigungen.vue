@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type {
+  NotificationPreferenceChannelState,
   NotificationPreferenceEntry,
   NotificationPreferencesResponse,
 } from '~~/server/notifications/meta'
-import type { NotificationChannel } from '~~/shared/types/notifications'
+import type { NotificationChannel, NotificationType } from '~~/shared/types/notifications'
 
 definePageMeta({ layout: 'profil', title: 'Benachrichtigungen' })
 
@@ -40,23 +41,111 @@ const showPushServerDrift = computed(
 
 const pushAvailable = computed(() => push.isPushChannelAvailable.value)
 
-const userPreferences = computed(() => preferences.value.filter(p => !p.adminOnly))
-const adminPreferences = computed(() => preferences.value.filter(p => p.adminOnly))
+interface PreferenceGroupDef {
+  key: string
+  label?: string
+  description?: string
+  types: NotificationType[]
+}
+
+// Reihenfolge in diesem Array bestimmt die UI-Reihenfolge.
+// Trennung persönlich/admin ergibt sich aus adminOnly der enthaltenen Types (siehe NOTIFICATION_META).
+// Bei Multi-Type-Gruppen werden Toggles für alle Types gleichzeitig in einem PUT gesetzt — Voraussetzung:
+// alle Types einer Gruppe haben identische Defaults (siehe NOTIFICATION_DEFAULTS).
+// label/description sind optional — bei Single-Type-Einträgen wird auf die Server-Meta zurückgefallen.
+const PREFERENCE_GROUPS: PreferenceGroupDef[] = [
+  // Persönlich
+  { key: 'new_event', types: ['new_event'] },
+  { key: 'event_changed', types: ['event_changed'] },
+  { key: 'event_canceled', types: ['event_canceled'] },
+  { key: 'registration_confirmation', types: ['registration_confirmation'] },
+  {
+    key: 'admin_registration',
+    label: 'Anmeldung durch Admin',
+    description: 'Wenn ein Admin dich für einen Wettkampf anmeldet oder deine Anmeldung ändert.',
+    types: ['admin_registered_member', 'admin_changed_member_registration'],
+  },
+  {
+    key: 'ladv',
+    label: 'LADV-Meldung',
+    description: 'Wenn der Coach dich in LADV gemeldet oder wieder abgemeldet hat.',
+    types: ['ladv_registered', 'ladv_canceled'],
+  },
+  {
+    key: 'reminders',
+    label: 'Erinnerungen',
+    description: '5 Tage vor Meldeschluss und 2 Tage vor Eventbeginn.',
+    types: ['reminder_deadline_athlete', 'reminder_event'],
+  },
+  // Admin
+  { key: 'reminder_deadline_admin', types: ['reminder_deadline_admin'] },
+  {
+    key: 'admin_athlete_changes',
+    label: 'Athleten-Änderungen nach LADV-Meldung',
+    description: 'Wenn ein Mitglied seinen Wunschstand ändert oder die Anmeldung storniert, nachdem in LADV gemeldet wurde.',
+    types: ['athlete_changed_after_ladv', 'athlete_canceled_after_ladv'],
+  },
+]
+
+interface DisplayEntry {
+  key: string
+  label: string
+  description: string
+  adminOnly: boolean
+  types: NotificationType[]
+  email: NotificationPreferenceChannelState
+  push: NotificationPreferenceChannelState
+}
+
+function aggregateChannelState(
+  entries: NotificationPreferenceEntry[],
+  channel: NotificationChannel,
+): NotificationPreferenceChannelState {
+  return {
+    enabled: entries.every(e => e[channel].enabled),
+    mandatory: entries.some(e => e[channel].mandatory),
+  }
+}
+
+const displayEntries = computed<DisplayEntry[]>(() => {
+  const byType = new Map(preferences.value.map(p => [p.type, p]))
+  const result: DisplayEntry[] = []
+
+  for (const group of PREFERENCE_GROUPS) {
+    const members = group.types.map(t => byType.get(t)).filter((p): p is NotificationPreferenceEntry => !!p)
+    if (!members.length) continue
+    const fallback = members[0]!
+    result.push({
+      key: group.key,
+      label: group.label ?? fallback.label,
+      description: group.description ?? fallback.description,
+      adminOnly: members.every(m => m.adminOnly),
+      types: members.map(m => m.type),
+      email: aggregateChannelState(members, 'email'),
+      push: aggregateChannelState(members, 'push'),
+    })
+  }
+
+  return result
+})
+
+const userEntries = computed(() => displayEntries.value.filter(e => !e.adminOnly))
+const adminEntries = computed(() => displayEntries.value.filter(e => e.adminOnly))
 
 const sections = computed(() => {
-  const result: { key: string, title: string, description?: string, entries: NotificationPreferenceEntry[] }[] = [
+  const result: { key: string, title: string, description?: string, entries: DisplayEntry[] }[] = [
     {
       key: 'user',
       title: 'Persönliche Benachrichtigungen',
-      entries: userPreferences.value,
+      entries: userEntries.value,
     },
   ]
-  if (adminPreferences.value.length) {
+  if (adminEntries.value.length) {
     result.push({
       key: 'admin',
       title: 'Admin-Benachrichtigungen',
       description: 'Benachrichtigungen für Coaches und Admins rund um Meldungen und Fristen.',
-      entries: adminPreferences.value,
+      entries: adminEntries.value,
     })
   }
   return result
@@ -80,23 +169,31 @@ async function retryPushReconcile() {
   }
 }
 
-async function toggle(entry: NotificationPreferenceEntry, channel: NotificationChannel, next: boolean) {
-  const state = entry[channel]
-  if (state.mandatory) return
+async function toggle(entry: DisplayEntry, channel: NotificationChannel, next: boolean) {
+  if (entry[channel].mandatory) return
 
-  const previous = state.enabled
-  state.enabled = next
+  const affected = preferences.value.filter(p => entry.types.includes(p.type))
+  const previous = affected.map(p => ({ type: p.type, enabled: p[channel].enabled }))
+
+  for (const p of affected) {
+    if (!p[channel].mandatory) p[channel].enabled = next
+  }
 
   try {
     await $fetch('/api/user/notification-preferences', {
       method: 'PUT',
       body: {
-        preferences: [{ type: entry.type, channel, enabled: next }],
+        preferences: affected
+          .filter(p => !p[channel].mandatory)
+          .map(p => ({ type: p.type, channel, enabled: next })),
       },
     })
   }
   catch {
-    state.enabled = previous
+    for (const prev of previous) {
+      const p = preferences.value.find(x => x.type === prev.type)
+      if (p) p[channel].enabled = prev.enabled
+    }
     toast.add({
       title: 'Speichern fehlgeschlagen',
       description: 'Bitte versuche es erneut.',
@@ -244,7 +341,7 @@ async function toggle(entry: NotificationPreferenceEntry, channel: NotificationC
           <ul class="divide-y divide-default">
             <li
               v-for="entry in section.entries"
-              :key="entry.type"
+              :key="entry.key"
               class="px-4 py-3 grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_5rem_5rem] items-center gap-x-3 gap-y-3"
             >
               <div class="min-w-0 col-span-2 sm:col-span-1">

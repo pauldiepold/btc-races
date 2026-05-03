@@ -880,7 +880,7 @@ Status-Buttons (Status-Zeile oben):
 
 LADV-Disziplinen (nur bei `event.type === 'ladv'`):
 - Liste der `ownReg.disciplines`
-- Pro Disziplin: Name (via ladv-labels.ts), Altersklasse, wenn `ladvRegisteredAt` gesetzt: UBadge "Bei LADV angemeldet" + UAlert "Diese Disziplin ist bereits bei LADV angemeldet — Admin informieren falls Änderung nötig"
+- Pro Disziplin: Name (via ladv-labels.ts), Altersklasse, wenn `ladvRegisteredAt` gesetzt: UBadge "Bei LADV gemeldet" + UAlert "Diese Disziplin ist bereits bei LADV angemeldet — Admin informieren falls Änderung nötig"
 - X-Button je Disziplin → `DELETE /api/registrations/[id]/disciplines/[disciplineId]` (deaktiviert wenn nur 1 Disziplin)
 - "Disziplin hinzufügen"-Button (gleiche Inline-UI wie oben, aber direkt API-Call) — versteckt wenn `deadlineExpired`
 

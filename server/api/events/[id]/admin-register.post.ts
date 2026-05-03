@@ -4,9 +4,7 @@ import { z } from 'zod'
 import { requireAdmin } from '~~/server/utils/auth'
 import { decodeEventId } from '~~/server/utils/sqids'
 import { validateAdminRegistration } from '~~/server/utils/admin-register'
-import { notificationService } from '~~/server/notifications/service'
-import { formatEventDate } from '~~/shared/utils/events'
-import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
+import { triggerAdminRegisteredNotification } from '~~/server/notifications/triggers'
 
 const bodySchema = z.object({
   userId: z.number().int().positive(),
@@ -95,57 +93,12 @@ export default defineEventHandler(async (event) => {
     registrationId = inserted[0]!.id
   }
 
-  void sendAdminRegisteredNotification(targetUser, dbEvent, wishDisciplines, setLadv, adminSession.user.firstName)
+  await triggerAdminRegisteredNotification(targetUser.id, dbEvent.id, {
+    wishDisciplines,
+    setLadv,
+    adminFirstName: adminSession.user.firstName,
+  })
 
   setResponseStatus(event, 201)
   return { id: registrationId }
 })
-
-type UserRow = typeof schema.users.$inferSelect
-type EventRow = typeof schema.events.$inferSelect
-
-async function sendAdminRegisteredNotification(
-  targetUser: UserRow,
-  dbEvent: EventRow,
-  wishDisciplines: { discipline: string, ageClass: string }[] | null,
-  setLadv: boolean,
-  adminFirstName: string,
-) {
-  try {
-    const siteUrl = useRuntimeConfig().public.siteUrl
-    const recipient = { userId: targetUser.id, email: targetUser.email, firstName: targetUser.firstName ?? undefined }
-    const basePayload = {
-      eventName: dbEvent.name,
-      eventDate: formatEventDate(dbEvent.date) ?? undefined,
-      eventLocation: dbEvent.location ?? undefined,
-      registrationDeadline: formatEventDate(dbEvent.registrationDeadline) ?? undefined,
-      eventLink: `${siteUrl}/${encodeEventId(dbEvent.id)}`,
-    }
-
-    if (setLadv && wishDisciplines && wishDisciplines.length > 0) {
-      await notificationService.enqueue({
-        type: 'ladv_registered',
-        recipients: [recipient],
-        payload: { ...basePayload, disciplines: wishDisciplines.map(d => `${ladvDisciplineLabel(d.discipline)} (${ladvAgeClassLabel(d.ageClass)})`) },
-        eventId: dbEvent.id,
-      })
-    }
-    else {
-      await notificationService.enqueue({
-        type: 'admin_registered_member',
-        recipients: [recipient],
-        payload: {
-          ...basePayload,
-          adminFirstName,
-          ...(wishDisciplines && wishDisciplines.length > 0
-            ? { disciplines: wishDisciplines.map(d => `${ladvDisciplineLabel(d.discipline)} (${ladvAgeClassLabel(d.ageClass)})`) }
-            : {}),
-        },
-        eventId: dbEvent.id,
-      })
-    }
-  }
-  catch (err) {
-    console.error('[Notification] Fehler beim Erstellen des Jobs (admin_registered_member):', err)
-  }
-}

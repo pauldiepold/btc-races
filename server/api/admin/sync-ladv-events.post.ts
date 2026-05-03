@@ -1,7 +1,7 @@
 import { requireAdmin } from '~~/server/utils/auth'
-import { runSyncMembers } from '~~/server/utils/sync-members'
+import { runSyncLadvEvents } from '~~/server/utils/sync-ladv-events'
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
-  return await runSyncMembers()
+  return await runSyncLadvEvents()
 })

@@ -27,7 +27,10 @@ const {
 </script>
 
 <template>
-  <EmailLayout header-title="Anmeldung geändert">
+  <EmailLayout
+    header-title="Anmeldung geändert"
+    show-unsubscribe
+  >
     <EmailText>
       Hallo {{ firstName }},
     </EmailText>

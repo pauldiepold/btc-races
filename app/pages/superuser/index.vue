@@ -6,36 +6,6 @@ if (session.value?.user?.role !== 'superuser') {
   await navigateTo('/')
 }
 
-type SyncResult = {
-  result: string
-  stats: {
-    created: number
-    updated: number
-    skipped: number
-    deactivated: number
-    duration: string
-  }
-}
-
-const syncLoading = ref(false)
-const syncResult = ref<SyncResult | null>(null)
-const syncError = ref<string | null>(null)
-
-async function runSync() {
-  syncLoading.value = true
-  syncResult.value = null
-  syncError.value = null
-  try {
-    syncResult.value = await $fetch<SyncResult>('/api/admin/sync-members', { method: 'POST' })
-  }
-  catch (err: unknown) {
-    syncError.value = err instanceof Error ? err.message : 'Unbekannter Fehler'
-  }
-  finally {
-    syncLoading.value = false
-  }
-}
-
 type SeedResult = { result: string }
 
 const seedLoading = ref(false)
@@ -228,86 +198,6 @@ async function runPushTest() {
         icon="i-ph-warning-bold"
         title="Go-Live-Seed fehlgeschlagen"
         :description="goliveError"
-      />
-    </div>
-
-    <!-- Campai-Sync -->
-    <div class="rounded-[--ui-radius] border border-default p-6 space-y-5">
-      <div>
-        <h2 class="font-display font-semibold text-highlighted text-base">
-          Campai-Sync
-        </h2>
-        <p class="text-sm text-muted mt-1">
-          Mitgliederdaten von der Campai-API in die lokale Datenbank synchronisieren.
-        </p>
-      </div>
-
-      <UButton
-        label="Sync anstoßen"
-        icon="i-ph-arrows-clockwise"
-        :loading="syncLoading"
-        @click="runSync"
-      />
-
-      <!-- Ergebnis -->
-      <div
-        v-if="syncResult"
-        class="rounded-[--ui-radius] bg-success/10 border border-success/20 p-4 space-y-3"
-      >
-        <div class="flex items-center gap-2 text-sm font-medium text-success">
-          <UIcon
-            name="i-ph-check-circle-bold"
-            class="size-4 shrink-0"
-          />
-          {{ syncResult.result }}
-        </div>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="text-center">
-            <p class="text-xl font-semibold text-highlighted">
-              {{ syncResult.stats.created }}
-            </p>
-            <p class="text-xs text-muted mt-0.5">
-              Neu angelegt
-            </p>
-          </div>
-          <div class="text-center">
-            <p class="text-xl font-semibold text-highlighted">
-              {{ syncResult.stats.updated }}
-            </p>
-            <p class="text-xs text-muted mt-0.5">
-              Aktualisiert
-            </p>
-          </div>
-          <div class="text-center">
-            <p class="text-xl font-semibold text-highlighted">
-              {{ syncResult.stats.deactivated }}
-            </p>
-            <p class="text-xs text-muted mt-0.5">
-              Deaktiviert
-            </p>
-          </div>
-          <div class="text-center">
-            <p class="text-xl font-semibold text-highlighted">
-              {{ syncResult.stats.skipped }}
-            </p>
-            <p class="text-xs text-muted mt-0.5">
-              Übersprungen
-            </p>
-          </div>
-        </div>
-        <p class="text-xs text-muted text-right">
-          Dauer: {{ syncResult.stats.duration }}
-        </p>
-      </div>
-
-      <!-- Fehler -->
-      <UAlert
-        v-if="syncError"
-        color="error"
-        variant="subtle"
-        icon="i-ph-warning-bold"
-        title="Sync fehlgeschlagen"
-        :description="syncError"
       />
     </div>
 

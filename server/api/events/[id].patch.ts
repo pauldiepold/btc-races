@@ -72,7 +72,7 @@ export default defineEventHandler(async (event) => {
       where: eq(schema.events.id, id),
     })
     if (updated) {
-      void triggerEventChangedNotification(
+      await triggerEventChangedNotification(
         toEventCoreSnapshot(dbEvent),
         toEventCoreSnapshot(updated),
         updated,

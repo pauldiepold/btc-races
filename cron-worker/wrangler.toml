@@ -10,6 +10,7 @@ crons = [
   "* * * * *",       # Queue verarbeiten — jede Minute
   "0 7 * * *",       # Erinnerungen senden — täglich 8:00 Berliner Zeit (Winter) / 9:00 (Sommer)
   "0 2 * * 7",       # Cleanup alte Jobs — Sonntag 3:00/4:00 Berliner Zeit
+  "0 1 * * *",       # LADV-Events-Sync — täglich 2:00/3:00 Berliner Zeit
 ]
 
 [vars]

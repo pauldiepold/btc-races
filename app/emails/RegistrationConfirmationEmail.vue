@@ -25,7 +25,10 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-  <EmailLayout header-title="Anmeldebestätigung">
+  <EmailLayout
+    header-title="Anmeldebestätigung"
+    show-unsubscribe
+  >
     <EmailText>
       Hallo {{ firstName }},
     </EmailText>

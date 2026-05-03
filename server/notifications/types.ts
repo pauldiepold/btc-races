@@ -6,6 +6,7 @@ export interface NotificationRecipient {
   userId: number
   email?: string
   firstName?: string
+  disciplines?: string[]
 }
 
 export interface SendNotificationOptions {

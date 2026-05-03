@@ -15,6 +15,16 @@ export default defineEventHandler(async (event) => {
   const body = await readValidatedBody(event, subscribeSchema.parse)
   const userId = session.user.id
 
+  const userExists = await db.select({ id: schema.users.id })
+    .from(schema.users)
+    .where(eq(schema.users.id, userId))
+    .get()
+
+  if (!userExists) {
+    await clearUserSession(event)
+    throw createError({ statusCode: 401, statusMessage: 'Stale session — please log in again' })
+  }
+
   const userAgent = getRequestHeader(event, 'user-agent') ?? ''
   const deviceHint = deriveDeviceHint(userAgent)
 

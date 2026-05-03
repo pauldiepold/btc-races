@@ -51,7 +51,10 @@ const styles = {
 </script>
 
 <template>
-  <EmailLayout header-title="Du wurdest angemeldet">
+  <EmailLayout
+    header-title="Du wurdest angemeldet"
+    show-unsubscribe
+  >
     <EmailText>
       Hallo {{ firstName }},
     </EmailText>

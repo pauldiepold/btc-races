@@ -7,6 +7,7 @@ const props = defineProps<{
 
 const eventDate = computed(() => toDate(props.event.date))
 
+const weekday = computed(() => eventDate.value?.toLocaleDateString('de-DE', { weekday: 'short' }).replace('.', '') ?? null)
 const day = computed(() => eventDate.value?.toLocaleDateString('de-DE', { day: '2-digit' }) ?? null)
 const month = computed(() => eventDate.value?.toLocaleDateString('de-DE', { month: 'short' }).replace('.', '') ?? null)
 
@@ -49,6 +50,10 @@ const ownRegistration = computed(() => {
   >
     <!-- Datum-Block -->
     <div class="shrink-0 flex flex-col items-center w-10 gap-0.5">
+      <span
+        v-if="weekday"
+        class="text-[10px] text-muted uppercase tracking-wide leading-none"
+      >{{ weekday }}</span>
       <span class="text-base font-bold text-highlighted tabular-nums leading-none">
         {{ day ?? '--' }}
       </span>

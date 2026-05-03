@@ -5,6 +5,9 @@ import { ageClassSortIndex, disciplineSortIndex, ladvDisciplineLabel } from '~~/
 const props = defineProps<{ event: EventResponse }>()
 
 const eventDate = computed(() => toDate(props.event.date))
+const weekday = computed(() =>
+  eventDate.value?.toLocaleDateString('de-DE', { weekday: 'short' }).replace('.', '') ?? null,
+)
 const day = computed(() =>
   eventDate.value?.toLocaleDateString('de-DE', { day: '2-digit' }) ?? null,
 )
@@ -119,6 +122,7 @@ function toggle(code: string) {
           v-if="eventDate"
           class="shrink-0 flex flex-col items-center w-10 pt-0.5 gap-0.5"
         >
+          <span class="text-xs text-muted uppercase tracking-wide">{{ weekday }}</span>
           <span class="text-2xl font-bold text-highlighted tabular-nums leading-none">
             {{ day }}
           </span>

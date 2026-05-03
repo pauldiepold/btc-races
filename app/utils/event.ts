@@ -15,6 +15,7 @@ export const eventTypeIcons: Record<string, string> = {
 export const eventRaceTypeLabels: Record<string, string> = {
   track: 'Bahn',
   road: 'Straße',
+  trail: 'Trail',
 }
 
 export const eventChampionshipLabels: Record<string, string> = {

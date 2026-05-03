@@ -254,7 +254,7 @@ export async function runSeed(): Promise<{ result: string }> {
       duration: cfg.duration,
       location: faker.location.city(),
       registrationDeadline: deadline,
-      raceType: faker.helpers.arrayElement(['track', 'road'] as const),
+      raceType: faker.helpers.arrayElement(['track', 'road', 'trail'] as const),
       championshipType: faker.helpers.arrayElement(['none', 'bbm', 'ndm', 'dm'] as const),
       createdBy: faker.helpers.arrayElement(allCreatedByPool),
     }).returning({ id: schema.events.id })

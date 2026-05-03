@@ -76,6 +76,7 @@ const raceTypeItems = [
   { label: 'Keine Angabe', value: undefined },
   { label: 'Bahn', value: 'track' },
   { label: 'Straße', value: 'road' },
+  { label: 'Trail', value: 'trail' },
 ]
 
 const championshipItems = [

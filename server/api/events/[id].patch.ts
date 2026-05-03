@@ -12,7 +12,7 @@ const patchEventSchema = z.object({
   description: z.string().optional().nullable(),
   registrationDeadline: z.string().date().optional().nullable(),
   announcementLink: z.string().url('Ungültige URL').optional().nullable(),
-  raceType: z.enum(['track', 'road']).optional().nullable(),
+  raceType: z.enum(['track', 'road', 'trail']).optional().nullable(),
   championshipType: z.enum(['none', 'bbm', 'ndm', 'dm']).optional().nullable(),
   priority: z.enum(['A', 'B', 'C']).optional().nullable(),
 })

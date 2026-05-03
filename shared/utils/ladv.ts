@@ -5,7 +5,7 @@ export type LadvDiff = Partial<{
   date: string // YYYY-MM-DD (LADV-Wert)
   location: string // LADV-Wert
   registrationDeadline: string // YYYY-MM-DD (LADV-Wert)
-  raceType: 'track' | 'road' // LADV-abgeleiteter Wert aus kategorien
+  raceType: 'track' | 'road' | 'trail' // LADV-abgeleiteter Wert aus kategorien
   // championshipType bewusst nicht im Diff — LADV-Daten enthalten diese Info nicht zuverlässig
 }>
 

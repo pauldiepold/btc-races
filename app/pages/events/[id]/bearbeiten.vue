@@ -50,6 +50,7 @@ const startTimeModel = computed({
 const isLadv = computed(() => event.value?.type === 'ladv')
 const isCompetitionOrLadv = computed(() => event.value?.type === 'competition' || event.value?.type === 'ladv')
 const isAdmin = computed(() => session.value?.user?.role === 'admin' || session.value?.user?.role === 'superuser')
+const isSuperuser = computed(() => session.value?.user?.role === 'superuser')
 
 const berlinFormatter = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Europe/Berlin',
@@ -147,6 +148,7 @@ const raceTypeItems = [
   { label: 'Keine Angabe', value: undefined },
   { label: 'Bahn', value: 'track' },
   { label: 'Straße', value: 'road' },
+  { label: 'Trail', value: 'trail' },
 ]
 
 const championshipItems = [
@@ -164,6 +166,7 @@ const priorityItems = [
 ]
 
 const loading = ref(false)
+const suppressNotification = ref(false)
 
 const currentCoreSnapshot = computed<EventCoreSnapshot>(() => ({
   date: state.date || null,
@@ -185,6 +188,7 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
     await $fetch(`/api/events/${id}`, {
       method: 'PATCH',
       body: {
+        suppressNotification: suppressNotification.value || undefined,
         name: state.name,
         date: state.date || null,
         startTime: state.startTime || null,
@@ -439,14 +443,24 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
         />
       </UFormField>
 
-      <UAlert
+      <div
         v-if="showCoreFieldsChangedHint"
-        color="info"
-        variant="subtle"
-        icon="i-lucide-bell"
-        :description="CORE_FIELDS_CHANGED_HINT"
-        class="text-sm"
-      />
+        class="rounded-lg border border-info/30 bg-info/10 p-3 space-y-2"
+      >
+        <p class="text-sm text-info flex items-start gap-2">
+          <UIcon
+            name="i-lucide-bell"
+            class="shrink-0 mt-0.5"
+          />
+          {{ CORE_FIELDS_CHANGED_HINT }}
+        </p>
+        <UCheckbox
+          v-if="isSuperuser"
+          v-model="suppressNotification"
+          label="Benachrichtigung nicht versenden"
+          class="text-sm"
+        />
+      </div>
 
       <div class="flex justify-end gap-3 pt-2">
         <UButton

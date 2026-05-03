@@ -19,16 +19,7 @@ interface Props {
   changes?: EventChange[]
 }
 
-withDefaults(defineProps<Props>(), {
-  firstName: 'Max',
-  eventName: 'Herbstmeeting 2025',
-  eventLink: 'https://btc-races.de/events/1',
-  changes: () => [
-    { field: 'date', before: '2026-05-12', after: '2026-05-15', label: 'Datum' },
-    { field: 'startTime', before: '10:00', after: '11:30', label: 'Uhrzeit' },
-    { field: 'location', before: 'Berlin, Friedrich-Ludwig-Jahn-Sportpark', after: 'Potsdam, Karl-Liebknecht-Stadion', label: 'Ort' },
-  ],
-})
+const { changes = [] } = defineProps<Props>()
 
 const EMPTY_PLACEHOLDER = '—'
 

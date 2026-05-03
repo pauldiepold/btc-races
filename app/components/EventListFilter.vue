@@ -4,7 +4,7 @@ type CreateEventType = 'ladv' | 'competition' | 'training' | 'social'
 const searchQuery = defineModel<string>('searchQuery', { required: true })
 const timeRange = defineModel<string>('timeRange', { required: true })
 const typeFilter = defineModel<string | undefined>('typeFilter')
-const raceTypeFilter = defineModel<'track' | 'road' | undefined>('raceTypeFilter')
+const raceTypeFilter = defineModel<'track' | 'road' | 'trail' | undefined>('raceTypeFilter')
 const championshipFilter = defineModel<'bbm' | 'ndm' | 'dm' | undefined>('championshipFilter')
 const priorityFilter = defineModel<'A' | 'B' | 'C' | undefined>('priorityFilter')
 const wrcFilter = defineModel<boolean>('wrcFilter', { default: false })
@@ -207,6 +207,13 @@ async function handleCreate(type: CreateEventType) {
               :color="raceTypeFilter === 'road' ? 'primary' : 'neutral'"
               label="Straße"
               @click="raceTypeFilter = raceTypeFilter === 'road' ? undefined : 'road'"
+            />
+            <UButton
+              size="sm"
+              variant="outline"
+              :color="raceTypeFilter === 'trail' ? 'primary' : 'neutral'"
+              label="Trail"
+              @click="raceTypeFilter = raceTypeFilter === 'trail' ? undefined : 'trail'"
             />
           </div>
         </template>

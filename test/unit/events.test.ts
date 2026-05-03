@@ -15,7 +15,7 @@ function baseEventFields() {
     registrationDeadline: null as string | null,
     announcementLink: null as string | null,
     cancelledAt: null as Date | null,
-    raceType: null as 'track' | 'road' | null,
+    raceType: null as 'track' | 'road' | 'trail' | null,
     championshipType: null as 'none' | 'bbm' | 'ndm' | 'dm' | null,
     isWrc: 0 as 0 | 1,
     priority: null as 'A' | 'B' | 'C' | null,

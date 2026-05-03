@@ -54,7 +54,7 @@ export const events = sqliteTable('events', {
   cancelledAt: integer({ mode: 'timestamp' }),
 
   // Wettkampf-Metadaten (competition + ladv)
-  raceType: text('race_type').$type<'track' | 'road'>(),
+  raceType: text('race_type').$type<'track' | 'road' | 'trail'>(),
   championshipType: text('championship_type').$type<'none' | 'bbm' | 'ndm' | 'dm'>(),
   isWrc: integer('is_wrc').notNull().default(0),
   priority: text().$type<'A' | 'B' | 'C'>(),

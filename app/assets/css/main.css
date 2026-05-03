@@ -15,6 +15,10 @@ h1, h2, h3, h4, .font-display {
   font-family: 'Space Grotesk', 'Raleway', sans-serif;
 }
 
+.font-numeric {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
 /* ------------------------------------------------------------------ */
 /* Custom color scales                                                  */
 /* ------------------------------------------------------------------ */

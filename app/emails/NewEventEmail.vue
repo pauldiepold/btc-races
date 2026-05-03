@@ -13,15 +13,7 @@ interface Props {
   eventLink?: string
 }
 
-withDefaults(defineProps<Props>(), {
-  firstName: 'Max',
-  eventName: 'Herbstmeeting 2025',
-  eventDate: '15.03.2025',
-  eventLocation: 'Berlin',
-  registrationDeadline: '10.03.2025',
-  eventVenue: undefined,
-  eventLink: 'https://btc-races.de/events/1',
-})
+defineProps<Props>()
 </script>
 
 <template>

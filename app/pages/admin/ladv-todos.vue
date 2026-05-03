@@ -7,18 +7,22 @@ const { data: todos, refresh, status } = await useFetch<LadvTodo[]>('/api/admin/
 
 const openRegistrationId = ref<number | null>(null)
 
-function fullName(todo: LadvTodo): string {
-  return [todo.firstName, todo.lastName].filter(Boolean).join(' ') || 'Unbekannt'
-}
 
 const columns = [
+  { key: 'action', label: '' },
+  { key: 'person', label: 'Person' },
   { key: 'event', label: 'Event' },
   { key: 'date', label: 'Datum' },
   { key: 'type', label: 'Typ' },
-  { key: 'person', label: 'Person' },
   { key: 'diff', label: 'Änderungen' },
-  { key: 'action', label: '' },
 ]
+
+function shortName(todo: LadvTodo): string {
+  const first = todo.firstName?.trim() || ''
+  const lastInitial = todo.lastName?.trim()?.[0] || ''
+  if (!first && !lastInitial) return 'Unbekannt'
+  return lastInitial ? `${first} ${lastInitial}.` : first
+}
 </script>
 
 <template>
@@ -70,7 +74,7 @@ const columns = [
     <!-- Tabelle -->
     <div
       v-else
-      class="rounded-[--ui-radius] border border-default overflow-hidden"
+      class="rounded-[--ui-radius] border border-default overflow-hidden overflow-x-auto"
     >
       <table class="w-full text-sm">
         <thead>
@@ -78,7 +82,7 @@ const columns = [
             <th
               v-for="col in columns"
               :key="col.key"
-              class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider"
+              class="px-2 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider"
             >
               {{ col.label }}
             </th>
@@ -90,8 +94,25 @@ const columns = [
             :key="`${todo.registrationId}:${todo.type}`"
             class="hover:bg-elevated/50 transition-colors"
           >
+            <!-- Aktion -->
+            <td class="px-2 py-3">
+              <UButton
+                label="Details"
+                color="primary"
+                variant="soft"
+                size="xs"
+                trailing-icon="i-ph-arrow-right"
+                @click="openRegistrationId = todo.registrationId"
+              />
+            </td>
+
+            <!-- Person -->
+            <td class="px-2 py-3 font-medium text-highlighted whitespace-nowrap">
+              {{ shortName(todo) }}
+            </td>
+
             <!-- Event -->
-            <td class="px-4 py-3">
+            <td class="px-2 py-3">
               <NuxtLink
                 :to="`/${todo.eventId}`"
                 class="font-medium text-highlighted hover:text-primary transition-colors"
@@ -101,12 +122,12 @@ const columns = [
             </td>
 
             <!-- Datum -->
-            <td class="px-4 py-3 text-muted whitespace-nowrap">
+            <td class="px-2 py-3 text-muted whitespace-nowrap">
               {{ formatDate(todo.eventDate) ?? '–' }}
             </td>
 
             <!-- Typ -->
-            <td class="px-4 py-3">
+            <td class="px-2 py-3">
               <UBadge
                 :label="todo.type === 'register' ? 'Anmelden' : 'Abmelden'"
                 :color="todo.type === 'register' ? 'info' : 'error'"
@@ -115,13 +136,8 @@ const columns = [
               />
             </td>
 
-            <!-- Person -->
-            <td class="px-4 py-3 font-medium text-highlighted whitespace-nowrap">
-              {{ fullName(todo) }}
-            </td>
-
             <!-- Diff -->
-            <td class="px-4 py-3">
+            <td class="px-2 py-3">
               <div class="flex flex-wrap gap-1">
                 <LadvBadge
                   v-for="entry in todo.diff"
@@ -130,18 +146,6 @@ const columns = [
                   :age-class="entry.ageClass"
                 />
               </div>
-            </td>
-
-            <!-- Aktion -->
-            <td class="px-4 py-3 text-right">
-              <UButton
-                label="Details"
-                color="neutral"
-                variant="ghost"
-                size="xs"
-                trailing-icon="i-ph-arrow-right"
-                @click="openRegistrationId = todo.registrationId"
-              />
             </td>
           </tr>
         </tbody>

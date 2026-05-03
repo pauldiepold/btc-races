@@ -12,9 +12,10 @@ const patchEventSchema = z.object({
   description: z.string().optional().nullable(),
   registrationDeadline: z.string().date().optional().nullable(),
   announcementLink: z.string().url('Ungültige URL').optional().nullable(),
-  raceType: z.enum(['track', 'road']).optional().nullable(),
+  raceType: z.enum(['track', 'road', 'trail']).optional().nullable(),
   championshipType: z.enum(['none', 'bbm', 'ndm', 'dm']).optional().nullable(),
   priority: z.enum(['A', 'B', 'C']).optional().nullable(),
+  suppressNotification: z.boolean().optional(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -66,8 +67,9 @@ export default defineEventHandler(async (event) => {
 
   await db.update(schema.events).set(updates).where(eq(schema.events.id, id))
 
+  const isSuperuser = session.user.role === 'superuser'
   const coreBodyKeys = 'date' in data || 'startTime' in data || 'location' in data
-  if (coreBodyKeys) {
+  if (coreBodyKeys && !(isSuperuser && data.suppressNotification)) {
     const updated = await db.query.events.findFirst({
       where: eq(schema.events.id, id),
     })

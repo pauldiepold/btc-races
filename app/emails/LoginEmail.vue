@@ -5,14 +5,14 @@ import EmailText from './components/EmailText.vue'
 
 interface Props {
   firstName?: string
-  magicLink?: string
-  expiryMinutes?: number
+  magicLink: string
+  expiryMinutes: number
 }
 
 const {
-  firstName = 'Max',
-  magicLink = 'https://btc-races.de/verify?token=example',
-  expiryMinutes = 15,
+  firstName,
+  magicLink,
+  expiryMinutes,
 } = defineProps<Props>()
 
 const styles = {

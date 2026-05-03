@@ -15,8 +15,8 @@ interface Props {
 }
 
 const {
-  memberFirstName = 'Max',
-  memberLastName = 'Mustermann',
+  memberFirstName,
+  memberLastName,
 } = defineProps<Props>()
 
 const styles = {

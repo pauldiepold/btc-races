@@ -115,7 +115,7 @@ useHead({
             Berlin Track Club
           </ULink>
           <p class="text-sm text-muted">
-            © {{ new Date().getFullYear() }} - Paul Diepold
+            © {{ new Date().getFullYear() }} · Paul Diepold
           </p>
         </div>
       </template>

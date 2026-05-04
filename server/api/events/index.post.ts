@@ -1,7 +1,8 @@
 import { db, schema } from 'hub:db'
 import { z } from 'zod'
-import { triggerNewEventNotification } from '~~/server/notifications/triggers'
-import { formatActorName } from '~~/shared/utils/format-actor-name'
+import { notify } from '~~/server/notifications/service'
+import { recipients } from '~~/server/notifications/recipients'
+import { buildEventPayload } from '~~/server/notifications/payload-helpers'
 
 const createEventSchema = z.object({
   type: z.enum(['competition', 'training', 'social']),
@@ -51,13 +52,25 @@ export default defineEventHandler(async (event) => {
 
   const newId = inserted[0]!.id
 
-  await triggerNewEventNotification({
-    id: newId,
-    name: data.name,
-    date: data.date ?? null,
-    location: data.location ?? null,
-    registrationDeadline: data.registrationDeadline ?? null,
-  }, formatActorName(session.user.firstName, session.user.lastName))
+  try {
+    const siteUrl = useRuntimeConfig().public.siteUrl
+    await notify({
+      type: 'new_event',
+      recipients: await recipients.allMembers(),
+      actorUserId: session.user.id,
+      payload: buildEventPayload({
+        id: newId,
+        name: data.name,
+        date: data.date ?? null,
+        location: data.location ?? null,
+        registrationDeadline: data.registrationDeadline ?? null,
+      }, siteUrl),
+      eventId: newId,
+    })
+  }
+  catch (err) {
+    console.error('[Notification] new_event:', err)
+  }
 
   setResponseStatus(event, 201)
   return { id: encodeEventId(newId) }

@@ -20,6 +20,12 @@ function normalizeCoreFieldValue(value: string | null): string | null {
   return trimmedValue.length > 0 ? trimmedValue : null
 }
 
+export function toEventCoreSnapshot(
+  row: { date: string | null, startTime: string | null, location: string | null },
+): EventCoreSnapshot {
+  return { date: row.date, startTime: row.startTime, location: row.location }
+}
+
 export function diffEventCoreFields(before: EventCoreSnapshot, after: EventCoreSnapshot): EventFieldChange[] {
   const changes: EventFieldChange[] = []
 

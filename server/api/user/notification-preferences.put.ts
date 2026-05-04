@@ -1,8 +1,8 @@
 import { db, schema } from 'hub:db'
 import { sql } from 'drizzle-orm'
 import { z } from 'zod'
-import { buildPreferencesResponse, NOTIFICATION_META, NOTIFICATION_TYPES } from '~~/server/notifications/meta'
-import { NOTIFICATION_DEFAULTS } from '~~/shared/types/notifications'
+import { buildPreferencesResponse } from '~~/server/notifications/preferences'
+import { NOTIFICATION_TYPES, getNotificationDefinition } from '~~/server/notifications/registry'
 
 const bodySchema = z.object({
   preferences: z.array(z.object({
@@ -21,10 +21,10 @@ export default defineEventHandler(async (event) => {
   const body = await readValidatedBody(event, bodySchema.parse)
 
   const toUpsert = body.preferences.filter((pref) => {
-    const meta = NOTIFICATION_META[pref.type]
-    if (!meta) return false
-    if (meta.adminOnly && !isAdmin) return false
-    if (NOTIFICATION_DEFAULTS[pref.type][pref.channel].mandatory) return false
+    const def = getNotificationDefinition(pref.type)
+    if (!def) return false
+    if (def.meta.adminOnly && !isAdmin) return false
+    if (def.defaults[pref.channel].mandatory) return false
     return true
   })
 

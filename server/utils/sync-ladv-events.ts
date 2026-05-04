@@ -1,7 +1,8 @@
 import { and, eq, gte, isNotNull } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
 import { LadvService } from '../external-apis/ladv/ladv.service'
-import { toEventCoreSnapshot, triggerEventChangedNotification } from '../notifications/triggers'
+import { toEventCoreSnapshot } from '~~/shared/utils/diff-event-core-fields'
+import { notifyEventChanged } from '../notifications/event-changed'
 import { detectLadvDiff } from '~~/shared/utils/ladv'
 import type { LadvAusschreibung } from '~~/shared/types/ladv'
 
@@ -81,16 +82,21 @@ export async function runSyncLadvEvents(): Promise<SyncLadvEventsResult> {
       location: (updates.location ?? dbEvent.location) as string | null,
     })
 
-    await triggerEventChangedNotification(
-      beforeCore,
-      afterCore,
-      {
-        id: dbEvent.id,
-        name: (updates.name ?? dbEvent.name) as string,
-        date: (updates.date ?? dbEvent.date) as string | null,
-        cancelledAt: (updates.cancelledAt ?? dbEvent.cancelledAt) as Date | null,
-      },
-    )
+    try {
+      await notifyEventChanged(
+        beforeCore,
+        afterCore,
+        {
+          id: dbEvent.id,
+          name: (updates.name ?? dbEvent.name) as string,
+          date: (updates.date ?? dbEvent.date) as string | null,
+          cancelledAt: (updates.cancelledAt ?? dbEvent.cancelledAt) as Date | null,
+        },
+      )
+    }
+    catch (err) {
+      console.error('[Notification] event_changed:', err)
+    }
 
     synced++
   }

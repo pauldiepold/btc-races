@@ -4,8 +4,8 @@ import { z } from 'zod'
 import { requireAdmin } from '~~/server/utils/auth'
 import { decodeEventId } from '~~/server/utils/sqids'
 import { validateAdminRegistration } from '~~/server/utils/admin-register'
-import { triggerAdminRegisteredNotification } from '~~/server/notifications/triggers'
-import { formatActorName } from '~~/shared/utils/format-actor-name'
+import { notify } from '~~/server/notifications/service'
+import { buildEventPayload, formatDisciplineLabels } from '~~/server/notifications/payload-helpers'
 
 const bodySchema = z.object({
   userId: z.number().int().positive(),
@@ -94,11 +94,42 @@ export default defineEventHandler(async (event) => {
     registrationId = inserted[0]!.id
   }
 
-  await triggerAdminRegisteredNotification(targetUser.id, dbEvent.id, {
-    wishDisciplines,
-    setLadv,
-    adminName: formatActorName(adminSession.user.firstName, adminSession.user.lastName),
-  })
+  try {
+    const siteUrl = useRuntimeConfig().public.siteUrl
+    const recipient = {
+      userId: targetUser.id,
+      email: targetUser.email,
+      firstName: targetUser.firstName ?? undefined,
+    }
+    const basePayload = buildEventPayload(dbEvent, siteUrl)
+
+    if (setLadv && wishDisciplines.length > 0) {
+      await notify({
+        type: 'ladv_registered',
+        recipients: [recipient],
+        actorUserId: adminSession.user.id,
+        payload: { ...basePayload, disciplines: formatDisciplineLabels(wishDisciplines) },
+        eventId: dbEvent.id,
+      })
+    }
+    else {
+      await notify({
+        type: 'admin_registered_member',
+        recipients: [recipient],
+        actorUserId: adminSession.user.id,
+        payload: {
+          ...basePayload,
+          ...(wishDisciplines.length > 0
+            ? { disciplines: formatDisciplineLabels(wishDisciplines) }
+            : {}),
+        },
+        eventId: dbEvent.id,
+      })
+    }
+  }
+  catch (err) {
+    console.error('[Notification] admin_registered_member:', err)
+  }
 
   setResponseStatus(event, 201)
   return { id: registrationId }

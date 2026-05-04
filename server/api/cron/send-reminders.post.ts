@@ -1,7 +1,8 @@
 import { db, schema } from 'hub:db'
 import { and, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm'
-import { notificationService } from '~~/server/notifications/service'
-import { formatEventDate } from '~~/shared/utils/events'
+import { notify } from '~~/server/notifications/service'
+import { recipients } from '~~/server/notifications/recipients'
+import { buildEventPayload } from '~~/server/notifications/payload-helpers'
 import { addDaysToIsoDate, todayIsoDate } from '~~/shared/utils/reminder-dates'
 import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
 import type { NotificationType } from '~~/shared/types/notifications'
@@ -84,16 +85,6 @@ async function getAdminParticipantList(eventId: number): Promise<Array<{ name: s
   })
 }
 
-function buildEventPayload(dbEvent: typeof schema.events.$inferSelect, siteUrl: string) {
-  return {
-    eventName: dbEvent.name,
-    eventDate: formatEventDate(dbEvent.date) ?? undefined,
-    eventLocation: dbEvent.location ?? undefined,
-    registrationDeadline: formatEventDate(dbEvent.registrationDeadline) ?? undefined,
-    eventLink: `${siteUrl}/${encodeEventId(dbEvent.id)}`,
-  }
-}
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event)
   const authHeader = getHeader(event, 'Authorization')
@@ -136,14 +127,14 @@ export default defineEventHandler(async (event) => {
         const payload = buildEventPayload(dbEvent, siteUrl)
 
         if (type === 'reminder_deadline_athlete') {
-          const recipients = await getRegisteredRecipients(dbEvent.id)
-          if (recipients.length === 0) {
+          const registered = await getRegisteredRecipients(dbEvent.id)
+          if (registered.length === 0) {
             results.push({ type, eventId: dbEvent.id, eventName: dbEvent.name, status: 'skipped' })
             continue
           }
-          await notificationService.enqueue({
+          await notify({
             type,
-            recipients: recipients.map(r => ({
+            recipients: registered.map(r => ({
               userId: r.userId,
               email: r.email,
               firstName: r.firstName ?? undefined,
@@ -155,9 +146,9 @@ export default defineEventHandler(async (event) => {
         }
         else {
           const participants = await getAdminParticipantList(dbEvent.id)
-          await notificationService.enqueue({
+          await notify({
             type,
-            recipients: 'all_admins',
+            recipients: await recipients.allAdmins(),
             payload: { ...payload, participants },
             eventId: dbEvent.id,
           })
@@ -200,15 +191,15 @@ export default defineEventHandler(async (event) => {
           continue
         }
 
-        const recipients = await getRegisteredRecipients(dbEvent.id)
-        if (recipients.length === 0) {
+        const registered = await getRegisteredRecipients(dbEvent.id)
+        if (registered.length === 0) {
           results.push({ type, eventId: dbEvent.id, eventName: dbEvent.name, status: 'skipped' })
           continue
         }
 
-        await notificationService.enqueue({
+        await notify({
           type,
-          recipients: recipients.map(r => ({
+          recipients: registered.map(r => ({
             userId: r.userId,
             email: r.email,
             firstName: r.firstName ?? undefined,

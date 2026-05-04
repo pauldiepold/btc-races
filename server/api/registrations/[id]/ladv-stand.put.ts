@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { requireAdmin } from '~~/server/utils/auth'
 import { triggerLadvStandNotification } from '~~/server/notifications/triggers'
+import { formatActorName } from '~~/shared/utils/format-actor-name'
 
 const bodySchema = z.object({
   disciplines: z.array(z.object({
@@ -12,7 +13,7 @@ const bodySchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event)
+  const adminSession = await requireAdmin(event)
   const rawId = getRouterParam(event, 'id')
 
   if (!rawId) {
@@ -48,7 +49,7 @@ export default defineEventHandler(async (event) => {
     })
     .where(eq(schema.registrations.id, id))
 
-  await triggerLadvStandNotification(registration.userId, registration.eventId, disciplines)
+  await triggerLadvStandNotification(registration.userId, registration.eventId, disciplines, formatActorName(adminSession.user.firstName, adminSession.user.lastName))
 
   return { id }
 })

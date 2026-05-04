@@ -7,7 +7,6 @@ const { data: todos, refresh, status } = await useFetch<LadvTodo[]>('/api/admin/
 
 const openRegistrationId = ref<number | null>(null)
 
-
 const columns = [
   { key: 'action', label: '' },
   { key: 'person', label: 'Person' },

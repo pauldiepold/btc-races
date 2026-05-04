@@ -5,6 +5,7 @@ import EventDetails from './components/EventDetails.vue'
 
 interface Props {
   firstName?: string
+  adminName?: string
   eventName?: string
   eventDate?: string
   eventLocation?: string
@@ -14,7 +15,7 @@ interface Props {
   reason?: string
 }
 
-defineProps<Props>()
+const { adminName } = defineProps<Props>()
 
 const styles = {
   reasonBox: {
@@ -51,7 +52,7 @@ const styles = {
     </EmailText>
 
     <EmailText>
-      <strong>{{ eventName }}</strong> wurde abgesagt. Deine Anmeldung ist damit hinfällig — du musst nichts weiter tun.
+      {{ adminName ?? 'Ein Admin' }} hat <strong>{{ eventName }}</strong> abgesagt. Deine Anmeldung ist damit hinfällig — du musst nichts weiter tun.
     </EmailText>
 
     <EventDetails

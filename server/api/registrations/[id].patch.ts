@@ -7,6 +7,7 @@ import {
   triggerAdminChangedRegistrationNotification,
   triggerAthleteCanceledAfterLadvNotification,
 } from '~~/server/notifications/triggers'
+import { formatActorName } from '~~/shared/utils/format-actor-name'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 
 const bodySchema = z.object({
@@ -101,7 +102,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (shouldNotifyMember) {
-    await triggerAdminChangedRegistrationNotification(registration.userId, registration.eventId, session.user.firstName)
+    await triggerAdminChangedRegistrationNotification(registration.userId, registration.eventId, formatActorName(session.user.firstName, session.user.lastName))
   }
 
   return { id }

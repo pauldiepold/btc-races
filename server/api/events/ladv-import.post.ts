@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { LadvService } from '~~/server/external-apis/ladv/ladv.service'
 import { parseLadvIdFromUrl } from '~~/server/utils/ladv'
 import { triggerNewEventNotification } from '~~/server/notifications/triggers'
+import { formatActorName } from '~~/shared/utils/format-actor-name'
 
 const importSchema = z.object({
   url: z.string().url('Ungültige URL'),
@@ -73,7 +74,7 @@ export default defineEventHandler(async (event) => {
     date: normalized.date,
     location: normalized.location,
     registrationDeadline: normalized.registration_deadline,
-  })
+  }, formatActorName(session.user.firstName, session.user.lastName))
 
   setResponseStatus(event, 201)
   return { id: encodeEventId(newId) }

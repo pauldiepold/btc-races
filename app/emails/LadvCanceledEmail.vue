@@ -5,6 +5,7 @@ import EventDetails from './components/EventDetails.vue'
 
 interface Props {
   firstName?: string
+  adminName?: string
   eventName?: string
   eventDate?: string
   eventLocation?: string
@@ -13,7 +14,7 @@ interface Props {
   eventLink?: string
 }
 
-defineProps<Props>()
+const { adminName } = defineProps<Props>()
 </script>
 
 <template>
@@ -26,7 +27,7 @@ defineProps<Props>()
     </EmailText>
 
     <EmailText>
-      deine LADV-Meldung für <strong>{{ eventName }}</strong> wurde zurückgezogen. Du bist damit nicht mehr für diesen Wettkampf gemeldet.
+      {{ adminName ?? 'Ein Admin' }} hat deine LADV-Meldung für <strong>{{ eventName }}</strong> zurückgezogen. Du bist damit nicht mehr für diesen Wettkampf gemeldet.
     </EmailText>
 
     <EventDetails

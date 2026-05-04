@@ -5,7 +5,7 @@ import EventDetails from './components/EventDetails.vue'
 
 interface Props {
   firstName?: string
-  adminFirstName?: string
+  adminName?: string
   eventName?: string
   eventDate?: string
   eventLocation?: string
@@ -17,7 +17,7 @@ interface Props {
 
 const {
   firstName,
-  adminFirstName,
+  adminName,
   eventName,
   eventDate,
   eventLocation,
@@ -60,7 +60,7 @@ const styles = {
     </EmailText>
 
     <EmailText>
-      {{ adminFirstName ?? 'Ein Admin' }} hat dich für <strong>{{ eventName }}</strong> angemeldet.
+      {{ adminName ?? 'Ein Admin' }} hat dich für <strong>{{ eventName }}</strong> angemeldet.
     </EmailText>
 
     <EventDetails

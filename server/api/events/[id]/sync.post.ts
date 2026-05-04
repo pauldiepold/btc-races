@@ -1,6 +1,7 @@
 import { db, schema } from 'hub:db'
 import { asc, eq } from 'drizzle-orm'
 import { triggerEventChangedNotification, toEventCoreSnapshot } from '~~/server/notifications/triggers'
+import { formatActorName } from '~~/shared/utils/format-actor-name'
 import { LadvService } from '~~/server/external-apis/ladv/ladv.service'
 import { isRunningDiscipline } from '~~/shared/utils/ladv-labels'
 import type { EventDetail, RegistrationDetail } from '~~/shared/types/events'
@@ -70,6 +71,7 @@ export default defineEventHandler(async (event) => {
       beforeCore,
       toEventCoreSnapshot(updatedEvent),
       updatedEvent,
+      formatActorName(session.user.firstName, session.user.lastName),
     )
   }
 

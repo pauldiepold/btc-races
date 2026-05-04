@@ -1,6 +1,7 @@
 import { db, schema } from 'hub:db'
 import { z } from 'zod'
 import { triggerNewEventNotification } from '~~/server/notifications/triggers'
+import { formatActorName } from '~~/shared/utils/format-actor-name'
 
 const createEventSchema = z.object({
   type: z.enum(['competition', 'training', 'social']),
@@ -56,7 +57,7 @@ export default defineEventHandler(async (event) => {
     date: data.date ?? null,
     location: data.location ?? null,
     registrationDeadline: data.registrationDeadline ?? null,
-  })
+  }, formatActorName(session.user.firstName, session.user.lastName))
 
   setResponseStatus(event, 201)
   return { id: encodeEventId(newId) }

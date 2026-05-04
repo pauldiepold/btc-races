@@ -5,7 +5,7 @@ import EventDetails from './components/EventDetails.vue'
 
 interface Props {
   firstName?: string
-  adminFirstName?: string
+  adminName?: string
   eventName?: string
   eventDate?: string
   eventLocation?: string
@@ -16,7 +16,7 @@ interface Props {
 
 const {
   firstName,
-  adminFirstName,
+  adminName,
   eventName,
   eventDate,
   eventLocation,
@@ -36,7 +36,7 @@ const {
     </EmailText>
 
     <EmailText>
-      {{ adminFirstName ?? 'Ein Admin' }} hat deine Anmeldung für <strong>{{ eventName }}</strong> geändert. Bitte prüfe deinen aktuellen Anmeldestatus in der App.
+      {{ adminName ?? 'Ein Admin' }} hat deine Anmeldung für <strong>{{ eventName }}</strong> geändert. Bitte prüfe deinen aktuellen Anmeldestatus in der App.
     </EmailText>
 
     <EventDetails

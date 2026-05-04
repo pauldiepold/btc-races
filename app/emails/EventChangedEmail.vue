@@ -14,12 +14,13 @@ interface EventChange {
 
 interface Props {
   firstName?: string
+  adminName?: string
   eventName?: string
   eventLink?: string
   changes?: EventChange[]
 }
 
-const { changes = [] } = defineProps<Props>()
+const { adminName, changes = [] } = defineProps<Props>()
 
 const EMPTY_PLACEHOLDER = '—'
 
@@ -97,7 +98,12 @@ const styles = {
     </EmailText>
 
     <EmailText>
-      bei <strong>{{ eventName }}</strong> haben sich Details geändert. Bitte prüfe, ob du noch dabei sein kannst.
+      <template v-if="adminName">
+        {{ adminName }} hat Details bei <strong>{{ eventName }}</strong> geändert. Bitte prüfe, ob du noch dabei sein kannst.
+      </template>
+      <template v-else>
+        Bei <strong>{{ eventName }}</strong> haben sich Details geändert. Bitte prüfe, ob du noch dabei sein kannst.
+      </template>
     </EmailText>
 
     <ESection :style="styles.changesBox">

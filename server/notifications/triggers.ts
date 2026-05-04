@@ -56,7 +56,7 @@ export async function triggerNewEventNotification(eventData: {
   date: string | null
   location: string | null
   registrationDeadline: string | null
-}): Promise<void> {
+}, adminName: string): Promise<void> {
   try {
     const siteUrl = useRuntimeConfig().public.siteUrl
 
@@ -64,6 +64,7 @@ export async function triggerNewEventNotification(eventData: {
       type: 'new_event',
       recipients: 'all_members',
       payload: {
+        adminName,
         eventName: eventData.name,
         eventDate: formatEventDate(eventData.date) ?? undefined,
         eventLocation: eventData.location ?? undefined,
@@ -86,6 +87,7 @@ export async function triggerEventChangedNotification(
   before: EventCoreSnapshot,
   after: EventCoreSnapshot,
   eventRow: Pick<typeof schema.events.$inferSelect, 'id' | 'name' | 'date' | 'cancelledAt'>,
+  adminName?: string,
 ): Promise<void> {
   try {
     if (eventRow.cancelledAt != null) return
@@ -122,6 +124,7 @@ export async function triggerEventChangedNotification(
         firstName: r.firstName ?? undefined,
       })),
       payload: {
+        ...(adminName ? { adminName } : {}),
         eventName: eventRow.name,
         eventLink: `${siteUrl}/${encodeEventId(eventRow.id)}`,
         changes: fieldChanges.map(c => ({
@@ -142,7 +145,7 @@ export async function triggerEventChangedNotification(
 /**
  * Event abgesagt — Benachrichtigung an alle (nicht stornierten) Anmeldungen.
  */
-export async function triggerEventCanceledNotification(eventId: number): Promise<void> {
+export async function triggerEventCanceledNotification(eventId: number, adminName: string): Promise<void> {
   try {
     const dbEvent = await db.query.events.findFirst({
       where: eq(schema.events.id, eventId),
@@ -173,7 +176,7 @@ export async function triggerEventCanceledNotification(eventId: number): Promise
         email: r.email,
         firstName: r.firstName ?? undefined,
       })),
-      payload: buildEventPayload(dbEvent),
+      payload: { ...buildEventPayload(dbEvent), adminName },
       eventId,
     })
   }
@@ -223,7 +226,7 @@ export async function triggerAdminRegisteredNotification(
   options: {
     wishDisciplines: RegistrationDisciplinePair[] | null
     setLadv: boolean
-    adminFirstName: string
+    adminName: string
   },
 ): Promise<void> {
   try {
@@ -240,13 +243,13 @@ export async function triggerAdminRegisteredNotification(
 
     const recipient = { userId: user.id, email: user.email, firstName: user.firstName ?? undefined }
     const basePayload = buildEventPayload(dbEvent)
-    const { wishDisciplines, setLadv, adminFirstName } = options
+    const { wishDisciplines, setLadv, adminName } = options
 
     if (setLadv && wishDisciplines && wishDisciplines.length > 0) {
       await notificationService.enqueue({
         type: 'ladv_registered',
         recipients: [recipient],
-        payload: { ...basePayload, disciplines: formatDisciplineLabels(wishDisciplines) },
+        payload: { ...basePayload, adminName, disciplines: formatDisciplineLabels(wishDisciplines) },
         eventId,
       })
     }
@@ -256,7 +259,7 @@ export async function triggerAdminRegisteredNotification(
         recipients: [recipient],
         payload: {
           ...basePayload,
-          adminFirstName,
+          adminName,
           ...(wishDisciplines && wishDisciplines.length > 0
             ? { disciplines: formatDisciplineLabels(wishDisciplines) }
             : {}),
@@ -276,7 +279,7 @@ export async function triggerAdminRegisteredNotification(
 export async function triggerAdminChangedRegistrationNotification(
   userId: number,
   eventId: number,
-  adminFirstName: string,
+  adminName: string,
 ): Promise<void> {
   try {
     const [user, dbEvent] = await Promise.all([
@@ -295,7 +298,7 @@ export async function triggerAdminChangedRegistrationNotification(
       recipients: [{ userId: user.id, email: user.email, firstName: user.firstName ?? undefined }],
       payload: {
         ...buildEventPayload(dbEvent),
-        adminFirstName,
+        adminName,
       },
       eventId,
     })
@@ -385,6 +388,7 @@ export async function triggerLadvStandNotification(
   userId: number,
   eventId: number,
   disciplines: RegistrationDisciplinePair[] | null,
+  adminName: string,
 ): Promise<void> {
   try {
     const [user, dbEvent] = await Promise.all([
@@ -405,7 +409,7 @@ export async function triggerLadvStandNotification(
       await notificationService.enqueue({
         type: 'ladv_registered',
         recipients: [recipient],
-        payload: { ...basePayload, disciplines: formatDisciplineLabels(disciplines) },
+        payload: { ...basePayload, adminName, disciplines: formatDisciplineLabels(disciplines) },
         eventId,
       })
     }
@@ -413,7 +417,7 @@ export async function triggerLadvStandNotification(
       await notificationService.enqueue({
         type: 'ladv_canceled',
         recipients: [recipient],
-        payload: basePayload,
+        payload: { ...basePayload, adminName },
         eventId,
       })
     }

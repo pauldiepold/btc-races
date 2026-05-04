@@ -116,7 +116,7 @@ const ownRegistration = computed(() => {
       </div>
       <!-- Zeile 3: Typ-Badges + Anmeldestatus -->
       <div
-        v-if="event.priority !== 'none' || event.raceType || (event.championshipType && event.championshipType !== 'none') || ownRegistration || (hasDeadline && !deadlineExpired)"
+        v-if="event.priority || event.raceType || (event.championshipType && event.championshipType !== 'none') || ownRegistration || (hasDeadline && !deadlineExpired)"
         class="flex items-center gap-2 mt-1.5 flex-wrap"
       >
         <EventPriorityBadge :priority="event.priority" />

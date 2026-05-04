@@ -5,6 +5,7 @@ import EventDetails from './components/EventDetails.vue'
 
 interface Props {
   firstName?: string
+  adminName?: string
   eventName?: string
   eventDate?: string
   eventLocation?: string
@@ -13,7 +14,7 @@ interface Props {
   eventLink?: string
 }
 
-defineProps<Props>()
+const { adminName } = defineProps<Props>()
 </script>
 
 <template>
@@ -26,7 +27,7 @@ defineProps<Props>()
     </EmailText>
 
     <EmailText>
-      ein neuer Wettkampf ist online: <strong>{{ eventName }}</strong>. Schau rein und melde dich an, wenn du dabei sein möchtest.
+      {{ adminName ?? 'Ein Admin' }} hat einen neuen Wettkampf eingestellt: <strong>{{ eventName }}</strong>. Schau rein und melde dich an, wenn du dabei sein möchtest.
     </EmailText>
 
     <EventDetails

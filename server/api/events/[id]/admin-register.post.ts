@@ -5,6 +5,7 @@ import { requireAdmin } from '~~/server/utils/auth'
 import { decodeEventId } from '~~/server/utils/sqids'
 import { validateAdminRegistration } from '~~/server/utils/admin-register'
 import { triggerAdminRegisteredNotification } from '~~/server/notifications/triggers'
+import { formatActorName } from '~~/shared/utils/format-actor-name'
 
 const bodySchema = z.object({
   userId: z.number().int().positive(),
@@ -96,7 +97,7 @@ export default defineEventHandler(async (event) => {
   await triggerAdminRegisteredNotification(targetUser.id, dbEvent.id, {
     wishDisciplines,
     setLadv,
-    adminFirstName: adminSession.user.firstName,
+    adminName: formatActorName(adminSession.user.firstName, adminSession.user.lastName),
   })
 
   setResponseStatus(event, 201)

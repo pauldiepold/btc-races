@@ -1,6 +1,7 @@
 import { db, schema } from 'hub:db'
 import { eq } from 'drizzle-orm'
 import { triggerEventCanceledNotification } from '~~/server/notifications/triggers'
+import { formatActorName } from '~~/shared/utils/format-actor-name'
 
 export default defineEventHandler(async (event) => {
   const sqid = getRouterParam(event, 'id')
@@ -13,7 +14,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
   }
 
-  await requireAdmin(event)
+  const adminSession = await requireAdmin(event)
 
   const dbEvent = await db.query.events.findFirst({
     where: eq(schema.events.id, id),
@@ -29,7 +30,7 @@ export default defineEventHandler(async (event) => {
       .set({ cancelledAt: new Date(), updatedAt: new Date() })
       .where(eq(schema.events.id, id))
 
-    await triggerEventCanceledNotification(id)
+    await triggerEventCanceledNotification(id, formatActorName(adminSession.user.firstName, adminSession.user.lastName))
   }
 
   return { id: sqid }

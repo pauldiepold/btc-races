@@ -2,6 +2,7 @@ import { db, schema } from 'hub:db'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { triggerEventChangedNotification, toEventCoreSnapshot } from '~~/server/notifications/triggers'
+import { formatActorName } from '~~/shared/utils/format-actor-name'
 
 const patchEventSchema = z.object({
   name: z.string().min(1, 'Name ist erforderlich').optional(),
@@ -78,6 +79,7 @@ export default defineEventHandler(async (event) => {
         toEventCoreSnapshot(dbEvent),
         toEventCoreSnapshot(updated),
         updated,
+        formatActorName(session.user.firstName, session.user.lastName),
       )
     }
   }

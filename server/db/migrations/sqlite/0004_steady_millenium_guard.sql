@@ -1,0 +1,1 @@
+ALTER TABLE `notification_jobs` ADD `actor_user_id` integer REFERENCES users(id);

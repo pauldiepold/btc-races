@@ -1,150 +1,85 @@
 import { and, eq, inArray } from 'drizzle-orm'
+import type { z } from 'zod'
 import { emailService } from '~~/server/email/service'
-import { EMAIL_TEMPLATE_MAP, EMAIL_SUBJECT_MAP, PUSH_PAYLOAD_MAP } from './templates'
+import { formatActorName } from '~~/shared/utils/format-actor-name'
+import type { NotificationType } from '~~/shared/types/notifications'
+import { getNotificationDefinition } from './registry'
+import type { AnyNotificationDefinition, NotificationActor, notificationRegistry } from './registry'
 import { pushService } from './push'
 import { buildDeliveryTasks } from './delivery-builder'
-import type {
-  NotificationRecipient,
-  NotificationType,
-  SendNotificationOptions,
-  SendNotificationResult,
-} from './types'
+import type { NotificationRecipient } from './recipients'
+
+export type { NotificationRecipient } from './recipients'
+
+type PayloadOf<T extends NotificationType>
+  = (typeof notificationRegistry)[T]['payload'] extends z.ZodType<infer P> ? P : never
+
+type ActorRequirementOf<T extends NotificationType> = (typeof notificationRegistry)[T]['actor']
+
+/**
+ * Argumentform für `notify()`. `actorUserId` ist required, wenn der Notification-Typ
+ * `actor: 'required'` deklariert; sonst optional bzw. nicht erlaubt.
+ */
+export type NotifyOptions<T extends NotificationType> = {
+  type: T
+  recipients: NotificationRecipient[]
+  payload: PayloadOf<T>
+  eventId?: number
+} & (ActorRequirementOf<T> extends 'required'
+  ? { actorUserId: number }
+  : { actorUserId?: number })
+
+interface NotifyResult {
+  jobId: number
+}
+
+/**
+ * Resolved Actor mit Name + Originalfeldern (für Template-Props memberFirstName/Last).
+ */
+interface ResolvedActor extends NotificationActor {
+  firstName: string
+  lastName: string
+}
 
 // ---------------------------------------------------------------------------
-// Interne Helfer
+// Public API
 // ---------------------------------------------------------------------------
 
-async function resolveRecipients(
-  recipients: SendNotificationOptions['recipients'],
-): Promise<NotificationRecipient[]> {
-  if (Array.isArray(recipients)) return recipients
-
+/**
+ * Validiert Payload gegen Registry-Schema und legt einen Notification-Job in die Queue.
+ * Wirft bei Schema-Verletzung — Aufrufer (API-Route) sollte try/catch verwenden.
+ */
+export async function notify<T extends NotificationType>(options: NotifyOptions<T>): Promise<NotifyResult> {
   const { db, schema } = await import('hub:db')
+  const { type, recipients, payload, eventId } = options
+  const actorUserId = (options as { actorUserId?: number }).actorUserId
 
-  if (recipients === 'all_admins') {
-    const rows = await db.select({
-      userId: schema.users.id,
-      email: schema.users.email,
-      firstName: schema.users.firstName,
-    })
-      .from(schema.users)
-      .where(inArray(schema.users.role, ['admin', 'superuser']))
+  const definition = getNotificationDefinition(type)
 
-    return rows.map(r => ({ userId: r.userId, email: r.email, firstName: r.firstName ?? undefined }))
+  // C1: Payload-Validierung beim Enqueue. Programmierfehler → API-Route bekommt Error.
+  definition.payload.parse(payload)
+
+  if (definition.actor === 'required' && actorUserId == null) {
+    throw new Error(`notify(${type}): actorUserId is required`)
   }
 
-  // all_members
-  const rows = await db.select({
-    userId: schema.users.id,
-    email: schema.users.email,
-    firstName: schema.users.firstName,
-  })
-    .from(schema.users)
-    .where(eq(schema.users.membershipStatus, 'active'))
+  const storedPayload = JSON.stringify({ ...(payload as object), eventId, _recipients: recipients })
 
-  return rows.map(r => ({ userId: r.userId, email: r.email, firstName: r.firstName ?? undefined }))
+  const rows = await db.insert(schema.notificationJobs).values({
+    type,
+    status: 'pending',
+    payload: storedPayload,
+    actorUserId: actorUserId ?? null,
+    attempts: 0,
+  }).returning({ id: schema.notificationJobs.id })
+
+  return { jobId: rows[0]!.id }
 }
 
-/**
- * Sendet eine E-Mail für eine einzelne Delivery. Gibt Fehler-String oder null (Erfolg) zurück.
- */
-async function sendEmailDelivery(
-  type: NotificationType,
-  recipient: NotificationRecipient,
-  payload: Record<string, unknown>,
-): Promise<string | null> {
-  const templateName = EMAIL_TEMPLATE_MAP[type]
-  if (!templateName) return `Template not found for type: ${type}`
+// ---------------------------------------------------------------------------
+// Delivery-Loop — wird ausschließlich aus processQueue() aufgerufen
+// ---------------------------------------------------------------------------
 
-  if (!recipient.email) return 'No email address'
-
-  const subject = EMAIL_SUBJECT_MAP[type](payload)
-  const templateProps = {
-    ...payload,
-    firstName: recipient.firstName,
-    ...(recipient.disciplines ? { disciplines: recipient.disciplines } : {}),
-  }
-  const fallbackGreeting = recipient.firstName ? `Hallo ${recipient.firstName},` : 'Hallo,'
-
-  function buildEventChangedFallbackContent() {
-    const eventName = String(payload.eventName ?? 'Veranstaltung')
-    const eventLink = typeof payload.eventLink === 'string'
-      ? payload.eventLink
-      : (typeof payload.eventUrl === 'string' ? payload.eventUrl : undefined)
-    const lines = [
-      fallbackGreeting,
-      '',
-      `bei ${eventName} haben sich Details geändert.`,
-      'Bitte prüfe, ob du noch teilnehmen kannst.',
-    ]
-    if (eventLink) {
-      lines.push('', `Zum Event: ${eventLink}`)
-    }
-
-    return {
-      text: lines.join('\n'),
-      html: [
-        `<p>${fallbackGreeting}</p>`,
-        `<p>bei <strong>${eventName}</strong> haben sich Details geändert.<br>Bitte prüfe, ob du noch teilnehmen kannst.</p>`,
-        ...(eventLink ? [`<p><a href="${eventLink}">Zum Event</a></p>`] : []),
-      ].join(''),
-    }
-  }
-
-  let html = ''
-  let text = ''
-  try {
-    const htmlResult = await renderEmailComponent(templateName, templateProps, { pretty: true })
-    const textResult = await renderEmailComponent(templateName, templateProps, { plainText: true })
-
-    html = typeof htmlResult === 'string' ? htmlResult : htmlResult.html
-    text = typeof textResult === 'string' ? textResult : textResult.html
-  }
-  catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
-    const templateMissing = message.includes('template') && message.includes('not found')
-    if (type === 'event_changed' && templateMissing) {
-      // Fail-safe: verhindert Delivery-Ausfälle, falls Template-Registry zur Laufzeit unvollständig ist.
-      const fallback = buildEventChangedFallbackContent()
-      html = fallback.html
-      text = fallback.text
-      console.warn('[notifications] Fallback-Email für event_changed verwendet:', message)
-    }
-    else {
-      throw error
-    }
-  }
-
-  await emailService.sendEmail({
-    to: [{ address: recipient.email, displayName: recipient.firstName }],
-    subject,
-    html,
-    text,
-  })
-
-  return null
-}
-
-/**
- * Sendet eine Push-Notification an alle Geräte eines Empfängers.
- */
-async function sendPushDelivery(
-  type: NotificationType,
-  recipient: NotificationRecipient,
-  payload: Record<string, unknown>,
-): Promise<string | null> {
-  const payloadBuilder = PUSH_PAYLOAD_MAP[type]
-  if (!payloadBuilder) return `Push payload not found for type: ${type}`
-
-  const pushPayload = payloadBuilder(payload)
-  await pushService.sendPushToUser(recipient.userId, pushPayload)
-  return null
-}
-
-// Per-Send-Timeout: schützt den Cron-Worker davor, dass ein hängender Email-Render
-// oder ein nicht antwortender ACS-/Web-Push-Endpoint den ganzen Job-Lauf in Cloudflares
-// Wall-Clock-Limit reißt. Bei Timeout wird die Delivery als `failed` geloggt und der
-// Job kann sauber abgeschlossen werden — Retry läuft dann via Backoff.
 const SEND_TIMEOUT_MS = 15_000
 
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
@@ -163,36 +98,116 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   })
 }
 
-// ---------------------------------------------------------------------------
-// Delivery-Loop — wird ausschließlich aus processQueue() aufgerufen
-// ---------------------------------------------------------------------------
+async function resolveActor(actorUserId: number | null): Promise<ResolvedActor | undefined> {
+  if (actorUserId == null) return undefined
+  const { db, schema } = await import('hub:db')
+  const row = await db.query.users.findFirst({
+    where: eq(schema.users.id, actorUserId),
+    columns: { id: true, firstName: true, lastName: true },
+  })
+  if (!row) return undefined
+  const firstName = row.firstName ?? ''
+  const lastName = row.lastName ?? ''
+  return {
+    userId: row.id,
+    firstName,
+    lastName,
+    name: formatActorName(firstName, lastName),
+  }
+}
+
+function buildEmailTemplateProps(
+  payload: Record<string, unknown>,
+  recipient: NotificationRecipient,
+  actor: ResolvedActor | undefined,
+): Record<string, unknown> {
+  return {
+    ...payload,
+    firstName: recipient.firstName,
+    ...(recipient.disciplines ? { disciplines: recipient.disciplines } : {}),
+    ...(actor
+      ? {
+          adminName: actor.name,
+          actorName: actor.name,
+          memberFirstName: actor.firstName,
+          memberLastName: actor.lastName,
+        }
+      : {}),
+  }
+}
+
+async function sendEmailDelivery(
+  type: NotificationType,
+  recipient: NotificationRecipient,
+  payload: Record<string, unknown>,
+  actor: ResolvedActor | undefined,
+): Promise<string | null> {
+  if (!recipient.email) return 'No email address'
+
+  const definition: AnyNotificationDefinition = getNotificationDefinition(type)
+  const ctx = { actor }
+  const subject = definition.email.subject(payload, ctx)
+
+  const templateProps = buildEmailTemplateProps(payload, recipient, actor)
+
+  const htmlResult = await renderEmailComponent(definition.email.component, templateProps, { pretty: true })
+  const textResult = await renderEmailComponent(definition.email.component, templateProps, { plainText: true })
+
+  const html = typeof htmlResult === 'string' ? htmlResult : htmlResult.html
+  const text = typeof textResult === 'string' ? textResult : textResult.html
+
+  await emailService.sendEmail({
+    to: [{ address: recipient.email, displayName: recipient.firstName }],
+    subject,
+    html,
+    text,
+  })
+
+  return null
+}
+
+async function sendPushDelivery(
+  type: NotificationType,
+  recipient: NotificationRecipient,
+  payload: Record<string, unknown>,
+  actor: ResolvedActor | undefined,
+): Promise<string | null> {
+  const definition: AnyNotificationDefinition = getNotificationDefinition(type)
+  const ctx = { actor }
+  const pushPayload = definition.push(payload, ctx)
+  await pushService.sendPushToUser(recipient.userId, pushPayload)
+  return null
+}
 
 export async function executeDeliveries(
   jobId: number,
   type: NotificationType,
   recipients: NotificationRecipient[],
   payload: Record<string, unknown>,
+  actorUserId: number | null,
 ): Promise<boolean> {
   const { db, schema } = await import('hub:db')
 
   const userIds = recipients.map(r => r.userId)
 
-  // Preferences und Subscriptions parallel laden
-  const [preferences, subscriptionRows] = userIds.length > 0
-    ? await Promise.all([
-        db.select()
+  const [preferences, subscriptionRows, actor] = await Promise.all([
+    userIds.length > 0
+      ? db.select()
           .from(schema.notificationPreferences)
           .where(
             and(
               inArray(schema.notificationPreferences.userId, userIds),
               eq(schema.notificationPreferences.notificationType, type),
             ),
-          ),
-        db.select({ userId: schema.pushSubscriptions.userId })
+          )
+      : Promise.resolve([] as Array<typeof schema.notificationPreferences.$inferSelect>),
+    userIds.length > 0
+      ? db.select({ userId: schema.pushSubscriptions.userId })
           .from(schema.pushSubscriptions)
-          .where(inArray(schema.pushSubscriptions.userId, userIds)),
-      ])
-    : [[], []]
+          .where(inArray(schema.pushSubscriptions.userId, userIds))
+      : Promise.resolve([] as Array<{ userId: number }>),
+    resolveActor(actorUserId),
+  ])
 
   const prefsByUser = new Map<number, typeof preferences>()
   for (const pref of preferences) {
@@ -204,15 +219,14 @@ export async function executeDeliveries(
   const subscribedUserIds = new Set(subscriptionRows.map(r => r.userId))
 
   const tasks = buildDeliveryTasks(type, recipients, prefsByUser, subscribedUserIds)
-
   if (tasks.length === 0) return true
 
   const results = await Promise.allSettled(tasks.map(async (task) => {
     let error: string | null = null
     try {
       const sendPromise = task.channel === 'email'
-        ? sendEmailDelivery(type, task.recipient, payload)
-        : sendPushDelivery(type, task.recipient, payload)
+        ? sendEmailDelivery(type, task.recipient, payload, actor)
+        : sendPushDelivery(type, task.recipient, payload, actor)
       error = await withTimeout(sendPromise, SEND_TIMEOUT_MS, `${task.channel} send`)
     }
     catch (e) {
@@ -221,7 +235,6 @@ export async function executeDeliveries(
     return { task, error }
   }))
 
-  // Deliveries schreiben (sequenziell, günstig gegenüber den Versand-Calls)
   let anySuccess = false
   for (const r of results) {
     if (r.status !== 'fulfilled') continue
@@ -242,28 +255,6 @@ export async function executeDeliveries(
   return anySuccess
 }
 
-// ---------------------------------------------------------------------------
-// Public API — reine Queue: INSERT pending, Cron verarbeitet später
-// ---------------------------------------------------------------------------
-
-export async function enqueueNotification(options: SendNotificationOptions): Promise<SendNotificationResult> {
-  const { db, schema } = await import('hub:db')
-  const { type, payload, eventId } = options
-
-  const recipients = await resolveRecipients(options.recipients)
-
-  const storedPayload = JSON.stringify({ ...payload, eventId, _recipients: recipients })
-
-  const rows = await db.insert(schema.notificationJobs).values({
-    type,
-    status: 'pending',
-    payload: storedPayload,
-    attempts: 0,
-  }).returning({ id: schema.notificationJobs.id })
-
-  return { jobId: rows[0]!.id }
-}
-
 export const notificationService = {
-  enqueue: enqueueNotification,
+  notify,
 }

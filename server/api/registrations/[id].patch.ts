@@ -3,11 +3,9 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import { getValidNextStatuses } from '~~/shared/utils/registration'
-import {
-  triggerAdminChangedRegistrationNotification,
-  triggerAthleteCanceledAfterLadvNotification,
-} from '~~/server/notifications/triggers'
-import { formatActorName } from '~~/shared/utils/format-actor-name'
+import { notify } from '~~/server/notifications/service'
+import { recipients } from '~~/server/notifications/recipients'
+import { buildEventPayload } from '~~/server/notifications/payload-helpers'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 
 const bodySchema = z.object({
@@ -97,12 +95,51 @@ export default defineEventHandler(async (event) => {
     })
     .where(eq(schema.registrations.id, id))
 
-  if (shouldNotifyAdmins) {
-    await triggerAthleteCanceledAfterLadvNotification(registration.userId, registration.eventId)
-  }
+  if (shouldNotifyAdmins || shouldNotifyMember) {
+    const dbEvent = await db.query.events.findFirst({
+      where: eq(schema.events.id, registration.eventId),
+    })
 
-  if (shouldNotifyMember) {
-    await triggerAdminChangedRegistrationNotification(registration.userId, registration.eventId, formatActorName(session.user.firstName, session.user.lastName))
+    if (dbEvent) {
+      const siteUrl = useRuntimeConfig().public.siteUrl
+      const basePayload = buildEventPayload(dbEvent, siteUrl)
+
+      if (shouldNotifyAdmins) {
+        try {
+          await notify({
+            type: 'athlete_canceled_after_ladv',
+            recipients: await recipients.allAdmins(),
+            actorUserId: registration.userId,
+            payload: basePayload,
+            eventId: registration.eventId,
+          })
+        }
+        catch (err) {
+          console.error('[Notification] athlete_canceled_after_ladv:', err)
+        }
+      }
+
+      if (shouldNotifyMember) {
+        try {
+          const targetUser = await db.query.users.findFirst({
+            where: eq(schema.users.id, registration.userId),
+            columns: { id: true, email: true, firstName: true },
+          })
+          if (targetUser) {
+            await notify({
+              type: 'admin_changed_member_registration',
+              recipients: [{ userId: targetUser.id, email: targetUser.email, firstName: targetUser.firstName ?? undefined }],
+              actorUserId: session.user.id,
+              payload: basePayload,
+              eventId: registration.eventId,
+            })
+          }
+        }
+        catch (err) {
+          console.error('[Notification] admin_changed_member_registration:', err)
+        }
+      }
+    }
   }
 
   return { id }

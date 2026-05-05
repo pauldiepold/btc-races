@@ -1,7 +1,7 @@
-import { and, eq, inArray } from 'drizzle-orm'
-import { db, schema } from 'hub:db'
+import type { schema } from 'hub:db'
 import { diffEventCoreFields, type EventCoreField, type EventCoreSnapshot } from '~~/shared/utils/diff-event-core-fields'
 import { notify } from './service'
+import { recipients } from './recipients'
 import { isEventDateInPastBerlin } from './payload-helpers'
 
 const CORE_FIELD_LABEL: Record<EventCoreField, string> = {
@@ -29,33 +29,17 @@ export async function notifyEventChanged(
   const fieldChanges = diffEventCoreFields(before, after)
   if (fieldChanges.length === 0) return
 
-  const recipientRows = await db
-    .select({
-      userId: schema.users.id,
-      email: schema.users.email,
-      firstName: schema.users.firstName,
-    })
-    .from(schema.registrations)
-    .innerJoin(schema.users, eq(schema.registrations.userId, schema.users.id))
-    .where(
-      and(
-        eq(schema.registrations.eventId, eventRow.id),
-        inArray(schema.registrations.status, ['registered', 'yes', 'maybe']),
-        eq(schema.users.membershipStatus, 'active'),
-      ),
-    )
-
-  if (recipientRows.length === 0) return
+  const eventRecipients = await recipients.registeredFor(eventRow.id, {
+    statuses: ['registered', 'yes', 'maybe'],
+    activeMembersOnly: true,
+  })
+  if (eventRecipients.length === 0) return
 
   const siteUrl = useRuntimeConfig().public.siteUrl
 
   await notify({
     type: 'event_changed',
-    recipients: recipientRows.map(r => ({
-      userId: r.userId,
-      email: r.email,
-      firstName: r.firstName ?? undefined,
-    })),
+    recipients: eventRecipients,
     actorUserId,
     payload: {
       eventName: eventRow.name,

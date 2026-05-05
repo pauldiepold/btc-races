@@ -1,6 +1,7 @@
 import { db, schema } from 'hub:db'
-import { and, eq, notInArray } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { notify } from '~~/server/notifications/service'
+import { recipients } from '~~/server/notifications/recipients'
 import { buildEventPayload } from '~~/server/notifications/payload-helpers'
 
 export default defineEventHandler(async (event) => {
@@ -31,30 +32,15 @@ export default defineEventHandler(async (event) => {
       .where(eq(schema.events.id, id))
 
     try {
-      const recipientRows = await db
-        .select({
-          userId: schema.users.id,
-          email: schema.users.email,
-          firstName: schema.users.firstName,
-        })
-        .from(schema.registrations)
-        .innerJoin(schema.users, eq(schema.registrations.userId, schema.users.id))
-        .where(
-          and(
-            eq(schema.registrations.eventId, id),
-            notInArray(schema.registrations.status, ['canceled', 'no']),
-          ),
-        )
+      const eventRecipients = await recipients.registeredFor(id, {
+        statuses: ['registered', 'yes', 'maybe'],
+      })
 
-      if (recipientRows.length > 0) {
+      if (eventRecipients.length > 0) {
         const siteUrl = useRuntimeConfig().public.siteUrl
         await notify({
           type: 'event_canceled',
-          recipients: recipientRows.map(r => ({
-            userId: r.userId,
-            email: r.email,
-            firstName: r.firstName ?? undefined,
-          })),
+          recipients: eventRecipients,
           actorUserId: adminSession.user.id,
           payload: buildEventPayload(dbEvent, siteUrl),
           eventId: id,

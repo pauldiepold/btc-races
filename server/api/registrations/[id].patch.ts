@@ -121,14 +121,11 @@ export default defineEventHandler(async (event) => {
 
       if (shouldNotifyMember) {
         try {
-          const targetUser = await db.query.users.findFirst({
-            where: eq(schema.users.id, registration.userId),
-            columns: { id: true, email: true, firstName: true },
-          })
-          if (targetUser) {
+          const memberRecipients = await recipients.user(registration.userId)
+          if (memberRecipients.length > 0) {
             await notify({
               type: 'admin_changed_member_registration',
-              recipients: [{ userId: targetUser.id, email: targetUser.email, firstName: targetUser.firstName ?? undefined }],
+              recipients: memberRecipients,
               actorUserId: session.user.id,
               payload: basePayload,
               eventId: registration.eventId,

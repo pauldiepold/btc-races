@@ -3,6 +3,8 @@ import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EventDetails from './components/EventDetails.vue'
 
+import type { EventType } from '~~/shared/utils/registration'
+
 interface Props {
   firstName?: string
   adminName?: string
@@ -12,6 +14,7 @@ interface Props {
   registrationDeadline?: string
   eventVenue?: string
   eventLink?: string
+  eventType?: EventType
 }
 
 const {
@@ -23,6 +26,7 @@ const {
   registrationDeadline,
   eventVenue,
   eventLink,
+  eventType,
 } = defineProps<Props>()
 </script>
 
@@ -46,6 +50,7 @@ const {
       :registration-deadline="registrationDeadline"
       :event-venue="eventVenue"
       :event-link="eventLink"
+      :event-type="eventType"
     />
   </EmailLayout>
 </template>

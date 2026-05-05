@@ -99,6 +99,7 @@ export const notificationJobs = sqliteTable('notification_jobs', {
   type: text().notNull().$type<import('~~/shared/types/notifications').NotificationType>(),
   status: text().notNull().$type<'pending' | 'processing' | 'done' | 'failed'>().default('pending'),
   payload: text().notNull(), // JSON
+  actorUserId: integer({ mode: 'number' }).references(() => users.id, { onDelete: 'set null' }),
   attempts: integer().notNull().default(0),
   error: text(),
   createdAt: integer({ mode: 'timestamp' })

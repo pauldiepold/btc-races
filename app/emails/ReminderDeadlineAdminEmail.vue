@@ -8,6 +8,8 @@ interface Participant {
   disciplines?: string
 }
 
+import type { EventType } from '~~/shared/utils/registration'
+
 interface Props {
   eventName?: string
   eventDate?: string
@@ -16,10 +18,12 @@ interface Props {
   eventVenue?: string
   eventLink?: string
   participants?: Participant[]
+  eventType?: EventType
 }
 
 const {
   participants = [],
+  eventType,
 } = defineProps<Props>()
 
 const styles = {
@@ -76,7 +80,7 @@ const participantCount = participants?.length ?? 0
 
     <ESection :style="styles.listBox">
       <EText :style="styles.listTitle">
-        Angemeldete Teilnehmer
+        Angemeldete Teilnehmerinnen
       </EText>
       <EText
         v-if="participants.length === 0"
@@ -104,6 +108,7 @@ const participantCount = participants?.length ?? 0
       :registration-deadline="registrationDeadline"
       :event-venue="eventVenue"
       :event-link="eventLink"
+      :event-type="eventType"
     />
   </EmailLayout>
 </template>

@@ -1,11 +1,10 @@
 import { db, schema } from 'hub:db'
 import { and, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm'
-import { notificationService } from '~~/server/notifications/service'
-import { formatEventDate } from '~~/shared/utils/events'
+import { notify } from '~~/server/notifications/service'
+import { recipients } from '~~/server/notifications/recipients'
+import { buildEventPayload } from '~~/server/notifications/payload-helpers'
 import { addDaysToIsoDate, todayIsoDate } from '~~/shared/utils/reminder-dates'
-import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
 import type { NotificationType } from '~~/shared/types/notifications'
-import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 
 interface ReminderResult {
   type: NotificationType
@@ -33,34 +32,6 @@ async function hasExistingJob(type: NotificationType, eventId: number): Promise<
   return rows.length > 0
 }
 
-async function getRegisteredRecipients(eventId: number) {
-  const rows = await db.select({
-    userId: schema.users.id,
-    email: schema.users.email,
-    firstName: schema.users.firstName,
-    wishDisciplines: schema.registrations.wishDisciplines,
-  })
-    .from(schema.registrations)
-    .innerJoin(schema.users, eq(schema.registrations.userId, schema.users.id))
-    .where(
-      and(
-        eq(schema.registrations.eventId, eventId),
-        inArray(schema.registrations.status, ['registered', 'yes']),
-      ),
-    )
-
-  return rows.map((row) => {
-    const wish = (row.wishDisciplines as RegistrationDisciplinePair[] | null) ?? []
-    const disciplines = wish.map(d => `${ladvDisciplineLabel(d.discipline)} (${ladvAgeClassLabel(d.ageClass)})`)
-    return {
-      userId: row.userId,
-      email: row.email,
-      firstName: row.firstName ?? undefined,
-      disciplines: disciplines.length > 0 ? disciplines : undefined,
-    }
-  })
-}
-
 async function getAdminParticipantList(eventId: number): Promise<Array<{ name: string, disciplines?: string }>> {
   const rows = await db.select({
     firstName: schema.users.firstName,
@@ -82,16 +53,6 @@ async function getAdminParticipantList(eventId: number): Promise<Array<{ name: s
     const disciplineList = [...new Set(wish.map(d => d.discipline))].join(', ')
     return { name, disciplines: disciplineList || undefined }
   })
-}
-
-function buildEventPayload(dbEvent: typeof schema.events.$inferSelect, siteUrl: string) {
-  return {
-    eventName: dbEvent.name,
-    eventDate: formatEventDate(dbEvent.date) ?? undefined,
-    eventLocation: dbEvent.location ?? undefined,
-    registrationDeadline: formatEventDate(dbEvent.registrationDeadline) ?? undefined,
-    eventLink: `${siteUrl}/${encodeEventId(dbEvent.id)}`,
-  }
 }
 
 export default defineEventHandler(async (event) => {
@@ -122,6 +83,7 @@ export default defineEventHandler(async (event) => {
       .where(
         and(
           eq(schema.events.registrationDeadline, targetDate),
+          eq(schema.events.type, 'ladv'),
           isNull(schema.events.cancelledAt),
         ),
       )
@@ -136,28 +98,23 @@ export default defineEventHandler(async (event) => {
         const payload = buildEventPayload(dbEvent, siteUrl)
 
         if (type === 'reminder_deadline_athlete') {
-          const recipients = await getRegisteredRecipients(dbEvent.id)
-          if (recipients.length === 0) {
+          const registered = await recipients.registeredFor(dbEvent.id, { withDisciplines: true })
+          if (registered.length === 0) {
             results.push({ type, eventId: dbEvent.id, eventName: dbEvent.name, status: 'skipped' })
             continue
           }
-          await notificationService.enqueue({
+          await notify({
             type,
-            recipients: recipients.map(r => ({
-              userId: r.userId,
-              email: r.email,
-              firstName: r.firstName ?? undefined,
-              disciplines: r.disciplines,
-            })),
+            recipients: registered,
             payload,
             eventId: dbEvent.id,
           })
         }
         else {
           const participants = await getAdminParticipantList(dbEvent.id)
-          await notificationService.enqueue({
+          await notify({
             type,
-            recipients: 'all_admins',
+            recipients: await recipients.allAdmins(),
             payload: { ...payload, participants },
             eventId: dbEvent.id,
           })
@@ -188,6 +145,7 @@ export default defineEventHandler(async (event) => {
       .where(
         and(
           eq(schema.events.date, targetDate),
+          eq(schema.events.type, 'ladv'),
           isNull(schema.events.cancelledAt),
           isNotNull(schema.events.date),
         ),
@@ -200,19 +158,15 @@ export default defineEventHandler(async (event) => {
           continue
         }
 
-        const recipients = await getRegisteredRecipients(dbEvent.id)
-        if (recipients.length === 0) {
+        const registered = await recipients.registeredFor(dbEvent.id)
+        if (registered.length === 0) {
           results.push({ type, eventId: dbEvent.id, eventName: dbEvent.name, status: 'skipped' })
           continue
         }
 
-        await notificationService.enqueue({
+        await notify({
           type,
-          recipients: recipients.map(r => ({
-            userId: r.userId,
-            email: r.email,
-            firstName: r.firstName ?? undefined,
-          })),
+          recipients: registered,
           payload: buildEventPayload(dbEvent, siteUrl),
           eventId: dbEvent.id,
         })

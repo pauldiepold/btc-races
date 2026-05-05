@@ -1,7 +1,7 @@
 import { db, schema } from 'hub:db'
 import { asc, eq } from 'drizzle-orm'
-import { triggerEventChangedNotification, toEventCoreSnapshot } from '~~/server/notifications/triggers'
-import { formatActorName } from '~~/shared/utils/format-actor-name'
+import { notifyEventChanged } from '~~/server/notifications/event-changed'
+import { toEventCoreSnapshot } from '~~/shared/utils/diff-event-core-fields'
 import { LadvService } from '~~/server/external-apis/ladv/ladv.service'
 import { isRunningDiscipline } from '~~/shared/utils/ladv-labels'
 import type { EventDetail, RegistrationDetail } from '~~/shared/types/events'
@@ -67,12 +67,17 @@ export default defineEventHandler(async (event) => {
   })
 
   if (updatedEvent) {
-    await triggerEventChangedNotification(
-      beforeCore,
-      toEventCoreSnapshot(updatedEvent),
-      updatedEvent,
-      formatActorName(session.user.firstName, session.user.lastName),
-    )
+    try {
+      await notifyEventChanged(
+        beforeCore,
+        toEventCoreSnapshot(updatedEvent),
+        updatedEvent,
+        session.user.id,
+      )
+    }
+    catch (err) {
+      console.error('[Notification] event_changed:', err)
+    }
   }
 
   const isAdmin = session.user.role === 'admin' || session.user.role === 'superuser'

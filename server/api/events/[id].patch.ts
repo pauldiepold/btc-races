@@ -1,8 +1,8 @@
 import { db, schema } from 'hub:db'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { triggerEventChangedNotification, toEventCoreSnapshot } from '~~/server/notifications/triggers'
-import { formatActorName } from '~~/shared/utils/format-actor-name'
+import { notifyEventChanged } from '~~/server/notifications/event-changed'
+import { toEventCoreSnapshot } from '~~/shared/utils/diff-event-core-fields'
 
 const patchEventSchema = z.object({
   name: z.string().min(1, 'Name ist erforderlich').optional(),
@@ -75,12 +75,17 @@ export default defineEventHandler(async (event) => {
       where: eq(schema.events.id, id),
     })
     if (updated) {
-      await triggerEventChangedNotification(
-        toEventCoreSnapshot(dbEvent),
-        toEventCoreSnapshot(updated),
-        updated,
-        formatActorName(session.user.firstName, session.user.lastName),
-      )
+      try {
+        await notifyEventChanged(
+          toEventCoreSnapshot(dbEvent),
+          toEventCoreSnapshot(updated),
+          updated,
+          session.user.id,
+        )
+      }
+      catch (err) {
+        console.error('[Notification] event_changed:', err)
+      }
     }
   }
 

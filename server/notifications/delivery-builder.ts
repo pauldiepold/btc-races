@@ -1,6 +1,6 @@
-import { resolveChannelsForRecipient } from '~~/shared/utils/notifications'
+import { resolveChannelsForRecipient } from './resolve-channels'
 import type { NotificationChannel, NotificationType } from '~~/shared/types/notifications'
-import type { NotificationRecipient } from './types'
+import type { NotificationRecipient } from './recipients'
 
 export interface DeliveryTask {
   recipient: NotificationRecipient

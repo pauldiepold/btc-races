@@ -105,7 +105,7 @@ const styles = {
           <slot />
 
           <EText :style="styles.greetingText">
-            Liebe Grüße,<br>Dein BTC
+            Liebe Grüße,<br>Berlin Track Club
           </EText>
         </ESection>
 

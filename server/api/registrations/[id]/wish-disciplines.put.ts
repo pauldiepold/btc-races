@@ -3,7 +3,9 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import { shouldNotifyAdminsOnWishChange } from '~~/shared/utils/ladv-diff'
-import { triggerAthleteChangedAfterLadvNotification } from '~~/server/notifications/triggers'
+import { notify } from '~~/server/notifications/service'
+import { recipients } from '~~/server/notifications/recipients'
+import { buildEventPayload } from '~~/server/notifications/payload-helpers'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 
 const bodySchema = z.object({
@@ -70,7 +72,19 @@ export default defineEventHandler(async (event) => {
     .where(eq(schema.registrations.id, id))
 
   if (doNotify) {
-    await triggerAthleteChangedAfterLadvNotification(registration.userId, registration.eventId)
+    try {
+      const siteUrl = useRuntimeConfig().public.siteUrl
+      await notify({
+        type: 'athlete_changed_after_ladv',
+        recipients: await recipients.allAdmins(),
+        actorUserId: registration.userId,
+        payload: buildEventPayload(dbEvent, siteUrl),
+        eventId: registration.eventId,
+      })
+    }
+    catch (err) {
+      console.error('[Notification] athlete_changed_after_ladv:', err)
+    }
   }
 
   return { id }

@@ -2,6 +2,7 @@
 import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EventDetails from './components/EventDetails.vue'
+import type { EventType } from '~~/shared/utils/registration'
 
 interface Props {
   firstName?: string
@@ -11,9 +12,10 @@ interface Props {
   registrationDeadline?: string
   eventVenue?: string
   eventLink?: string
+  eventType?: EventType
 }
 
-defineProps<Props>()
+const { eventType } = defineProps<Props>()
 </script>
 
 <template>
@@ -26,7 +28,7 @@ defineProps<Props>()
     </EmailText>
 
     <EmailText>
-      <strong>{{ eventName }}</strong> findet in zwei Tagen statt. Schau vorher nochmal rein, prüfe deine Meldung und halt die Daten zum Wettkampfort bereit.
+      <strong>{{ eventName }}</strong> findet in zwei Tagen statt. Schau vorher nochmal rein, prüfe deine Anmeldung und halt die Daten zum Veranstaltungsort bereit.
     </EmailText>
 
     <EventDetails
@@ -36,6 +38,7 @@ defineProps<Props>()
       :registration-deadline="registrationDeadline"
       :event-venue="eventVenue"
       :event-link="eventLink"
+      :event-type="eventType"
     />
   </EmailLayout>
 </template>

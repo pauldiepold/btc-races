@@ -1,4 +1,10 @@
 export type EventType = 'ladv' | 'competition' | 'training' | 'social'
+
+export function getEventTypeLabel(type: EventType): string {
+  if (type === 'training') return 'Training'
+  if (type === 'social') return 'Event'
+  return 'Wettkampf'
+}
 export type RegistrationStatus = 'registered' | 'canceled' | 'maybe' | 'yes' | 'no'
 
 // State Machine gemäß Feature-Spec:

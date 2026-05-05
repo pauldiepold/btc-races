@@ -83,6 +83,7 @@ export default defineEventHandler(async (event) => {
       .where(
         and(
           eq(schema.events.registrationDeadline, targetDate),
+          eq(schema.events.type, 'ladv'),
           isNull(schema.events.cancelledAt),
         ),
       )
@@ -144,6 +145,7 @@ export default defineEventHandler(async (event) => {
       .where(
         and(
           eq(schema.events.date, targetDate),
+          eq(schema.events.type, 'ladv'),
           isNull(schema.events.cancelledAt),
           isNotNull(schema.events.date),
         ),

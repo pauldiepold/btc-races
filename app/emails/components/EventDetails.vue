@@ -69,7 +69,10 @@ const styles = {
     <EText :style="styles.row">
       <span :style="styles.label">Name: </span><span :style="styles.value">{{ eventName }}</span>
     </EText>
-    <EText :style="styles.row">
+    <EText
+      v-if="eventDate"
+      :style="styles.row"
+    >
       <span :style="styles.label">Datum: </span><span :style="styles.value">{{ eventDate }}</span>
     </EText>
     <EText

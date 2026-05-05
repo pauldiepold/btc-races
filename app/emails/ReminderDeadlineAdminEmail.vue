@@ -76,7 +76,7 @@ const participantCount = participants?.length ?? 0
 
     <ESection :style="styles.listBox">
       <EText :style="styles.listTitle">
-        Angemeldete Teilnehmer
+        Angemeldete Teilnehmerinnen
       </EText>
       <EText
         v-if="participants.length === 0"

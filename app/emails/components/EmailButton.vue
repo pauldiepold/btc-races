@@ -14,7 +14,7 @@ const styles = {
     textDecoration: 'none',
     padding: '12px 24px',
     borderRadius: '3px',
-    margin: '8px 0 16px 0',
+    margin: '8px 0 0 0',
     fontSize: '14px',
     fontWeight: '700' as const,
     textAlign: 'center' as const,

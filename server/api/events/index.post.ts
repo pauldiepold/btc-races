@@ -60,6 +60,7 @@ export default defineEventHandler(async (event) => {
       actorUserId: session.user.id,
       payload: buildEventPayload({
         id: newId,
+        type: data.type,
         name: data.name,
         date: data.date ?? null,
         location: data.location ?? null,

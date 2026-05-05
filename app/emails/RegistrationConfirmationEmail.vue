@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EventDetails from './components/EventDetails.vue'
+import type { EventType } from '~~/shared/utils/registration'
+import { getEventTypeLabel } from '~~/shared/utils/registration'
 
 interface Props {
   firstName?: string
@@ -11,9 +14,12 @@ interface Props {
   registrationDeadline?: string
   eventVenue?: string
   eventLink?: string
+  eventType?: EventType
 }
 
-defineProps<Props>()
+const { eventType } = defineProps<Props>()
+
+const eventLabel = computed(() => getEventTypeLabel(eventType ?? 'competition'))
 </script>
 
 <template>
@@ -26,7 +32,7 @@ defineProps<Props>()
     </EmailText>
 
     <EmailText>
-      Du bist jetzt zum folgenden Wettkampf angemeldet:
+      Du bist jetzt zum folgenden {{ eventLabel }} angemeldet:
     </EmailText>
 
     <EventDetails
@@ -36,6 +42,7 @@ defineProps<Props>()
       :registration-deadline="registrationDeadline"
       :event-venue="eventVenue"
       :event-link="eventLink"
+      :event-type="eventType"
     />
   </EmailLayout>
 </template>

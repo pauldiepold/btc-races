@@ -20,6 +20,7 @@ export const reminderDeadlineAdmin = defineNotificationType({
   },
   payload: z.object({
     eventName: z.string(),
+    eventType: z.enum(['ladv', 'competition', 'training', 'social']),
     eventDate: z.string().optional(),
     eventLocation: z.string().optional(),
     registrationDeadline: z.string().optional(),

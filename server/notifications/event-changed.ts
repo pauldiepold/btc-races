@@ -20,7 +20,7 @@ const CORE_FIELD_LABEL: Record<EventCoreField, string> = {
 export async function notifyEventChanged(
   before: EventCoreSnapshot,
   after: EventCoreSnapshot,
-  eventRow: Pick<typeof schema.events.$inferSelect, 'id' | 'name' | 'date' | 'cancelledAt'>,
+  eventRow: Pick<typeof schema.events.$inferSelect, 'id' | 'name' | 'type' | 'date' | 'cancelledAt'>,
   actorUserId?: number,
 ): Promise<void> {
   if (eventRow.cancelledAt != null) return
@@ -43,6 +43,7 @@ export async function notifyEventChanged(
     actorUserId,
     payload: {
       eventName: eventRow.name,
+      eventType: eventRow.type,
       eventLink: `${siteUrl}/${encodeEventId(eventRow.id)}`,
       changes: fieldChanges.map(c => ({
         field: c.field,

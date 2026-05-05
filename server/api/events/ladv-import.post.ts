@@ -77,6 +77,7 @@ export default defineEventHandler(async (event) => {
       actorUserId: session.user.id,
       payload: buildEventPayload({
         id: newId,
+        type: 'ladv',
         name: normalized.name,
         date: normalized.date,
         location: normalized.location,

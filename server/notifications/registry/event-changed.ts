@@ -22,6 +22,7 @@ export const eventChanged = defineNotificationType({
   },
   payload: z.object({
     eventName: z.string(),
+    eventType: z.enum(['ladv', 'competition', 'training', 'social']),
     eventLink: z.string(),
     changes: z.array(changeSchema),
   }),

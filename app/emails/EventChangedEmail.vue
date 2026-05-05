@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EmailButton from './components/EmailButton.vue'
+import type { EventType } from '~~/shared/utils/registration'
+import { getEventTypeLabel } from '~~/shared/utils/registration'
 
 type EventChangedField = 'date' | 'startTime' | 'location'
 
@@ -18,9 +21,12 @@ interface Props {
   eventName?: string
   eventLink?: string
   changes?: EventChange[]
+  eventType?: EventType
 }
 
-const { adminName, changes = [] } = defineProps<Props>()
+const { adminName, changes = [], eventType } = defineProps<Props>()
+
+const eventLabel = computed(() => getEventTypeLabel(eventType ?? 'competition'))
 
 const EMPTY_PLACEHOLDER = '—'
 
@@ -90,7 +96,7 @@ const styles = {
 
 <template>
   <EmailLayout
-    header-title="Wettkampf geändert"
+    :header-title="`${eventLabel} geändert`"
     show-unsubscribe
   >
     <EmailText>

@@ -54,10 +54,12 @@ const styles = {
       Du hast einen Anmeldelink für Berlin Track Club angefordert.
     </EmailText>
 
-    <EmailButton
-      :href="magicLink"
-      text="Jetzt anmelden"
-    />
+    <ESection style="margin-bottom: 16px">
+      <EmailButton
+        :href="magicLink"
+        text="Jetzt anmelden"
+      />
+    </ESection>
 
     <EmailText>
       Falls der Button nicht funktioniert, kopiere diese URL in deinen Browser:

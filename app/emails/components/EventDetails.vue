@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import EmailButton from './EmailButton.vue'
+import type { EventType } from '~~/shared/utils/registration'
+import { getEventTypeLabel } from '~~/shared/utils/registration'
 
 interface Props {
   eventName?: string
@@ -8,6 +11,7 @@ interface Props {
   registrationDeadline?: string
   eventVenue?: string
   eventLink?: string
+  eventType?: EventType
 }
 
 const {
@@ -16,7 +20,10 @@ const {
   eventLocation,
   registrationDeadline,
   eventLink,
+  eventType,
 } = defineProps<Props>()
+
+const eventLabel = computed(() => eventType ? getEventTypeLabel(eventType) : 'Veranstaltung')
 
 const mapsUrl = eventLocation
   ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(eventLocation)}`
@@ -64,7 +71,7 @@ const styles = {
 <template>
   <ESection :style="styles.container">
     <EHeading :style="styles.title">
-      Wettkampf-Details
+      {{ eventLabel }}-Details
     </EHeading>
     <EText :style="styles.row">
       <span :style="styles.label">Name: </span><span :style="styles.value">{{ eventName }}</span>

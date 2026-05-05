@@ -88,6 +88,7 @@ export async function runSyncLadvEvents(): Promise<SyncLadvEventsResult> {
         afterCore,
         {
           id: dbEvent.id,
+          type: dbEvent.type,
           name: (updates.name ?? dbEvent.name) as string,
           date: (updates.date ?? dbEvent.date) as string | null,
           cancelledAt: (updates.cancelledAt ?? dbEvent.cancelledAt) as Date | null,

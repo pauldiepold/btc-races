@@ -1,10 +1,12 @@
 import { formatEventDate } from '~~/shared/utils/events'
 import { ladvAgeClassLabel, ladvDisciplineLabel } from '~~/shared/utils/ladv-labels'
+import type { EventType } from '~~/shared/utils/registration'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 
 interface EventPayloadInput {
   id: number
   name: string
+  type: EventType
   date: string | null
   location: string | null
   registrationDeadline: string | null
@@ -16,6 +18,7 @@ interface EventPayloadInput {
 export function buildEventPayload(dbEvent: EventPayloadInput, siteUrl: string) {
   return {
     eventName: dbEvent.name,
+    eventType: dbEvent.type,
     eventDate: formatEventDate(dbEvent.date) ?? undefined,
     eventLocation: dbEvent.location ?? undefined,
     registrationDeadline: formatEventDate(dbEvent.registrationDeadline) ?? undefined,

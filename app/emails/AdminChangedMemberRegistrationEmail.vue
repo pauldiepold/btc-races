@@ -3,26 +3,30 @@ import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EventDetails from './components/EventDetails.vue'
 
+import type { EventType } from '~~/shared/utils/registration'
+
 interface Props {
   firstName?: string
-  adminFirstName?: string
+  adminName?: string
   eventName?: string
   eventDate?: string
   eventLocation?: string
   registrationDeadline?: string
   eventVenue?: string
   eventLink?: string
+  eventType?: EventType
 }
 
 const {
   firstName,
-  adminFirstName,
+  adminName,
   eventName,
   eventDate,
   eventLocation,
   registrationDeadline,
   eventVenue,
   eventLink,
+  eventType,
 } = defineProps<Props>()
 </script>
 
@@ -36,7 +40,7 @@ const {
     </EmailText>
 
     <EmailText>
-      {{ adminFirstName ?? 'Ein Admin' }} hat deine Anmeldung für <strong>{{ eventName }}</strong> geändert. Bitte prüfe deinen aktuellen Anmeldestatus in der App.
+      {{ adminName ?? 'Ein Admin' }} hat deine Anmeldung für <strong>{{ eventName }}</strong> geändert. Bitte prüfe deinen aktuellen Anmeldestatus in der App.
     </EmailText>
 
     <EventDetails
@@ -46,6 +50,7 @@ const {
       :registration-deadline="registrationDeadline"
       :event-venue="eventVenue"
       :event-link="eventLink"
+      :event-type="eventType"
     />
   </EmailLayout>
 </template>

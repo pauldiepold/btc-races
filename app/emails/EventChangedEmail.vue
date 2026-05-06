@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EmailButton from './components/EmailButton.vue'
+import type { EventType } from '~~/shared/utils/registration'
+import { getEventTypeLabel } from '~~/shared/utils/registration'
 
 type EventChangedField = 'date' | 'startTime' | 'location'
 
@@ -14,12 +17,16 @@ interface EventChange {
 
 interface Props {
   firstName?: string
+  adminName?: string
   eventName?: string
   eventLink?: string
   changes?: EventChange[]
+  eventType?: EventType
 }
 
-const { changes = [] } = defineProps<Props>()
+const { adminName, changes = [], eventType } = defineProps<Props>()
+
+const eventLabel = computed(() => getEventTypeLabel(eventType ?? 'competition'))
 
 const EMPTY_PLACEHOLDER = '—'
 
@@ -89,7 +96,7 @@ const styles = {
 
 <template>
   <EmailLayout
-    header-title="Wettkampf geändert"
+    :header-title="`${eventLabel} geändert`"
     show-unsubscribe
   >
     <EmailText>
@@ -97,7 +104,12 @@ const styles = {
     </EmailText>
 
     <EmailText>
-      bei <strong>{{ eventName }}</strong> haben sich Details geändert. Bitte prüfe, ob du noch dabei sein kannst.
+      <template v-if="adminName">
+        {{ adminName }} hat Details bei <strong>{{ eventName }}</strong> geändert. Bitte prüfe, ob du noch dabei sein kannst.
+      </template>
+      <template v-else>
+        Bei <strong>{{ eventName }}</strong> haben sich Details geändert. Bitte prüfe, ob du noch dabei sein kannst.
+      </template>
     </EmailText>
 
     <ESection :style="styles.changesBox">

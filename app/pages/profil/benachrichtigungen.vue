@@ -3,7 +3,7 @@ import type {
   NotificationPreferenceChannelState,
   NotificationPreferenceEntry,
   NotificationPreferencesResponse,
-} from '~~/server/notifications/meta'
+} from '~~/server/notifications/preferences'
 import type { NotificationChannel, NotificationType } from '~~/shared/types/notifications'
 
 definePageMeta({ layout: 'profil', title: 'Benachrichtigungen' })

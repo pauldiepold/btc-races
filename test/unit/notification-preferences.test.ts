@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { resolveChannelsForRecipient } from '../../shared/utils/notifications'
+import { resolveChannelsForRecipient } from '../../server/notifications/resolve-channels'
 
 describe('resolveChannelsForRecipient', () => {
   // ladv_registered: email mandatory, push default on

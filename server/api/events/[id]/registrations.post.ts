@@ -3,7 +3,8 @@ import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import { getInitialStatus } from '~~/shared/utils/registration'
-import { triggerRegistrationConfirmationNotification } from '~~/server/notifications/triggers'
+import { notify } from '~~/server/notifications/service'
+import { buildEventPayload } from '~~/server/notifications/payload-helpers'
 
 const bodySchema = z.object({
   notes: z.string().optional(),
@@ -104,7 +105,22 @@ export default defineEventHandler(async (event) => {
   }).returning({ id: schema.registrations.id })
 
   if (dbEvent.type === 'ladv') {
-    await triggerRegistrationConfirmationNotification(session.user.id, dbEvent.id)
+    try {
+      const siteUrl = useRuntimeConfig().public.siteUrl
+      await notify({
+        type: 'registration_confirmation',
+        recipients: [{
+          userId: session.user.id,
+          email: session.user.email,
+          firstName: session.user.firstName,
+        }],
+        payload: buildEventPayload(dbEvent, siteUrl),
+        eventId: dbEvent.id,
+      })
+    }
+    catch (err) {
+      console.error('[Notification] registration_confirmation:', err)
+    }
   }
 
   setResponseStatus(event, 201)

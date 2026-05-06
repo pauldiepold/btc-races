@@ -1,6 +1,7 @@
 import { and, inArray, lt } from 'drizzle-orm'
 import { executeDeliveries } from './service'
-import type { NotificationRecipient, NotificationType } from './types'
+import type { NotificationRecipient } from './recipients'
+import type { NotificationType } from '~~/shared/types/notifications'
 
 const MAX_ATTEMPTS = 3
 const PROCESSING_TIMEOUT_MS = 5 * 60 * 1000 // 5 Minuten
@@ -76,7 +77,7 @@ export async function processQueue(): Promise<{
 
       const anySuccess = recipients.length === 0
         ? true
-        : await executeDeliveries(job.id, job.type as NotificationType, recipients, payload)
+        : await executeDeliveries(job.id, job.type as NotificationType, recipients, payload, job.actorUserId ?? null)
 
       await db.update(schema.notificationJobs)
         .set({

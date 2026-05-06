@@ -3,7 +3,9 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { LadvService } from '~~/server/external-apis/ladv/ladv.service'
 import { parseLadvIdFromUrl } from '~~/server/utils/ladv'
-import { triggerNewEventNotification } from '~~/server/notifications/triggers'
+import { notify } from '~~/server/notifications/service'
+import { recipients } from '~~/server/notifications/recipients'
+import { buildEventPayload } from '~~/server/notifications/payload-helpers'
 
 const importSchema = z.object({
   url: z.string().url('Ungültige URL'),
@@ -67,13 +69,26 @@ export default defineEventHandler(async (event) => {
 
   const newId = inserted[0]!.id
 
-  await triggerNewEventNotification({
-    id: newId,
-    name: normalized.name,
-    date: normalized.date,
-    location: normalized.location,
-    registrationDeadline: normalized.registration_deadline,
-  })
+  try {
+    const siteUrl = useRuntimeConfig().public.siteUrl
+    await notify({
+      type: 'new_event',
+      recipients: await recipients.allMembers(),
+      actorUserId: session.user.id,
+      payload: buildEventPayload({
+        id: newId,
+        type: 'ladv',
+        name: normalized.name,
+        date: normalized.date,
+        location: normalized.location,
+        registrationDeadline: normalized.registration_deadline,
+      }, siteUrl),
+      eventId: newId,
+    })
+  }
+  catch (err) {
+    console.error('[Notification] new_event:', err)
+  }
 
   setResponseStatus(event, 201)
   return { id: encodeEventId(newId) }

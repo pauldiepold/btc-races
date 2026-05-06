@@ -3,9 +3,11 @@ import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EventDetails from './components/EventDetails.vue'
 
+import type { EventType } from '~~/shared/utils/registration'
+
 interface Props {
   firstName?: string
-  adminFirstName?: string
+  adminName?: string
   eventName?: string
   eventDate?: string
   eventLocation?: string
@@ -13,11 +15,12 @@ interface Props {
   eventVenue?: string
   eventLink?: string
   disciplines?: string[]
+  eventType?: EventType
 }
 
 const {
   firstName,
-  adminFirstName,
+  adminName,
   eventName,
   eventDate,
   eventLocation,
@@ -25,6 +28,7 @@ const {
   eventVenue,
   eventLink,
   disciplines = [],
+  eventType,
 } = defineProps<Props>()
 
 const styles = {
@@ -60,7 +64,7 @@ const styles = {
     </EmailText>
 
     <EmailText>
-      {{ adminFirstName ?? 'Ein Admin' }} hat dich für <strong>{{ eventName }}</strong> angemeldet.
+      {{ adminName ?? 'Ein Admin' }} hat dich für <strong>{{ eventName }}</strong> angemeldet.
     </EmailText>
 
     <EventDetails
@@ -70,6 +74,7 @@ const styles = {
       :registration-deadline="registrationDeadline"
       :event-venue="eventVenue"
       :event-link="eventLink"
+      :event-type="eventType"
     />
 
     <ESection

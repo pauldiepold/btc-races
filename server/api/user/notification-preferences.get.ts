@@ -1,4 +1,4 @@
-import { buildPreferencesResponse } from '~~/server/notifications/meta'
+import { buildPreferencesResponse } from '~~/server/notifications/preferences'
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)

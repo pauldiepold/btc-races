@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EventDetails from './components/EventDetails.vue'
+import type { EventType } from '~~/shared/utils/registration'
+import { getEventTypeLabel } from '~~/shared/utils/registration'
 
 interface Props {
   firstName?: string
+  adminName?: string
   eventName?: string
   eventDate?: string
   eventLocation?: string
@@ -12,9 +16,12 @@ interface Props {
   eventVenue?: string
   eventLink?: string
   reason?: string
+  eventType?: EventType
 }
 
-defineProps<Props>()
+const { adminName, eventType } = defineProps<Props>()
+
+const eventLabel = computed(() => getEventTypeLabel(eventType ?? 'competition'))
 
 const styles = {
   reasonBox: {
@@ -43,7 +50,7 @@ const styles = {
 
 <template>
   <EmailLayout
-    header-title="Wettkampf abgesagt"
+    :header-title="`${eventLabel} abgesagt`"
     show-unsubscribe
   >
     <EmailText>
@@ -51,7 +58,7 @@ const styles = {
     </EmailText>
 
     <EmailText>
-      <strong>{{ eventName }}</strong> wurde abgesagt. Deine Anmeldung ist damit hinfällig — du musst nichts weiter tun.
+      {{ adminName ?? 'Ein Admin' }} hat <strong>{{ eventName }}</strong> abgesagt. Deine Anmeldung ist damit hinfällig — du musst nichts weiter tun.
     </EmailText>
 
     <EventDetails
@@ -61,6 +68,7 @@ const styles = {
       :registration-deadline="registrationDeadline"
       :event-venue="eventVenue"
       :event-link="eventLink"
+      :event-type="eventType"
     />
 
     <ESection

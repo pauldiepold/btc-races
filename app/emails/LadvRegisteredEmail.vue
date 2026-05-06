@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EventDetails from './components/EventDetails.vue'
+import type { EventType } from '~~/shared/utils/registration'
+import { getEventTypeLabel } from '~~/shared/utils/registration'
 
 interface Props {
   firstName?: string
+  adminName?: string
   eventName?: string
   eventDate?: string
   eventLocation?: string
@@ -12,10 +16,12 @@ interface Props {
   eventVenue?: string
   eventLink?: string
   disciplines?: string[]
+  eventType?: EventType
 }
 
 const {
   firstName,
+  adminName,
   eventName,
   eventDate,
   eventLocation,
@@ -23,7 +29,11 @@ const {
   eventVenue,
   eventLink,
   disciplines = [],
+  eventType,
 } = defineProps<Props>()
+
+const eventLabel = computed(() => getEventTypeLabel(eventType ?? 'ladv'))
+const isNeuterType = computed(() => eventType === 'training' || eventType === 'social')
 
 const styles = {
   disciplineBox: {
@@ -58,7 +68,7 @@ const styles = {
     </EmailText>
 
     <EmailText>
-      deine LADV-Meldung für <strong>{{ eventName }}</strong> wurde bestätigt. Du bist damit offiziell für den Wettkampf gemeldet.
+      {{ adminName ?? 'Ein Admin' }} hat deine LADV-Meldung für <strong>{{ eventName }}</strong> bestätigt. Du bist damit offiziell für {{ isNeuterType ? 'das' : 'den' }} {{ eventLabel }} gemeldet.
     </EmailText>
 
     <EventDetails
@@ -68,6 +78,7 @@ const styles = {
       :registration-deadline="registrationDeadline"
       :event-venue="eventVenue"
       :event-link="eventLink"
+      :event-type="eventType"
     />
 
     <ESection

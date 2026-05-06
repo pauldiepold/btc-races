@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { defineNotificationType } from './_define'
+import { getEventTypeLabel } from '~~/shared/utils/registration'
 
 export const eventCanceled = defineNotificationType({
   type: 'event_canceled',
@@ -26,7 +27,7 @@ export const eventCanceled = defineNotificationType({
     subject: p => `Abgesagt: ${p.eventName}`,
   },
   push: p => ({
-    title: 'Veranstaltung abgesagt',
+    title: `${getEventTypeLabel(p.eventType)} abgesagt`,
     body: `${p.eventName} wurde abgesagt.`,
     url: p.eventLink,
   }),

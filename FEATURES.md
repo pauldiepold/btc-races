@@ -23,8 +23,9 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - Mobiler Filter-Toggle: Typ-Buttons immer sichtbar, restliche Filter per Toggle einblendbar — #127
 - Sortierung: aktive Events aufsteigend nach Datum, vergangene Events absteigend
 - Event-Detail-Seite mit LADV-Daten, Anhängen (direkt als Datei öffnen), Anmeldeformular und Admin-Sektion
-- Event anlegen (Admin) und bearbeiten — inkl. Uhrzeit und Dauer — #18
+- Event anlegen (Admin) und bearbeiten — inkl. Uhrzeit und Dauer; Datum ist verpflichtend — #18, #157
 - Event absagen und reaktivieren
+- Event endgültig löschen (Superuser): entfernt Event und alle Anmeldungen via Cascade — #151
 - LADV-Event importieren via LADV-ID (`POST /api/events/ladv-import`)
 - LADV-Daten synchronisieren (`POST /api/events/[id]/sync`)
 - Nächtlicher LADV-Bulk-Sync: alle noch kommenden LADV-Events täglich via Cron aktualisiert; manuell überschriebene Felder bleiben erhalten (`detectLadvDiff`) — #136
@@ -51,7 +52,7 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 
 - Admin-Bereich (`/admin`) mit Übersicht offener LADV-Todos
 - LADV-Todo-Liste: sortiert nach Meldefrist, gruppiert nach dringlich/normal — #20
-- Anmeldeliste am LADV-Event: pro Person ein LADV-Status-Badge (ok / Diff / Abmelden offen / kein Stand) plus Summary-Zeile mit Zählern für Admins — #117
+- Anmeldeliste am LADV-Event: pro Person ein LADV-Status-Badge (ok / Diff / Abmelden offen) plus Summary-Zeile mit Zählern für Admins; "kein Stand" wird nicht mehr angezeigt — #117, #163
 - Coach-Modal zur LADV-Pflege: zeigt aktuellen Wunschstand mit Diff-Badges pro Disziplin (gemeldet / anmelden / AK ändern) und separatem Block für abzumeldende Disziplinen — #138
 - Avatar-Verwaltung (`/admin/avatare`): Campai-Avatare über Browser-Proxy laden und in D1 cachen — #4
 - Sync-Seite (`/admin/sync`): Campai-Mitgliedersync und LADV-Events-Bulk-Sync manuell anstoßen (zugänglich für Admin + Superuser)
@@ -81,6 +82,7 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - `notificationService.enqueue()` legt Jobs (`status='pending'`) in die D1-Queue — API-Handler blockieren nur für den INSERT (<50ms), Zustellung erfolgt asynchron
 - Preference-Resolution (mandatory > user override > default) und Per-Delivery-Logging beim Versand — #57
 - E-Mail-Templates für alle Notification-Typen in `app/emails/` — #58
+- Event-typ-abhängige Labels ("Wettkampf"/"Training"/"Event") in E-Mail-Bodies, -Subjects und Push-Titeln via `getEventTypeLabel` / `getNewEventLabel` aus `shared/utils/registration.ts` — #161, #165
 - Preferences-UI unter `/profil/benachrichtigungen` (E-Mail/Push-Toggles pro Kategorie, mandatory-Toggles disabled, zusammengehörige Typen in einer Gruppe) — #63, #140
 - Trigger zentral in `server/notifications/triggers.ts` (alle als `triggerXxxNotification`) — Endpoints rufen synchron awaited auf, damit der Job-INSERT in Cloudflare Workers nicht durch Response-Termination verloren geht — #133
 - Verdrahtete Trigger in API-Handlern (legen jeweils einen Queue-Job an) — #64, #119, #129

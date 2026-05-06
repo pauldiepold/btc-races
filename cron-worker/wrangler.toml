@@ -22,7 +22,7 @@ name = "btc-races-cron-preview"
 
 [env.preview.triggers]
 crons = [
-  "* * * * *",     # alle 5 Minuten
+  "0 * * * *",     # Queue verarbeiten — einmal pro Stunde
 ]
 
 [env.preview.vars]

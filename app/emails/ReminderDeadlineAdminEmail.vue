@@ -3,12 +3,12 @@ import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EventDetails from './components/EventDetails.vue'
 
+import type { EventType } from '~~/shared/utils/registration'
+
 interface Participant {
   name: string
   disciplines?: string
 }
-
-import type { EventType } from '~~/shared/utils/registration'
 
 interface Props {
   eventName?: string

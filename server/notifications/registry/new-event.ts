@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { defineNotificationType } from './_define'
+import { getNewEventLabel } from '~~/shared/utils/registration'
 
 export const newEvent = defineNotificationType({
   type: 'new_event',
@@ -23,10 +24,10 @@ export const newEvent = defineNotificationType({
   }),
   email: {
     component: 'NewEventEmail',
-    subject: p => `Neue Veranstaltung: ${p.eventName}`,
+    subject: p => `${getNewEventLabel(p.eventType)}: ${p.eventName}`,
   },
   push: p => ({
-    title: 'Neue Veranstaltung',
+    title: getNewEventLabel(p.eventType),
     body: `${p.eventName} wurde veröffentlicht.`,
     url: p.eventLink,
   }),

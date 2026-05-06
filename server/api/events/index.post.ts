@@ -7,7 +7,7 @@ import { buildEventPayload } from '~~/server/notifications/payload-helpers'
 const createEventSchema = z.object({
   type: z.enum(['competition', 'training', 'social']),
   name: z.string().min(1, 'Name ist erforderlich'),
-  date: z.string().date().optional().nullable(),
+  date: z.string().date('Ungültiges Datumsformat'),
   startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Ungültiges Format, erwartet HH:MM').optional().nullable(),
   duration: z.number().int().positive().optional().nullable(),
   location: z.string().optional().nullable(),
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
   const inserted = await db.insert(schema.events).values({
     type: data.type,
     name: data.name,
-    date: data.date ?? null,
+    date: data.date,
     startTime: data.startTime ?? null,
     duration: data.duration ?? null,
     location: data.location ?? null,
@@ -62,7 +62,7 @@ export default defineEventHandler(async (event) => {
         id: newId,
         type: data.type,
         name: data.name,
-        date: data.date ?? null,
+        date: data.date,
         location: data.location ?? null,
         registrationDeadline: data.registrationDeadline ?? null,
       }, siteUrl),

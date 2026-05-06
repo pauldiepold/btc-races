@@ -17,7 +17,7 @@ const initialType: EventType = (validTypes as readonly string[]).includes(queryT
 const schema = z.object({
   type: z.enum(['competition', 'training', 'social']),
   name: z.string().min(1, 'Name ist erforderlich'),
-  date: z.string().optional(),
+  date: z.string().min(1, 'Datum ist erforderlich'),
   startTime: z.union([z.literal(''), z.string().regex(/^\d{2}:\d{2}$/, 'Format: HH:MM')]).optional(),
   durationHours: z.number().int().min(0).optional(),
   durationMinutes: z.number().int().min(0).max(55).optional(),
@@ -101,7 +101,7 @@ async function onSubmit(_event: FormSubmitEvent<Schema>) {
       body: {
         type: state.type,
         name: state.name,
-        date: state.date || undefined,
+        date: state.date,
         startTime: state.startTime || undefined,
         duration: ((state.durationHours ?? 0) * 60 + (state.durationMinutes ?? 0)) || undefined,
         location: state.location || undefined,
@@ -177,6 +177,7 @@ async function onSubmit(_event: FormSubmitEvent<Schema>) {
       <UFormField
         name="date"
         label="Datum"
+        required
       >
         <UInput
           v-model="state.date"

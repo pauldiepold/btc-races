@@ -53,6 +53,7 @@ const privateDetail = computed(() => !isPublic.value ? event.value as EventDetai
 
 const { session } = useUserSession()
 const isAdmin = computed(() => session.value?.user?.role === 'admin' || session.value?.user?.role === 'superuser')
+const isSuperuser = computed(() => session.value?.user?.role === 'superuser')
 const isOwner = computed(() => !!session.value?.user?.id && privateDetail.value?.createdBy === session.value.user?.id)
 const canEdit = computed(() => isAdmin.value || isOwner.value)
 
@@ -85,6 +86,27 @@ async function uncancel() {
   }
   catch {
     toast.add({ title: 'Fehler', color: 'error' })
+  }
+}
+
+// Endgültiges Löschen (Superuser)
+const deleteModal = ref(false)
+const deleteLoading = ref(false)
+
+async function confirmDelete() {
+  if (!event.value) return
+  deleteLoading.value = true
+  try {
+    await $fetch(`/api/events/${id}`, { method: 'DELETE' })
+    toast.add({ title: 'Event gelöscht', color: 'success' })
+    deleteModal.value = false
+    await navigateTo('/')
+  }
+  catch {
+    toast.add({ title: 'Fehler beim Löschen', color: 'error' })
+  }
+  finally {
+    deleteLoading.value = false
   }
 }
 
@@ -226,15 +248,6 @@ async function syncLadv() {
             </div>
             <div class="flex flex-col gap-2">
               <UButton
-                :to="`/events/${id}/bearbeiten`"
-                icon="i-ph-pencil-simple"
-                label="Event bearbeiten"
-                color="neutral"
-                variant="outline"
-                size="sm"
-                block
-              />
-              <UButton
                 v-if="isAdmin && !isCancelled"
                 icon="i-ph-user-plus"
                 label="Person anmelden"
@@ -243,6 +256,15 @@ async function syncLadv() {
                 size="sm"
                 block
                 @click="adminRegisterModal = true"
+              />
+              <UButton
+                :to="`/events/${id}/bearbeiten`"
+                icon="i-ph-pencil-simple"
+                label="Event bearbeiten"
+                color="neutral"
+                variant="outline"
+                size="sm"
+                block
               />
               <UButton
                 v-if="isAdmin && !isCancelled"
@@ -263,6 +285,16 @@ async function syncLadv() {
                 size="sm"
                 block
                 @click="uncancel"
+              />
+              <UButton
+                v-if="isSuperuser"
+                icon="i-ph-trash"
+                label="Event löschen"
+                color="error"
+                variant="outline"
+                size="sm"
+                block
+                @click="deleteModal = true"
               />
             </div>
           </div>
@@ -361,5 +393,41 @@ async function syncLadv() {
       :event="privateDetail"
       @done="onAdminRegisterDone"
     />
+
+    <!-- Löschen-Bestätigungsdialog (Superuser) -->
+    <UModal v-model:open="deleteModal">
+      <template #body>
+        <div class="flex items-start gap-3">
+          <UIcon
+            name="i-ph-warning-circle"
+            class="size-5 text-error shrink-0 mt-0.5"
+          />
+          <div>
+            <p class="font-semibold text-highlighted">
+              Event endgültig löschen?
+            </p>
+            <p class="text-sm text-muted mt-1">
+              Das Event und alle Anmeldungen werden unwiderruflich gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.
+            </p>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex gap-2 ml-auto">
+          <UButton
+            label="Abbrechen"
+            color="neutral"
+            variant="ghost"
+            @click="deleteModal = false"
+          />
+          <UButton
+            label="Ja, löschen"
+            color="error"
+            :loading="deleteLoading"
+            @click="confirmDelete"
+          />
+        </div>
+      </template>
+    </UModal>
   </UContainer>
 </template>

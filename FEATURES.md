@@ -23,8 +23,9 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - Mobiler Filter-Toggle: Typ-Buttons immer sichtbar, restliche Filter per Toggle einblendbar — #127
 - Sortierung: aktive Events aufsteigend nach Datum, vergangene Events absteigend
 - Event-Detail-Seite mit LADV-Daten, Anhängen (direkt als Datei öffnen), Anmeldeformular und Admin-Sektion
-- Event anlegen (Admin) und bearbeiten — inkl. Uhrzeit und Dauer — #18
+- Event anlegen (Admin) und bearbeiten — inkl. Uhrzeit und Dauer; Datum ist verpflichtend — #18, #157
 - Event absagen und reaktivieren
+- Event endgültig löschen (Superuser): entfernt Event und alle Anmeldungen via Cascade — #151
 - LADV-Event importieren via LADV-ID (`POST /api/events/ladv-import`)
 - LADV-Daten synchronisieren (`POST /api/events/[id]/sync`)
 - Nächtlicher LADV-Bulk-Sync: alle noch kommenden LADV-Events täglich via Cron aktualisiert; manuell überschriebene Felder bleiben erhalten (`detectLadvDiff`) — #136

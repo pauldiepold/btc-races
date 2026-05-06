@@ -20,6 +20,7 @@ function routeSchedule(cron: string): CronTarget | null {
   switch (cron) {
     case '* * * * *':
     case '*/5 * * * *':
+    case '0 * * * *':
       return { path: '/api/cron/process-notifications', description: 'process queue' }
     case '0 7 * * *':
       return { path: '/api/cron/send-reminders', description: 'send reminders' }

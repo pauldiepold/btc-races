@@ -1,4 +1,5 @@
 import type { EventPublicDetail, EventResponse } from '../types/events'
+import { getEventTypeLabel } from './registration'
 
 const OG_EXCERPT_MAX = 160
 
@@ -39,5 +40,5 @@ export function generateEventOgDescription(event: EventResponse | undefined): st
   const name = event.name?.trim()
   if (name) return name
 
-  return 'Event – Berlin Track Club'
+  return `${getEventTypeLabel(event.type)} – Berlin Track Club`
 }

@@ -56,7 +56,7 @@ const LADV_INDICATOR_META: Record<LadvIndicator, {
   },
 }
 
-const SUMMARY_ORDER: LadvIndicator[] = ['ok', 'diff', 'pending', 'none']
+const SUMMARY_ORDER: LadvIndicator[] = ['ok', 'diff', 'pending']
 
 const summaryCounts = computed<Record<LadvIndicator, number>>(() => {
   const counts: Record<LadvIndicator, number> = { none: 0, ok: 0, diff: 0, pending: 0 }
@@ -231,7 +231,7 @@ function ladvIndicatorMeta(reg: RegistrationDetail) {
               <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-sm font-medium text-highlighted">{{ fullName(reg) }}</span>
                 <UTooltip
-                  v-if="showAdminLadvUi"
+                  v-if="showAdminLadvUi && getRegistrationLadvIndicator(reg) !== 'none'"
                   :text="ladvIndicatorMeta(reg).tooltip"
                 >
                   <UBadge

@@ -4,7 +4,7 @@ import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EventDetails from './components/EventDetails.vue'
 import type { EventType } from '~~/shared/utils/registration'
-import { getEventTypeLabel } from '~~/shared/utils/registration'
+import { getEventTypeLabel, getNewEventLabel } from '~~/shared/utils/registration'
 
 interface Props {
   firstName?: string
@@ -21,12 +21,13 @@ interface Props {
 const { adminName, eventType } = defineProps<Props>()
 
 const eventLabel = computed(() => getEventTypeLabel(eventType ?? 'competition'))
+const newEventLabel = computed(() => getNewEventLabel(eventType ?? 'competition'))
 const isNeuterType = computed(() => eventType === 'training' || eventType === 'social')
 </script>
 
 <template>
   <EmailLayout
-    :header-title="`${isNeuterType ? 'Neues' : 'Neuer'} ${eventLabel}`"
+    :header-title="newEventLabel"
     show-unsubscribe
   >
     <EmailText>

@@ -82,6 +82,7 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 - `notificationService.enqueue()` legt Jobs (`status='pending'`) in die D1-Queue — API-Handler blockieren nur für den INSERT (<50ms), Zustellung erfolgt asynchron
 - Preference-Resolution (mandatory > user override > default) und Per-Delivery-Logging beim Versand — #57
 - E-Mail-Templates für alle Notification-Typen in `app/emails/` — #58
+- Event-typ-abhängige Labels ("Wettkampf"/"Training"/"Event") in E-Mail-Bodies, -Subjects und Push-Titeln via `getEventTypeLabel` / `getNewEventLabel` aus `shared/utils/registration.ts` — #161, #165
 - Preferences-UI unter `/profil/benachrichtigungen` (E-Mail/Push-Toggles pro Kategorie, mandatory-Toggles disabled, zusammengehörige Typen in einer Gruppe) — #63, #140
 - Trigger zentral in `server/notifications/triggers.ts` (alle als `triggerXxxNotification`) — Endpoints rufen synchron awaited auf, damit der Job-INSERT in Cloudflare Workers nicht durch Response-Termination verloren geht — #133
 - Verdrahtete Trigger in API-Handlern (legen jeweils einen Queue-Job an) — #64, #119, #129

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { EventListItem, EventListPublicItem } from '~~/shared/types/events'
+import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 
 const props = defineProps<{
   event: EventListItem | EventListPublicItem
@@ -17,8 +18,7 @@ const hasDeadline = computed(() =>
   (props.event.type === 'competition' || props.event.type === 'ladv') && !!props.event.registrationDeadline,
 )
 
-const deadlineDate = computed(() => toDate(props.event.registrationDeadline))
-const deadlineExpired = computed(() => !!deadlineDate.value && deadlineDate.value < new Date())
+const deadlineExpired = computed(() => isDeadlineExpired(props.event.registrationDeadline))
 const compactLocation = computed(() => {
   const location = props.event.location
   if (!location) return null

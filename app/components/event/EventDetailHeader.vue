@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { EventResponse } from '~~/shared/types/events'
+import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import { ageClassSortIndex, disciplineSortIndex, ladvDisciplineLabel } from '~~/shared/utils/ladv-labels'
 
 const props = defineProps<{ event: EventResponse }>()
@@ -37,7 +38,7 @@ const durationDisplay = computed(() => {
 })
 
 const deadlineDate = computed(() => toDate(props.event.registrationDeadline))
-const deadlineExpired = computed(() => !!deadlineDate.value && deadlineDate.value < new Date())
+const deadlineExpired = computed(() => isDeadlineExpired(props.event.registrationDeadline))
 const showDeadline = computed(() =>
   (props.event.type === 'competition' || props.event.type === 'ladv') && !!deadlineDate.value,
 )

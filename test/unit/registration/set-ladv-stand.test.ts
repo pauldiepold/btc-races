@@ -1,0 +1,210 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { eq } from 'drizzle-orm'
+import {
+  setLadvStand,
+  type Actor,
+  type AppDb,
+  type Notifier,
+} from '~~/server/registration'
+import type { EventType, RegistrationStatus } from '~~/shared/utils/registration'
+import type { RegistrationDisciplinePair } from '~~/shared/types/db'
+import { createTestDb, type TestDb } from '../../helpers/test-db'
+import { createRecorderNotifier } from '../../helpers/recorder-notifier'
+
+let testDb: TestDb
+let db: AppDb
+let recorder: ReturnType<typeof createRecorderNotifier>
+let notifier: Notifier
+
+beforeEach(async () => {
+  testDb = await createTestDb()
+  db = testDb.db
+  recorder = createRecorderNotifier()
+  notifier = recorder.notifier
+})
+
+afterEach(async () => {
+  await testDb.cleanup()
+})
+
+async function seedUser(opts: { emailSuffix?: string } = {}): Promise<number> {
+  const { schema } = testDb
+  const [user] = await testDb.db.insert(schema.users).values({
+    email: `user${opts.emailSuffix ?? Date.now()}-${Math.random()}@example.com`,
+    firstName: 'Test',
+    lastName: 'User',
+    role: 'member',
+    membershipStatus: 'active',
+    hasLadvStartpass: 0,
+  }).returning()
+  return user.id
+}
+
+type SeedEventOpts = {
+  type?: EventType
+  registrationDeadline?: string | null
+  createdBy: number
+}
+
+async function seedEvent(opts: SeedEventOpts): Promise<number> {
+  const { schema } = testDb
+  const [event] = await testDb.db.insert(schema.events).values({
+    type: opts.type ?? 'ladv',
+    name: 'Test-Event',
+    date: '2026-06-01',
+    registrationDeadline: opts.registrationDeadline ?? '2026-05-25',
+    createdBy: opts.createdBy,
+  }).returning()
+  return event.id
+}
+
+type SeedRegOpts = {
+  eventId: number
+  userId: number
+  status?: RegistrationStatus
+  wishDisciplines?: RegistrationDisciplinePair[]
+  ladvDisciplines?: RegistrationDisciplinePair[] | null
+}
+
+async function seedRegistration(opts: SeedRegOpts): Promise<number> {
+  const { schema } = testDb
+  const [reg] = await testDb.db.insert(schema.registrations).values({
+    eventId: opts.eventId,
+    userId: opts.userId,
+    status: opts.status ?? 'registered',
+    notes: null,
+    wishDisciplines: opts.wishDisciplines ?? [],
+    ladvDisciplines: opts.ladvDisciplines ?? null,
+  }).returning()
+  return reg.id
+}
+
+async function loadReg(id: number) {
+  const { schema } = testDb
+  return testDb.db.query.registrations.findFirst({
+    where: eq(schema.registrations.id, id),
+  })
+}
+
+function selfActor(userId: number): Actor {
+  return { kind: 'self', userId, hasLadvStartpass: false }
+}
+
+function adminActor(userId: number): Actor {
+  return { kind: 'admin', userId }
+}
+
+const D100: RegistrationDisciplinePair = { discipline: '100', ageClass: 'M30' }
+const D200: RegistrationDisciplinePair = { discipline: '200', ageClass: 'M30' }
+
+describe('setLadvStand', () => {
+  it('Admin setzt Stand mit Disziplinen → ladvDisciplines + wishDisciplines harmonisiert + ladv_registered', async () => {
+    const adminId = await seedUser({ emailSuffix: 'admin' })
+    const memberId = await seedUser({ emailSuffix: 'member' })
+    const eventId = await seedEvent({ createdBy: adminId, type: 'ladv' })
+    const regId = await seedRegistration({
+      eventId,
+      userId: memberId,
+      wishDisciplines: [D100],
+      ladvDisciplines: null,
+    })
+
+    await setLadvStand(
+      { registrationId: regId, disciplines: [D100, D200] },
+      adminActor(adminId),
+      { db, notifier },
+    )
+
+    const reg = await loadReg(regId)
+    expect(reg?.ladvDisciplines).toEqual([D100, D200])
+    expect(reg?.wishDisciplines).toEqual([D100, D200])
+
+    expect(recorder.decisions).toHaveLength(1)
+    expect(recorder.decisions[0]).toMatchObject({
+      type: 'ladv_registered',
+      userId: memberId,
+      disciplines: [D100, D200],
+    })
+  })
+
+  it('Admin setzt Stand null → ladvDisciplines = null, wishDisciplines unverändert + ladv_canceled', async () => {
+    const adminId = await seedUser({ emailSuffix: 'admin' })
+    const memberId = await seedUser({ emailSuffix: 'member' })
+    const eventId = await seedEvent({ createdBy: adminId, type: 'ladv' })
+    const regId = await seedRegistration({
+      eventId,
+      userId: memberId,
+      wishDisciplines: [D100, D200],
+      ladvDisciplines: [D100, D200],
+    })
+
+    await setLadvStand(
+      { registrationId: regId, disciplines: null },
+      adminActor(adminId),
+      { db, notifier },
+    )
+
+    const reg = await loadReg(regId)
+    expect(reg?.ladvDisciplines).toBeNull()
+    expect(reg?.wishDisciplines).toEqual([D100, D200])
+
+    expect(recorder.decisions).toHaveLength(1)
+    expect(recorder.decisions[0]).toMatchObject({
+      type: 'ladv_canceled',
+      userId: memberId,
+    })
+  })
+
+  it('Self → forbidden', async () => {
+    const userId = await seedUser()
+    const eventId = await seedEvent({ createdBy: userId, type: 'ladv' })
+    const regId = await seedRegistration({ eventId, userId })
+
+    await expect(setLadvStand(
+      { registrationId: regId, disciplines: [D100] },
+      selfActor(userId),
+      { db, notifier },
+    )).rejects.toMatchObject({ code: 'forbidden' })
+  })
+
+  it('Event-Typ competition → not_a_ladv_event', async () => {
+    const adminId = await seedUser({ emailSuffix: 'admin' })
+    const memberId = await seedUser({ emailSuffix: 'member' })
+    const eventId = await seedEvent({ createdBy: adminId, type: 'competition' })
+    const regId = await seedRegistration({ eventId, userId: memberId })
+
+    await expect(setLadvStand(
+      { registrationId: regId, disciplines: [D100] },
+      adminActor(adminId),
+      { db, notifier },
+    )).rejects.toMatchObject({ code: 'not_a_ladv_event' })
+  })
+
+  it('Kein Deadline-Check: abgelaufene Deadline + Admin → erfolgreich', async () => {
+    const adminId = await seedUser({ emailSuffix: 'admin' })
+    const memberId = await seedUser({ emailSuffix: 'member' })
+    const eventId = await seedEvent({
+      createdBy: adminId,
+      type: 'ladv',
+      registrationDeadline: '2000-01-01',
+    })
+    const regId = await seedRegistration({ eventId, userId: memberId })
+
+    await setLadvStand(
+      { registrationId: regId, disciplines: [D100] },
+      adminActor(adminId),
+      { db, notifier },
+    )
+
+    const reg = await loadReg(regId)
+    expect(reg?.ladvDisciplines).toEqual([D100])
+  })
+
+  it('Nicht-existente Reg → registration_not_found', async () => {
+    await expect(setLadvStand(
+      { registrationId: 99999, disciplines: [D100] },
+      adminActor(1),
+      { db, notifier },
+    )).rejects.toMatchObject({ code: 'registration_not_found' })
+  })
+})

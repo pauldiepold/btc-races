@@ -106,7 +106,25 @@ async function sendDecision(
     }
 
     case 'ladv_canceled':
-    case 'athlete_changed_after_ladv':
-      throw new Error(`Notifier dispatch for "${decision.type}" not implemented in this scope`)
+      await notify({
+        type: 'ladv_canceled',
+        recipients: [recipient],
+        actorUserId: ctx.actor.userId,
+        payload: basePayload,
+        eventId: ctx.dbEvent.id,
+      })
+      return
+
+    case 'athlete_changed_after_ladv': {
+      const { recipients } = await import('~~/server/notifications/recipients')
+      await notify({
+        type: 'athlete_changed_after_ladv',
+        recipients: await recipients.allAdmins(),
+        actorUserId: ctx.actor.userId,
+        payload: basePayload,
+        eventId: ctx.dbEvent.id,
+      })
+      return
+    }
   }
 }

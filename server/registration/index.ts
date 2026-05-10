@@ -41,6 +41,20 @@ export type {
   UpdateRegistrationNotesResult,
 } from './update-notes'
 
+export { changeWishDisciplines } from './change-wish-disciplines'
+export type {
+  ChangeWishDisciplinesInput,
+  ChangeWishDisciplinesDeps,
+  ChangeWishDisciplinesResult,
+} from './change-wish-disciplines'
+
+export { setLadvStand } from './set-ladv-stand'
+export type {
+  SetLadvStandInput,
+  SetLadvStandDeps,
+  SetLadvStandResult,
+} from './set-ladv-stand'
+
 export { createProductionNotifier } from './notifier'
 export type { Notifier, NotifyContext } from './notifier'
 

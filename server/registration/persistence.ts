@@ -119,3 +119,23 @@ export async function updateRegistrationNotesField(
     .set({ notes, updatedAt: now })
     .where(eq(schema.registrations.id, id))
 }
+
+export type RegistrationDisciplinesPatch = {
+  wishDisciplines?: RegistrationDisciplinePair[]
+  ladvDisciplines?: RegistrationDisciplinePair[] | null
+}
+
+export async function updateRegistrationDisciplines(
+  db: AppDb,
+  id: number,
+  patch: RegistrationDisciplinesPatch,
+  now: Date,
+): Promise<void> {
+  await db.update(schema.registrations)
+    .set({
+      ...(patch.wishDisciplines !== undefined ? { wishDisciplines: patch.wishDisciplines } : {}),
+      ...(patch.ladvDisciplines !== undefined ? { ladvDisciplines: patch.ladvDisciplines } : {}),
+      updatedAt: now,
+    })
+    .where(eq(schema.registrations.id, id))
+}

@@ -20,3 +20,13 @@ export {
   decideWishChangeNotifications,
   decideLadvStandNotifications,
 } from './notifications'
+
+export { registerMember } from './register'
+export type { RegisterMemberInput, RegisterMemberDeps, RegisterMemberResult } from './register'
+
+export { createProductionNotifier } from './notifier'
+export type { Notifier, NotifyContext } from './notifier'
+
+export { errorToHttpStatus } from './http-error'
+
+export type { AppDb, EventRow, UserRow, RegistrationRow } from './persistence'

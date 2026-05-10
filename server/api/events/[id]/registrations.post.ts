@@ -1,11 +1,12 @@
-import { db, schema } from 'hub:db'
-import { and, eq } from 'drizzle-orm'
+import { db } from 'hub:db'
 import { z } from 'zod'
-import { isDeadlineExpired } from '~~/shared/utils/deadlines'
-import { getInitialStatus } from '~~/shared/utils/registration'
-import { VALID_INITIAL } from '~~/server/registration/state'
-import { notify } from '~~/server/notifications/service'
-import { buildEventPayload } from '~~/server/notifications/payload-helpers'
+import {
+  RegistrationError,
+  createProductionNotifier,
+  errorToHttpStatus,
+  registerMember,
+  type Actor,
+} from '~~/server/registration'
 
 const bodySchema = z.object({
   notes: z.string().optional(),
@@ -24,100 +25,43 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Fehlende Event-ID' })
   }
 
-  const id = decodeEventId(sqid)
-  if (id === null) {
+  const eventId = decodeEventId(sqid)
+  if (eventId === null) {
     throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
   }
 
-  const body = await readBody(event)
-  const result = bodySchema.safeParse(body)
-  if (!result.success) {
-    throw createError({ statusCode: 400, statusMessage: result.error.issues[0]?.message ?? 'Validierungsfehler' })
+  const parsed = bodySchema.safeParse(await readBody(event))
+  if (!parsed.success) {
+    throw createError({ statusCode: 400, statusMessage: parsed.error.issues[0]?.message ?? 'Validierungsfehler' })
   }
+  const { notes, disciplines, status } = parsed.data
 
-  const { notes, disciplines, status: requestedStatus } = result.data
-
-  // 1. Event laden
-  const dbEvent = await db.query.events.findFirst({
-    where: eq(schema.events.id, id),
-  })
-  if (!dbEvent) {
-    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-  }
-
-  // 2. Event abgesagt
-  if (dbEvent.cancelledAt) {
-    throw createError({ statusCode: 422, statusMessage: 'Event ist abgesagt' })
-  }
-
-  // 3. Deadline abgelaufen (ladv/competition)
-  if (dbEvent.type === 'ladv' || dbEvent.type === 'competition') {
-    if (isDeadlineExpired(dbEvent.registrationDeadline)) {
-      throw createError({ statusCode: 422, statusMessage: 'Meldefrist abgelaufen' })
-    }
-  }
-
-  // 4. Bereits angemeldet (nicht canceled)
-  const existing = await db.query.registrations.findFirst({
-    where: and(
-      eq(schema.registrations.eventId, id),
-      eq(schema.registrations.userId, session.user.id),
-    ),
-  })
-  if (existing) {
-    throw createError({ statusCode: 409, statusMessage: 'Bereits angemeldet' })
-  }
-
-  // 5. LADV: Startpass-Check
-  if (dbEvent.type === 'ladv' && !session.user.hasLadvStartpass) {
-    throw createError({ statusCode: 403, statusMessage: 'Kein LADV-Startpass' })
-  }
-
-  // 6. LADV: Mindestens eine Disziplin erforderlich
-  if (dbEvent.type === 'ladv' && (!disciplines || disciplines.length === 0)) {
-    throw createError({ statusCode: 422, statusMessage: 'Mindestens eine Disziplin erforderlich' })
-  }
-
-  const now = new Date()
-
-  // Initialen Status bestimmen: angefordert (falls erlaubt) oder Fallback
-  const initialStatus = (requestedStatus && VALID_INITIAL[dbEvent.type].includes(requestedStatus))
-    ? requestedStatus
-    : getInitialStatus(dbEvent.type)
-
-  const wishDisciplines = (dbEvent.type === 'ladv' && disciplines && disciplines.length > 0)
-    ? disciplines
-    : []
-
-  const insertedReg = await db.insert(schema.registrations).values({
-    eventId: id,
+  const actor: Actor = {
+    kind: 'self',
     userId: session.user.id,
-    status: initialStatus,
-    notes: notes ?? null,
-    wishDisciplines,
-    createdAt: now,
-    updatedAt: now,
-  }).returning({ id: schema.registrations.id })
-
-  if (dbEvent.type === 'ladv') {
-    try {
-      const siteUrl = useRuntimeConfig().public.siteUrl
-      await notify({
-        type: 'registration_confirmation',
-        recipients: [{
-          userId: session.user.id,
-          email: session.user.email,
-          firstName: session.user.firstName,
-        }],
-        payload: buildEventPayload(dbEvent, siteUrl),
-        eventId: dbEvent.id,
-      })
-    }
-    catch (err) {
-      console.error('[Notification] registration_confirmation:', err)
-    }
+    hasLadvStartpass: !!session.user.hasLadvStartpass,
   }
+  const notifier = createProductionNotifier(useRuntimeConfig().public.siteUrl)
 
-  setResponseStatus(event, 201)
-  return { id: insertedReg[0]!.id }
+  try {
+    const { id } = await registerMember(
+      {
+        eventId,
+        userId: session.user.id,
+        status,
+        notes,
+        wishDisciplines: disciplines,
+      },
+      actor,
+      { db, notifier },
+    )
+    setResponseStatus(event, 201)
+    return { id }
+  }
+  catch (e) {
+    if (e instanceof RegistrationError) {
+      throw createError({ statusCode: errorToHttpStatus(e.code), statusMessage: e.message })
+    }
+    throw e
+  }
 })

@@ -2,6 +2,7 @@ export type RegistrationErrorCode
   = | 'event_not_found'
     | 'event_canceled'
     | 'not_a_ladv_event'
+    | 'member_not_found'
     | 'inactive_member'
     | 'deadline_expired'
     | 'no_ladv_startpass'

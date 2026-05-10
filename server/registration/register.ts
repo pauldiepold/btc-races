@@ -1,0 +1,138 @@
+import { isDeadlineExpired } from '~~/shared/utils/deadlines'
+import type { RegistrationDisciplinePair } from '~~/shared/types/db'
+import type { RegistrationStatus } from '~~/shared/utils/registration'
+import type { Actor } from './actor'
+import { RegistrationError } from './errors'
+import { decideRegisterNotifications } from './notifications'
+import {
+  insertRegistration,
+  loadEventById,
+  loadRegistrationByEventUser,
+  loadUserById,
+  reactivateRegistration,
+  type AppDb,
+} from './persistence'
+import { isDeadlineEnforcedFor, requiresLadvDisciplines, validateInitialStatus } from './rules'
+import type { Notifier } from './notifier'
+
+export type RegisterMemberInput = {
+  eventId: number
+  userId: number
+  status?: RegistrationStatus
+  notes?: string
+  wishDisciplines?: RegistrationDisciplinePair[]
+  setLadvStandImmediately?: boolean
+}
+
+export type RegisterMemberDeps = {
+  db: AppDb
+  notifier: Notifier
+}
+
+export type RegisterMemberResult = {
+  id: number
+  reactivated: boolean
+}
+
+export async function registerMember(
+  input: RegisterMemberInput,
+  actor: Actor,
+  deps: RegisterMemberDeps,
+): Promise<RegisterMemberResult> {
+  const { db, notifier } = deps
+
+  // 1. Self-Owner-Check
+  if (actor.kind === 'self' && input.userId !== actor.userId) {
+    throw new RegistrationError('forbidden')
+  }
+
+  // 2. Event laden
+  const dbEvent = await loadEventById(db, input.eventId)
+  if (!dbEvent) throw new RegistrationError('event_not_found')
+  if (dbEvent.cancelledAt) throw new RegistrationError('event_canceled')
+
+  // 3. Target-User laden (immer, für Notifications + Startpass-Check)
+  const targetUser = await loadUserById(db, input.userId)
+  if (!targetUser) throw new RegistrationError('member_not_found')
+  if (actor.kind === 'admin' && targetUser.membershipStatus !== 'active') {
+    throw new RegistrationError('inactive_member')
+  }
+
+  // 4. Deadline
+  if (isDeadlineEnforcedFor(actor, dbEvent.type, 'create')
+    && isDeadlineExpired(dbEvent.registrationDeadline)) {
+    throw new RegistrationError('deadline_expired')
+  }
+
+  // 5. Existing-Lookup
+  const existing = await loadRegistrationByEventUser(db, input.eventId, input.userId)
+  if (existing && existing.status !== 'canceled') {
+    throw new RegistrationError('already_registered')
+  }
+
+  // 6. LADV-Startpass am Target prüfen
+  if (dbEvent.type === 'ladv' && targetUser.hasLadvStartpass !== 1) {
+    throw new RegistrationError('no_ladv_startpass')
+  }
+
+  // 7. LADV-Disziplinen erforderlich
+  if (requiresLadvDisciplines(dbEvent.type, input.wishDisciplines)) {
+    throw new RegistrationError('no_ladv_disciplines')
+  }
+
+  // 8. Status-Validierung (wirft invalid_initial_status)
+  const status = validateInitialStatus(dbEvent.type, input.status)
+
+  // 9. Daten ableiten
+  const wishDisciplines: RegistrationDisciplinePair[]
+    = dbEvent.type === 'ladv' ? input.wishDisciplines! : []
+  const setLadv = input.setLadvStandImmediately === true
+    && actor.kind === 'admin'
+    && dbEvent.type === 'ladv'
+
+  // 10. Persistieren
+  const now = new Date()
+  let registrationId: number
+  let reactivated: boolean
+
+  if (existing) {
+    await reactivateRegistration(db, existing.id, {
+      status,
+      notes: input.notes ?? null,
+      wishDisciplines,
+      ...(setLadv ? { ladvDisciplines: wishDisciplines } : {}),
+      now,
+    })
+    registrationId = existing.id
+    reactivated = true
+  }
+  else {
+    registrationId = await insertRegistration(db, {
+      eventId: input.eventId,
+      userId: input.userId,
+      status,
+      notes: input.notes ?? null,
+      wishDisciplines,
+      ladvDisciplines: setLadv ? wishDisciplines : null,
+      now,
+    })
+    reactivated = false
+  }
+
+  // 11. Notifications
+  const decisions = decideRegisterNotifications(
+    actor,
+    dbEvent.type,
+    targetUser.id,
+    setLadv,
+    wishDisciplines,
+  )
+
+  await notifier.dispatch(decisions, {
+    dbEvent,
+    targetUser,
+    actor,
+  })
+
+  return { id: registrationId, reactivated }
+}

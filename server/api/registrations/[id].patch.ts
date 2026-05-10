@@ -7,7 +7,6 @@ import {
   errorToHttpStatus,
   updateRegistrationNotes,
   type Actor,
-  type AppDb,
 } from '~~/server/registration'
 
 const bodySchema = z.object({
@@ -40,7 +39,7 @@ export default defineEventHandler(async (event) => {
     : { kind: 'self', userId: session.user.id, hasLadvStartpass: !!session.user.hasLadvStartpass }
 
   const notifier = createProductionNotifier(useRuntimeConfig().public.siteUrl)
-  const deps = { db: db as unknown as AppDb, notifier }
+  const deps = { db, notifier }
 
   try {
     let statusChanged = false

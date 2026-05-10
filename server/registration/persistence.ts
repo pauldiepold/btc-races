@@ -1,17 +1,10 @@
 import { and, eq } from 'drizzle-orm'
-import type { ExtractTablesWithRelations } from 'drizzle-orm'
-import type { BaseSQLiteDatabase } from 'drizzle-orm/sqlite-core'
-import type { schema as DbSchema } from 'hub:db'
+import type { db as hubDb } from 'hub:db'
 import * as schema from '~~/server/db/schema'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 import type { RegistrationStatus } from '~~/shared/utils/registration'
 
-export type AppDb = BaseSQLiteDatabase<
-  'async',
-  unknown,
-  typeof DbSchema,
-  ExtractTablesWithRelations<typeof DbSchema>
->
+export type AppDb = typeof hubDb
 
 export type EventRow = typeof schema.events.$inferSelect
 export type UserRow = typeof schema.users.$inferSelect

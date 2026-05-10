@@ -18,7 +18,7 @@ let notifier: Notifier
 
 beforeEach(async () => {
   testDb = await createTestDb()
-  db = testDb.db as unknown as AppDb
+  db = testDb.db
   recorder = createRecorderNotifier()
   notifier = recorder.notifier
 })

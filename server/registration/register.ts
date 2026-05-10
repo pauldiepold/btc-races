@@ -58,16 +58,17 @@ export async function registerMember(
     throw new RegistrationError('inactive_member')
   }
 
-  // 4. Deadline
-  if (isDeadlineEnforcedFor(actor, dbEvent.type, 'create')
-    && isDeadlineExpired(dbEvent.registrationDeadline)) {
-    throw new RegistrationError('deadline_expired')
-  }
-
-  // 5. Existing-Lookup
+  // 4. Existing-Lookup vor Deadline, damit aktiv Angemeldete den präziseren
+  // already_registered-Fehler bekommen statt deadline_expired.
   const existing = await loadRegistrationByEventUser(db, input.eventId, input.userId)
   if (existing && existing.status !== 'canceled') {
     throw new RegistrationError('already_registered')
+  }
+
+  // 5. Deadline
+  if (isDeadlineEnforcedFor(actor, dbEvent.type, 'create')
+    && isDeadlineExpired(dbEvent.registrationDeadline)) {
+    throw new RegistrationError('deadline_expired')
   }
 
   // 6. LADV-Startpass am Target prüfen
@@ -90,7 +91,9 @@ export async function registerMember(
     && actor.kind === 'admin'
     && dbEvent.type === 'ladv'
 
-  // 10. Persistieren
+  // 10. Persistieren — bei Reaktivierung bleibt ladvDisciplines bewusst stehen,
+  // sofern setLadv nicht gesetzt ist: der LADV-Stand wird ausschließlich vom Coach
+  // gepflegt, nicht durch Self-Cancel/Reaktivierung.
   const now = new Date()
   let registrationId: number
   let reactivated: boolean

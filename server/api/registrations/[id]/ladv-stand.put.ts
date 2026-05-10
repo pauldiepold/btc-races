@@ -7,7 +7,6 @@ import {
   errorToHttpStatus,
   setLadvStand,
   type Actor,
-  type AppDb,
 } from '~~/server/registration'
 
 const bodySchema = z.object({
@@ -37,7 +36,7 @@ export default defineEventHandler(async (event) => {
   const actor: Actor = { kind: 'admin', userId: adminSession.user.id }
 
   const notifier = createProductionNotifier(useRuntimeConfig().public.siteUrl)
-  const deps = { db: db as unknown as AppDb, notifier }
+  const deps = { db, notifier }
 
   try {
     return await setLadvStand(

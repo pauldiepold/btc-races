@@ -1,6 +1,7 @@
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 import type { EventType, RegistrationStatus } from '~~/shared/utils/registration'
 import { getInitialStatus } from '~~/shared/utils/registration'
+import { VALID_INITIAL } from '~~/server/registration/state'
 
 export type AdminRegisterInput = {
   status?: string
@@ -10,13 +11,6 @@ export type AdminRegisterInput = {
 export type AdminRegisterValidationResult
   = | { ok: true, status: RegistrationStatus, wishDisciplines: RegistrationDisciplinePair[] }
     | { ok: false, error: string }
-
-const VALID_INITIAL: Record<EventType, RegistrationStatus[]> = {
-  ladv: ['registered'],
-  competition: ['registered', 'maybe'],
-  training: ['yes', 'maybe', 'no'],
-  social: ['yes', 'maybe', 'no'],
-}
 
 // Pure: validiert das Body-Payload für POST /api/events/[id]/admin-register
 // und liefert den effektiven Status + die zu speichernden Wunsch-Disziplinen.

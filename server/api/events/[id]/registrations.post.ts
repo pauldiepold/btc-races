@@ -3,6 +3,7 @@ import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import { getInitialStatus } from '~~/shared/utils/registration'
+import { VALID_INITIAL } from '~~/server/registration/state'
 import { notify } from '~~/server/notifications/service'
 import { buildEventPayload } from '~~/server/notifications/payload-helpers'
 
@@ -80,13 +81,7 @@ export default defineEventHandler(async (event) => {
   const now = new Date()
 
   // Initialen Status bestimmen: angefordert (falls erlaubt) oder Fallback
-  const validInitial: Record<string, string[]> = {
-    ladv: ['registered'],
-    competition: ['registered', 'maybe'],
-    training: ['yes', 'maybe', 'no'],
-    social: ['yes', 'maybe', 'no'],
-  }
-  const initialStatus = (requestedStatus && validInitial[dbEvent.type]?.includes(requestedStatus))
+  const initialStatus = (requestedStatus && VALID_INITIAL[dbEvent.type].includes(requestedStatus))
     ? requestedStatus
     : getInitialStatus(dbEvent.type)
 

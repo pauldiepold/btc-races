@@ -1,17 +1,11 @@
 import { db, schema } from 'hub:db'
 import { eq } from 'drizzle-orm'
 import { requireAdmin } from '~~/server/utils/auth'
+import { requireNumericIdParam } from '~~/server/utils/route-params'
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
-
-  const rawUserId = getRouterParam(event, 'userId')
-  if (!rawUserId) throw createError({ statusCode: 400, statusMessage: 'userId fehlt' })
-
-  const userId = Number(rawUserId)
-  if (!Number.isInteger(userId) || userId <= 0) {
-    throw createError({ statusCode: 400, statusMessage: 'Ungültige User-ID' })
-  }
+  const userId = requireNumericIdParam(event, 'User-ID', 'userId')
 
   const body = await readBody<{ small?: string, large?: string }>(event)
   if (!body?.small || !body?.large) {

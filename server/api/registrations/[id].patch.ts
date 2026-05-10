@@ -1,13 +1,14 @@
 import { db } from 'hub:db'
 import { z } from 'zod'
 import {
-  RegistrationError,
   changeRegistrationStatus,
   createProductionNotifier,
-  errorToHttpStatus,
   updateRegistrationNotes,
   type Actor,
 } from '~~/server/registration'
+import { parseBody } from '~~/server/utils/parse-body'
+import { withRegistrationErrorMapping } from '~~/server/utils/registration-error'
+import { requireNumericIdParam } from '~~/server/utils/route-params'
 
 const bodySchema = z.object({
   status: z.enum(['registered', 'canceled', 'maybe', 'yes', 'no']).optional(),
@@ -17,23 +18,11 @@ const bodySchema = z.object({
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
+  const id = requireNumericIdParam(event, 'Anmeldungs-ID')
+
+  const { status, notes, silent } = await parseBody(event, bodySchema)
+
   const isAdmin = session.user.role === 'admin' || session.user.role === 'superuser'
-
-  const rawId = getRouterParam(event, 'id')
-  if (!rawId) {
-    throw createError({ statusCode: 400, statusMessage: 'Fehlende Anmeldungs-ID' })
-  }
-  const id = Number(rawId)
-  if (!Number.isInteger(id) || id <= 0) {
-    throw createError({ statusCode: 400, statusMessage: 'Ungültige Anmeldungs-ID' })
-  }
-
-  const parsed = bodySchema.safeParse(await readBody(event))
-  if (!parsed.success) {
-    throw createError({ statusCode: 400, statusMessage: parsed.error.issues[0]?.message ?? 'Validierungsfehler' })
-  }
-  const { status, notes, silent } = parsed.data
-
   const actor: Actor = isAdmin
     ? { kind: 'admin', userId: session.user.id }
     : { kind: 'self', userId: session.user.id, hasLadvStartpass: !!session.user.hasLadvStartpass }
@@ -41,7 +30,7 @@ export default defineEventHandler(async (event) => {
   const notifier = createProductionNotifier(useRuntimeConfig().public.siteUrl)
   const deps = { db, notifier }
 
-  try {
+  return withRegistrationErrorMapping(async () => {
     let statusChanged = false
 
     if (status !== undefined) {
@@ -65,14 +54,5 @@ export default defineEventHandler(async (event) => {
     }
 
     return { id }
-  }
-  catch (err) {
-    if (err instanceof RegistrationError) {
-      throw createError({
-        statusCode: errorToHttpStatus(err.code),
-        statusMessage: err.message,
-      })
-    }
-    throw err
-  }
+  })
 })

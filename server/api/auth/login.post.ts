@@ -5,6 +5,7 @@ import { randomBytes } from 'node:crypto'
 import { z } from 'zod'
 import { emailService } from '~~/server/email/service'
 import type { EmailMessage } from '~~/server/email/email.types'
+import { parseBody } from '~~/server/utils/parse-body'
 
 const RATE_LIMIT_MAX = 10
 const RATE_LIMIT_TTL = 300 // 5 Minuten
@@ -17,19 +18,8 @@ const loginSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
   const runtimeConfig = useRuntimeConfig()
-
-  const result = loginSchema.safeParse(body)
-
-  if (!result.success) {
-    throw createError({
-      statusCode: 400,
-      message: result.error.issues[0]?.message ?? 'Ungültige Eingabe',
-    })
-  }
-
-  const { email, turnstileToken, redirect: rawRedirect, claimId } = result.data
+  const { email, turnstileToken, redirect: rawRedirect, claimId } = await parseBody(event, loginSchema)
 
   // 1. Turnstile-Token serverseitig verifizieren
   await verifyTurnstileToken(turnstileToken, event)

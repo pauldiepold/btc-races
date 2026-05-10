@@ -6,6 +6,7 @@ import { parseLadvIdFromUrl } from '~~/server/utils/ladv'
 import { notify } from '~~/server/notifications/service'
 import { recipients } from '~~/server/notifications/recipients'
 import { buildEventPayload } from '~~/server/notifications/payload-helpers'
+import { parseBody } from '~~/server/utils/parse-body'
 
 const importSchema = z.object({
   url: z.string().url('Ungültige URL'),
@@ -14,13 +15,9 @@ const importSchema = z.object({
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
 
-  const body = await readBody(event)
-  const result = importSchema.safeParse(body)
-  if (!result.success) {
-    throw createError({ statusCode: 400, statusMessage: result.error.issues[0]?.message ?? 'Validierungsfehler' })
-  }
+  const { url } = await parseBody(event, importSchema)
 
-  const ladvId = parseLadvIdFromUrl(result.data.url)
+  const ladvId = parseLadvIdFromUrl(url)
   if (!ladvId) {
     throw createError({ statusCode: 400, statusMessage: 'Keine LADV-ID in der URL gefunden. Erwartet: https://ladv.de/ausschreibung/detail/[ID]/...' })
   }

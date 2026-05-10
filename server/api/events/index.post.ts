@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { notify } from '~~/server/notifications/service'
 import { recipients } from '~~/server/notifications/recipients'
 import { buildEventPayload } from '~~/server/notifications/payload-helpers'
+import { parseBody } from '~~/server/utils/parse-body'
 
 const createEventSchema = z.object({
   type: z.enum(['competition', 'training', 'social']),
@@ -22,13 +23,8 @@ const createEventSchema = z.object({
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
 
-  const body = await readBody(event)
-  const result = createEventSchema.safeParse(body)
-  if (!result.success) {
-    throw createError({ statusCode: 400, statusMessage: result.error.issues[0]?.message ?? 'Validierungsfehler' })
-  }
+  const data = await parseBody(event, createEventSchema)
 
-  const data = result.data
   const now = new Date()
   const isAdmin = session.user.role === 'admin' || session.user.role === 'superuser'
 

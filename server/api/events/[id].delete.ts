@@ -1,27 +1,15 @@
 import { db, schema } from 'hub:db'
 import { eq } from 'drizzle-orm'
+import { requireSuperuser } from '~~/server/utils/auth'
+import { loadEventOrThrow } from '~~/server/utils/load-entity'
+import { requireEventIdParam } from '~~/server/utils/route-params'
 
 export default defineEventHandler(async (event) => {
-  const sqid = getRouterParam(event, 'id')
-  if (!sqid) {
-    throw createError({ statusCode: 400, statusMessage: 'Fehlende Event-ID' })
-  }
-
-  const id = decodeEventId(sqid)
-  if (id === null) {
-    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-  }
-
   await requireSuperuser(event)
-
-  const dbEvent = await db.query.events.findFirst({
-    where: eq(schema.events.id, id),
-  })
-  if (!dbEvent) {
-    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-  }
+  const id = requireEventIdParam(event)
+  await loadEventOrThrow(id)
 
   await db.delete(schema.events).where(eq(schema.events.id, id))
 
-  return { id: sqid }
+  return { id: encodeEventId(id) }
 })

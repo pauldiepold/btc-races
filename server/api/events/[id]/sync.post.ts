@@ -1,5 +1,8 @@
 import { db, schema } from 'hub:db'
 import { asc, eq } from 'drizzle-orm'
+import { requireAdmin } from '~~/server/utils/auth'
+import { loadEventOrThrow } from '~~/server/utils/load-entity'
+import { requireEventIdParam } from '~~/server/utils/route-params'
 import { notifyEventChanged } from '~~/server/notifications/event-changed'
 import { toEventCoreSnapshot } from '~~/shared/utils/diff-event-core-fields'
 import { LadvService } from '~~/server/external-apis/ladv/ladv.service'
@@ -9,24 +12,10 @@ import type { LadvAusschreibung } from '~~/shared/types/ladv'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 
 export default defineEventHandler(async (event) => {
-  const sqid = getRouterParam(event, 'id')
-  if (!sqid) {
-    throw createError({ statusCode: 400, statusMessage: 'Fehlende Event-ID' })
-  }
-
-  const id = decodeEventId(sqid)
-  if (id === null) {
-    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-  }
-
   const session = await requireAdmin(event)
+  const id = requireEventIdParam(event)
+  const dbEvent = await loadEventOrThrow(id)
 
-  const dbEvent = await db.query.events.findFirst({
-    where: eq(schema.events.id, id),
-  })
-  if (!dbEvent) {
-    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-  }
   if (!dbEvent.ladvId) {
     throw createError({ statusCode: 400, statusMessage: 'Kein LADV-Event' })
   }
@@ -134,7 +123,7 @@ export default defineEventHandler(async (event) => {
 
   const result: EventDetail = {
     ...updatedEvent!,
-    id: sqid,
+    id: encodeEventId(id),
     ladvData,
     registrations,
     createdByName,

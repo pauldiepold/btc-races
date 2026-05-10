@@ -1,6 +1,10 @@
 import { db, schema } from 'hub:db'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
+import { requireOwnerOrAdmin } from '~~/server/utils/auth'
+import { loadEventOrThrow } from '~~/server/utils/load-entity'
+import { parseBody } from '~~/server/utils/parse-body'
+import { requireEventIdParam } from '~~/server/utils/route-params'
 import { notifyEventChanged } from '~~/server/notifications/event-changed'
 import { toEventCoreSnapshot } from '~~/shared/utils/diff-event-core-fields'
 
@@ -20,33 +24,12 @@ const patchEventSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-  const sqid = getRouterParam(event, 'id')
-  if (!sqid) {
-    throw createError({ statusCode: 400, statusMessage: 'Fehlende Event-ID' })
-  }
+  const id = requireEventIdParam(event)
+  const dbEvent = await loadEventOrThrow(id)
+  const session = await requireOwnerOrAdmin(event, dbEvent.createdBy ?? 0)
 
-  const id = decodeEventId(sqid)
-  if (id === null) {
-    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-  }
+  const data = await parseBody(event, patchEventSchema)
 
-  const dbEvent = await db.query.events.findFirst({
-    where: eq(schema.events.id, id),
-  })
-  if (!dbEvent) {
-    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-  }
-
-  const session = await requireUserSession(event)
-  await requireOwnerOrAdmin(event, dbEvent.createdBy ?? 0)
-
-  const body = await readBody(event)
-  const result = patchEventSchema.safeParse(body)
-  if (!result.success) {
-    throw createError({ statusCode: 400, statusMessage: result.error.issues[0]?.message ?? 'Validierungsfehler' })
-  }
-
-  const data = result.data
   const updates: Partial<typeof schema.events.$inferInsert> = {
     updatedAt: new Date(),
   }
@@ -89,5 +72,5 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  return { id: sqid }
+  return { id: encodeEventId(id) }
 })

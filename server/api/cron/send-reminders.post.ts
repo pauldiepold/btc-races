@@ -3,6 +3,7 @@ import { and, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm'
 import { notify } from '~~/server/notifications/service'
 import { recipients } from '~~/server/notifications/recipients'
 import { buildEventPayload } from '~~/server/notifications/payload-helpers'
+import { requireCronAuth } from '~~/server/utils/cron-auth'
 import { addDaysToIsoDate, todayIsoDate } from '~~/shared/utils/reminder-dates'
 import type { NotificationType } from '~~/shared/types/notifications'
 
@@ -56,15 +57,10 @@ async function getAdminParticipantList(eventId: number): Promise<Array<{ name: s
 }
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig(event)
-  const authHeader = getHeader(event, 'Authorization')
-
-  if (authHeader !== `Bearer ${config.cronToken}`) {
-    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-  }
+  requireCronAuth(event)
 
   const today = todayIsoDate()
-  const siteUrl = config.public.siteUrl
+  const siteUrl = useRuntimeConfig(event).public.siteUrl
   const results: ReminderResult[] = []
 
   // -----------------------------------------------------------------------

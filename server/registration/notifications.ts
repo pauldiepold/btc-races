@@ -62,6 +62,21 @@ export function decideStatusChangeNotifications(
   return decisions
 }
 
+export function decideAdminEditNotifications(
+  actor: Actor,
+  registration: { userId: number },
+  opts: { silent?: boolean } = {},
+): NotificationDecision[] {
+  if (
+    actor.kind === 'admin'
+    && registration.userId !== actor.userId
+    && !opts.silent
+  ) {
+    return [{ type: 'admin_changed_member_registration', userId: registration.userId }]
+  }
+  return []
+}
+
 export function decideWishChangeNotifications(
   prevWish: RegistrationDisciplinePair[],
   newWish: RegistrationDisciplinePair[],

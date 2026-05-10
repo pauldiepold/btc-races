@@ -38,6 +38,15 @@ export function loadRegistrationByEventUser(
   })
 }
 
+export function loadRegistrationById(
+  db: AppDb,
+  id: number,
+): Promise<RegistrationRow | undefined> {
+  return db.query.registrations.findFirst({
+    where: eq(schema.registrations.id, id),
+  })
+}
+
 export type InsertRegistrationValues = {
   eventId: number
   userId: number
@@ -86,5 +95,27 @@ export async function reactivateRegistration(
       ...(patch.ladvDisciplines !== undefined ? { ladvDisciplines: patch.ladvDisciplines } : {}),
       updatedAt: patch.now,
     })
+    .where(eq(schema.registrations.id, id))
+}
+
+export async function updateRegistrationStatusField(
+  db: AppDb,
+  id: number,
+  status: RegistrationStatus,
+  now: Date,
+): Promise<void> {
+  await db.update(schema.registrations)
+    .set({ status, updatedAt: now })
+    .where(eq(schema.registrations.id, id))
+}
+
+export async function updateRegistrationNotesField(
+  db: AppDb,
+  id: number,
+  notes: string | null,
+  now: Date,
+): Promise<void> {
+  await db.update(schema.registrations)
+    .set({ notes, updatedAt: now })
     .where(eq(schema.registrations.id, id))
 }

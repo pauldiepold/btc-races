@@ -17,12 +17,29 @@ export type { NotificationDecision } from './notifications'
 export {
   decideRegisterNotifications,
   decideStatusChangeNotifications,
+  decideAdminEditNotifications,
   decideWishChangeNotifications,
   decideLadvStandNotifications,
 } from './notifications'
 
 export { registerMember } from './register'
 export type { RegisterMemberInput, RegisterMemberDeps, RegisterMemberResult } from './register'
+
+export { changeRegistrationStatus } from './change-status'
+export type {
+  ChangeRegistrationStatusInput,
+  ChangeRegistrationStatusDeps,
+  ChangeRegistrationStatusOpts,
+  ChangeRegistrationStatusResult,
+} from './change-status'
+
+export { updateRegistrationNotes } from './update-notes'
+export type {
+  UpdateRegistrationNotesInput,
+  UpdateRegistrationNotesDeps,
+  UpdateRegistrationNotesOpts,
+  UpdateRegistrationNotesResult,
+} from './update-notes'
 
 export { createProductionNotifier } from './notifier'
 export type { Notifier, NotifyContext } from './notifier'

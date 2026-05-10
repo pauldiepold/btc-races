@@ -79,10 +79,34 @@ async function sendDecision(
       })
       return
 
+    case 'athlete_canceled_after_ladv': {
+      const { recipients } = await import('~~/server/notifications/recipients')
+      await notify({
+        type: 'athlete_canceled_after_ladv',
+        recipients: await recipients.allAdmins(),
+        actorUserId: ctx.actor.userId,
+        payload: basePayload,
+        eventId: ctx.dbEvent.id,
+      })
+      return
+    }
+
+    case 'admin_changed_member_registration': {
+      const { recipients } = await import('~~/server/notifications/recipients')
+      const memberRecipients = await recipients.user(decision.userId)
+      if (memberRecipients.length === 0) return
+      await notify({
+        type: 'admin_changed_member_registration',
+        recipients: memberRecipients,
+        actorUserId: ctx.actor.userId,
+        payload: basePayload,
+        eventId: ctx.dbEvent.id,
+      })
+      return
+    }
+
     case 'ladv_canceled':
-    case 'athlete_canceled_after_ladv':
     case 'athlete_changed_after_ladv':
-    case 'admin_changed_member_registration':
-      throw new Error(`Notifier dispatch for "${decision.type}" not implemented in registerMember scope`)
+      throw new Error(`Notifier dispatch for "${decision.type}" not implemented in this scope`)
   }
 }

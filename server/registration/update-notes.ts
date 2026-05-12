@@ -8,7 +8,7 @@ import {
   updateRegistrationNotesField,
   type AppDb,
 } from './persistence'
-import type { Notifier } from './notifier'
+import { dispatchNotifications } from './notifier'
 
 export type UpdateRegistrationNotesInput = {
   registrationId: number
@@ -17,7 +17,6 @@ export type UpdateRegistrationNotesInput = {
 
 export type UpdateRegistrationNotesDeps = {
   db: AppDb
-  notifier: Notifier
 }
 
 export type UpdateRegistrationNotesOpts = {
@@ -34,7 +33,7 @@ export async function updateRegistrationNotes(
   deps: UpdateRegistrationNotesDeps,
   opts: UpdateRegistrationNotesOpts = {},
 ): Promise<UpdateRegistrationNotesResult> {
-  const { db, notifier } = deps
+  const { db } = deps
 
   const registration = await loadRegistrationById(db, input.registrationId)
   if (!registration) throw new RegistrationError('registration_not_found')
@@ -51,7 +50,7 @@ export async function updateRegistrationNotes(
     if (!dbEvent) throw new RegistrationError('event_not_found')
     const targetUser = await loadUserById(db, registration.userId)
     if (targetUser) {
-      await notifier.dispatch(decisions, { dbEvent, targetUser, actor })
+      await dispatchNotifications(decisions, { dbEvent, targetUser, actor, db })
     }
   }
 

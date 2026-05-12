@@ -10,7 +10,7 @@ import {
   type AppDb,
   type RegistrationDisciplinesPatch,
 } from './persistence'
-import type { Notifier } from './notifier'
+import { dispatchNotifications } from './notifier'
 
 export type SetLadvStandInput = {
   registrationId: number
@@ -19,7 +19,6 @@ export type SetLadvStandInput = {
 
 export type SetLadvStandDeps = {
   db: AppDb
-  notifier: Notifier
 }
 
 export type SetLadvStandResult = {
@@ -31,7 +30,7 @@ export async function setLadvStand(
   actor: Actor,
   deps: SetLadvStandDeps,
 ): Promise<SetLadvStandResult> {
-  const { db, notifier } = deps
+  const { db } = deps
 
   assertAdmin(actor)
 
@@ -55,7 +54,7 @@ export async function setLadvStand(
   if (decisions.length > 0) {
     const targetUser = await loadUserById(db, registration.userId)
     if (targetUser) {
-      await notifier.dispatch(decisions, { dbEvent, targetUser, actor })
+      await dispatchNotifications(decisions, { dbEvent, targetUser, actor, db })
     }
   }
 

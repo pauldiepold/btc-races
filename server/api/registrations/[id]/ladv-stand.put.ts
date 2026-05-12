@@ -2,7 +2,6 @@ import { db } from 'hub:db'
 import { z } from 'zod'
 import { requireAdmin } from '~~/server/utils/auth'
 import {
-  createProductionNotifier,
   setLadvStand,
   type Actor,
 } from '~~/server/registration'
@@ -24,8 +23,7 @@ export default defineEventHandler(async (event) => {
   const { disciplines } = await parseBody(event, bodySchema)
 
   const actor: Actor = { kind: 'admin', userId: adminSession.user.id }
-  const notifier = createProductionNotifier(useRuntimeConfig().public.siteUrl)
-  const deps = { db, notifier }
+  const deps = { db }
 
   return withRegistrationErrorMapping(() =>
     setLadvStand(

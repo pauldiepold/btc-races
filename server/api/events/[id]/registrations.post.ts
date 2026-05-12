@@ -1,7 +1,6 @@
 import { db } from 'hub:db'
 import { z } from 'zod'
 import {
-  createProductionNotifier,
   registerMember,
   type Actor,
 } from '~~/server/registration'
@@ -29,7 +28,6 @@ export default defineEventHandler(async (event) => {
     userId: session.user.id,
     hasLadvStartpass: !!session.user.hasLadvStartpass,
   }
-  const notifier = createProductionNotifier(useRuntimeConfig().public.siteUrl)
 
   return withRegistrationErrorMapping(async () => {
     const { id } = await registerMember(
@@ -41,7 +39,7 @@ export default defineEventHandler(async (event) => {
         wishDisciplines: disciplines,
       },
       actor,
-      { db, notifier },
+      { db },
     )
     setResponseStatus(event, 201)
     return { id }

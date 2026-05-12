@@ -4,23 +4,18 @@ import {
   changeWishDisciplines,
   type Actor,
   type AppDb,
-  type Notifier,
 } from '~~/server/registration'
 import type { EventType, RegistrationStatus } from '~~/shared/utils/registration'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 import { createTestDb, type TestDb } from '../../helpers/test-db'
-import { createRecorderNotifier } from '../../helpers/recorder-notifier'
+import { loadNotificationJobs } from '../../helpers/notification-jobs'
 
 let testDb: TestDb
 let db: AppDb
-let recorder: ReturnType<typeof createRecorderNotifier>
-let notifier: Notifier
 
 beforeEach(async () => {
   testDb = await createTestDb()
   db = testDb.db
-  recorder = createRecorderNotifier()
-  notifier = recorder.notifier
 })
 
 afterEach(async () => {
@@ -106,13 +101,13 @@ describe('changeWishDisciplines', () => {
     await changeWishDisciplines(
       { registrationId: regId, disciplines: [D100, D200] },
       selfActor(userId),
-      { db, notifier },
+      { db },
     )
 
     const reg = await loadReg(regId)
     expect(reg?.wishDisciplines).toEqual([D100, D200])
     expect(reg?.ladvDisciplines).toBeNull()
-    expect(recorder.decisions).toHaveLength(0)
+    expect(await loadNotificationJobs(testDb)).toHaveLength(0)
   })
 
   it('Self ändert Wunsch + ladvDisciplines weicht ab → athlete_changed_after_ladv', async () => {
@@ -128,11 +123,12 @@ describe('changeWishDisciplines', () => {
     await changeWishDisciplines(
       { registrationId: regId, disciplines: [D100, D200] },
       selfActor(userId),
-      { db, notifier },
+      { db },
     )
 
-    expect(recorder.decisions).toHaveLength(1)
-    expect(recorder.decisions[0]).toMatchObject({ type: 'athlete_changed_after_ladv' })
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0]).toMatchObject({ type: 'athlete_changed_after_ladv', actorUserId: userId })
   })
 
   it('Self ändert Wunsch identisch zum LADV-Stand → keine Decision', async () => {
@@ -148,10 +144,10 @@ describe('changeWishDisciplines', () => {
     await changeWishDisciplines(
       { registrationId: regId, disciplines: [D100, D200] },
       selfActor(userId),
-      { db, notifier },
+      { db },
     )
 
-    expect(recorder.decisions).toHaveLength(0)
+    expect(await loadNotificationJobs(testDb)).toHaveLength(0)
   })
 
   it('Admin → forbidden', async () => {
@@ -163,7 +159,7 @@ describe('changeWishDisciplines', () => {
     await expect(changeWishDisciplines(
       { registrationId: regId, disciplines: [D100] },
       adminActor(adminId),
-      { db, notifier },
+      { db },
     )).rejects.toMatchObject({ code: 'forbidden' })
   })
 
@@ -176,7 +172,7 @@ describe('changeWishDisciplines', () => {
     await expect(changeWishDisciplines(
       { registrationId: regId, disciplines: [D100] },
       selfActor(otherId),
-      { db, notifier },
+      { db },
     )).rejects.toMatchObject({ code: 'forbidden' })
   })
 
@@ -188,7 +184,7 @@ describe('changeWishDisciplines', () => {
     await expect(changeWishDisciplines(
       { registrationId: regId, disciplines: [D100] },
       selfActor(userId),
-      { db, notifier },
+      { db },
     )).rejects.toMatchObject({ code: 'not_a_ladv_event' })
   })
 
@@ -204,7 +200,7 @@ describe('changeWishDisciplines', () => {
     await expect(changeWishDisciplines(
       { registrationId: regId, disciplines: [D100] },
       selfActor(userId),
-      { db, notifier },
+      { db },
     )).rejects.toMatchObject({ code: 'deadline_expired' })
   })
 
@@ -216,7 +212,7 @@ describe('changeWishDisciplines', () => {
     await expect(changeWishDisciplines(
       { registrationId: regId, disciplines: [] },
       selfActor(userId),
-      { db, notifier },
+      { db },
     )).rejects.toMatchObject({ code: 'no_ladv_disciplines' })
   })
 
@@ -224,7 +220,7 @@ describe('changeWishDisciplines', () => {
     await expect(changeWishDisciplines(
       { registrationId: 99999, disciplines: [D100] },
       selfActor(1),
-      { db, notifier },
+      { db },
     )).rejects.toMatchObject({ code: 'registration_not_found' })
   })
 })

@@ -4,22 +4,17 @@ import {
   updateRegistrationNotes,
   type Actor,
   type AppDb,
-  type Notifier,
 } from '~~/server/registration'
 import type { EventType, RegistrationStatus } from '~~/shared/utils/registration'
 import { createTestDb, type TestDb } from '../../helpers/test-db'
-import { createRecorderNotifier } from '../../helpers/recorder-notifier'
+import { loadNotificationJobs } from '../../helpers/notification-jobs'
 
 let testDb: TestDb
 let db: AppDb
-let recorder: ReturnType<typeof createRecorderNotifier>
-let notifier: Notifier
 
 beforeEach(async () => {
   testDb = await createTestDb()
   db = testDb.db
-  recorder = createRecorderNotifier()
-  notifier = recorder.notifier
 })
 
 afterEach(async () => {
@@ -90,11 +85,11 @@ describe('updateRegistrationNotes', () => {
     await updateRegistrationNotes(
       { registrationId: regId, notes: 'meine Notiz' },
       selfActor(userId),
-      { db, notifier },
+      { db },
     )
 
     expect((await loadReg(regId))?.notes).toBe('meine Notiz')
-    expect(recorder.decisions).toHaveLength(0)
+    expect(await loadNotificationJobs(testDb)).toHaveLength(0)
   })
 
   it('Admin ändert fremde Notes: admin_changed_member_registration', async () => {
@@ -106,15 +101,14 @@ describe('updateRegistrationNotes', () => {
     await updateRegistrationNotes(
       { registrationId: regId, notes: 'admin notiz' },
       adminActor(adminId),
-      { db, notifier },
+      { db },
     )
 
     expect((await loadReg(regId))?.notes).toBe('admin notiz')
-    expect(recorder.decisions).toHaveLength(1)
-    expect(recorder.decisions[0]).toMatchObject({
-      type: 'admin_changed_member_registration',
-      userId: memberId,
-    })
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0]).toMatchObject({ type: 'admin_changed_member_registration', actorUserId: adminId })
+    expect(jobs[0]!.payload._recipients[0]?.userId).toBe(memberId)
   })
 
   it('Admin ändert fremde Notes + silent: keine Decision', async () => {
@@ -126,11 +120,11 @@ describe('updateRegistrationNotes', () => {
     await updateRegistrationNotes(
       { registrationId: regId, notes: 'foo' },
       adminActor(adminId),
-      { db, notifier },
+      { db },
       { silent: true },
     )
 
-    expect(recorder.decisions).toHaveLength(0)
+    expect(await loadNotificationJobs(testDb)).toHaveLength(0)
   })
 
   it('Admin ändert eigene Notes: keine Decision', async () => {
@@ -141,10 +135,10 @@ describe('updateRegistrationNotes', () => {
     await updateRegistrationNotes(
       { registrationId: regId, notes: 'eigene notiz' },
       adminActor(adminId),
-      { db, notifier },
+      { db },
     )
 
-    expect(recorder.decisions).toHaveLength(0)
+    expect(await loadNotificationJobs(testDb)).toHaveLength(0)
   })
 
   it('Self auf fremde Reg: forbidden', async () => {
@@ -156,7 +150,7 @@ describe('updateRegistrationNotes', () => {
     await expect(updateRegistrationNotes(
       { registrationId: regId, notes: 'foo' },
       selfActor(otherId),
-      { db, notifier },
+      { db },
     )).rejects.toMatchObject({ code: 'forbidden' })
   })
 
@@ -168,7 +162,7 @@ describe('updateRegistrationNotes', () => {
     await updateRegistrationNotes(
       { registrationId: regId, notes: null },
       selfActor(userId),
-      { db, notifier },
+      { db },
     )
 
     expect((await loadReg(regId))?.notes).toBeNull()
@@ -178,7 +172,7 @@ describe('updateRegistrationNotes', () => {
     await expect(updateRegistrationNotes(
       { registrationId: 99999, notes: 'foo' },
       selfActor(1),
-      { db, notifier },
+      { db },
     )).rejects.toMatchObject({ code: 'registration_not_found' })
   })
 })

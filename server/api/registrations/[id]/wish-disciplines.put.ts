@@ -2,7 +2,6 @@ import { db } from 'hub:db'
 import { z } from 'zod'
 import {
   changeWishDisciplines,
-  createProductionNotifier,
   type Actor,
 } from '~~/server/registration'
 import { parseBody } from '~~/server/utils/parse-body'
@@ -28,8 +27,7 @@ export default defineEventHandler(async (event) => {
     hasLadvStartpass: !!session.user.hasLadvStartpass,
   }
 
-  const notifier = createProductionNotifier(useRuntimeConfig().public.siteUrl)
-  const deps = { db, notifier }
+  const deps = { db }
 
   return withRegistrationErrorMapping(() =>
     changeWishDisciplines(

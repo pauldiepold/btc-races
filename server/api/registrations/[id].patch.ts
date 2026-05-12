@@ -2,7 +2,6 @@ import { db } from 'hub:db'
 import { z } from 'zod'
 import {
   changeRegistrationStatus,
-  createProductionNotifier,
   updateRegistrationNotes,
   type Actor,
 } from '~~/server/registration'
@@ -27,8 +26,7 @@ export default defineEventHandler(async (event) => {
     ? { kind: 'admin', userId: session.user.id }
     : { kind: 'self', userId: session.user.id, hasLadvStartpass: !!session.user.hasLadvStartpass }
 
-  const notifier = createProductionNotifier(useRuntimeConfig().public.siteUrl)
-  const deps = { db, notifier }
+  const deps = { db }
 
   return withRegistrationErrorMapping(async () => {
     let statusChanged = false

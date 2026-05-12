@@ -55,9 +55,6 @@ export type {
   SetLadvStandResult,
 } from './set-ladv-stand'
 
-export { createProductionNotifier } from './notifier'
-export type { Notifier, NotifyContext } from './notifier'
-
 export { errorToHttpStatus } from './http-error'
 
 export type { AppDb, EventRow, UserRow, RegistrationRow } from './persistence'

@@ -11,7 +11,7 @@ import {
   type AppDb,
 } from './persistence'
 import { isDeadlineEnforcedFor } from './rules'
-import type { Notifier } from './notifier'
+import { dispatchNotifications } from './notifier'
 
 export type ChangeWishDisciplinesInput = {
   registrationId: number
@@ -20,7 +20,6 @@ export type ChangeWishDisciplinesInput = {
 
 export type ChangeWishDisciplinesDeps = {
   db: AppDb
-  notifier: Notifier
 }
 
 export type ChangeWishDisciplinesResult = {
@@ -32,7 +31,7 @@ export async function changeWishDisciplines(
   actor: Actor,
   deps: ChangeWishDisciplinesDeps,
 ): Promise<ChangeWishDisciplinesResult> {
-  const { db, notifier } = deps
+  const { db } = deps
 
   const registration = await loadRegistrationById(db, input.registrationId)
   if (!registration) throw new RegistrationError('registration_not_found')
@@ -68,7 +67,7 @@ export async function changeWishDisciplines(
   if (decisions.length > 0) {
     const targetUser = await loadUserById(db, registration.userId)
     if (targetUser) {
-      await notifier.dispatch(decisions, { dbEvent, targetUser, actor })
+      await dispatchNotifications(decisions, { dbEvent, targetUser, actor, db })
     }
   }
 

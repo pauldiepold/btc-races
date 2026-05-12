@@ -4,23 +4,18 @@ import {
   setLadvStand,
   type Actor,
   type AppDb,
-  type Notifier,
 } from '~~/server/registration'
 import type { EventType, RegistrationStatus } from '~~/shared/utils/registration'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 import { createTestDb, type TestDb } from '../../helpers/test-db'
-import { createRecorderNotifier } from '../../helpers/recorder-notifier'
+import { loadNotificationJobs } from '../../helpers/notification-jobs'
 
 let testDb: TestDb
 let db: AppDb
-let recorder: ReturnType<typeof createRecorderNotifier>
-let notifier: Notifier
 
 beforeEach(async () => {
   testDb = await createTestDb()
   db = testDb.db
-  recorder = createRecorderNotifier()
-  notifier = recorder.notifier
 })
 
 afterEach(async () => {
@@ -112,19 +107,18 @@ describe('setLadvStand', () => {
     await setLadvStand(
       { registrationId: regId, disciplines: [D100, D200] },
       adminActor(adminId),
-      { db, notifier },
+      { db },
     )
 
     const reg = await loadReg(regId)
     expect(reg?.ladvDisciplines).toEqual([D100, D200])
     expect(reg?.wishDisciplines).toEqual([D100, D200])
 
-    expect(recorder.decisions).toHaveLength(1)
-    expect(recorder.decisions[0]).toMatchObject({
-      type: 'ladv_registered',
-      userId: memberId,
-      disciplines: [D100, D200],
-    })
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0]).toMatchObject({ type: 'ladv_registered', actorUserId: adminId })
+    expect(jobs[0]!.payload._recipients[0]?.userId).toBe(memberId)
+    expect(jobs[0]!.payload.disciplines).toEqual(['100 (M30)', '200 (M30)'])
   })
 
   it('Admin setzt Stand null → ladvDisciplines = null, wishDisciplines unverändert + ladv_canceled', async () => {
@@ -141,18 +135,17 @@ describe('setLadvStand', () => {
     await setLadvStand(
       { registrationId: regId, disciplines: null },
       adminActor(adminId),
-      { db, notifier },
+      { db },
     )
 
     const reg = await loadReg(regId)
     expect(reg?.ladvDisciplines).toBeNull()
     expect(reg?.wishDisciplines).toEqual([D100, D200])
 
-    expect(recorder.decisions).toHaveLength(1)
-    expect(recorder.decisions[0]).toMatchObject({
-      type: 'ladv_canceled',
-      userId: memberId,
-    })
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0]).toMatchObject({ type: 'ladv_canceled', actorUserId: adminId })
+    expect(jobs[0]!.payload._recipients[0]?.userId).toBe(memberId)
   })
 
   it('Self → forbidden', async () => {
@@ -163,7 +156,7 @@ describe('setLadvStand', () => {
     await expect(setLadvStand(
       { registrationId: regId, disciplines: [D100] },
       selfActor(userId),
-      { db, notifier },
+      { db },
     )).rejects.toMatchObject({ code: 'forbidden' })
   })
 
@@ -176,7 +169,7 @@ describe('setLadvStand', () => {
     await expect(setLadvStand(
       { registrationId: regId, disciplines: [D100] },
       adminActor(adminId),
-      { db, notifier },
+      { db },
     )).rejects.toMatchObject({ code: 'not_a_ladv_event' })
   })
 
@@ -193,7 +186,7 @@ describe('setLadvStand', () => {
     await setLadvStand(
       { registrationId: regId, disciplines: [D100] },
       adminActor(adminId),
-      { db, notifier },
+      { db },
     )
 
     const reg = await loadReg(regId)
@@ -204,7 +197,7 @@ describe('setLadvStand', () => {
     await expect(setLadvStand(
       { registrationId: 99999, disciplines: [D100] },
       adminActor(1),
-      { db, notifier },
+      { db },
     )).rejects.toMatchObject({ code: 'registration_not_found' })
   })
 })

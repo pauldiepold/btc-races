@@ -4,23 +4,18 @@ import {
   changeRegistrationStatus,
   type Actor,
   type AppDb,
-  type Notifier,
 } from '~~/server/registration'
 import type { EventType, RegistrationStatus } from '~~/shared/utils/registration'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 import { createTestDb, type TestDb } from '../../helpers/test-db'
-import { createRecorderNotifier } from '../../helpers/recorder-notifier'
+import { loadNotificationJobs } from '../../helpers/notification-jobs'
 
 let testDb: TestDb
 let db: AppDb
-let recorder: ReturnType<typeof createRecorderNotifier>
-let notifier: Notifier
 
 beforeEach(async () => {
   testDb = await createTestDb()
   db = testDb.db
-  recorder = createRecorderNotifier()
-  notifier = recorder.notifier
 })
 
 afterEach(async () => {
@@ -108,12 +103,13 @@ describe('changeRegistrationStatus — Self', () => {
     await changeRegistrationStatus(
       { registrationId: regId, newStatus: 'canceled' },
       selfActor(userId),
-      { db, notifier },
+      { db },
     )
 
     expect((await loadReg(regId))?.status).toBe('canceled')
-    expect(recorder.decisions).toHaveLength(1)
-    expect(recorder.decisions[0]).toMatchObject({ type: 'athlete_canceled_after_ladv' })
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0]).toMatchObject({ type: 'athlete_canceled_after_ladv', actorUserId: userId })
   })
 
   it('LADV registered → canceled ohne ladvDisciplines: keine Decision', async () => {
@@ -127,10 +123,10 @@ describe('changeRegistrationStatus — Self', () => {
     await changeRegistrationStatus(
       { registrationId: regId, newStatus: 'canceled' },
       selfActor(userId),
-      { db, notifier },
+      { db },
     )
 
-    expect(recorder.decisions).toHaveLength(0)
+    expect(await loadNotificationJobs(testDb)).toHaveLength(0)
   })
 
   it('Self + silent + LADV-Cancel: athlete_canceled_after_ladv kommt trotzdem', async () => {
@@ -144,12 +140,13 @@ describe('changeRegistrationStatus — Self', () => {
     await changeRegistrationStatus(
       { registrationId: regId, newStatus: 'canceled' },
       selfActor(userId),
-      { db, notifier },
+      { db },
       { silent: true },
     )
 
-    expect(recorder.decisions).toHaveLength(1)
-    expect(recorder.decisions[0]).toMatchObject({ type: 'athlete_canceled_after_ladv' })
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0]).toMatchObject({ type: 'athlete_canceled_after_ladv', actorUserId: userId })
   })
 
   it('Competition registered → maybe bei aktiver Frist: OK, keine Decision', async () => {
@@ -162,11 +159,11 @@ describe('changeRegistrationStatus — Self', () => {
     await changeRegistrationStatus(
       { registrationId: regId, newStatus: 'maybe' },
       selfActor(userId),
-      { db, notifier },
+      { db },
     )
 
     expect((await loadReg(regId))?.status).toBe('maybe')
-    expect(recorder.decisions).toHaveLength(0)
+    expect(await loadNotificationJobs(testDb)).toHaveLength(0)
   })
 
   it('Competition non-cancel bei abgelaufener Frist: deadline_expired', async () => {
@@ -179,7 +176,7 @@ describe('changeRegistrationStatus — Self', () => {
     await expect(changeRegistrationStatus(
       { registrationId: regId, newStatus: 'maybe' },
       selfActor(userId),
-      { db, notifier },
+      { db },
     )).rejects.toMatchObject({ code: 'deadline_expired' })
   })
 
@@ -193,7 +190,7 @@ describe('changeRegistrationStatus — Self', () => {
     await changeRegistrationStatus(
       { registrationId: regId, newStatus: 'no' },
       selfActor(userId),
-      { db, notifier },
+      { db },
     )
 
     expect((await loadReg(regId))?.status).toBe('no')
@@ -209,7 +206,7 @@ describe('changeRegistrationStatus — Self', () => {
     await expect(changeRegistrationStatus(
       { registrationId: regId, newStatus: 'maybe' },
       selfActor(userId),
-      { db, notifier },
+      { db },
     )).rejects.toMatchObject({ code: 'invalid_status_transition' })
   })
 
@@ -222,7 +219,7 @@ describe('changeRegistrationStatus — Self', () => {
     await expect(changeRegistrationStatus(
       { registrationId: regId, newStatus: 'maybe' },
       selfActor(otherId),
-      { db, notifier },
+      { db },
     )).rejects.toMatchObject({ code: 'forbidden' })
   })
 
@@ -230,7 +227,7 @@ describe('changeRegistrationStatus — Self', () => {
     await expect(changeRegistrationStatus(
       { registrationId: 99999, newStatus: 'maybe' },
       selfActor(1),
-      { db, notifier },
+      { db },
     )).rejects.toMatchObject({ code: 'registration_not_found' })
   })
 })
@@ -245,14 +242,13 @@ describe('changeRegistrationStatus — Admin', () => {
     await changeRegistrationStatus(
       { registrationId: regId, newStatus: 'no' },
       adminActor(adminId),
-      { db, notifier },
+      { db },
     )
 
-    expect(recorder.decisions).toHaveLength(1)
-    expect(recorder.decisions[0]).toMatchObject({
-      type: 'admin_changed_member_registration',
-      userId: memberId,
-    })
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0]).toMatchObject({ type: 'admin_changed_member_registration', actorUserId: adminId })
+    expect(jobs[0]!.payload._recipients[0]?.userId).toBe(memberId)
   })
 
   it('Admin auf fremde Reg + silent: keine Decision', async () => {
@@ -264,11 +260,11 @@ describe('changeRegistrationStatus — Admin', () => {
     await changeRegistrationStatus(
       { registrationId: regId, newStatus: 'no' },
       adminActor(adminId),
-      { db, notifier },
+      { db },
       { silent: true },
     )
 
-    expect(recorder.decisions).toHaveLength(0)
+    expect(await loadNotificationJobs(testDb)).toHaveLength(0)
   })
 
   it('Admin auf eigene Reg: keine Decision', async () => {
@@ -279,10 +275,10 @@ describe('changeRegistrationStatus — Admin', () => {
     await changeRegistrationStatus(
       { registrationId: regId, newStatus: 'no' },
       adminActor(adminId),
-      { db, notifier },
+      { db },
     )
 
-    expect(recorder.decisions).toHaveLength(0)
+    expect(await loadNotificationJobs(testDb)).toHaveLength(0)
   })
 
   it('Admin: kein Deadline-Check bei abgelaufener Frist', async () => {
@@ -296,7 +292,7 @@ describe('changeRegistrationStatus — Admin', () => {
     await changeRegistrationStatus(
       { registrationId: regId, newStatus: 'maybe' },
       adminActor(adminId),
-      { db, notifier },
+      { db },
     )
 
     expect((await loadReg(regId))?.status).toBe('maybe')
@@ -315,18 +311,17 @@ describe('changeRegistrationStatus — Mixed-Patch-Sequenz', () => {
     await changeRegistrationStatus(
       { registrationId: regId, newStatus: 'no' },
       adminActor(adminId),
-      { db, notifier },
+      { db },
     )
     await updateRegistrationNotes(
       { registrationId: regId, notes: 'foo' },
       adminActor(adminId),
-      { db, notifier },
+      { db },
       { silent: true },
     )
 
-    const adminEditDecisions = recorder.decisions.filter(
-      d => d.type === 'admin_changed_member_registration',
-    )
-    expect(adminEditDecisions).toHaveLength(1)
+    const jobs = await loadNotificationJobs(testDb)
+    const adminEditJobs = jobs.filter(j => j.type === 'admin_changed_member_registration')
+    expect(adminEditJobs).toHaveLength(1)
   })
 })

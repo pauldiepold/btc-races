@@ -6,22 +6,17 @@ import {
   type Actor,
   type AppDb,
   type RegisterMemberInput,
-  type Notifier,
 } from '~~/server/registration'
 import type { EventType } from '~~/shared/utils/registration'
 import { createTestDb, type TestDb } from '../../helpers/test-db'
-import { createRecorderNotifier } from '../../helpers/recorder-notifier'
+import { loadNotificationJobs } from '../../helpers/notification-jobs'
 
 let testDb: TestDb
 let db: AppDb
-let recorder: ReturnType<typeof createRecorderNotifier>
-let notifier: Notifier
 
 beforeEach(async () => {
   testDb = await createTestDb()
   db = testDb.db
-  recorder = createRecorderNotifier()
-  notifier = recorder.notifier
 })
 
 afterEach(async () => {
@@ -96,7 +91,7 @@ describe('registerMember — Self-Anmeldung', () => {
     const result = await registerMember(
       input({ eventId, userId, wishDisciplines: LADV_DISCIPLINES }),
       selfActor(userId, true),
-      { db, notifier },
+      { db },
     )
 
     expect(result.reactivated).toBe(false)
@@ -105,34 +100,34 @@ describe('registerMember — Self-Anmeldung', () => {
     expect(reg?.wishDisciplines).toEqual(LADV_DISCIPLINES)
     expect(reg?.ladvDisciplines).toBeNull()
 
-    expect(recorder.decisions).toHaveLength(1)
-    expect(recorder.decisions[0]).toMatchObject({
-      type: 'registration_confirmation',
-      userId,
-    })
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0]).toMatchObject({ type: 'registration_confirmation' })
+    expect(jobs[0]!.payload._recipients[0]?.userId).toBe(userId)
+    expect(jobs[0]!.payload.eventName).toBe('Test-Event')
   })
 
   it('Competition: Initialstatus registered, keine Notification', async () => {
     const userId = await seedUser()
     const eventId = await seedEvent({ type: 'competition', createdBy: userId })
 
-    const result = await registerMember(input({ eventId, userId }), selfActor(userId), { db, notifier })
+    const result = await registerMember(input({ eventId, userId }), selfActor(userId), { db })
 
     const reg = await loadRegistration(result.id)
     expect(reg?.status).toBe('registered')
     expect(reg?.wishDisciplines).toEqual([])
-    expect(recorder.decisions).toHaveLength(0)
+    expect(await loadNotificationJobs(testDb)).toHaveLength(0)
   })
 
   it('Training: Initialstatus yes, keine Notification', async () => {
     const userId = await seedUser()
     const eventId = await seedEvent({ type: 'training', createdBy: userId })
 
-    const result = await registerMember(input({ eventId, userId }), selfActor(userId), { db, notifier })
+    const result = await registerMember(input({ eventId, userId }), selfActor(userId), { db })
 
     const reg = await loadRegistration(result.id)
     expect(reg?.status).toBe('yes')
-    expect(recorder.decisions).toHaveLength(0)
+    expect(await loadNotificationJobs(testDb)).toHaveLength(0)
   })
 })
 
@@ -145,7 +140,7 @@ describe('registerMember — Admin-Anmeldung', () => {
     const result = await registerMember(
       input({ eventId, userId: targetId, wishDisciplines: LADV_DISCIPLINES }),
       adminActor(adminId),
-      { db, notifier },
+      { db },
     )
 
     const reg = await loadRegistration(result.id)
@@ -153,12 +148,11 @@ describe('registerMember — Admin-Anmeldung', () => {
     expect(reg?.wishDisciplines).toEqual(LADV_DISCIPLINES)
     expect(reg?.ladvDisciplines).toBeNull()
 
-    expect(recorder.decisions).toHaveLength(1)
-    expect(recorder.decisions[0]).toMatchObject({
-      type: 'admin_registered_member',
-      userId: targetId,
-      disciplines: LADV_DISCIPLINES,
-    })
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0]).toMatchObject({ type: 'admin_registered_member', actorUserId: adminId })
+    expect(jobs[0]!.payload._recipients[0]?.userId).toBe(targetId)
+    expect(jobs[0]!.payload.disciplines).toEqual(['100m (M30)'])
   })
 
   it('LADV mit setLadv: ladv_registered, ladvDisciplines gesetzt', async () => {
@@ -174,33 +168,31 @@ describe('registerMember — Admin-Anmeldung', () => {
         setLadvStandImmediately: true,
       }),
       adminActor(adminId),
-      { db, notifier },
+      { db },
     )
 
     const reg = await loadRegistration(result.id)
     expect(reg?.ladvDisciplines).toEqual(LADV_DISCIPLINES)
 
-    expect(recorder.decisions).toHaveLength(1)
-    expect(recorder.decisions[0]).toMatchObject({
-      type: 'ladv_registered',
-      userId: targetId,
-      disciplines: LADV_DISCIPLINES,
-    })
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0]).toMatchObject({ type: 'ladv_registered', actorUserId: adminId })
+    expect(jobs[0]!.payload._recipients[0]?.userId).toBe(targetId)
+    expect(jobs[0]!.payload.disciplines).toEqual(['100m (M30)'])
   })
 
-  it('Competition: admin_registered_member ohne disciplines im Decision', async () => {
+  it('Competition: admin_registered_member ohne disciplines', async () => {
     const adminId = await seedUser({ emailSuffix: 'admin' })
     const targetId = await seedUser({ emailSuffix: 'target' })
     const eventId = await seedEvent({ type: 'competition', createdBy: adminId })
 
-    await registerMember(input({ eventId, userId: targetId }), adminActor(adminId), { db, notifier })
+    await registerMember(input({ eventId, userId: targetId }), adminActor(adminId), { db })
 
-    expect(recorder.decisions).toHaveLength(1)
-    expect(recorder.decisions[0]).toMatchObject({
-      type: 'admin_registered_member',
-      userId: targetId,
-      disciplines: [],
-    })
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0]).toMatchObject({ type: 'admin_registered_member', actorUserId: adminId })
+    expect(jobs[0]!.payload._recipients[0]?.userId).toBe(targetId)
+    expect(jobs[0]!.payload.disciplines).toBeUndefined()
   })
 })
 
@@ -220,7 +212,7 @@ describe('registerMember — Reaktivierung', () => {
     const result = await registerMember(
       input({ eventId, userId, wishDisciplines: LADV_DISCIPLINES }),
       selfActor(userId, true),
-      { db, notifier },
+      { db },
     )
 
     expect(result.id).toBe(pre.id)
@@ -230,8 +222,9 @@ describe('registerMember — Reaktivierung', () => {
     expect(reg?.status).toBe('registered')
     expect(reg?.wishDisciplines).toEqual(LADV_DISCIPLINES)
 
-    expect(recorder.decisions).toHaveLength(1)
-    expect(recorder.decisions[0]?.type).toBe('registration_confirmation')
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0]?.type).toBe('registration_confirmation')
   })
 
   it('Admin reaktiviert canceled-Anmeldung', async () => {
@@ -250,7 +243,7 @@ describe('registerMember — Reaktivierung', () => {
     const result = await registerMember(
       input({ eventId, userId: targetId, wishDisciplines: LADV_DISCIPLINES }),
       adminActor(adminId),
-      { db, notifier },
+      { db },
     )
 
     expect(result.id).toBe(pre.id)
@@ -269,7 +262,7 @@ describe('registerMember — Bug-Fix: strikte Status-Validierung', () => {
       registerMember(
         input({ eventId, userId, status: 'maybe', wishDisciplines: LADV_DISCIPLINES }),
         selfActor(userId, true),
-        { db, notifier },
+        { db },
       ),
     ).rejects.toMatchObject({ code: 'invalid_initial_status' })
   })
@@ -285,7 +278,7 @@ describe('registerMember — LADV-Startpass-Pflicht', () => {
       registerMember(
         input({ eventId, userId: targetId, wishDisciplines: LADV_DISCIPLINES }),
         adminActor(adminId),
-        { db, notifier },
+        { db },
       ),
     ).rejects.toMatchObject({ code: 'no_ladv_startpass' })
   })
@@ -298,7 +291,7 @@ describe('registerMember — LADV-Startpass-Pflicht', () => {
       registerMember(
         input({ eventId, userId, wishDisciplines: LADV_DISCIPLINES }),
         selfActor(userId, false),
-        { db, notifier },
+        { db },
       ),
     ).rejects.toMatchObject({ code: 'no_ladv_startpass' })
   })
@@ -317,7 +310,7 @@ describe('registerMember — Deadline', () => {
       registerMember(
         input({ eventId, userId, wishDisciplines: LADV_DISCIPLINES }),
         selfActor(userId, true),
-        { db, notifier },
+        { db },
       ),
     ).rejects.toMatchObject({ code: 'deadline_expired' })
   })
@@ -334,7 +327,7 @@ describe('registerMember — Deadline', () => {
     const result = await registerMember(
       input({ eventId, userId: targetId, wishDisciplines: LADV_DISCIPLINES }),
       adminActor(adminId),
-      { db, notifier },
+      { db },
     )
     expect(result.reactivated).toBe(false)
   })
@@ -347,7 +340,7 @@ describe('registerMember — Mitgliedschaft & Duplikate', () => {
     const eventId = await seedEvent({ type: 'training', createdBy: adminId })
 
     await expect(
-      registerMember(input({ eventId, userId: targetId }), adminActor(adminId), { db, notifier }),
+      registerMember(input({ eventId, userId: targetId }), adminActor(adminId), { db }),
     ).rejects.toMatchObject({ code: 'inactive_member' })
   })
 
@@ -366,7 +359,7 @@ describe('registerMember — Mitgliedschaft & Duplikate', () => {
       registerMember(
         input({ eventId, userId, wishDisciplines: LADV_DISCIPLINES }),
         selfActor(userId, true),
-        { db, notifier },
+        { db },
       ),
     ).rejects.toMatchObject({ code: 'already_registered' })
   })
@@ -377,7 +370,7 @@ describe('registerMember — Mitgliedschaft & Duplikate', () => {
     const eventId = await seedEvent({ type: 'training', createdBy: userId })
 
     await expect(
-      registerMember(input({ eventId, userId: otherId }), selfActor(userId), { db, notifier }),
+      registerMember(input({ eventId, userId: otherId }), selfActor(userId), { db }),
     ).rejects.toBeInstanceOf(RegistrationError)
   })
 })

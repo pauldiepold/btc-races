@@ -12,7 +12,7 @@ import {
 } from './persistence'
 import { isDeadlineEnforcedFor } from './rules'
 import { getValidNextStatuses } from './state'
-import type { Notifier } from './notifier'
+import { dispatchNotifications } from './notifier'
 
 export type ChangeRegistrationStatusInput = {
   registrationId: number
@@ -21,7 +21,6 @@ export type ChangeRegistrationStatusInput = {
 
 export type ChangeRegistrationStatusDeps = {
   db: AppDb
-  notifier: Notifier
 }
 
 export type ChangeRegistrationStatusOpts = {
@@ -38,7 +37,7 @@ export async function changeRegistrationStatus(
   deps: ChangeRegistrationStatusDeps,
   opts: ChangeRegistrationStatusOpts = {},
 ): Promise<ChangeRegistrationStatusResult> {
-  const { db, notifier } = deps
+  const { db } = deps
 
   const registration = await loadRegistrationById(db, input.registrationId)
   if (!registration) throw new RegistrationError('registration_not_found')
@@ -79,7 +78,7 @@ export async function changeRegistrationStatus(
   if (decisions.length > 0) {
     const targetUser = await loadUserById(db, registration.userId)
     if (targetUser) {
-      await notifier.dispatch(decisions, { dbEvent, targetUser, actor })
+      await dispatchNotifications(decisions, { dbEvent, targetUser, actor, db })
     }
   }
 

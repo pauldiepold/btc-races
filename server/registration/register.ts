@@ -13,7 +13,7 @@ import {
   type AppDb,
 } from './persistence'
 import { isDeadlineEnforcedFor, requiresLadvDisciplines, validateInitialStatus } from './rules'
-import type { Notifier } from './notifier'
+import { dispatchNotifications } from './notifier'
 
 export type RegisterMemberInput = {
   eventId: number
@@ -26,7 +26,6 @@ export type RegisterMemberInput = {
 
 export type RegisterMemberDeps = {
   db: AppDb
-  notifier: Notifier
 }
 
 export type RegisterMemberResult = {
@@ -39,7 +38,7 @@ export async function registerMember(
   actor: Actor,
   deps: RegisterMemberDeps,
 ): Promise<RegisterMemberResult> {
-  const { db, notifier } = deps
+  const { db } = deps
 
   // 1. Self-Owner-Check
   if (actor.kind === 'self' && input.userId !== actor.userId) {
@@ -131,10 +130,11 @@ export async function registerMember(
     wishDisciplines,
   )
 
-  await notifier.dispatch(decisions, {
+  await dispatchNotifications(decisions, {
     dbEvent,
     targetUser,
     actor,
+    db,
   })
 
   return { id: registrationId, reactivated }

@@ -1,3 +1,4 @@
+import { encodeEventId } from '~~/server/utils/sqids'
 import { formatEventDate } from '~~/shared/utils/events'
 import { ladvAgeClassLabel, ladvDisciplineLabel } from '~~/shared/utils/ladv-labels'
 import type { EventType } from '~~/shared/utils/registration'

@@ -2,10 +2,11 @@ import { db, schema } from 'hub:db'
 import { and, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm'
 import { notify } from '~~/server/notifications/service'
 import { recipients } from '~~/server/notifications/recipients'
-import { buildEventPayload } from '~~/server/notifications/payload-helpers'
+import { buildEventPayload, formatDisciplineLabels } from '~~/server/notifications/payload-helpers'
 import { requireCronAuth } from '~~/server/utils/cron-auth'
 import { addDaysToIsoDate, todayIsoDate } from '~~/shared/utils/reminder-dates'
 import type { NotificationType } from '~~/shared/types/notifications'
+import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 
 interface ReminderResult {
   type: NotificationType
@@ -50,8 +51,8 @@ async function getAdminParticipantList(eventId: number): Promise<Array<{ name: s
 
   return rows.map((row) => {
     const name = `${row.firstName ?? ''} ${row.lastName ?? ''}`.trim()
-    const wish = (row.wishDisciplines as Array<{ discipline: string }> | null) ?? []
-    const disciplineList = [...new Set(wish.map(d => d.discipline))].join(', ')
+    const wish = (row.wishDisciplines as RegistrationDisciplinePair[] | null) ?? []
+    const disciplineList = formatDisciplineLabels(wish).join(', ')
     return { name, disciplines: disciplineList || undefined }
   })
 }

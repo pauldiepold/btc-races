@@ -2,7 +2,7 @@ import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import type { RegistrationStatus } from '~~/shared/utils/registration'
 import { assertSelfOwnsRegistration, type Actor } from './actor'
 import { RegistrationError } from './errors'
-import { decideStatusChangeNotifications } from './notifications'
+import { decideLateRegistrationNotification, decideStatusChangeNotifications } from './notifications'
 import {
   loadEventById,
   loadRegistrationById,
@@ -75,11 +75,29 @@ export async function changeRegistrationStatus(
     { silent: opts.silent },
   )
 
-  if (decisions.length > 0) {
-    const targetUser = await loadUserById(db, registration.userId)
-    if (targetUser) {
-      await dispatchNotifications(decisions, { dbEvent, targetUser, actor, db })
-    }
+  const isLadvReactivation = dbEvent.type === 'ladv'
+    && registration.status === 'canceled'
+    && input.newStatus === 'registered'
+
+  const targetUser = (decisions.length > 0 || isLadvReactivation)
+    ? await loadUserById(db, registration.userId)
+    : undefined
+
+  if (isLadvReactivation && targetUser) {
+    const athleteName = `${targetUser.firstName ?? ''} ${targetUser.lastName ?? ''}`.trim() || targetUser.email
+    const lateDecision = decideLateRegistrationNotification(
+      actor,
+      dbEvent,
+      athleteName,
+      'reactivated',
+      registration.wishDisciplines,
+      now,
+    )
+    if (lateDecision) decisions.push(lateDecision)
+  }
+
+  if (decisions.length > 0 && targetUser) {
+    await dispatchNotifications(decisions, { dbEvent, targetUser, actor, db })
   }
 
   return { id: registration.id }

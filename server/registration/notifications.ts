@@ -2,6 +2,9 @@ import type { EventType, RegistrationStatus } from '~~/shared/utils/registration
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 import type { Actor } from './actor'
 import { shouldNotifyAdminsOnWishChange } from '~~/shared/utils/ladv-diff'
+import { isWithinDeadlineWindow } from '~~/shared/utils/deadlines'
+
+export const LATE_REGISTRATION_THRESHOLD_DAYS = 3
 
 export type NotificationDecision
   = | { type: 'registration_confirmation', userId: number }
@@ -11,6 +14,7 @@ export type NotificationDecision
     | { type: 'athlete_canceled_after_ladv' }
     | { type: 'athlete_changed_after_ladv' }
     | { type: 'admin_changed_member_registration', userId: number }
+    | { type: 'admin_late_registration', athleteName: string, action: 'registered' | 'reactivated', disciplines: RegistrationDisciplinePair[] }
 
 export function decideRegisterNotifications(
   actor: Actor,
@@ -96,4 +100,23 @@ export function decideLadvStandNotifications(
     return [{ type: 'ladv_registered', userId: targetUserId, disciplines: newStand }]
   }
   return [{ type: 'ladv_canceled', userId: targetUserId }]
+}
+
+/**
+ * Späte LADV-Anmeldung: Self-Aktion an einem LADV-Event innerhalb der letzten
+ * `LATE_REGISTRATION_THRESHOLD_DAYS` Tage vor Meldeschluss. Triggert Admin-Notification,
+ * damit die Coaches extern bei LADV nachmelden können.
+ */
+export function decideLateRegistrationNotification(
+  actor: Actor,
+  event: { type: EventType, registrationDeadline: string | null },
+  athleteName: string,
+  action: 'registered' | 'reactivated',
+  disciplines: RegistrationDisciplinePair[],
+  now: Date = new Date(),
+): NotificationDecision | null {
+  if (actor.kind !== 'self') return null
+  if (event.type !== 'ladv') return null
+  if (!isWithinDeadlineWindow(event.registrationDeadline, LATE_REGISTRATION_THRESHOLD_DAYS, now)) return null
+  return { type: 'admin_late_registration', athleteName, action, disciplines }
 }

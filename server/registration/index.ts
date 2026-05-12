@@ -20,6 +20,8 @@ export {
   decideAdminEditNotifications,
   decideWishChangeNotifications,
   decideLadvStandNotifications,
+  decideLateRegistrationNotification,
+  LATE_REGISTRATION_THRESHOLD_DAYS,
 } from './notifications'
 
 export { registerMember } from './register'

@@ -113,6 +113,26 @@ export async function dispatchNotifications(
             eventId: ctx.dbEvent.id,
           }, ctx.db)
           break
+
+        case 'admin_late_registration': {
+          if (ctx.dbEvent.type !== 'ladv') break
+          await notify({
+            type: 'admin_late_registration',
+            recipients: await recipients.allAdmins(ctx.db),
+            actorUserId: ctx.actor.userId,
+            payload: {
+              ...basePayload,
+              eventType: 'ladv',
+              athleteName: decision.athleteName,
+              action: decision.action,
+              ...(decision.disciplines.length > 0
+                ? { disciplines: formatDisciplineLabels(decision.disciplines) }
+                : {}),
+            },
+            eventId: ctx.dbEvent.id,
+          }, ctx.db)
+          break
+        }
       }
     }
     catch (err) {

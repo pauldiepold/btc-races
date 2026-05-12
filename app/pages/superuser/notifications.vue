@@ -67,6 +67,7 @@ const typeLabels: Record<NotificationType, string> = {
   reminder_deadline_athlete: 'Meldefrist (Athlet)',
   reminder_deadline_admin: 'Meldefrist (Admin)',
   reminder_event: 'Event in 2 Tagen',
+  admin_late_registration: 'Späte LADV-Anmeldung',
 }
 
 const typeOptions = [

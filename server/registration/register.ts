@@ -3,7 +3,7 @@ import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 import type { RegistrationStatus } from '~~/shared/utils/registration'
 import type { Actor } from './actor'
 import { RegistrationError } from './errors'
-import { decideRegisterNotifications } from './notifications'
+import { decideLateRegistrationNotification, decideRegisterNotifications } from './notifications'
 import {
   insertRegistration,
   loadEventById,
@@ -129,6 +129,17 @@ export async function registerMember(
     setLadv,
     wishDisciplines,
   )
+
+  const athleteName = `${targetUser.firstName ?? ''} ${targetUser.lastName ?? ''}`.trim() || targetUser.email
+  const lateDecision = decideLateRegistrationNotification(
+    actor,
+    dbEvent,
+    athleteName,
+    'registered',
+    wishDisciplines,
+    now,
+  )
+  if (lateDecision) decisions.push(lateDecision)
 
   await dispatchNotifications(decisions, {
     dbEvent,

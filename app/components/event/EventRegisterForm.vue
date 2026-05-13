@@ -3,11 +3,13 @@ import type { EventDetail } from '~~/shared/types/events'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import { getLadvAgeClass } from '~~/shared/utils/ladv-age-class'
 import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 import {
   REGISTRATION_STATUS_LABELS,
   REGISTRATION_STATUS_BUTTON_COLORS,
   REGISTRATION_STATUS_CHIP_CLASSES,
   getRegistrationActionLabels,
+  getAllStatuses,
 } from '~~/shared/utils/registration-ui'
 
 const props = defineProps<{ event: EventDetail }>()
@@ -15,6 +17,8 @@ const emit = defineEmits<{ refresh: [] }>()
 
 const { session } = useUserSession()
 const toast = useToast()
+
+const caps = computed(() => eventTypeCapabilities[props.event.type])
 
 const ownReg = computed(() =>
   props.event.registrations.find(r => r.userId === session.value?.user?.id),
@@ -29,7 +33,7 @@ const deadlineExpired = computed(() =>
 )
 
 const deadlineLocked = computed(() =>
-  deadlineExpired.value && (props.event.type === 'ladv' || props.event.type === 'competition'),
+  deadlineExpired.value && caps.value.enforcesDeadline,
 )
 
 const hasLadvStartpass = computed(() => session.value?.user?.hasLadvStartpass ?? false)
@@ -110,7 +114,7 @@ function removePending(index: number) {
 }
 
 async function register(initialStatus?: string) {
-  if (props.event.type === 'ladv' && pendingDisciplines.value.length === 0) {
+  if (caps.value.hasWishDisciplines && pendingDisciplines.value.length === 0) {
     showDisciplineError.value = true
     return
   }
@@ -120,7 +124,7 @@ async function register(initialStatus?: string) {
       method: 'POST',
       body: {
         notes: newNotes.value || undefined,
-        disciplines: props.event.type === 'ladv' ? pendingDisciplines.value : undefined,
+        disciplines: caps.value.hasWishDisciplines ? pendingDisciplines.value : undefined,
         status: initialStatus || undefined,
       },
     })
@@ -155,17 +159,16 @@ async function register(initialStatus?: string) {
 
 const changingStatusTo = ref<string | null>(null)
 
-const allEventStatuses = computed(() => {
-  const type = props.event.type
-  if (type === 'ladv') return ['registered', 'canceled']
-  if (type === 'competition') return ['registered', 'maybe', 'no']
-  return ['yes', 'maybe', 'no']
-})
+const allEventStatuses = computed(() => getAllStatuses(props.event.type))
+
+const initialStatuses = computed(() =>
+  allEventStatuses.value.filter(s => s !== 'canceled'),
+)
 
 const nextStatuses = computed(() => {
   if (!ownReg.value) return []
   const base = allEventStatuses.value.filter(s => s !== ownReg.value!.status)
-  if (deadlineExpired.value && (props.event.type === 'ladv' || props.event.type === 'competition')) {
+  if (deadlineExpired.value && caps.value.enforcesDeadline) {
     return base.filter(s => s === 'canceled' || s === 'no')
   }
   return base
@@ -359,19 +362,19 @@ async function saveNotes() {
         </div>
 
         <p
-          v-if="deadlineExpired && (event.type === 'ladv' || event.type === 'competition')"
+          v-if="deadlineExpired && caps.enforcesDeadline"
           class="text-xs text-muted"
         >
           Meldefrist abgelaufen — nur Abmelden möglich.
         </p>
         <p
-          v-else-if="event.type === 'ladv' && ownReg.status !== 'canceled'"
+          v-else-if="caps.hasLadvStandManagement && ownReg.status !== 'canceled'"
           class="text-xs text-muted"
         >
           Die Meldung bei LADV erfolgt durch die Coaches.
         </p>
         <p
-          v-else-if="event.type === 'competition'"
+          v-else-if="caps.requiresExternalRegistration"
           class="text-xs text-muted"
         >
           Du meldest dich eigenständig beim Veranstalter an — hier trackst du nur deine Teilnahme.
@@ -380,7 +383,7 @@ async function saveNotes() {
 
       <!-- LADV-Disziplinen -->
       <div
-        v-if="event.type === 'ladv' && ownReg.status !== 'canceled'"
+        v-if="caps.hasWishDisciplines && ownReg.status !== 'canceled'"
         class="space-y-3"
       >
         <p class="text-xs font-medium text-muted uppercase tracking-widest">
@@ -578,7 +581,7 @@ async function saveNotes() {
 
     <!-- Kein LADV-Startpass -->
     <UAlert
-      v-else-if="event.type === 'ladv' && !hasLadvStartpass"
+      v-else-if="caps.hasLadvStandManagement && !hasLadvStartpass"
       icon="i-ph-warning-circle"
       color="error"
       variant="subtle"
@@ -603,7 +606,7 @@ async function saveNotes() {
     >
       <!-- LADV: Disziplin-Auswahl -->
       <div
-        v-if="event.type === 'ladv'"
+        v-if="caps.hasWishDisciplines"
         class="space-y-3"
       >
         <p class="text-xs font-medium text-muted uppercase tracking-widest">
@@ -710,81 +713,25 @@ async function saveNotes() {
       <!-- Anmelden-Aktionen -->
       <div class="space-y-2">
         <div class="flex flex-wrap gap-2">
-          <!-- LADV: nur Anmelden -->
           <UButton
-            v-if="event.type === 'ladv'"
-            label="Anmelden"
-            color="success"
+            v-for="s in initialStatuses"
+            :key="s"
+            :label="actionLabels[s]"
+            :color="REGISTRATION_STATUS_BUTTON_COLORS[s]"
             variant="outline"
-            :loading="submittingAs === 'registered'"
-            :disabled="submittingAs !== null && submittingAs !== 'registered'"
-            @click="register('registered')"
+            :loading="submittingAs === s"
+            :disabled="submittingAs !== null && submittingAs !== s"
+            @click="register(s)"
           />
-
-          <!-- Competition: Anmelden + Vielleicht + Nein -->
-          <template v-else-if="event.type === 'competition'">
-            <UButton
-              label="Anmelden"
-              color="success"
-              variant="outline"
-              :loading="submittingAs === 'registered'"
-              :disabled="submittingAs !== null && submittingAs !== 'registered'"
-              @click="register('registered')"
-            />
-            <UButton
-              label="Vielleicht"
-              color="warning"
-              variant="outline"
-              :loading="submittingAs === 'maybe'"
-              :disabled="submittingAs !== null && submittingAs !== 'maybe'"
-              @click="register('maybe')"
-            />
-            <UButton
-              label="Nein"
-              color="error"
-              variant="outline"
-              :loading="submittingAs === 'no'"
-              :disabled="submittingAs !== null && submittingAs !== 'no'"
-              @click="register('no')"
-            />
-          </template>
-
-          <!-- Training / Social: Ja + Vielleicht + Nein -->
-          <template v-else>
-            <UButton
-              label="Ja"
-              color="success"
-              variant="outline"
-              :loading="submittingAs === 'yes'"
-              :disabled="submittingAs !== null && submittingAs !== 'yes'"
-              @click="register('yes')"
-            />
-            <UButton
-              label="Vielleicht"
-              color="warning"
-              variant="outline"
-              :loading="submittingAs === 'maybe'"
-              :disabled="submittingAs !== null && submittingAs !== 'maybe'"
-              @click="register('maybe')"
-            />
-            <UButton
-              label="Nein"
-              color="error"
-              variant="outline"
-              :loading="submittingAs === 'no'"
-              :disabled="submittingAs !== null && submittingAs !== 'no'"
-              @click="register('no')"
-            />
-          </template>
         </div>
         <p
-          v-if="event.type === 'ladv'"
+          v-if="caps.hasLadvStandManagement"
           class="text-xs text-muted"
         >
           Die Meldung bei LADV erfolgt durch die Coaches.
         </p>
         <p
-          v-else-if="event.type === 'competition'"
+          v-else-if="caps.requiresExternalRegistration"
           class="text-xs text-muted"
         >
           Du meldest dich eigenständig beim Veranstalter an — hier trackst du nur deine Teilnahme.

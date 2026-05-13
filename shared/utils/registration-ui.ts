@@ -20,6 +20,11 @@ export function getRegistrationActionLabels(eventType: EventType): Record<string
   return { yes: 'Ja', maybe: 'Vielleicht', no: 'Nein' }
 }
 
+/** Alle für einen Event-Typ erreichbaren Status (Reihenfolge entspricht den Aktions-Labels). */
+export function getAllStatuses(eventType: EventType): string[] {
+  return Object.keys(getRegistrationActionLabels(eventType))
+}
+
 /** Badge-Farbe je Status (UBadge color-Prop) */
 export const REGISTRATION_STATUS_BADGE_COLORS: Record<string, BadgeColor> = {
   registered: 'success',

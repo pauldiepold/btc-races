@@ -3,6 +3,8 @@ import type { EventDetail } from '~~/shared/types/events'
 import type { AdminMemberListItem } from '~~/server/api/admin/members.get'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
+import { getInitialStatus } from '~~/shared/utils/registration'
 
 const props = defineProps<{
   event: EventDetail
@@ -15,6 +17,8 @@ const emit = defineEmits<{
 }>()
 
 const toast = useToast()
+
+const caps = computed(() => eventTypeCapabilities[props.event.type])
 
 // ─── Mitglieder-Liste (lazy, 1× pro Modal-Open) ───────────────────────────────
 
@@ -122,9 +126,7 @@ function statusInfo(s: MemberWithRegistration['registrationStatus']) {
 function selectMember(m: MemberWithRegistration) {
   if (statusInfo(m.registrationStatus)?.blocked) return
   selectedMember.value = m
-  if (props.event.type === 'ladv') status.value = 'registered'
-  else if (props.event.type === 'competition') status.value = 'registered'
-  else status.value = 'yes'
+  status.value = getInitialStatus(props.event.type)
 }
 
 function backToSearch() {
@@ -188,20 +190,20 @@ function removePending(index: number) {
 
 const deadlineExpired = computed(() => isDeadlineExpired(toDate(props.event.registrationDeadline)))
 const showDeadlineWarning = computed(() =>
-  props.event.type === 'competition' && deadlineExpired.value,
+  caps.value.requiresExternalRegistration && deadlineExpired.value,
 )
 
 // ─── Submit ───────────────────────────────────────────────────────────────────
 
 const canSubmit = computed(() => {
   if (!selectedMember.value) return false
-  if (props.event.type === 'ladv' && pendingDisciplines.value.length === 0) return false
+  if (caps.value.hasWishDisciplines && pendingDisciplines.value.length === 0) return false
   return true
 })
 
 async function submit() {
   if (!selectedMember.value) return
-  if (props.event.type === 'ladv' && pendingDisciplines.value.length === 0) {
+  if (caps.value.hasWishDisciplines && pendingDisciplines.value.length === 0) {
     toast.add({ title: 'Mindestens eine Disziplin erforderlich', color: 'error' })
     return
   }
@@ -216,8 +218,8 @@ async function submit() {
         userId: selectedMember.value.id,
         status: status.value || undefined,
         notes: notes.value || undefined,
-        disciplines: props.event.type === 'ladv' ? pendingDisciplines.value : undefined,
-        setLadvStandImmediately: props.event.type === 'ladv' ? setLadvStandImmediately.value : undefined,
+        disciplines: caps.value.hasWishDisciplines ? pendingDisciplines.value : undefined,
+        setLadvStandImmediately: caps.value.hasLadvStandManagement ? setLadvStandImmediately.value : undefined,
       },
     })
     toast.add({
@@ -387,7 +389,7 @@ async function submit() {
 
         <!-- LADV: Disziplinen -->
         <div
-          v-if="event.type === 'ladv'"
+          v-if="caps.hasWishDisciplines"
           class="space-y-2"
         >
           <p class="text-xs font-medium text-muted uppercase tracking-widest">
@@ -478,7 +480,7 @@ async function submit() {
 
         <!-- Competition: Status-Picker -->
         <div
-          v-else-if="event.type === 'competition'"
+          v-else-if="caps.requiresExternalRegistration"
           class="space-y-2"
         >
           <p class="text-xs font-medium text-muted uppercase tracking-widest">
@@ -558,7 +560,7 @@ async function submit() {
         </div>
 
         <!-- LADV: setLadvStandImmediately -->
-        <div v-if="event.type === 'ladv'">
+        <div v-if="caps.hasLadvStandManagement">
           <UCheckbox
             v-model="setLadvStandImmediately"
             label="Ich habe in LADV bereits gemeldet"

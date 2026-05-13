@@ -2,6 +2,7 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { Time } from '@internationalized/date'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 
 definePageMeta({ title: 'Event erstellen' })
 
@@ -48,7 +49,7 @@ const state = reactive<Schema>({
   priority: undefined,
 })
 
-const isCompetition = computed(() => state.type === 'competition')
+const hasCompetitionMetadata = computed(() => eventTypeCapabilities[state.type].hasCompetitionMetadata)
 
 const startTimeModel = computed({
   get: (): Time | null => {
@@ -106,11 +107,11 @@ async function onSubmit(_event: FormSubmitEvent<Schema>) {
         duration: ((state.durationHours ?? 0) * 60 + (state.durationMinutes ?? 0)) || undefined,
         location: state.location || undefined,
         description: state.description || undefined,
-        registrationDeadline: isCompetition.value ? (state.registrationDeadline || undefined) : undefined,
+        registrationDeadline: hasCompetitionMetadata.value ? (state.registrationDeadline || undefined) : undefined,
         announcementLink: state.announcementLink || undefined,
-        raceType: isCompetition.value ? (state.raceType || undefined) : undefined,
-        championshipType: isCompetition.value ? (state.championshipType || undefined) : undefined,
-        priority: isCompetition.value ? (state.priority || undefined) : undefined,
+        raceType: hasCompetitionMetadata.value ? (state.raceType || undefined) : undefined,
+        championshipType: hasCompetitionMetadata.value ? (state.championshipType || undefined) : undefined,
+        priority: hasCompetitionMetadata.value ? (state.priority || undefined) : undefined,
       },
     })
     await navigateTo(`/${id}`)
@@ -261,7 +262,7 @@ async function onSubmit(_event: FormSubmitEvent<Schema>) {
         />
       </UFormField>
 
-      <template v-if="isCompetition">
+      <template v-if="hasCompetitionMetadata">
         <UFormField
           name="registrationDeadline"
           label="Meldeschluss"

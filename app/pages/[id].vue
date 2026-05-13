@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { EventDetail, EventPublicDetail, EventResponse } from '~~/shared/types/events'
 import { generateEventOgDescription, isEventPublicDetail } from '~~/shared/utils/events'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 
 definePageMeta({ public: true })
 
@@ -45,7 +46,9 @@ defineOgImage('Default', { title: 'Berlin Track Club' }, [
 const isInitialLoading = computed(() => status.value === 'pending' && !event.value)
 
 const isCancelled = computed(() => !!event.value?.cancelledAt)
-const isLadv = computed(() => event.value?.type === 'ladv')
+const hasLadvAdminFeatures = computed(() =>
+  !!event.value && eventTypeCapabilities[event.value.type].hasLadvStandManagement,
+)
 
 const isPublic = computed(() => !!event.value && isEventPublicDetail(event.value))
 const publicDetail = computed(() => isPublic.value ? event.value as EventPublicDetail : null)
@@ -219,7 +222,7 @@ async function syncLadv() {
               Admin
             </p>
             <div
-              v-if="isAdmin && isLadv"
+              v-if="isAdmin && hasLadvAdminFeatures"
               class="flex items-center justify-between gap-2 mb-3"
             >
               <span
@@ -339,7 +342,7 @@ async function syncLadv() {
           />
 
           <div
-            v-if="isAdmin && isLadv && privateDetail"
+            v-if="isAdmin && hasLadvAdminFeatures && privateDetail"
             class="mt-12"
           >
             <EventAdminLadvTodos

@@ -15,6 +15,10 @@ export type EventTypeCapabilities = {
   }
   showsRegistrationDeadline: boolean
   enforcesDeadline: boolean
+  /** Teilnehmer melden sich eigenständig beim externen Veranstalter an (z. B. Race-Director). */
+  requiresExternalRegistration: boolean
+  /** Grammatikalisches Geschlecht des Labels für korrekte Artikel ("einen neuen" vs "ein neues"). */
+  grammaticalGender: 'm' | 'n'
   label: string
   newLabel: string
 }
@@ -36,6 +40,8 @@ export const eventTypeCapabilities: Record<EventType, EventTypeCapabilities> = {
     },
     showsRegistrationDeadline: true,
     enforcesDeadline: true,
+    requiresExternalRegistration: false,
+    grammaticalGender: 'm',
     label: 'Wettkampf',
     newLabel: 'Neuer Wettkampf',
   },
@@ -56,6 +62,8 @@ export const eventTypeCapabilities: Record<EventType, EventTypeCapabilities> = {
     },
     showsRegistrationDeadline: true,
     enforcesDeadline: true,
+    requiresExternalRegistration: true,
+    grammaticalGender: 'm',
     label: 'Wettkampf',
     newLabel: 'Neuer Wettkampf',
   },
@@ -76,6 +84,8 @@ export const eventTypeCapabilities: Record<EventType, EventTypeCapabilities> = {
     },
     showsRegistrationDeadline: false,
     enforcesDeadline: false,
+    requiresExternalRegistration: false,
+    grammaticalGender: 'n',
     label: 'Training',
     newLabel: 'Neues Training',
   },
@@ -96,6 +106,8 @@ export const eventTypeCapabilities: Record<EventType, EventTypeCapabilities> = {
     },
     showsRegistrationDeadline: false,
     enforcesDeadline: false,
+    requiresExternalRegistration: false,
+    grammaticalGender: 'n',
     label: 'Event',
     newLabel: 'Neues Event',
   },

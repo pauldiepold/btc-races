@@ -3,6 +3,7 @@ import type { BadgeColor } from '~~/shared/utils/registration-ui'
 import type { EventPublicRegistrationCounts, RegistrationDetail } from '~~/shared/types/events'
 import { getRegistrationLadvIndicator, type LadvIndicator } from '~~/shared/utils/ladv-diff'
 import { REGISTRATION_STATUS_BADGE_COLORS, getRegistrationTabConfig } from '~~/shared/utils/registration-ui'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 
 const props = defineProps<{
   registrations?: RegistrationDetail[]
@@ -20,8 +21,10 @@ const isAdmin = computed(() =>
 )
 const openRegistrationId = ref<number | null>(null)
 
+const caps = computed(() => eventTypeCapabilities[props.eventType])
+
 const showAdminLadvUi = computed(() =>
-  isAdmin.value && props.eventType === 'ladv' && !props.publicMode,
+  isAdmin.value && caps.value.hasLadvStandManagement && !props.publicMode,
 )
 
 const LADV_INDICATOR_META: Record<LadvIndicator, {
@@ -217,8 +220,8 @@ function ladvIndicatorMeta(reg: RegistrationDetail) {
             v-for="reg in activeRegistrations"
             :key="reg.id"
             class="flex items-start gap-3 py-3"
-            :class="isAdmin && eventType === 'ladv' ? 'cursor-pointer hover:bg-elevated/50 rounded-lg px-2 -mx-2 transition-colors' : ''"
-            @click="isAdmin && eventType === 'ladv' ? openRegistrationId = reg.id : undefined"
+            :class="isAdmin && caps.hasLadvStandManagement ? 'cursor-pointer hover:bg-elevated/50 rounded-lg px-2 -mx-2 transition-colors' : ''"
+            @click="isAdmin && caps.hasLadvStandManagement ? openRegistrationId = reg.id : undefined"
           >
             <UAvatar
               :src="reg.avatarUrl ?? undefined"

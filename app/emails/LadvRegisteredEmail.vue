@@ -5,6 +5,7 @@ import EmailText from './components/EmailText.vue'
 import EventDetails from './components/EventDetails.vue'
 import type { EventType } from '~~/shared/utils/registration'
 import { getEventTypeLabel } from '~~/shared/utils/registration'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 
 interface Props {
   firstName?: string
@@ -33,7 +34,7 @@ const {
 } = defineProps<Props>()
 
 const eventLabel = computed(() => getEventTypeLabel(eventType ?? 'ladv'))
-const isNeuterType = computed(() => eventType === 'training' || eventType === 'social')
+const isNeuterType = computed(() => eventTypeCapabilities[eventType ?? 'ladv'].grammaticalGender === 'n')
 
 const styles = {
   disciplineBox: {

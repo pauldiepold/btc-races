@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { EventListItem, EventListPublicItem } from '~~/shared/types/events'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 
 const props = defineProps<{
   event: EventListItem | EventListPublicItem
@@ -15,7 +16,7 @@ const month = computed(() => eventDate.value?.toLocaleDateString('de-DE', { mont
 type BadgeColor = 'error' | 'info' | 'primary' | 'secondary' | 'success' | 'warning' | 'neutral'
 
 const hasDeadline = computed(() =>
-  (props.event.type === 'competition' || props.event.type === 'ladv') && !!props.event.registrationDeadline,
+  eventTypeCapabilities[props.event.type].showsRegistrationDeadline && !!props.event.registrationDeadline,
 )
 
 const deadlineExpired = computed(() => isDeadlineExpired(props.event.registrationDeadline))

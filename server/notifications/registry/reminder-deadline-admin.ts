@@ -3,7 +3,7 @@ import { defineNotificationType } from './_define'
 
 const participantSchema = z.object({
   name: z.string(),
-  disciplines: z.string().optional(),
+  disciplines: z.array(z.string()).optional(),
 })
 
 export const reminderDeadlineAdmin = defineNotificationType({

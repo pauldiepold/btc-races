@@ -34,7 +34,7 @@ async function hasExistingJob(type: NotificationType, eventId: number): Promise<
   return rows.length > 0
 }
 
-async function getAdminParticipantList(eventId: number): Promise<Array<{ name: string, disciplines?: string }>> {
+async function getAdminParticipantList(eventId: number): Promise<Array<{ name: string, disciplines?: string[] }>> {
   const rows = await db.select({
     firstName: schema.users.firstName,
     lastName: schema.users.lastName,
@@ -52,8 +52,8 @@ async function getAdminParticipantList(eventId: number): Promise<Array<{ name: s
   return rows.map((row) => {
     const name = `${row.firstName ?? ''} ${row.lastName ?? ''}`.trim()
     const wish = (row.wishDisciplines as RegistrationDisciplinePair[] | null) ?? []
-    const disciplineList = formatDisciplineLabels(wish).join(', ')
-    return { name, disciplines: disciplineList || undefined }
+    const labels = formatDisciplineLabels(wish)
+    return { name, disciplines: labels.length > 0 ? labels : undefined }
   })
 }
 

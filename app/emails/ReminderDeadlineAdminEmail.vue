@@ -7,7 +7,7 @@ import type { EventType } from '~~/shared/utils/registration'
 
 interface Participant {
   name: string
-  disciplines?: string
+  disciplines?: string[]
 }
 
 interface Props {
@@ -41,17 +41,27 @@ const styles = {
     color: '#09090b',
   },
   listItem: {
-    margin: '4px 0',
+    margin: '8px 0',
     fontSize: '14px',
     lineHeight: '1.5',
     color: '#18181b',
   },
   listItemName: {
+    margin: '0',
+    fontSize: '14px',
     fontWeight: '600' as const,
     color: '#09090b',
+    lineHeight: '1.5',
   },
-  listItemDisciplines: {
+  disciplineList: {
+    margin: '2px 0 0 0',
+    paddingLeft: '20px',
+    fontSize: '14px',
     color: '#71717a',
+    lineHeight: '1.5',
+  },
+  disciplineItem: {
+    margin: '2px 0',
   },
   emptyText: {
     margin: '0',
@@ -88,17 +98,27 @@ const participantCount = participants?.length ?? 0
       >
         Noch keine Anmeldungen.
       </EText>
-      <EText
+      <ESection
         v-for="(p, idx) in participants"
         :key="idx"
         :style="styles.listItem"
       >
-        <span :style="styles.listItemName">{{ p.name }}</span>
-        <span
-          v-if="p.disciplines"
-          :style="styles.listItemDisciplines"
-        > · {{ p.disciplines }}</span>
-      </EText>
+        <EText :style="styles.listItemName">
+          {{ p.name }}
+        </EText>
+        <ul
+          v-if="p.disciplines && p.disciplines.length > 0"
+          :style="styles.disciplineList"
+        >
+          <li
+            v-for="(d, dIdx) in p.disciplines"
+            :key="dIdx"
+            :style="styles.disciplineItem"
+          >
+            {{ d }}
+          </li>
+        </ul>
+      </ESection>
     </ESection>
 
     <EventDetails

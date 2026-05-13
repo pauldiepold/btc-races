@@ -1,5 +1,6 @@
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import type { RegistrationStatus } from '~~/shared/utils/registration'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 import { assertSelfOwnsRegistration, type Actor } from './actor'
 import { RegistrationError } from './errors'
 import { decideLateRegistrationNotification, decideStatusChangeNotifications } from './notifications'
@@ -75,7 +76,7 @@ export async function changeRegistrationStatus(
     { silent: opts.silent },
   )
 
-  const isLadvReactivation = dbEvent.type === 'ladv'
+  const isLadvReactivation = eventTypeCapabilities[dbEvent.type].hasLadvStandManagement
     && registration.status === 'canceled'
     && input.newStatus === 'registered'
 

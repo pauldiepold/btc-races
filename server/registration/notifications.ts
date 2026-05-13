@@ -3,6 +3,7 @@ import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 import type { Actor } from './actor'
 import { shouldNotifyAdminsOnWishChange } from '~~/shared/utils/ladv-diff'
 import { isWithinDeadlineWindow } from '~~/shared/utils/deadlines'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 
 export const LATE_REGISTRATION_THRESHOLD_DAYS = 3
 
@@ -24,7 +25,7 @@ export function decideRegisterNotifications(
   wishDisciplines: RegistrationDisciplinePair[],
 ): NotificationDecision[] {
   if (actor.kind === 'self') {
-    if (eventType === 'ladv') {
+    if (eventTypeCapabilities[eventType].hasLadvStandManagement) {
       return [{ type: 'registration_confirmation', userId: targetUserId }]
     }
     return []
@@ -116,7 +117,7 @@ export function decideLateRegistrationNotification(
   now: Date = new Date(),
 ): NotificationDecision | null {
   if (actor.kind !== 'self') return null
-  if (event.type !== 'ladv') return null
+  if (!eventTypeCapabilities[event.type].hasLadvStandManagement) return null
   if (!isWithinDeadlineWindow(event.registrationDeadline, LATE_REGISTRATION_THRESHOLD_DAYS, now)) return null
   return { type: 'admin_late_registration', athleteName, action, disciplines }
 }

@@ -3,6 +3,13 @@ import { eventTypeCapabilities } from './event-types/capabilities'
 export type EventType = 'ladv' | 'competition' | 'training' | 'social'
 export type RegistrationStatus = 'registered' | 'canceled' | 'maybe' | 'yes' | 'no'
 
+/** Runtime-Liste aller Event-Typen — abgeleitet aus eventTypeCapabilities, damit z.enum & Co. nicht manuell synchronisiert werden müssen. */
+export const EVENT_TYPES = Object.keys(eventTypeCapabilities) as [EventType, ...EventType[]]
+
+/** Event-Typen, die manuell angelegt werden (kein LADV-Sync) — für Create-Form & POST-Validierung. */
+export const MANUAL_EVENT_TYPES = (Object.keys(eventTypeCapabilities) as EventType[])
+  .filter(t => eventTypeCapabilities[t].source === 'manual') as [EventType, ...EventType[]]
+
 export function getEventTypeLabel(type: EventType): string {
   return eventTypeCapabilities[type].label
 }

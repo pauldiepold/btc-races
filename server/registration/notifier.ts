@@ -1,6 +1,7 @@
 import type { Actor } from './actor'
 import type { NotificationDecision } from './notifications'
 import type { AppDb, EventRow, UserRow } from './persistence'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 
 export type DispatchContext = {
   dbEvent: EventRow
@@ -115,7 +116,7 @@ export async function dispatchNotifications(
           break
 
         case 'admin_late_registration': {
-          if (ctx.dbEvent.type !== 'ladv') break
+          if (!eventTypeCapabilities[ctx.dbEvent.type].hasLadvStandManagement) break
           await notify({
             type: 'admin_late_registration',
             recipients: await recipients.allAdmins(ctx.db),

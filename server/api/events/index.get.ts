@@ -4,6 +4,7 @@ import { z } from 'zod'
 import type { EventListItem, EventListPublicItem } from '~~/shared/types/events'
 import type { LadvAusschreibung } from '~~/shared/types/ladv'
 import { getPublicEventTypes } from '~~/shared/utils/event-types/capabilities'
+import { EVENT_TYPES } from '~~/shared/utils/registration'
 
 function extractLadvFields(rawLadvData: unknown) {
   const ladvData = rawLadvData as LadvAusschreibung | null
@@ -17,7 +18,7 @@ function extractLadvFields(rawLadvData: unknown) {
 const berlinDateFormatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' })
 
 const querySchema = z.object({
-  type: z.enum(['ladv', 'competition', 'training', 'social']).optional(),
+  type: z.enum(EVENT_TYPES).optional(),
   timeRange: z.enum(['upcoming', 'past', 'all']).optional(),
 })
 

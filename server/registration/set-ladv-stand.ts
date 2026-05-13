@@ -1,4 +1,5 @@
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 import { assertAdmin, type Actor } from './actor'
 import { RegistrationError } from './errors'
 import { decideLadvStandNotifications } from './notifications'
@@ -40,7 +41,9 @@ export async function setLadvStand(
   const dbEvent = await loadEventById(db, registration.eventId)
   if (!dbEvent) throw new RegistrationError('event_not_found')
 
-  if (dbEvent.type !== 'ladv') throw new RegistrationError('not_a_ladv_event')
+  if (!eventTypeCapabilities[dbEvent.type].hasLadvStandManagement) {
+    throw new RegistrationError('not_a_ladv_event')
+  }
 
   const patch: RegistrationDisciplinesPatch = input.disciplines !== null
     ? { ladvDisciplines: input.disciplines, wishDisciplines: input.disciplines }

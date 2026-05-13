@@ -1,5 +1,6 @@
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 import type { Actor } from './actor'
 import { RegistrationError } from './errors'
 import { decideWishChangeNotifications } from './notifications'
@@ -43,7 +44,9 @@ export async function changeWishDisciplines(
   const dbEvent = await loadEventById(db, registration.eventId)
   if (!dbEvent) throw new RegistrationError('event_not_found')
 
-  if (dbEvent.type !== 'ladv') throw new RegistrationError('not_a_ladv_event')
+  if (!eventTypeCapabilities[dbEvent.type].hasWishDisciplines) {
+    throw new RegistrationError('not_a_ladv_event')
+  }
 
   if (input.disciplines.length === 0) {
     throw new RegistrationError('no_ladv_disciplines')

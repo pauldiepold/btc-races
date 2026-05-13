@@ -8,6 +8,7 @@ import { normalizeLadvData } from './ladv'
 import type { LadvAusschreibung, LadvWettbewerb } from '~~/shared/types/ladv'
 import { isRunningDiscipline } from '~~/shared/utils/ladv-labels'
 import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
+import type { EventType } from '~~/shared/utils/registration'
 
 // LADV-Ausschreibungs-IDs — jeden 3. auskommentiert
 const LADV_IDS: Array<{ id: number, label: string }> = [
@@ -320,7 +321,7 @@ export async function runSeed(): Promise<{ result: string }> {
 
   async function seedRandomRegistrations(
     eventId: number,
-    eventType: 'ladv' | 'competition' | 'training' | 'social',
+    eventType: EventType,
     ladvWettbewerbe: LadvWettbewerb[] = [],
     excludeUserIds: number[] = [],
   ) {

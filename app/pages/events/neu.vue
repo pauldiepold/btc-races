@@ -3,6 +3,7 @@ import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { Time } from '@internationalized/date'
 import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
+import { MANUAL_EVENT_TYPES } from '~~/shared/utils/registration'
 
 definePageMeta({ title: 'Event erstellen' })
 
@@ -10,13 +11,12 @@ const route = useRoute()
 const toast = useToast()
 const loading = ref(false)
 
-const validTypes = ['competition', 'training', 'social'] as const
-type EventType = typeof validTypes[number]
+type EventType = typeof MANUAL_EVENT_TYPES[number]
 const queryType = route.query.type as string
-const initialType: EventType = (validTypes as readonly string[]).includes(queryType) ? queryType as EventType : 'competition'
+const initialType: EventType = (MANUAL_EVENT_TYPES as readonly string[]).includes(queryType) ? queryType as EventType : 'competition'
 
 const schema = z.object({
-  type: z.enum(['competition', 'training', 'social']),
+  type: z.enum(MANUAL_EVENT_TYPES),
   name: z.string().min(1, 'Name ist erforderlich'),
   date: z.string().min(1, 'Datum ist erforderlich'),
   startTime: z.union([z.literal(''), z.string().regex(/^\d{2}:\d{2}$/, 'Format: HH:MM')]).optional(),

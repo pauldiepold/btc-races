@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { EVENT_TYPES } from '~~/shared/utils/registration'
 import { defineNotificationType } from './_define'
 
 export const athleteCanceledAfterLadv = defineNotificationType({
@@ -15,7 +16,7 @@ export const athleteCanceledAfterLadv = defineNotificationType({
   },
   payload: z.object({
     eventName: z.string(),
-    eventType: z.enum(['ladv', 'competition', 'training', 'social']),
+    eventType: z.enum(EVENT_TYPES),
     eventDate: z.string().optional(),
     eventLocation: z.string().optional(),
     registrationDeadline: z.string().optional(),

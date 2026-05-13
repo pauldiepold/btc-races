@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { defineNotificationType } from './_define'
-import { getEventTypeLabel } from '~~/shared/utils/registration'
+import { EVENT_TYPES, getEventTypeLabel } from '~~/shared/utils/registration'
 
 const changeSchema = z.object({
   field: z.enum(['date', 'startTime', 'location']),
@@ -23,7 +23,7 @@ export const eventChanged = defineNotificationType({
   },
   payload: z.object({
     eventName: z.string(),
-    eventType: z.enum(['ladv', 'competition', 'training', 'social']),
+    eventType: z.enum(EVENT_TYPES),
     eventLink: z.string(),
     changes: z.array(changeSchema),
   }),

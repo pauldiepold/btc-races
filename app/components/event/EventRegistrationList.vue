@@ -4,10 +4,11 @@ import type { EventPublicRegistrationCounts, RegistrationDetail } from '~~/share
 import { getRegistrationLadvIndicator, type LadvIndicator } from '~~/shared/utils/ladv-diff'
 import { REGISTRATION_STATUS_BADGE_COLORS, getRegistrationTabConfig } from '~~/shared/utils/registration-ui'
 import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
+import type { EventType } from '~~/shared/utils/registration'
 
 const props = defineProps<{
   registrations?: RegistrationDetail[]
-  eventType: 'ladv' | 'competition' | 'training' | 'social'
+  eventType: EventType
   publicMode?: boolean
   registrationCounts?: EventPublicRegistrationCounts
 }>()

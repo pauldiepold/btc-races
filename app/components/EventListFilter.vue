@@ -1,5 +1,7 @@
 <script setup lang="ts">
-type CreateEventType = 'ladv' | 'competition' | 'training' | 'social'
+import type { EventType } from '~~/shared/utils/registration'
+
+type CreateEventType = EventType
 
 const searchQuery = defineModel<string>('searchQuery', { required: true })
 const timeRange = defineModel<string>('timeRange', { required: true })

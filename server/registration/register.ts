@@ -1,6 +1,7 @@
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 import type { RegistrationStatus } from '~~/shared/utils/registration'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 import type { Actor } from './actor'
 import { RegistrationError } from './errors'
 import { decideLateRegistrationNotification, decideRegisterNotifications } from './notifications'
@@ -70,8 +71,10 @@ export async function registerMember(
     throw new RegistrationError('deadline_expired')
   }
 
+  const caps = eventTypeCapabilities[dbEvent.type]
+
   // 6. LADV-Startpass am Target prüfen
-  if (dbEvent.type === 'ladv' && targetUser.hasLadvStartpass !== 1) {
+  if (caps.hasLadvStandManagement && targetUser.hasLadvStartpass !== 1) {
     throw new RegistrationError('no_ladv_startpass')
   }
 
@@ -85,10 +88,10 @@ export async function registerMember(
 
   // 9. Daten ableiten
   const wishDisciplines: RegistrationDisciplinePair[]
-    = dbEvent.type === 'ladv' ? input.wishDisciplines! : []
+    = caps.hasWishDisciplines ? input.wishDisciplines! : []
   const setLadv = input.setLadvStandImmediately === true
     && actor.kind === 'admin'
-    && dbEvent.type === 'ladv'
+    && caps.hasLadvStandManagement
 
   // 10. Persistieren — bei Reaktivierung bleibt ladvDisciplines bewusst stehen,
   // sofern setLadv nicht gesetzt ist: der LADV-Stand wird ausschließlich vom Coach

@@ -5,9 +5,10 @@ import { recipients } from '~~/server/notifications/recipients'
 import { buildEventPayload } from '~~/server/notifications/payload-helpers'
 import { parseBody } from '~~/server/utils/parse-body'
 import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
+import { MANUAL_EVENT_TYPES } from '~~/shared/utils/registration'
 
 const createEventSchema = z.object({
-  type: z.enum(['competition', 'training', 'social']),
+  type: z.enum(MANUAL_EVENT_TYPES),
   name: z.string().min(1, 'Name ist erforderlich'),
   date: z.string().date('Ungültiges Datumsformat'),
   startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Ungültiges Format, erwartet HH:MM').optional().nullable(),

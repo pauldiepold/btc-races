@@ -1,5 +1,6 @@
 import { sqliteTable, text, integer, unique } from 'drizzle-orm/sqlite-core'
 import { sql } from 'drizzle-orm'
+import type { EventType } from '~~/shared/utils/registration'
 
 // Zentrales User-Modell
 export const users = sqliteTable('users', {
@@ -42,7 +43,7 @@ export const authTokens = sqliteTable('auth_tokens', {
 // Events (alle Typen in einer Tabelle)
 export const events = sqliteTable('events', {
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-  type: text().notNull().$type<'ladv' | 'competition' | 'training' | 'social'>(),
+  type: text().notNull().$type<EventType>(),
   name: text().notNull(),
   date: text(), // YYYY-MM-DD (kein Timezone-Overhead, LADV liefert immer Berliner Mitternacht)
   startTime: text(), // HH:MM, optional

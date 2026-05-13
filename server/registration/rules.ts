@@ -21,11 +21,11 @@ export function validateInitialStatus(
   return requested
 }
 
-export function requiresLadvDisciplines(
+export function requiresWishDisciplinesForLadvMeldung(
   eventType: EventType,
-  disciplines: RegistrationDisciplinePair[] | null | undefined,
+  wish: RegistrationDisciplinePair[] | null | undefined,
 ): boolean {
-  return eventType === 'ladv' && (!disciplines || disciplines.length === 0)
+  return eventTypeCapabilities[eventType].hasLadvStandManagement && (!wish || wish.length === 0)
 }
 
 export function isDeadlineEnforcedFor(

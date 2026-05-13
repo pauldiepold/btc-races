@@ -8,7 +8,7 @@ export { VALID_INITIAL, getInitialStatus, getValidNextStatuses } from './state'
 
 export {
   validateInitialStatus,
-  requiresLadvDisciplines,
+  requiresWishDisciplinesForLadvMeldung,
   isDeadlineEnforcedFor,
 } from './rules'
 export type { DeadlineAction } from './rules'

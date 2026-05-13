@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   validateInitialStatus,
-  requiresLadvDisciplines,
+  requiresWishDisciplinesForLadvMeldung,
   isDeadlineEnforcedFor,
 } from '../../../server/registration/rules'
 import { RegistrationError } from '../../../server/registration/errors'
@@ -66,21 +66,21 @@ describe('validateInitialStatus', () => {
   })
 })
 
-describe('requiresLadvDisciplines', () => {
+describe('requiresWishDisciplinesForLadvMeldung', () => {
   it('ladv ohne Disziplinen → true', () => {
-    expect(requiresLadvDisciplines('ladv', [])).toBe(true)
-    expect(requiresLadvDisciplines('ladv', null)).toBe(true)
-    expect(requiresLadvDisciplines('ladv', undefined)).toBe(true)
+    expect(requiresWishDisciplinesForLadvMeldung('ladv', [])).toBe(true)
+    expect(requiresWishDisciplinesForLadvMeldung('ladv', null)).toBe(true)
+    expect(requiresWishDisciplinesForLadvMeldung('ladv', undefined)).toBe(true)
   })
 
   it('ladv mit Disziplin → false', () => {
-    expect(requiresLadvDisciplines('ladv', [{ discipline: '100', ageClass: 'M' }])).toBe(false)
+    expect(requiresWishDisciplinesForLadvMeldung('ladv', [{ discipline: '100', ageClass: 'M' }])).toBe(false)
   })
 
   it.each(['competition', 'training', 'social'] as const)('%s → false (egal welche Disziplinen)', (type) => {
-    expect(requiresLadvDisciplines(type, null)).toBe(false)
-    expect(requiresLadvDisciplines(type, [])).toBe(false)
-    expect(requiresLadvDisciplines(type, [{ discipline: '100', ageClass: 'M' }])).toBe(false)
+    expect(requiresWishDisciplinesForLadvMeldung(type, null)).toBe(false)
+    expect(requiresWishDisciplinesForLadvMeldung(type, [])).toBe(false)
+    expect(requiresWishDisciplinesForLadvMeldung(type, [{ discipline: '100', ageClass: 'M' }])).toBe(false)
   })
 })
 

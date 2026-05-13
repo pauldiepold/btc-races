@@ -12,7 +12,7 @@ import {
   reactivateRegistration,
   type AppDb,
 } from './persistence'
-import { isDeadlineEnforcedFor, requiresLadvDisciplines, validateInitialStatus } from './rules'
+import { isDeadlineEnforcedFor, requiresWishDisciplinesForLadvMeldung, validateInitialStatus } from './rules'
 import { dispatchNotifications } from './notifier'
 
 export type RegisterMemberInput = {
@@ -75,8 +75,8 @@ export async function registerMember(
     throw new RegistrationError('no_ladv_startpass')
   }
 
-  // 7. LADV-Disziplinen erforderlich
-  if (requiresLadvDisciplines(dbEvent.type, input.wishDisciplines)) {
+  // 7. Wunsch-Disziplinen für LADV-Meldung erforderlich
+  if (requiresWishDisciplinesForLadvMeldung(dbEvent.type, input.wishDisciplines)) {
     throw new RegistrationError('no_ladv_disciplines')
   }
 

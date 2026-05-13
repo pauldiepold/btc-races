@@ -3,6 +3,7 @@ import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 import type { Actor } from './actor'
 import { RegistrationError } from './errors'
 import { VALID_INITIAL, getInitialStatus } from './state'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 
 export type DeadlineAction = 'create' | 'change' | 'cancel' | 'change-wish'
 
@@ -34,6 +35,7 @@ export function isDeadlineEnforcedFor(
 ): boolean {
   if (actor.kind === 'admin') return false
   if (action === 'cancel') return false
-  if (action === 'change-wish') return eventType === 'ladv'
-  return eventType === 'ladv' || eventType === 'competition'
+  const caps = eventTypeCapabilities[eventType]
+  if (action === 'change-wish') return caps.enforcesDeadline && caps.hasWishDisciplines
+  return caps.enforcesDeadline
 }

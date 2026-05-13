@@ -2,6 +2,29 @@
 
 Geteilte Sprache für Architektur-Entscheidungen und Code-Reviews. Wenn ein Term hier nicht steht, gehört er entweder noch nicht zur Domäne — oder wir müssen ihn schärfen und ergänzen.
 
+## Event-Typ
+
+**Event-Typ** *(`EventType`)* — diskriminiert Domain-Verhalten und UI-Form eines Events. Heute vier Werte: `ladv`, `competition`, `training`, `social`.
+
+**Event-Typ-Capabilities** — der SSOT für *was ein Event-Typ kann/braucht*. Lebt in `shared/utils/event-types/capabilities.ts` als `Record<EventType, EventTypeCapabilities>`. Felder:
+
+- `source` — Stammdaten kommen `'manual'` (vom Mitglied angelegt) oder `'ladv'` (per LADV-Sync gepflegt).
+- `isPubliclyVisible` — sichtbar ohne Login.
+- `hasCompetitionMetadata` — `priority`, `raceType`, `championshipType` werden gepflegt.
+- `hasWishDisciplines` — Athlet pflegt **Wunschstand**.
+- `hasLadvStandManagement` — Coach pflegt **LADV-Stand** (Coach-Modal, Stand-Harmonisierung, N-01/N-02/N-03). Impliziert `hasWishDisciplines` *und* `source === 'ladv'`.
+- `status` — Lifecycle: `initial`, `validInitial`, `validNext`.
+- `showsRegistrationDeadline` — Frist wird in der UI angezeigt.
+- `enforcesDeadline` — Frist ist ein harter Cutoff für Non-Admin. Impliziert `showsRegistrationDeadline`.
+- `label`, `newLabel` — Anzeige-Strings.
+
+Regeln, die *nicht* in den Caps liegen (universell, im Helper):
+- Admin-Aktor umgeht jede Deadline (`isDeadlineEnforcedFor` in `server/registration/rules.ts`).
+- `cancel` wird nie durch die Deadline geblockt.
+- `change-wish` wird nur enforced, wenn der Typ `hasWishDisciplines` hat.
+
+Neuer Event-Typ = **ein Eintrag** in der Tabelle. UI- und Server-Branches lesen aus den Caps (Migration läuft schrittweise via Issues #188, #189, #190, #191, #192).
+
 ## Anmeldung
 
 **Anmeldung** *(`registration`)* — die Bindung eines Mitglieds an ein Event. Genau eine Anmeldung pro `(eventId, userId)`. Eine stornierte Anmeldung wird bei Wieder-Anmeldung **reaktiviert**, nicht neu angelegt.

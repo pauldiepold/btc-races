@@ -1,18 +1,23 @@
+import { eventTypeCapabilities } from './event-types/capabilities'
+
 export type EventType = 'ladv' | 'competition' | 'training' | 'social'
 export type RegistrationStatus = 'registered' | 'canceled' | 'maybe' | 'yes' | 'no'
 
 export function getEventTypeLabel(type: EventType): string {
-  if (type === 'training') return 'Training'
-  if (type === 'social') return 'Event'
-  return 'Wettkampf'
+  return eventTypeCapabilities[type].label
 }
 
 export function getNewEventLabel(type: EventType): string {
-  if (type === 'training') return 'Neues Training'
-  if (type === 'social') return 'Neues Event'
-  return 'Neuer Wettkampf'
+  return eventTypeCapabilities[type].newLabel
 }
 
-// Status-Lifecycle-Tabellen leben in server/registration/state.ts (SSOT).
-// Re-Exports für Frontend-Konsumenten — die Funktionen sind pure (keine DB / kein HTTP).
-export { getValidNextStatuses, getInitialStatus } from '~~/server/registration/state'
+export function getInitialStatus(eventType: EventType): RegistrationStatus {
+  return eventTypeCapabilities[eventType].status.initial
+}
+
+export function getValidNextStatuses(
+  current: RegistrationStatus,
+  eventType: EventType,
+): RegistrationStatus[] {
+  return eventTypeCapabilities[eventType].status.validNext[current] ?? []
+}

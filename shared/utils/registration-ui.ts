@@ -1,4 +1,5 @@
 import type { EventType } from './registration'
+import { eventTypeCapabilities } from './event-types/capabilities'
 
 export type BadgeColor = 'success' | 'error' | 'warning' | 'neutral' | 'info' | 'primary' | 'secondary'
 
@@ -13,8 +14,9 @@ export const REGISTRATION_STATUS_LABELS: Record<string, string> = {
 
 /** Aktions-Label je Event-Typ (Buttons zum Status-Wechsel) */
 export function getRegistrationActionLabels(eventType: EventType): Record<string, string> {
-  if (eventType === 'ladv') return { registered: 'Anmelden', canceled: 'Abmelden' }
-  if (eventType === 'competition') return { registered: 'Anmelden', maybe: 'Vielleicht', no: 'Nein' }
+  const caps = eventTypeCapabilities[eventType]
+  if (caps.hasLadvStandManagement) return { registered: 'Anmelden', canceled: 'Abmelden' }
+  if (caps.status.initial === 'registered') return { registered: 'Anmelden', maybe: 'Vielleicht', no: 'Nein' }
   return { yes: 'Ja', maybe: 'Vielleicht', no: 'Nein' }
 }
 
@@ -47,13 +49,14 @@ export const REGISTRATION_STATUS_CHIP_CLASSES: Record<string, string> = {
 
 /** Tab-Konfiguration für die Anmeldeliste je Event-Typ */
 export function getRegistrationTabConfig(eventType: EventType): Array<{ key: string, label: string }> {
-  if (eventType === 'ladv') {
+  const caps = eventTypeCapabilities[eventType]
+  if (caps.hasLadvStandManagement) {
     return [
       { key: 'registered', label: 'Angemeldet' },
       { key: 'canceled', label: 'Abgemeldet' },
     ]
   }
-  if (eventType === 'competition') {
+  if (caps.status.initial === 'registered') {
     return [
       { key: 'registered', label: 'Angemeldet' },
       { key: 'maybe', label: 'Vielleicht' },

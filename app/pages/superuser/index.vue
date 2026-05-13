@@ -6,6 +6,8 @@ if (session.value?.user?.role !== 'superuser') {
   await navigateTo('/')
 }
 
+const isDev = import.meta.dev
+
 type SeedResult = { result: string }
 
 const seedLoading = ref(false)
@@ -98,21 +100,24 @@ async function runPushTest() {
     <!-- Sub-Navigation -->
     <div class="flex gap-2 mb-8 border-b border-default">
       <NuxtLink
-        to="/superuser"
-        class="px-4 py-2 text-sm font-medium text-highlighted border-b-2 border-primary"
-      >
-        System
-      </NuxtLink>
-      <NuxtLink
         to="/superuser/notifications"
         class="px-4 py-2 text-sm font-medium text-muted hover:text-highlighted transition-colors border-b-2 border-transparent"
       >
         Notifications
       </NuxtLink>
+      <NuxtLink
+        to="/superuser"
+        class="px-4 py-2 text-sm font-medium text-highlighted border-b-2 border-primary"
+      >
+        System
+      </NuxtLink>
     </div>
 
     <!-- DB-Seed -->
-    <div class="rounded-[--ui-radius] border border-error/40 p-6 space-y-5">
+    <div
+      v-if="isDev"
+      class="rounded-[--ui-radius] border border-error/40 p-6 space-y-5"
+    >
       <div>
         <h2 class="font-display font-semibold text-highlighted text-base">
           DB-Seed
@@ -157,7 +162,10 @@ async function runPushTest() {
     </div>
 
     <!-- Go-Live-Seed -->
-    <div class="rounded-[--ui-radius] border border-warning/40 p-6 space-y-5 mt-6">
+    <div
+      v-if="isDev"
+      class="rounded-[--ui-radius] border border-warning/40 p-6 space-y-5 mt-6"
+    >
       <div>
         <h2 class="font-display font-semibold text-highlighted text-base">
           Go-Live-Seed

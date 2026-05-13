@@ -188,16 +188,16 @@ function toggleExpand(id: number) {
     <!-- Sub-Navigation -->
     <div class="flex gap-2 mb-8 border-b border-default">
       <NuxtLink
-        to="/superuser"
-        class="px-4 py-2 text-sm font-medium text-muted hover:text-highlighted transition-colors border-b-2 border-transparent"
-      >
-        System
-      </NuxtLink>
-      <NuxtLink
         to="/superuser/notifications"
         class="px-4 py-2 text-sm font-medium text-highlighted border-b-2 border-primary"
       >
         Notifications
+      </NuxtLink>
+      <NuxtLink
+        to="/superuser"
+        class="px-4 py-2 text-sm font-medium text-muted hover:text-highlighted transition-colors border-b-2 border-transparent"
+      >
+        System
       </NuxtLink>
     </div>
 

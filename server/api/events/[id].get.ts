@@ -7,8 +7,7 @@ import { isRunningDiscipline } from '~~/shared/utils/ladv-labels'
 import type { EventDetail, EventPublicDetail, RegistrationDetail } from '~~/shared/types/events'
 import type { RegistrationStatus } from '~~/shared/utils/registration'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
-
-const PUBLIC_EVENT_TYPES = ['ladv', 'competition'] as const
+import { getPublicEventTypes } from '~~/shared/utils/event-types/capabilities'
 
 export default defineEventHandler(async (event): Promise<EventDetail | EventPublicDetail> => {
   const session = await getUserSession(event)
@@ -18,7 +17,7 @@ export default defineEventHandler(async (event): Promise<EventDetail | EventPubl
   const sqid = encodeEventId(id)
 
   if (!isAuthenticated) {
-    if (!PUBLIC_EVENT_TYPES.includes(dbEvent.type as typeof PUBLIC_EVENT_TYPES[number])) {
+    if (!getPublicEventTypes().includes(dbEvent.type)) {
       throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
     }
 

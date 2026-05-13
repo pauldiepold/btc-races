@@ -7,6 +7,7 @@ import { parseBody } from '~~/server/utils/parse-body'
 import { requireEventIdParam } from '~~/server/utils/route-params'
 import { notifyEventChanged } from '~~/server/notifications/event-changed'
 import { toEventCoreSnapshot } from '~~/shared/utils/diff-event-core-fields'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 
 const patchEventSchema = z.object({
   name: z.string().min(1, 'Name ist erforderlich').optional(),
@@ -46,8 +47,9 @@ export default defineEventHandler(async (event) => {
   if ('championshipType' in data) updates.championshipType = data.championshipType ?? null
 
   const isAdmin = session.user.role === 'admin' || session.user.role === 'superuser'
-  const isCompetitionOrLadv = dbEvent.type === 'competition' || dbEvent.type === 'ladv'
-  if ('priority' in data && isAdmin && isCompetitionOrLadv) updates.priority = data.priority ?? null
+  if ('priority' in data && isAdmin && eventTypeCapabilities[dbEvent.type].hasCompetitionMetadata) {
+    updates.priority = data.priority ?? null
+  }
 
   await db.update(schema.events).set(updates).where(eq(schema.events.id, id))
 

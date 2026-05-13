@@ -4,6 +4,7 @@ import { notify } from '~~/server/notifications/service'
 import { recipients } from '~~/server/notifications/recipients'
 import { buildEventPayload } from '~~/server/notifications/payload-helpers'
 import { parseBody } from '~~/server/utils/parse-body'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 
 const createEventSchema = z.object({
   type: z.enum(['competition', 'training', 'social']),
@@ -40,7 +41,7 @@ export default defineEventHandler(async (event) => {
     announcementLink: data.announcementLink ?? null,
     raceType: data.raceType ?? null,
     championshipType: data.championshipType ?? null,
-    priority: (isAdmin && data.type === 'competition') ? (data.priority ?? null) : null,
+    priority: (isAdmin && eventTypeCapabilities[data.type].hasCompetitionMetadata) ? (data.priority ?? null) : null,
     createdBy: session.user.id,
     createdAt: now,
     updatedAt: now,

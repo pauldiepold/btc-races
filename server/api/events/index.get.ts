@@ -3,6 +3,7 @@ import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt, or, sql } from
 import { z } from 'zod'
 import type { EventListItem, EventListPublicItem } from '~~/shared/types/events'
 import type { LadvAusschreibung } from '~~/shared/types/ladv'
+import { getPublicEventTypes } from '~~/shared/utils/event-types/capabilities'
 
 function extractLadvFields(rawLadvData: unknown) {
   const ladvData = rawLadvData as LadvAusschreibung | null
@@ -19,8 +20,6 @@ const querySchema = z.object({
   type: z.enum(['ladv', 'competition', 'training', 'social']).optional(),
   timeRange: z.enum(['upcoming', 'past', 'all']).optional(),
 })
-
-const PUBLIC_EVENT_TYPES = ['ladv', 'competition'] as const
 
 export default defineEventHandler(async (event): Promise<EventListItem[] | EventListPublicItem[]> => {
   const session = await getUserSession(event)
@@ -39,15 +38,15 @@ export default defineEventHandler(async (event): Promise<EventListItem[] | Event
 
   if (isAuthenticated) {
     if (type === 'competition') {
-      conditions.push(inArray(schema.events.type, ['ladv', 'competition']))
+      conditions.push(inArray(schema.events.type, getPublicEventTypes()))
     }
     else if (type) {
       conditions.push(eq(schema.events.type, type))
     }
   }
   else {
-    // Ohne Auth: immer auf ladv/competition beschränken
-    conditions.push(inArray(schema.events.type, PUBLIC_EVENT_TYPES))
+    // Ohne Auth: immer auf öffentliche Event-Typen beschränken
+    conditions.push(inArray(schema.events.type, getPublicEventTypes()))
   }
 
   if (timeRange === 'past') {

@@ -10,12 +10,13 @@ import { parseBody } from '~~/server/utils/parse-body'
 
 const importSchema = z.object({
   url: z.string().url('Ungültige URL'),
+  eventType: z.enum(['ladv', 'ladv_external']),
 })
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
 
-  const { url } = await parseBody(event, importSchema)
+  const { url, eventType } = await parseBody(event, importSchema)
 
   const ladvId = parseLadvIdFromUrl(url)
   if (!ladvId) {
@@ -48,7 +49,7 @@ export default defineEventHandler(async (event) => {
   const now = new Date()
 
   const inserted = await db.insert(schema.events).values({
-    type: 'ladv' as const,
+    type: eventType,
     name: normalized.name,
     date: normalized.date,
     startTime: normalized.start_time,
@@ -74,7 +75,7 @@ export default defineEventHandler(async (event) => {
       actorUserId: session.user.id,
       payload: buildEventPayload({
         id: newId,
-        type: 'ladv',
+        type: eventType,
         name: normalized.name,
         date: normalized.date,
         location: normalized.location,

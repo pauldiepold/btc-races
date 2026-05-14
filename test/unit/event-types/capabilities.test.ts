@@ -54,8 +54,8 @@ describe('getPublicEventTypes', () => {
     }
   })
 
-  it('enthält ladv und competition (Snapshot)', () => {
-    expect(getPublicEventTypes().sort()).toEqual(['competition', 'ladv'])
+  it('enthält ladv, ladv_external und competition (Snapshot)', () => {
+    expect(getPublicEventTypes().sort()).toEqual(['competition', 'ladv', 'ladv_external'])
   })
 })
 
@@ -73,8 +73,8 @@ describe('getEventTypesByCategory', () => {
     }
   })
 
-  it('competition-Kategorie umfasst ladv und competition (Snapshot)', () => {
-    expect(getEventTypesByCategory('competition').sort()).toEqual(['competition', 'ladv'])
+  it('competition-Kategorie umfasst ladv, ladv_external und competition (Snapshot)', () => {
+    expect(getEventTypesByCategory('competition').sort()).toEqual(['competition', 'ladv', 'ladv_external'])
   })
 })
 

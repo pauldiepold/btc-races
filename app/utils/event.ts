@@ -2,6 +2,7 @@ import type { EventCategory } from '~~/shared/utils/registration'
 
 export const eventTypeLabels: Record<string, string> = {
   ladv: 'LADV',
+  ladv_external: 'Wettkampf',
   competition: 'Wettkampf',
   training: 'Training',
   social: 'Social',
@@ -9,6 +10,7 @@ export const eventTypeLabels: Record<string, string> = {
 
 export const eventTypeIcons: Record<string, string> = {
   ladv: 'i-ph-trophy',
+  ladv_external: 'i-ph-trophy',
   competition: 'i-ph-trophy',
   training: 'i-ph-person-simple-run',
   social: 'i-ph-users-three',

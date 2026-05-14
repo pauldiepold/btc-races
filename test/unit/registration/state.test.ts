@@ -21,6 +21,7 @@ describe('VALID_INITIAL', () => {
   it('listet pro Typ die strict erlaubten Initial-Status', () => {
     expect(VALID_INITIAL).toEqual({
       ladv: ['registered'],
+      ladv_external: ['registered', 'maybe'],
       competition: ['registered', 'maybe'],
       training: ['yes', 'maybe', 'no'],
       social: ['yes', 'maybe', 'no'],

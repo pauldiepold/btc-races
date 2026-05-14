@@ -1,6 +1,6 @@
 import { eventTypeCapabilities } from './event-types/capabilities'
 
-export type EventType = 'ladv' | 'competition' | 'training' | 'social'
+export type EventType = 'ladv' | 'ladv_external' | 'competition' | 'training' | 'social'
 export type EventCategory = 'competition' | 'training' | 'social'
 export type RegistrationStatus = 'registered' | 'canceled' | 'maybe' | 'yes' | 'no'
 

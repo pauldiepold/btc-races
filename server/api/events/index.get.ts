@@ -3,8 +3,8 @@ import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt, or, sql } from
 import { z } from 'zod'
 import type { EventListItem, EventListPublicItem } from '~~/shared/types/events'
 import type { LadvAusschreibung } from '~~/shared/types/ladv'
-import { getPublicEventTypes } from '~~/shared/utils/event-types/capabilities'
-import { EVENT_TYPES } from '~~/shared/utils/registration'
+import { getEventTypesByCategory, getPublicEventTypes } from '~~/shared/utils/event-types/capabilities'
+import { EVENT_CATEGORIES } from '~~/shared/utils/registration'
 
 function extractLadvFields(rawLadvData: unknown) {
   const ladvData = rawLadvData as LadvAusschreibung | null
@@ -18,7 +18,7 @@ function extractLadvFields(rawLadvData: unknown) {
 const berlinDateFormatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' })
 
 const querySchema = z.object({
-  type: z.enum(EVENT_TYPES).optional(),
+  category: z.enum(EVENT_CATEGORIES).optional(),
   timeRange: z.enum(['upcoming', 'past', 'all']).optional(),
 })
 
@@ -32,17 +32,14 @@ export default defineEventHandler(async (event): Promise<EventListItem[] | Event
     throw createError({ statusCode: 400, statusMessage: 'Ungültige Query-Parameter' })
   }
 
-  const { type, timeRange = 'upcoming' } = params.data
+  const { category, timeRange = 'upcoming' } = params.data
   const today = berlinDateFormatter.format(new Date())
 
   const conditions = []
 
   if (isAuthenticated) {
-    if (type === 'competition') {
-      conditions.push(inArray(schema.events.type, getPublicEventTypes()))
-    }
-    else if (type) {
-      conditions.push(eq(schema.events.type, type))
+    if (category) {
+      conditions.push(inArray(schema.events.type, getEventTypesByCategory(category)))
     }
   }
   else {

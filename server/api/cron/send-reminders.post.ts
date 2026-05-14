@@ -5,6 +5,7 @@ import { recipients } from '~~/server/notifications/recipients'
 import { buildEventPayload, formatDisciplineLabels } from '~~/server/notifications/payload-helpers'
 import { requireCronAuth } from '~~/server/utils/cron-auth'
 import { addDaysToIsoDate, todayIsoDate } from '~~/shared/utils/reminder-dates'
+import { getEventTypesWith } from '~~/shared/utils/event-types/capabilities'
 import type { NotificationType } from '~~/shared/types/notifications'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 
@@ -80,7 +81,7 @@ export default defineEventHandler(async (event) => {
       .where(
         and(
           eq(schema.events.registrationDeadline, targetDate),
-          eq(schema.events.type, 'ladv'),
+          inArray(schema.events.type, getEventTypesWith('hasLadvStandManagement')),
           isNull(schema.events.cancelledAt),
         ),
       )
@@ -142,7 +143,7 @@ export default defineEventHandler(async (event) => {
       .where(
         and(
           eq(schema.events.date, targetDate),
-          eq(schema.events.type, 'ladv'),
+          inArray(schema.events.type, getEventTypesWith('hasLadvStandManagement')),
           isNull(schema.events.cancelledAt),
           isNotNull(schema.events.date),
         ),

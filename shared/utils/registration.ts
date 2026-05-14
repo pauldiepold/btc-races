@@ -1,10 +1,14 @@
 import { eventTypeCapabilities } from './event-types/capabilities'
 
 export type EventType = 'ladv' | 'competition' | 'training' | 'social'
+export type EventCategory = 'competition' | 'training' | 'social'
 export type RegistrationStatus = 'registered' | 'canceled' | 'maybe' | 'yes' | 'no'
 
 /** Runtime-Liste aller Event-Typen — abgeleitet aus eventTypeCapabilities, damit z.enum & Co. nicht manuell synchronisiert werden müssen. */
 export const EVENT_TYPES = Object.keys(eventTypeCapabilities) as [EventType, ...EventType[]]
+
+/** Geordnete Liste der Event-Kategorien — dient z.enum-Validierung und der UI-Filter-Reihenfolge. */
+export const EVENT_CATEGORIES = ['competition', 'training', 'social'] as const satisfies readonly EventCategory[]
 
 /** Event-Typen, die manuell angelegt werden (kein LADV-Sync) — für Create-Form & POST-Validierung. */
 export const MANUAL_EVENT_TYPES = (Object.keys(eventTypeCapabilities) as EventType[])

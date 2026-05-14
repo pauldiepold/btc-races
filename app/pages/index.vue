@@ -12,7 +12,7 @@ useHead(() => ({
   title: `Events | Berlin Track Club`,
 }))
 
-const typeFilter = ref<string | undefined>(undefined)
+const categoryFilter = ref<string | undefined>(undefined)
 const timeRange = ref('upcoming')
 const searchQuery = ref('')
 const raceTypeFilter = ref<'track' | 'road' | 'trail' | undefined>(undefined)
@@ -24,7 +24,7 @@ const ageClassFilter = ref<string | undefined>(undefined)
 
 const { data: events, status } = await useFetch<EventListItem[] | EventListPublicItem[]>('/api/events', {
   query: computed(() => ({
-    type: typeFilter.value || undefined,
+    category: categoryFilter.value || undefined,
     timeRange: timeRange.value,
   })),
 })
@@ -114,7 +114,7 @@ const steps = [
         <EventListFilter
           v-model:search-query="searchQuery"
           v-model:time-range="timeRange"
-          v-model:type-filter="typeFilter"
+          v-model:category-filter="categoryFilter"
           v-model:race-type-filter="raceTypeFilter"
           v-model:championship-filter="championshipFilter"
           v-model:priority-filter="priorityFilter"

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { eventTypeCapabilities, getPublicEventTypes } from '../../../shared/utils/event-types/capabilities'
+import { eventTypeCapabilities, getEventTypesByCategory, getEventTypesWith, getPublicEventTypes } from '../../../shared/utils/event-types/capabilities'
+import { EVENT_CATEGORIES } from '../../../shared/utils/registration'
 import type { EventType } from '../../../shared/utils/registration'
 
 const allTypes = Object.keys(eventTypeCapabilities) as EventType[]
@@ -55,5 +56,36 @@ describe('getPublicEventTypes', () => {
 
   it('enthält ladv und competition (Snapshot)', () => {
     expect(getPublicEventTypes().sort()).toEqual(['competition', 'ladv'])
+  })
+})
+
+describe('getEventTypesByCategory', () => {
+  it.each(EVENT_CATEGORIES)('%s: liefert nur Typen mit passender category', (category) => {
+    for (const t of getEventTypesByCategory(category)) {
+      expect(eventTypeCapabilities[t].category).toBe(category)
+    }
+  })
+
+  it('jeder Event-Typ taucht in genau seiner Kategorie auf', () => {
+    for (const t of allTypes) {
+      const category = eventTypeCapabilities[t].category
+      expect(getEventTypesByCategory(category)).toContain(t)
+    }
+  })
+
+  it('competition-Kategorie umfasst ladv und competition (Snapshot)', () => {
+    expect(getEventTypesByCategory('competition').sort()).toEqual(['competition', 'ladv'])
+  })
+})
+
+describe('getEventTypesWith', () => {
+  it('liefert nur Typen mit gesetzter Capability', () => {
+    for (const t of getEventTypesWith('hasLadvStandManagement')) {
+      expect(eventTypeCapabilities[t].hasLadvStandManagement).toBe(true)
+    }
+  })
+
+  it('hasLadvStandManagement ergibt nur ladv (Snapshot)', () => {
+    expect(getEventTypesWith('hasLadvStandManagement')).toEqual(['ladv'])
   })
 })

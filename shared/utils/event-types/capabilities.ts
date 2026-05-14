@@ -1,9 +1,11 @@
-import type { EventType, RegistrationStatus } from '../registration'
+import type { EventCategory, EventType, RegistrationStatus } from '../registration'
 
 export type DeadlineAction = 'create' | 'change' | 'cancel' | 'change-wish'
 
 export type EventTypeCapabilities = {
   source: 'manual' | 'ladv'
+  /** Filter-Kategorie — fasst mehrere Event-Typen zur UI-Filterung zusammen (z. B. ladv + competition → competition). */
+  category: EventCategory
   isPubliclyVisible: boolean
   hasCompetitionMetadata: boolean
   hasWishDisciplines: boolean
@@ -26,6 +28,7 @@ export type EventTypeCapabilities = {
 export const eventTypeCapabilities: Record<EventType, EventTypeCapabilities> = {
   ladv: {
     source: 'ladv',
+    category: 'competition',
     isPubliclyVisible: true,
     hasCompetitionMetadata: true,
     hasWishDisciplines: true,
@@ -47,6 +50,7 @@ export const eventTypeCapabilities: Record<EventType, EventTypeCapabilities> = {
   },
   competition: {
     source: 'manual',
+    category: 'competition',
     isPubliclyVisible: true,
     hasCompetitionMetadata: true,
     hasWishDisciplines: false,
@@ -69,6 +73,7 @@ export const eventTypeCapabilities: Record<EventType, EventTypeCapabilities> = {
   },
   training: {
     source: 'manual',
+    category: 'training',
     isPubliclyVisible: false,
     hasCompetitionMetadata: false,
     hasWishDisciplines: false,
@@ -91,6 +96,7 @@ export const eventTypeCapabilities: Record<EventType, EventTypeCapabilities> = {
   },
   social: {
     source: 'manual',
+    category: 'social',
     isPubliclyVisible: false,
     hasCompetitionMetadata: false,
     hasWishDisciplines: false,
@@ -113,7 +119,23 @@ export const eventTypeCapabilities: Record<EventType, EventTypeCapabilities> = {
   },
 }
 
-export function getPublicEventTypes(): EventType[] {
+/** Capability-Keys mit boolean-Wert — die einzigen, die als Flag-Filter taugen. */
+type BooleanCapabilityKey = {
+  [K in keyof EventTypeCapabilities]: EventTypeCapabilities[K] extends boolean ? K : never
+}[keyof EventTypeCapabilities]
+
+/** Alle Event-Typen, deren boolean-Capability `cap` gesetzt ist. */
+export function getEventTypesWith(cap: BooleanCapabilityKey): EventType[] {
   return (Object.keys(eventTypeCapabilities) as EventType[])
-    .filter(t => eventTypeCapabilities[t].isPubliclyVisible)
+    .filter(t => eventTypeCapabilities[t][cap])
+}
+
+/** Alle Event-Typen, die zur Filter-Kategorie `category` gehören. */
+export function getEventTypesByCategory(category: EventCategory): EventType[] {
+  return (Object.keys(eventTypeCapabilities) as EventType[])
+    .filter(t => eventTypeCapabilities[t].category === category)
+}
+
+export function getPublicEventTypes(): EventType[] {
+  return getEventTypesWith('isPubliclyVisible')
 }

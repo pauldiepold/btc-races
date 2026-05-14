@@ -1,7 +1,8 @@
 import { db, schema } from 'hub:db'
-import { eq, and, or, isNotNull, sql, asc } from 'drizzle-orm'
+import { eq, and, or, inArray, isNotNull, sql, asc } from 'drizzle-orm'
 import { requireAdmin } from '~~/server/utils/auth'
 import { diffLadvRegistration } from '~~/shared/utils/ladv-diff'
+import { getEventTypesWith } from '~~/shared/utils/event-types/capabilities'
 import type { LadvTodo } from '~~/shared/types/events'
 
 const typeOrder = sql<number>`CASE WHEN ${schema.registrations.status} = 'registered' THEN 0 ELSE 1 END`
@@ -31,7 +32,7 @@ export default defineEventHandler(async (event) => {
       schema.events,
       and(
         eq(schema.registrations.eventId, schema.events.id),
-        eq(schema.events.type, 'ladv'),
+        inArray(schema.events.type, getEventTypesWith('hasLadvStandManagement')),
       ),
     )
     .innerJoin(schema.users, eq(schema.registrations.userId, schema.users.id))

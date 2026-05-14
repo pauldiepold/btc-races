@@ -31,7 +31,7 @@ export async function runSyncMembers(): Promise<SyncMembersResult> {
 
   for (const contact of activeMembers) {
     const campaiId = contact._id
-    const email = contact.communication?.email || contact.personal.email
+    const email = (contact.communication?.email || contact.personal.email)?.toLowerCase()
 
     if (!email) {
       console.warn(`⚠️  Skipping contact ${campaiId}: no email found`)

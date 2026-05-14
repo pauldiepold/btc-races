@@ -104,22 +104,22 @@ describe('isDeadlineEnforcedFor', () => {
       }
     })
 
-    it('create + ladv/competition → true', () => {
+    it('create + ladv → true', () => {
       expect(isDeadlineEnforcedFor(SELF, 'ladv', 'create')).toBe(true)
-      expect(isDeadlineEnforcedFor(SELF, 'competition', 'create')).toBe(true)
     })
 
-    it('create + training/social → false', () => {
+    it('create + competition/training/social → false', () => {
+      expect(isDeadlineEnforcedFor(SELF, 'competition', 'create')).toBe(false)
       expect(isDeadlineEnforcedFor(SELF, 'training', 'create')).toBe(false)
       expect(isDeadlineEnforcedFor(SELF, 'social', 'create')).toBe(false)
     })
 
-    it('change + ladv/competition → true', () => {
+    it('change + ladv → true', () => {
       expect(isDeadlineEnforcedFor(SELF, 'ladv', 'change')).toBe(true)
-      expect(isDeadlineEnforcedFor(SELF, 'competition', 'change')).toBe(true)
     })
 
-    it('change + training/social → false', () => {
+    it('change + competition/training/social → false', () => {
+      expect(isDeadlineEnforcedFor(SELF, 'competition', 'change')).toBe(false)
       expect(isDeadlineEnforcedFor(SELF, 'training', 'change')).toBe(false)
       expect(isDeadlineEnforcedFor(SELF, 'social', 'change')).toBe(false)
     })

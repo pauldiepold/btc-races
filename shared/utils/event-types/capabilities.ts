@@ -65,7 +65,7 @@ export const eventTypeCapabilities: Record<EventType, EventTypeCapabilities> = {
       },
     },
     showsRegistrationDeadline: true,
-    enforcesDeadline: true,
+    enforcesDeadline: false,
     requiresExternalRegistration: true,
     grammaticalGender: 'm',
     label: 'Wettkampf',

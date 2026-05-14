@@ -166,18 +166,20 @@ describe('changeRegistrationStatus — Self', () => {
     expect(await loadNotificationJobs(testDb)).toHaveLength(0)
   })
 
-  it('Competition non-cancel bei abgelaufener Frist: deadline_expired', async () => {
+  it('Competition non-cancel bei abgelaufener Frist: OK (Frist nur informativ)', async () => {
     const userId = await seedUser()
     const eventId = await seedEvent({
       type: 'competition', createdBy: userId, registrationDeadline: '2000-01-01',
     })
     const regId = await seedRegistration({ eventId, userId, status: 'registered' })
 
-    await expect(changeRegistrationStatus(
+    await changeRegistrationStatus(
       { registrationId: regId, newStatus: 'maybe' },
       selfActor(userId),
       { db },
-    )).rejects.toMatchObject({ code: 'deadline_expired' })
+    )
+
+    expect((await loadReg(regId))?.status).toBe('maybe')
   })
 
   it('Competition cancel-Action bei abgelaufener Frist: bypass, OK', async () => {

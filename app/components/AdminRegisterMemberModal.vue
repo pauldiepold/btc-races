@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { EventDetail } from '~~/shared/types/events'
 import type { AdminMemberListItem } from '~~/server/api/admin/members.get'
-import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
 import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 import { getInitialStatus } from '~~/shared/utils/registration'
@@ -185,13 +184,6 @@ function confirmAddNew() {
 function removePending(index: number) {
   pendingDisciplines.value.splice(index, 1)
 }
-
-// ─── Deadline-Warnung (competition) ───────────────────────────────────────────
-
-const deadlineExpired = computed(() => isDeadlineExpired(toDate(props.event.registrationDeadline)))
-const showDeadlineWarning = computed(() =>
-  caps.value.requiresExternalRegistration && deadlineExpired.value,
-)
 
 // ─── Submit ───────────────────────────────────────────────────────────────────
 
@@ -502,14 +494,6 @@ async function submit() {
               @click="status = 'maybe'"
             />
           </div>
-          <UAlert
-            v-if="showDeadlineWarning"
-            icon="i-ph-warning"
-            color="warning"
-            variant="subtle"
-            title="Meldefrist abgelaufen"
-            description="Die offizielle Frist ist bereits vorbei. Trotzdem anmelden?"
-          />
         </div>
 
         <!-- Training / Social: Status-Picker -->

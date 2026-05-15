@@ -21,9 +21,13 @@ function timestampToDate(ms: number): string {
 }
 
 /**
- * Vergleicht die gespeicherten normalisierten Felder eines Events mit den rohen LADV-Daten.
+ * UI-Helper: Vergleicht die gespeicherten normalisierten Felder eines Events mit den rohen LADV-Daten.
  * Gibt ein Objekt zurück, das für jedes abweichende Feld den LADV-Wert enthält.
  * Leeres Objekt = kein Diff.
+ *
+ * Hinweis: Diese Funktion ist NICHT mehr SSOT für den Sync-Pfad. Sync-Verhalten lebt in
+ * `server/events/merge-ladv-sync.ts` (Spalten-Tabelle) und `server/events/apply-ladv-sync.ts`.
+ * Hier nur noch verwendet, um in der UI Diffs zwischen Event und LADV-Daten anzuzeigen.
  */
 export function detectLadvDiff(
   event: {

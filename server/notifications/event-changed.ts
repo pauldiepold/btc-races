@@ -1,6 +1,6 @@
 import type { schema } from 'hub:db'
-import { diffEventCoreFields, type EventCoreField, type EventCoreSnapshot } from '~~/shared/utils/diff-event-core-fields'
-import { notify } from './service'
+import { diffEventCoreFields, toEventCoreSnapshot, type EventCoreField } from '~~/shared/utils/diff-event-core-fields'
+import { notify, type NotifyDb } from './service'
 import { recipients } from './recipients'
 import { isEventDateInPastBerlin } from './payload-helpers'
 
@@ -10,29 +10,35 @@ const CORE_FIELD_LABEL: Record<EventCoreField, string> = {
   location: 'Ort',
 }
 
+type EventBefore = Pick<typeof schema.events.$inferSelect, 'date' | 'startTime' | 'location'>
+type EventAfter = Pick<typeof schema.events.$inferSelect, 'id' | 'name' | 'type' | 'date' | 'startTime' | 'location' | 'cancelledAt'>
+
 /**
  * Vergleicht Event-Kernfelder, prüft Guards (cancelled, past) und feuert
  * `event_changed`-Notifications an alle aktiven, angemeldeten Mitglieder.
  *
- * Wird aus drei Stellen aufgerufen: manuelles Patch (mit actorUserId),
- * manueller LADV-Sync (ohne) und Cron-Bulk-Sync (ohne).
+ * Wird vom `server/events/`-Modul (Patch, Sync) gerufen.
  */
 export async function notifyEventChanged(
-  before: EventCoreSnapshot,
-  after: EventCoreSnapshot,
-  eventRow: Pick<typeof schema.events.$inferSelect, 'id' | 'name' | 'type' | 'date' | 'cancelledAt'>,
+  eventBefore: EventBefore,
+  eventAfter: EventAfter,
   actorUserId?: number,
+  db?: NotifyDb,
 ): Promise<void> {
-  if (eventRow.cancelledAt != null) return
-  if (isEventDateInPastBerlin(eventRow.date)) return
+  if (eventAfter.cancelledAt != null) return
+  if (isEventDateInPastBerlin(eventAfter.date)) return
 
-  const fieldChanges = diffEventCoreFields(before, after)
+  const fieldChanges = diffEventCoreFields(
+    toEventCoreSnapshot(eventBefore),
+    toEventCoreSnapshot(eventAfter),
+  )
   if (fieldChanges.length === 0) return
 
-  const eventRecipients = await recipients.registeredFor(eventRow.id, {
-    statuses: ['registered', 'yes', 'maybe'],
-    activeMembersOnly: true,
-  })
+  const eventRecipients = await recipients.registeredFor(
+    eventAfter.id,
+    { statuses: ['registered', 'yes', 'maybe'], activeMembersOnly: true },
+    db,
+  )
   if (eventRecipients.length === 0) return
 
   const siteUrl = useRuntimeConfig().public.siteUrl
@@ -42,9 +48,9 @@ export async function notifyEventChanged(
     recipients: eventRecipients,
     actorUserId,
     payload: {
-      eventName: eventRow.name,
-      eventType: eventRow.type,
-      eventLink: `${siteUrl}/${encodeEventId(eventRow.id)}`,
+      eventName: eventAfter.name,
+      eventType: eventAfter.type,
+      eventLink: `${siteUrl}/${encodeEventId(eventAfter.id)}`,
       changes: fieldChanges.map(c => ({
         field: c.field,
         before: c.before,
@@ -52,6 +58,6 @@ export async function notifyEventChanged(
         label: CORE_FIELD_LABEL[c.field],
       })),
     },
-    eventId: eventRow.id,
-  })
+    eventId: eventAfter.id,
+  }, db)
 }

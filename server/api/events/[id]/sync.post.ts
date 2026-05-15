@@ -4,7 +4,6 @@ import { requireAdmin } from '~~/server/utils/auth'
 import { loadEventOrThrow } from '~~/server/utils/load-entity'
 import { requireEventIdParam } from '~~/server/utils/route-params'
 import { notifyEventChanged } from '~~/server/notifications/event-changed'
-import { toEventCoreSnapshot } from '~~/shared/utils/diff-event-core-fields'
 import { LadvService } from '~~/server/external-apis/ladv/ladv.service'
 import { isRunningDiscipline } from '~~/shared/utils/ladv-labels'
 import type { EventDetail, RegistrationDetail } from '~~/shared/types/events'
@@ -28,8 +27,6 @@ export default defineEventHandler(async (event) => {
   catch {
     throw createError({ statusCode: 502, statusMessage: 'LADV nicht erreichbar' })
   }
-
-  const beforeCore = toEventCoreSnapshot(dbEvent)
 
   const now = new Date()
   const updates: Partial<typeof schema.events.$inferInsert> = {
@@ -57,12 +54,7 @@ export default defineEventHandler(async (event) => {
 
   if (updatedEvent) {
     try {
-      await notifyEventChanged(
-        beforeCore,
-        toEventCoreSnapshot(updatedEvent),
-        updatedEvent,
-        session.user.id,
-      )
+      await notifyEventChanged(dbEvent, updatedEvent, session.user.id)
     }
     catch (err) {
       console.error('[Notification] event_changed:', err)

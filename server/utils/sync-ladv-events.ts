@@ -1,7 +1,6 @@
 import { and, eq, gte, isNotNull } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
 import { LadvService } from '../external-apis/ladv/ladv.service'
-import { toEventCoreSnapshot } from '~~/shared/utils/diff-event-core-fields'
 import { notifyEventChanged } from '../notifications/event-changed'
 import { detectLadvDiff } from '~~/shared/utils/ladv'
 import type { LadvAusschreibung } from '~~/shared/types/ladv'
@@ -49,7 +48,6 @@ export async function runSyncLadvEvents(): Promise<SyncLadvEventsResult> {
     }
 
     const preSyncDiff = detectLadvDiff(dbEvent, dbEvent.ladvData as LadvAusschreibung)
-    const beforeCore = toEventCoreSnapshot(dbEvent)
 
     const updates: Partial<typeof schema.events.$inferInsert> = {
       // Protected fields: nur überschreiben wenn kein manueller Override vorhanden
@@ -76,24 +74,10 @@ export async function runSyncLadvEvents(): Promise<SyncLadvEventsResult> {
     const ladvDataChanged = JSON.stringify(normalized.ladv_data) !== JSON.stringify(dbEvent.ladvData)
     if (ladvDataChanged) updated++
 
-    const afterCore = toEventCoreSnapshot({
-      date: (updates.date ?? dbEvent.date) as string | null,
-      startTime: (updates.startTime ?? dbEvent.startTime) as string | null,
-      location: (updates.location ?? dbEvent.location) as string | null,
-    })
+    const eventAfter = { ...dbEvent, ...updates }
 
     try {
-      await notifyEventChanged(
-        beforeCore,
-        afterCore,
-        {
-          id: dbEvent.id,
-          type: dbEvent.type,
-          name: (updates.name ?? dbEvent.name) as string,
-          date: (updates.date ?? dbEvent.date) as string | null,
-          cancelledAt: (updates.cancelledAt ?? dbEvent.cancelledAt) as Date | null,
-        },
-      )
+      await notifyEventChanged(dbEvent, eventAfter)
     }
     catch (err) {
       console.error('[Notification] event_changed:', err)

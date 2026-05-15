@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { AppDb } from '../../../server/registration'
-import { loadEventOrThrow } from '../../../server/utils/load-entity'
-import { createTestDb, type TestDb } from '../../helpers/test-db'
+import type { AppDb } from '../../../../server/registration'
+import { loadEventOrThrow } from '../../../../server/utils/load-entity'
+import { createTestDb, type TestDb } from '../../../helpers/test-db'
 
 let testDb: TestDb
 let db: AppDb

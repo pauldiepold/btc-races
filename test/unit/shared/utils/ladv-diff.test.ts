@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { diffLadvRegistration, getCoachModalLineState, getCoachModalRemovals, getRegistrationLadvIndicator, shouldNotifyAdminsOnWishChange } from '../../shared/utils/ladv-diff'
+import { diffLadvRegistration, getCoachModalLineState, getCoachModalRemovals, getRegistrationLadvIndicator, shouldNotifyAdminsOnWishChange } from '../../../../shared/utils/ladv-diff'
 
 describe('diffLadvRegistration', () => {
   it('returns empty diff for identical sets', () => {

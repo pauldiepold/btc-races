@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { generateEventOgDescription, isEventPublicDetail } from '../../shared/utils/events'
-import type { EventDetail, EventPublicDetail } from '../../shared/types/events'
+import { generateEventOgDescription, isEventPublicDetail } from '../../../../shared/utils/events'
+import type { EventDetail, EventPublicDetail } from '../../../../shared/types/events'
 
 function baseEventFields() {
   return {

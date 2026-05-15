@@ -6,8 +6,8 @@ import {
   type AppDb,
 } from '~~/server/registration'
 import type { EventType, RegistrationStatus } from '~~/shared/utils/registration'
-import { createTestDb, type TestDb } from '../../helpers/test-db'
-import { loadNotificationJobs } from '../../helpers/notification-jobs'
+import { createTestDb, type TestDb } from '../../../helpers/test-db'
+import { loadNotificationJobs } from '../../../helpers/notification-jobs'
 
 let testDb: TestDb
 let db: AppDb

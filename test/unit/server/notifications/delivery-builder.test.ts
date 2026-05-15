@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { buildDeliveryTasks } from '../../server/notifications/delivery-builder'
-import type { NotificationRecipient } from '../../server/notifications/types'
+import { buildDeliveryTasks } from '../../../../server/notifications/delivery-builder'
+import type { NotificationRecipient } from '../../../../server/notifications/types'
 
 const recipient = (userId: number): NotificationRecipient => ({ userId, email: `user${userId}@example.com` })
 

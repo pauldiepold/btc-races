@@ -6,8 +6,8 @@ import {
   type EventActor,
 } from '~~/server/events'
 import type { LadvAusschreibung, NormalizedLadvData } from '~~/shared/types/ladv'
-import { createTestDb, type TestDb } from '../../helpers/test-db'
-import { loadNotificationJobs } from '../../helpers/notification-jobs'
+import { createTestDb, type TestDb } from '../../../helpers/test-db'
+import { loadNotificationJobs } from '../../../helpers/notification-jobs'
 
 let testDb: TestDb
 let db: AppDb

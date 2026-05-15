@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getLadvAgeClass } from '../../shared/utils/ladv-age-class'
+import { getLadvAgeClass } from '../../../../shared/utils/ladv-age-class'
 
 describe('getLadvAgeClass', () => {
   describe('youth classes', () => {

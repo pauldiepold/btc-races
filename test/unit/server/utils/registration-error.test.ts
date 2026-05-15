@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { RegistrationError } from '../../../server/registration'
-import { withRegistrationErrorMapping } from '../../../server/utils/registration-error'
+import { RegistrationError } from '../../../../server/registration'
+import { withRegistrationErrorMapping } from '../../../../server/utils/registration-error'
 
 beforeEach(() => {
   vi.stubGlobal('createError', (opts: { statusCode: number, statusMessage: string }) => {

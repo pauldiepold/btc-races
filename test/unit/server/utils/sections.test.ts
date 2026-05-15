@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { resolveRole } from '../../server/utils/sections'
+import { resolveRole } from '../../../../server/utils/sections'
 
 describe('resolveRole', () => {
   it('returns superuser for the hardcoded superuser email', () => {

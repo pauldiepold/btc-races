@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isDeadlineExpired } from '../../shared/utils/deadlines'
+import { isDeadlineExpired } from '../../../../shared/utils/deadlines'
 
 describe('isDeadlineExpired', () => {
   it('returns false when deadline is null', () => {

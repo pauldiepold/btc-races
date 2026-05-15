@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
-import { parseBody } from '../../../server/utils/parse-body'
+import { parseBody } from '../../../../server/utils/parse-body'
 
 const schema = z.object({
   name: z.string().min(1, 'Name ist erforderlich'),

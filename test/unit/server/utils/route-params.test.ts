@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { encodeEventId } from '../../../server/utils/sqids'
-import { requireEventIdParam, requireNumericIdParam } from '../../../server/utils/route-params'
+import { encodeEventId } from '../../../../server/utils/sqids'
+import { requireEventIdParam, requireNumericIdParam } from '../../../../server/utils/route-params'
 
 type FakeEvent = { params?: Record<string, string | undefined> }
 

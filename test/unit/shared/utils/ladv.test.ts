@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { LadvAusschreibung } from '../../shared/types/ladv'
-import { detectLadvDiff } from '../../shared/utils/ladv'
+import type { LadvAusschreibung } from '../../../../shared/types/ladv'
+import { detectLadvDiff } from '../../../../shared/utils/ladv'
 
 const JUNE_15_2024_BERLIN_MS = new Date('2024-06-15T00:00:00+02:00').getTime()
 const AUG_01_2024_BERLIN_MS = new Date('2024-08-01T00:00:00+02:00').getTime()

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ageClassSortIndex, compareDisciplines, disciplineSortIndex, isRunningDiscipline, ladvAgeClassLabel, ladvDisciplineLabel } from '../../shared/utils/ladv-labels'
+import { ageClassSortIndex, compareDisciplines, disciplineSortIndex, isRunningDiscipline, ladvAgeClassLabel, ladvDisciplineLabel } from '../../../../shared/utils/ladv-labels'
 
 describe('ladvDisciplineLabel', () => {
   it('returns the German label for a known discipline code', () => {

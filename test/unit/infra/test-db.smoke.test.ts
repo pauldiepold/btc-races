@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { eq } from 'drizzle-orm'
-import { createTestDb, type TestDb } from '../helpers/test-db'
+import { createTestDb, type TestDb } from '../../helpers/test-db'
 
 describe('test-db smoke', () => {
   let testDb: TestDb

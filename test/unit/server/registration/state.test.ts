@@ -3,8 +3,8 @@ import {
   getInitialStatus,
   getValidNextStatuses,
   VALID_INITIAL,
-} from '../../../server/registration/state'
-import type { RegistrationStatus } from '../../../shared/utils/registration'
+} from '../../../../server/registration/state'
+import type { RegistrationStatus } from '../../../../shared/utils/registration'
 
 describe('getInitialStatus', () => {
   it.each([

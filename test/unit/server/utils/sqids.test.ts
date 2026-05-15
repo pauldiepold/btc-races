@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { decodeEventId, encodeEventId } from '../../server/utils/sqids'
+import { decodeEventId, encodeEventId } from '../../../../server/utils/sqids'
 
 describe('encodeEventId / decodeEventId', () => {
   it('encodes and decodes a round-trip correctly', () => {

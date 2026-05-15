@@ -3,10 +3,10 @@ import {
   validateInitialStatus,
   requiresWishDisciplinesForLadvMeldung,
   isDeadlineEnforcedFor,
-} from '../../../server/registration/rules'
-import { RegistrationError } from '../../../server/registration/errors'
-import type { Actor } from '../../../server/registration/actor'
-import type { EventType } from '../../../shared/utils/registration'
+} from '../../../../server/registration/rules'
+import { RegistrationError } from '../../../../server/registration/errors'
+import type { Actor } from '../../../../server/registration/actor'
+import type { EventType } from '../../../../shared/utils/registration'
 
 const SELF: Actor = { kind: 'self', userId: 1, hasLadvStartpass: true }
 const ADMIN: Actor = { kind: 'admin', userId: 99 }

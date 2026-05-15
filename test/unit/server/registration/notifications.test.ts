@@ -4,9 +4,9 @@ import {
   decideStatusChangeNotifications,
   decideWishChangeNotifications,
   decideLadvStandNotifications,
-} from '../../../server/registration/notifications'
-import type { Actor } from '../../../server/registration/actor'
-import type { RegistrationDisciplinePair } from '../../../shared/types/db'
+} from '../../../../server/registration/notifications'
+import type { Actor } from '../../../../server/registration/actor'
+import type { RegistrationDisciplinePair } from '../../../../shared/types/db'
 
 const SELF: Actor = { kind: 'self', userId: 1, hasLadvStartpass: true }
 const ADMIN: Actor = { kind: 'admin', userId: 99 }

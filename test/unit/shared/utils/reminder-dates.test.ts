@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { addDaysToIsoDate, todayIsoDate } from '../../shared/utils/reminder-dates'
+import { addDaysToIsoDate, todayIsoDate } from '../../../../shared/utils/reminder-dates'
 
 describe('addDaysToIsoDate', () => {
   it('adds positive days within same month', () => {

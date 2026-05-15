@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { requireCronAuth } from '../../../server/utils/cron-auth'
+import { requireCronAuth } from '../../../../server/utils/cron-auth'
 
 type FakeEvent = { headers?: Record<string, string> }
 

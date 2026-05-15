@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { LadvAusschreibung } from '../../server/utils/ladv'
-import { normalizeLadvData, parseLadvIdFromUrl, timestampToTime } from '../../server/utils/ladv'
+import type { LadvAusschreibung } from '../../../../server/utils/ladv'
+import { normalizeLadvData, parseLadvIdFromUrl, timestampToTime } from '../../../../server/utils/ladv'
 
 describe('parseLadvIdFromUrl', () => {
   it('extracts ID from a valid LADV URL', () => {

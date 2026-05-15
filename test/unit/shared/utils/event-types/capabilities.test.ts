@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { eventTypeCapabilities, getEventTypesByCategory, getEventTypesWith, getPublicEventTypes } from '../../../shared/utils/event-types/capabilities'
-import { EVENT_CATEGORIES } from '../../../shared/utils/registration'
-import type { EventType } from '../../../shared/utils/registration'
+import { eventTypeCapabilities, getEventTypesByCategory, getEventTypesWith, getPublicEventTypes } from '../../../../../shared/utils/event-types/capabilities'
+import { EVENT_CATEGORIES } from '../../../../../shared/utils/registration'
+import type { EventType } from '../../../../../shared/utils/registration'
 
 const allTypes = Object.keys(eventTypeCapabilities) as EventType[]
 

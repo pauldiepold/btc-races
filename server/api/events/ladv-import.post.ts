@@ -1,12 +1,9 @@
-import { db, schema } from 'hub:db'
-import { eq } from 'drizzle-orm'
+import { db } from 'hub:db'
 import { z } from 'zod'
 import { LadvService } from '~~/server/external-apis/ladv/ladv.service'
 import { parseLadvIdFromUrl } from '~~/server/utils/ladv'
-import { notify } from '~~/server/notifications/service'
-import { recipients } from '~~/server/notifications/recipients'
-import { buildEventPayload } from '~~/server/notifications/payload-helpers'
 import { parseBody } from '~~/server/utils/parse-body'
+import { importEventFromLadv, EventError, errorToHttpStatus, type EventActor } from '~~/server/events'
 
 const importSchema = z.object({
   url: z.string().url('Ungültige URL'),
@@ -23,71 +20,39 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Keine LADV-ID in der URL gefunden. Erwartet: https://ladv.de/ausschreibung/detail/[ID]/...' })
   }
 
-  const existing = await db.query.events.findFirst({
-    where: eq(schema.events.ladvId, ladvId),
-    columns: { id: true },
-  })
-
-  if (existing) {
-    throw createError({
-      statusCode: 409,
-      statusMessage: 'Ein Event mit dieser LADV-ID existiert bereits.',
-      data: { existingEventId: encodeEventId(existing.id) },
-    })
-  }
-
   const service = new LadvService()
-  let normalized: Awaited<ReturnType<LadvService['fetchAusschreibung']>>
+  let ladvData: Awaited<ReturnType<LadvService['fetchAusschreibung']>>
   try {
-    normalized = await service.fetchAusschreibung(ladvId)
+    ladvData = await service.fetchAusschreibung(ladvId)
   }
   catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unbekannter Fehler'
     throw createError({ statusCode: 502, statusMessage: `LADV-API nicht erreichbar: ${message}` })
   }
 
-  const now = new Date()
+  const isAdminRole = session.user.role === 'admin' || session.user.role === 'superuser'
+  const isSuperuser = session.user.role === 'superuser'
 
-  const inserted = await db.insert(schema.events).values({
-    type: eventType,
-    name: normalized.name,
-    date: normalized.date,
-    startTime: normalized.start_time,
-    location: normalized.location,
-    registrationDeadline: normalized.registration_deadline,
-    raceType: normalized.race_type,
-    isWrc: normalized.is_wrc,
-    ladvId,
-    ladvData: normalized.ladv_data,
-    ladvLastSync: now,
-    createdBy: session.user.id,
-    createdAt: now,
-    updatedAt: now,
-  }).returning({ id: schema.events.id })
-
-  const newId = inserted[0]!.id
+  const actor: EventActor = isAdminRole
+    ? { kind: 'admin', userId: session.user.id, isSuperuser }
+    : { kind: 'owner', userId: session.user.id }
 
   try {
-    const siteUrl = useRuntimeConfig().public.siteUrl
-    await notify({
-      type: 'new_event',
-      recipients: await recipients.allMembers(),
-      actorUserId: session.user.id,
-      payload: buildEventPayload({
-        id: newId,
-        type: eventType,
-        name: normalized.name,
-        date: normalized.date,
-        location: normalized.location,
-        registrationDeadline: normalized.registration_deadline,
-      }, siteUrl),
-      eventId: newId,
-    })
+    const { id } = await importEventFromLadv({ eventType, ladvId, ladvData }, actor, { db })
+    setResponseStatus(event, 201)
+    return { id: encodeEventId(id) }
   }
   catch (err) {
-    console.error('[Notification] new_event:', err)
+    if (err instanceof EventError) {
+      if (err.code === 'ladv_id_already_imported' && err.data?.existingEventId != null) {
+        throw createError({
+          statusCode: 409,
+          statusMessage: 'Ein Event mit dieser LADV-ID existiert bereits.',
+          data: { existingEventId: encodeEventId(err.data.existingEventId) },
+        })
+      }
+      throw createError({ statusCode: errorToHttpStatus(err.code), statusMessage: err.message })
+    }
+    throw err
   }
-
-  setResponseStatus(event, 201)
-  return { id: encodeEventId(newId) }
 })

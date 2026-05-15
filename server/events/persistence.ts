@@ -11,6 +11,10 @@ export function loadEventById(db: AppDb, id: number): Promise<EventRow | undefin
   return db.query.events.findFirst({ where: eq(schema.events.id, id) })
 }
 
+export function findByLadvId(db: AppDb, ladvId: number): Promise<EventRow | undefined> {
+  return db.query.events.findFirst({ where: eq(schema.events.ladvId, ladvId) })
+}
+
 export async function insertEvent(db: AppDb, values: EventInsert): Promise<EventRow> {
   const [row] = await db.insert(schema.events).values(values).returning()
   return row!

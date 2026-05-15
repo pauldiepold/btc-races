@@ -34,3 +34,6 @@ export type {
   ImportEventFromLadvDeps,
   ImportEventFromLadvResult,
 } from './import-from-ladv'
+
+export { LADV_FIELD_RULES, mergeLadvSync } from './merge-ladv-sync'
+export type { LadvFieldMode, LadvFieldRule } from './merge-ladv-sync'

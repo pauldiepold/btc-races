@@ -27,3 +27,7 @@ export async function updateEvent(
 ): Promise<void> {
   await db.update(schema.events).set(patch).where(eq(schema.events.id, id))
 }
+
+export async function deleteEventById(db: AppDb, id: number): Promise<void> {
+  await db.delete(schema.events).where(eq(schema.events.id, id))
+}

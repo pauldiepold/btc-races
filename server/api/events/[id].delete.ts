@@ -1,15 +1,27 @@
-import { db, schema } from 'hub:db'
-import { eq } from 'drizzle-orm'
+import { db } from 'hub:db'
 import { requireSuperuser } from '~~/server/utils/auth'
-import { loadEventOrThrow } from '~~/server/utils/load-entity'
 import { requireEventIdParam } from '~~/server/utils/route-params'
+import { deleteEvent, EventError, errorToHttpStatus, type EventActor } from '~~/server/events'
 
 export default defineEventHandler(async (event) => {
-  await requireSuperuser(event)
+  const session = await requireSuperuser(event)
   const id = requireEventIdParam(event)
-  await loadEventOrThrow(id)
 
-  await db.delete(schema.events).where(eq(schema.events.id, id))
+  const actor: EventActor = {
+    kind: 'admin',
+    userId: session.user.id,
+    isSuperuser: true,
+  }
+
+  try {
+    await deleteEvent(id, actor, { db })
+  }
+  catch (err) {
+    if (err instanceof EventError) {
+      throw createError({ statusCode: errorToHttpStatus(err.code), statusMessage: err.message })
+    }
+    throw err
+  }
 
   return { id: encodeEventId(id) }
 })

@@ -1,44 +1,29 @@
-import { db, schema } from 'hub:db'
-import { eq } from 'drizzle-orm'
-import { requireAdmin } from '~~/server/utils/auth'
+import { db } from 'hub:db'
+import { requireOwnerOrAdmin } from '~~/server/utils/auth'
 import { loadEventOrThrow } from '~~/server/utils/load-entity'
 import { requireEventIdParam } from '~~/server/utils/route-params'
-import { notify } from '~~/server/notifications/service'
-import { recipients } from '~~/server/notifications/recipients'
-import { buildEventPayload } from '~~/server/notifications/payload-helpers'
+import { cancelEvent, EventError, errorToHttpStatus, type EventActor } from '~~/server/events'
 
 export default defineEventHandler(async (event) => {
-  const adminSession = await requireAdmin(event)
   const id = requireEventIdParam(event)
   const dbEvent = await loadEventOrThrow(id)
+  const session = await requireOwnerOrAdmin(event, dbEvent.createdBy ?? 0)
 
-  if (dbEvent.cancelledAt) {
-    return { id: encodeEventId(id) }
-  }
+  const isAdminRole = session.user.role === 'admin' || session.user.role === 'superuser'
+  const isSuperuser = session.user.role === 'superuser'
 
-  await db
-    .update(schema.events)
-    .set({ cancelledAt: new Date(), updatedAt: new Date() })
-    .where(eq(schema.events.id, id))
+  const actor: EventActor = isAdminRole
+    ? { kind: 'admin', userId: session.user.id, isSuperuser }
+    : { kind: 'owner', userId: session.user.id }
 
   try {
-    const eventRecipients = await recipients.registeredFor(id, {
-      statuses: ['registered', 'yes', 'maybe'],
-    })
-
-    if (eventRecipients.length > 0) {
-      const siteUrl = useRuntimeConfig().public.siteUrl
-      await notify({
-        type: 'event_canceled',
-        recipients: eventRecipients,
-        actorUserId: adminSession.user.id,
-        payload: buildEventPayload(dbEvent, siteUrl),
-        eventId: id,
-      })
-    }
+    await cancelEvent(id, actor, { db })
   }
   catch (err) {
-    console.error('[Notification] event_canceled:', err)
+    if (err instanceof EventError) {
+      throw createError({ statusCode: errorToHttpStatus(err.code), statusMessage: err.message })
+    }
+    throw err
   }
 
   return { id: encodeEventId(id) }

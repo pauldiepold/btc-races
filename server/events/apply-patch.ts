@@ -3,7 +3,7 @@ import { EventError } from './errors'
 import { decideChangeNotifications } from './notifications'
 import { dispatchEventNotifications } from './notifier'
 import { loadEventById, updateEvent, type AppDb, type EventInsert, type EventRow } from './persistence'
-import { canSetPriority } from './rules'
+import { canModifyEvent, canSetPriority } from './rules'
 import { toEventCoreSnapshot } from '~~/shared/utils/diff-event-core-fields'
 
 export type EventPatch = {
@@ -44,7 +44,7 @@ export async function applyEventPatch(
   const dbEvent = await loadEventById(db, eventId)
   if (!dbEvent) throw new EventError('event_not_found')
 
-  if (actor.kind === 'owner' && dbEvent.createdBy !== actor.userId) {
+  if (!canModifyEvent(actor, dbEvent)) {
     throw new EventError('forbidden')
   }
 

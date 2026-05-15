@@ -1,18 +1,30 @@
-import { db, schema } from 'hub:db'
-import { eq } from 'drizzle-orm'
-import { requireAdmin } from '~~/server/utils/auth'
+import { db } from 'hub:db'
+import { requireOwnerOrAdmin } from '~~/server/utils/auth'
 import { loadEventOrThrow } from '~~/server/utils/load-entity'
 import { requireEventIdParam } from '~~/server/utils/route-params'
+import { EventError, errorToHttpStatus, uncancelEvent, type EventActor } from '~~/server/events'
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event)
   const id = requireEventIdParam(event)
-  await loadEventOrThrow(id)
+  const dbEvent = await loadEventOrThrow(id)
+  const session = await requireOwnerOrAdmin(event, dbEvent.createdBy ?? 0)
 
-  await db
-    .update(schema.events)
-    .set({ cancelledAt: null, updatedAt: new Date() })
-    .where(eq(schema.events.id, id))
+  const isAdminRole = session.user.role === 'admin' || session.user.role === 'superuser'
+  const isSuperuser = session.user.role === 'superuser'
+
+  const actor: EventActor = isAdminRole
+    ? { kind: 'admin', userId: session.user.id, isSuperuser }
+    : { kind: 'owner', userId: session.user.id }
+
+  try {
+    await uncancelEvent(id, actor, { db })
+  }
+  catch (err) {
+    if (err instanceof EventError) {
+      throw createError({ statusCode: errorToHttpStatus(err.code), statusMessage: err.message })
+    }
+    throw err
+  }
 
   return { id: encodeEventId(id) }
 })

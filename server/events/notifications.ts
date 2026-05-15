@@ -4,6 +4,7 @@ import { diffEventCoreFields } from '~~/shared/utils/diff-event-core-fields'
 export type EventNotificationDecision
   = | { type: 'event_changed' }
     | { type: 'new_event' }
+    | { type: 'event_canceled' }
 
 /**
  * Liefert eine `event_changed`-Decision, wenn sich mindestens ein Core-Field
@@ -26,4 +27,15 @@ export function decideChangeNotifications(
  */
 export function decideCreateNotifications(): EventNotificationDecision[] {
   return [{ type: 'new_event' }]
+}
+
+/**
+ * Liefert eine `event_canceled`-Decision für einen abgesagten Event.
+ * `opts.silent` unterdrückt die Notification (für symmetrische API).
+ */
+export function decideCancelNotifications(
+  opts: { silent?: boolean } = {},
+): EventNotificationDecision[] {
+  if (opts.silent) return []
+  return [{ type: 'event_canceled' }]
 }

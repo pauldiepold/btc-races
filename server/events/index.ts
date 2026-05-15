@@ -8,10 +8,14 @@ export { isAdminActor } from './actor'
 
 export type { AppDb, EventRow, EventInsert } from './persistence'
 
-export { canSetPriority } from './rules'
+export { canDeleteEvent, canModifyEvent, canSetPriority } from './rules'
 
 export type { EventNotificationDecision } from './notifications'
-export { decideChangeNotifications, decideCreateNotifications } from './notifications'
+export {
+  decideCancelNotifications,
+  decideChangeNotifications,
+  decideCreateNotifications,
+} from './notifications'
 
 export { applyEventPatch } from './apply-patch'
 export type {
@@ -43,3 +47,12 @@ export type {
   ApplyLadvSyncDeps,
   ApplyLadvSyncResult,
 } from './apply-ladv-sync'
+
+export { cancelEvent } from './cancel'
+export type { CancelEventDeps, CancelEventResult } from './cancel'
+
+export { uncancelEvent } from './uncancel'
+export type { UncancelEventDeps, UncancelEventResult } from './uncancel'
+
+export { deleteEvent } from './delete'
+export type { DeleteEventDeps, DeleteEventResult } from './delete'

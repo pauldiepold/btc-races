@@ -85,3 +85,17 @@ Am Ende jeder Session `/commit` aufrufen — der Skill übernimmt Issue-Anlage, 
 ## Neue E-Mail Templates
 
 - Email-Templates: "Dev-Server nach neuen Templates neu starten" ist ein nicht-offensichtlicher Gotcha
+
+## Agent skills
+
+### Issue tracker
+
+Issues leben in GitHub Issues (`pauldiepold/btc-races`), verwaltet über die `gh` CLI. Siehe `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Kanonische Default-Namen: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. Siehe `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` + `docs/adr/` am Repo-Root. Siehe `docs/agents/domain.md`.

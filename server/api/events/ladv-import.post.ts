@@ -6,7 +6,7 @@ import { parseBody } from '~~/server/utils/parse-body'
 import { importEventFromLadv, EventError, errorToHttpStatus, type EventActor } from '~~/server/events'
 
 const importSchema = z.object({
-  url: z.string().url('Ungültige URL'),
+  url: z.url('Ungültige URL'),
   eventType: z.enum(['ladv', 'ladv_external']),
 })
 

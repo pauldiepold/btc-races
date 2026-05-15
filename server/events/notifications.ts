@@ -3,6 +3,7 @@ import { diffEventCoreFields } from '~~/shared/utils/diff-event-core-fields'
 
 export type EventNotificationDecision
   = | { type: 'event_changed' }
+    | { type: 'new_event' }
 
 /**
  * Liefert eine `event_changed`-Decision, wenn sich mindestens ein Core-Field
@@ -17,4 +18,12 @@ export function decideChangeNotifications(
   if (opts.silent) return []
   if (diffEventCoreFields(before, after).length === 0) return []
   return [{ type: 'event_changed' }]
+}
+
+/**
+ * Liefert eine `new_event`-Decision für einen neu erzeugten Event.
+ * Recipients und Payload werden im Dispatcher aufgelöst.
+ */
+export function decideCreateNotifications(): EventNotificationDecision[] {
+  return [{ type: 'new_event' }]
 }

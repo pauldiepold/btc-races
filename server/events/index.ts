@@ -11,7 +11,7 @@ export type { AppDb, EventRow, EventInsert } from './persistence'
 export { canSetPriority } from './rules'
 
 export type { EventNotificationDecision } from './notifications'
-export { decideChangeNotifications } from './notifications'
+export { decideChangeNotifications, decideCreateNotifications } from './notifications'
 
 export { applyEventPatch } from './apply-patch'
 export type {
@@ -20,3 +20,10 @@ export type {
   ApplyEventPatchOpts,
   ApplyEventPatchResult,
 } from './apply-patch'
+
+export { createManualEvent } from './create-manual'
+export type {
+  CreateManualEventInput,
+  CreateManualEventDeps,
+  CreateManualEventResult,
+} from './create-manual'

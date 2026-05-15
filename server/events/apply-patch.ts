@@ -79,8 +79,8 @@ export async function applyEventPatch(
   )
 
   await dispatchEventNotifications(decisions, {
+    dbEvent: eventAfter,
     eventBefore: dbEvent,
-    eventAfter,
     actorUserId: actor.userId,
     db,
   })

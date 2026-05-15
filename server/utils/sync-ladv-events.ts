@@ -1,9 +1,7 @@
-import { and, eq, gte, isNotNull } from 'drizzle-orm'
+import { and, gte, isNotNull } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { applyLadvSync } from '../events/apply-ladv-sync'
 import { LadvService } from '../external-apis/ladv/ladv.service'
-import { notifyEventChanged } from '../notifications/event-changed'
-import { detectLadvDiff } from '~~/shared/utils/ladv'
-import type { LadvAusschreibung } from '~~/shared/types/ladv'
 
 export type SyncLadvEventsResult = {
   result: string
@@ -30,60 +28,23 @@ export async function runSyncLadvEvents(): Promise<SyncLadvEventsResult> {
   console.log(`📥 Found ${events.length} upcoming LADV events to sync`)
 
   const service = new LadvService()
-  const now = new Date()
   let synced = 0
   let updated = 0
   let cancelled = 0
   let errors = 0
 
   for (const dbEvent of events) {
-    let normalized
     try {
-      normalized = await service.fetchAusschreibung(dbEvent.ladvId!)
+      const normalized = await service.fetchAusschreibung(dbEvent.ladvId!)
+      const result = await applyLadvSync(dbEvent, normalized, { db })
+      if (result.ladvDataChanged) updated++
+      if (result.cancelled) cancelled++
+      synced++
     }
     catch (err) {
-      console.error(`⚠️  LADV fetch failed for event ${dbEvent.id} (ladvId: ${dbEvent.ladvId}):`, err)
+      console.error(`⚠️  LADV sync failed for event ${dbEvent.id} (ladvId: ${dbEvent.ladvId}):`, err)
       errors++
-      continue
     }
-
-    const preSyncDiff = detectLadvDiff(dbEvent, dbEvent.ladvData as LadvAusschreibung)
-
-    const updates: Partial<typeof schema.events.$inferInsert> = {
-      // Protected fields: nur überschreiben wenn kein manueller Override vorhanden
-      ...(preSyncDiff.name === undefined ? { name: normalized.name } : {}),
-      ...(preSyncDiff.date === undefined ? { date: normalized.date } : {}),
-      ...(preSyncDiff.location === undefined ? { location: normalized.location } : {}),
-      ...(preSyncDiff.registrationDeadline === undefined ? { registrationDeadline: normalized.registration_deadline } : {}),
-      ...(preSyncDiff.raceType === undefined ? { raceType: normalized.race_type } : {}),
-      // Immer aktualisieren
-      startTime: normalized.start_time,
-      isWrc: normalized.is_wrc,
-      ladvData: normalized.ladv_data,
-      ladvLastSync: now,
-      updatedAt: now,
-    }
-
-    if (normalized.ladv_data.abgesagt && !dbEvent.cancelledAt) {
-      updates.cancelledAt = now
-      cancelled++
-    }
-
-    await db.update(schema.events).set(updates).where(eq(schema.events.id, dbEvent.id))
-
-    const ladvDataChanged = JSON.stringify(normalized.ladv_data) !== JSON.stringify(dbEvent.ladvData)
-    if (ladvDataChanged) updated++
-
-    const eventAfter = { ...dbEvent, ...updates }
-
-    try {
-      await notifyEventChanged(dbEvent, eventAfter)
-    }
-    catch (err) {
-      console.error('[Notification] event_changed:', err)
-    }
-
-    synced++
   }
 
   const duration = ((Date.now() - startTime) / 1000).toFixed(2)

@@ -37,3 +37,9 @@ export type {
 
 export { LADV_FIELD_RULES, mergeLadvSync } from './merge-ladv-sync'
 export type { LadvFieldMode, LadvFieldRule } from './merge-ladv-sync'
+
+export { applyLadvSync } from './apply-ladv-sync'
+export type {
+  ApplyLadvSyncDeps,
+  ApplyLadvSyncResult,
+} from './apply-ladv-sync'

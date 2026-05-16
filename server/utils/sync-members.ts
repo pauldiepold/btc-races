@@ -71,11 +71,6 @@ export async function runSyncMembers(): Promise<SyncMembersResult> {
 
     if (existing) {
       const avatarUrlChanged = existing.avatarUrl !== avatarUrl
-      // Hinweis: users hat bewusst kein updatedAt. Dieser Sync schreibt nächtlich
-      // das komplette userData-Blob ohne Diff zurück — ein $onUpdate-Timestamp
-      // würde damit für jeden User jede Nacht feuern und wäre faktisch identisch
-      // mit lastSyncedAt. Wenn echtes Change-Tracking auf users gebraucht wird,
-      // muss zuerst der Sync konditional schreiben (Diff vor Update).
       await db.update(schema.users)
         .set({
           ...userData,

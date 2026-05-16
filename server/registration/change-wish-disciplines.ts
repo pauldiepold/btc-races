@@ -64,7 +64,8 @@ export async function changeWishDisciplines(
 
   const decisions = decideWishChangeNotifications(prevWish, input.disciplines, ladvDisciplines)
 
-  await updateRegistrationDisciplines(db, registration.id, { wishDisciplines: input.disciplines })
+  const now = new Date()
+  await updateRegistrationDisciplines(db, registration.id, { wishDisciplines: input.disciplines }, now)
 
   if (decisions.length > 0) {
     const targetUser = await loadUserById(db, registration.userId)

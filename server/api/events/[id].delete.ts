@@ -1,27 +1,15 @@
-import { db, schema } from 'hub:db'
-import { eq } from 'drizzle-orm'
+import { db } from 'hub:db'
+import { requireSuperuser } from '~~/server/utils/auth'
+import { requireEventIdParam } from '~~/server/utils/route-params'
+import { adminActor, deleteEvent, withEventErrorMapping } from '~~/server/events'
 
 export default defineEventHandler(async (event) => {
-  const sqid = getRouterParam(event, 'id')
-  if (!sqid) {
-    throw createError({ statusCode: 400, statusMessage: 'Fehlende Event-ID' })
-  }
+  const session = await requireSuperuser(event)
+  const id = requireEventIdParam(event)
 
-  const id = decodeEventId(sqid)
-  if (id === null) {
-    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-  }
+  const actor = adminActor(session)
 
-  await requireSuperuser(event)
+  await withEventErrorMapping(() => deleteEvent(id, actor, { db }))
 
-  const dbEvent = await db.query.events.findFirst({
-    where: eq(schema.events.id, id),
-  })
-  if (!dbEvent) {
-    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-  }
-
-  await db.delete(schema.events).where(eq(schema.events.id, id))
-
-  return { id: sqid }
+  return { id: encodeEventId(id) }
 })

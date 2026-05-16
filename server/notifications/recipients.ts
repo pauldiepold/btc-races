@@ -1,6 +1,14 @@
 import { and, eq, inArray } from 'drizzle-orm'
+import * as schema from '~~/server/db/schema'
 import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
+import type { NotifyDb } from './service'
+
+async function resolveDb(override?: NotifyDb): Promise<NotifyDb> {
+  if (override) return override
+  const mod = await import('hub:db')
+  return mod.db
+}
 
 export interface NotificationRecipient {
   userId: number
@@ -33,8 +41,8 @@ export const recipients = {
   /**
    * Alle aktiven Admins/Superuser.
    */
-  async allAdmins(): Promise<NotificationRecipient[]> {
-    const { db, schema } = await import('hub:db')
+  async allAdmins(dbOverride?: NotifyDb): Promise<NotificationRecipient[]> {
+    const db = await resolveDb(dbOverride)
     const rows = await db.select({
       userId: schema.users.id,
       email: schema.users.email,
@@ -49,8 +57,8 @@ export const recipients = {
   /**
    * Alle aktiven Mitglieder.
    */
-  async allMembers(): Promise<NotificationRecipient[]> {
-    const { db, schema } = await import('hub:db')
+  async allMembers(dbOverride?: NotifyDb): Promise<NotificationRecipient[]> {
+    const db = await resolveDb(dbOverride)
     const rows = await db.select({
       userId: schema.users.id,
       email: schema.users.email,
@@ -69,8 +77,12 @@ export const recipients = {
    * der Status-Filter erweitern, ein Membership-Filter ergänzen oder die
    * Wunsch-Disziplinen pro Recipient anhängen.
    */
-  async registeredFor(eventId: number, options: RegisteredForOptions = {}): Promise<NotificationRecipient[]> {
-    const { db, schema } = await import('hub:db')
+  async registeredFor(
+    eventId: number,
+    options: RegisteredForOptions = {},
+    dbOverride?: NotifyDb,
+  ): Promise<NotificationRecipient[]> {
+    const db = await resolveDb(dbOverride)
     const statuses = options.statuses ?? DEFAULT_REGISTERED_STATUSES
 
     const conditions = [
@@ -109,8 +121,8 @@ export const recipients = {
   /**
    * Einzelner User per ID. Liefert `[]`, wenn der User nicht existiert.
    */
-  async user(userId: number): Promise<NotificationRecipient[]> {
-    const { db, schema } = await import('hub:db')
+  async user(userId: number, dbOverride?: NotifyDb): Promise<NotificationRecipient[]> {
+    const db = await resolveDb(dbOverride)
     const row = await db.query.users.findFirst({
       where: eq(schema.users.id, userId),
       columns: { id: true, email: true, firstName: true },

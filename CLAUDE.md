@@ -58,7 +58,7 @@ export type User = typeof schema.users.$inferSelect
 
 ## Testing
 
-Setup: `vitest` — nur Unit Tests für pure Business-Logik.
+Setup: `vitest`.
 
 ```bash
 pnpm test        # einmalig ausführen
@@ -68,13 +68,13 @@ pnpm test:watch  # watch mode
 Tests liegen in `test/unit/`. Nach einer Feature-Session: `/test` aufrufen.
 
 ### Was getestet wird
-- Pure Funktionen in `server/utils/` (kein DB-Zugriff, kein HTTP)
+- Pure Funktionen (kein DB-Zugriff, kein HTTP)
 - Daten-Mapping und Transformations-Logik
 - Zod-Schema-Validierungen und Business-Rules
+- **Module mit Persistenz** über `createTestDb()` aus `test/helpers/test-db.ts` — startet eine libsql-In-Memory-DB pro Test, wendet alle Drizzle-Migrationen an, isoliert. Beispiel: `test/unit/test-db.smoke.test.ts`. Nutzen für Module, die das Domain-Verhalten an Drizzle-Operationen festmachen (z. B. `server/registration/`).
 
 ### Was NICHT getestet wird
 - Nitro Event Handler / API-Routen
-- Drizzle-Queries / Datenbankzugriffe
 - Vue-Komponenten
 
 ## Commit & GitHub
@@ -85,3 +85,17 @@ Am Ende jeder Session `/commit` aufrufen — der Skill übernimmt Issue-Anlage, 
 ## Neue E-Mail Templates
 
 - Email-Templates: "Dev-Server nach neuen Templates neu starten" ist ein nicht-offensichtlicher Gotcha
+
+## Agent skills
+
+### Issue tracker
+
+Issues leben in GitHub Issues (`pauldiepold/btc-races`), verwaltet über die `gh` CLI. Siehe `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Kanonische Default-Namen: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. Siehe `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` + `docs/adr/` am Repo-Root. Siehe `docs/agents/domain.md`.

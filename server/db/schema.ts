@@ -1,5 +1,18 @@
 import { sqliteTable, text, integer, unique } from 'drizzle-orm/sqlite-core'
 import { sql } from 'drizzle-orm'
+import type { EventType } from '~~/shared/utils/registration'
+
+// Bookkeeping-Timestamps für mutable Rows. Drizzle setzt updatedAt bei jedem
+// Update automatisch ($onUpdateFn) — Operations sollen es NICHT explizit setzen.
+const timestamps = () => ({
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date()),
+})
 
 // Zentrales User-Modell
 export const users = sqliteTable('users', {
@@ -42,7 +55,7 @@ export const authTokens = sqliteTable('auth_tokens', {
 // Events (alle Typen in einer Tabelle)
 export const events = sqliteTable('events', {
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-  type: text().notNull().$type<'ladv' | 'competition' | 'training' | 'social'>(),
+  type: text().notNull().$type<EventType>(),
   name: text().notNull(),
   date: text(), // YYYY-MM-DD (kein Timezone-Overhead, LADV liefert immer Berliner Mitternacht)
   startTime: text(), // HH:MM, optional
@@ -65,12 +78,7 @@ export const events = sqliteTable('events', {
   ladvLastSync: integer({ mode: 'timestamp' }),
 
   createdBy: integer({ mode: 'number' }).references(() => users.id, { onDelete: 'set null' }),
-  createdAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
-  updatedAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
+  ...timestamps(),
 })
 
 // Anmeldungen zu Events
@@ -83,12 +91,7 @@ export const registrations = sqliteTable('registrations', {
   wishDisciplines: text({ mode: 'json' }).$type<import('~~/shared/types/db').RegistrationDisciplinePair[]>().notNull().default(sql`'[]'`),
   ladvDisciplines: text({ mode: 'json' }).$type<import('~~/shared/types/db').RegistrationDisciplinePair[] | null>(),
 
-  createdAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
-  updatedAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
+  ...timestamps(),
 }, t => [
   unique().on(t.eventId, t.userId),
 ])

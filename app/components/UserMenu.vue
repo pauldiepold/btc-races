@@ -105,7 +105,7 @@ async function logout() {
           </NuxtLink>
           <NuxtLink
             v-if="isSuperuser"
-            to="/superuser"
+            to="/superuser/notifications"
             class="flex items-center gap-3 text-sm text-default hover:text-primary transition-colors"
             @click="isOpen = false"
           >
@@ -247,7 +247,7 @@ async function logout() {
               </NuxtLink>
               <NuxtLink
                 v-if="isSuperuser"
-                to="/superuser"
+                to="/superuser/notifications"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-[--ui-radius] text-sm text-default hover:text-primary hover:bg-primary/10 transition-colors"
                 @click="isOpen = false"
               >

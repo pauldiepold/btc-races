@@ -2,9 +2,12 @@ import { db, schema } from 'hub:db'
 import { and, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm'
 import { notify } from '~~/server/notifications/service'
 import { recipients } from '~~/server/notifications/recipients'
-import { buildEventPayload } from '~~/server/notifications/payload-helpers'
+import { buildEventPayload, formatDisciplineLabels } from '~~/server/notifications/payload-helpers'
+import { requireCronAuth } from '~~/server/utils/cron-auth'
 import { addDaysToIsoDate, todayIsoDate } from '~~/shared/utils/reminder-dates'
+import { getEventTypesWith } from '~~/shared/utils/event-types/capabilities'
 import type { NotificationType } from '~~/shared/types/notifications'
+import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 
 interface ReminderResult {
   type: NotificationType
@@ -32,7 +35,7 @@ async function hasExistingJob(type: NotificationType, eventId: number): Promise<
   return rows.length > 0
 }
 
-async function getAdminParticipantList(eventId: number): Promise<Array<{ name: string, disciplines?: string }>> {
+async function getAdminParticipantList(eventId: number): Promise<Array<{ name: string, disciplines?: string[] }>> {
   const rows = await db.select({
     firstName: schema.users.firstName,
     lastName: schema.users.lastName,
@@ -49,22 +52,17 @@ async function getAdminParticipantList(eventId: number): Promise<Array<{ name: s
 
   return rows.map((row) => {
     const name = `${row.firstName ?? ''} ${row.lastName ?? ''}`.trim()
-    const wish = (row.wishDisciplines as Array<{ discipline: string }> | null) ?? []
-    const disciplineList = [...new Set(wish.map(d => d.discipline))].join(', ')
-    return { name, disciplines: disciplineList || undefined }
+    const wish = (row.wishDisciplines as RegistrationDisciplinePair[] | null) ?? []
+    const labels = formatDisciplineLabels(wish)
+    return { name, disciplines: labels.length > 0 ? labels : undefined }
   })
 }
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig(event)
-  const authHeader = getHeader(event, 'Authorization')
-
-  if (authHeader !== `Bearer ${config.cronToken}`) {
-    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-  }
+  requireCronAuth(event)
 
   const today = todayIsoDate()
-  const siteUrl = config.public.siteUrl
+  const siteUrl = useRuntimeConfig(event).public.siteUrl
   const results: ReminderResult[] = []
 
   // -----------------------------------------------------------------------
@@ -83,7 +81,7 @@ export default defineEventHandler(async (event) => {
       .where(
         and(
           eq(schema.events.registrationDeadline, targetDate),
-          eq(schema.events.type, 'ladv'),
+          inArray(schema.events.type, getEventTypesWith('hasLadvStandManagement')),
           isNull(schema.events.cancelledAt),
         ),
       )
@@ -145,7 +143,7 @@ export default defineEventHandler(async (event) => {
       .where(
         and(
           eq(schema.events.date, targetDate),
-          eq(schema.events.type, 'ladv'),
+          inArray(schema.events.type, getEventTypesWith('hasLadvStandManagement')),
           isNull(schema.events.cancelledAt),
           isNotNull(schema.events.date),
         ),

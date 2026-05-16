@@ -1,12 +1,13 @@
-import { db, schema } from 'hub:db'
-import { eq } from 'drizzle-orm'
+import { db } from 'hub:db'
 import { z } from 'zod'
-import { isDeadlineExpired } from '~~/shared/utils/deadlines'
-import { getValidNextStatuses } from '~~/shared/utils/registration'
-import { notify } from '~~/server/notifications/service'
-import { recipients } from '~~/server/notifications/recipients'
-import { buildEventPayload } from '~~/server/notifications/payload-helpers'
-import type { RegistrationDisciplinePair } from '~~/shared/types/db'
+import {
+  actorFromSession,
+  changeRegistrationStatus,
+  updateRegistrationNotes,
+  withRegistrationErrorMapping,
+} from '~~/server/registration'
+import { parseBody } from '~~/server/utils/parse-body'
+import { requireNumericIdParam } from '~~/server/utils/route-params'
 
 const bodySchema = z.object({
   status: z.enum(['registered', 'canceled', 'maybe', 'yes', 'no']).optional(),
@@ -16,128 +17,37 @@ const bodySchema = z.object({
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
-  const isAdmin = session.user.role === 'admin' || session.user.role === 'superuser'
-  const rawId = getRouterParam(event, 'id')
+  const id = requireNumericIdParam(event, 'Anmeldungs-ID')
 
-  if (!rawId) {
-    throw createError({ statusCode: 400, statusMessage: 'Fehlende Anmeldungs-ID' })
-  }
+  const { status, notes, silent } = await parseBody(event, bodySchema)
 
-  const id = Number(rawId)
-  if (!Number.isInteger(id) || id <= 0) {
-    throw createError({ statusCode: 400, statusMessage: 'Ungültige Anmeldungs-ID' })
-  }
+  const actor = actorFromSession(session)
 
-  const body = await readBody(event)
-  const result = bodySchema.safeParse(body)
-  if (!result.success) {
-    throw createError({ statusCode: 400, statusMessage: result.error.issues[0]?.message ?? 'Validierungsfehler' })
-  }
+  const deps = { db }
 
-  const { status, notes, silent } = result.data
+  return withRegistrationErrorMapping(async () => {
+    let statusChanged = false
 
-  const registration = await db.query.registrations.findFirst({
-    where: eq(schema.registrations.id, id),
+    if (status !== undefined) {
+      await changeRegistrationStatus(
+        { registrationId: id, newStatus: status },
+        actor,
+        deps,
+        { silent: silent ?? false },
+      )
+      statusChanged = true
+    }
+
+    if (notes !== undefined) {
+      const notesSilent = silent === true || statusChanged
+      await updateRegistrationNotes(
+        { registrationId: id, notes },
+        actor,
+        deps,
+        { silent: notesSilent },
+      )
+    }
+
+    return { id }
   })
-  if (!registration) {
-    throw createError({ statusCode: 404, statusMessage: 'Anmeldung nicht gefunden' })
-  }
-
-  // Nur eigene Anmeldung — außer für Admins
-  if (!isAdmin && registration.userId !== session.user.id) {
-    throw createError({ statusCode: 403, statusMessage: 'Keine Berechtigung' })
-  }
-
-  let shouldNotifyAdmins = false
-  let shouldNotifyMember = false
-
-  if (status !== undefined) {
-    const dbEvent = await db.query.events.findFirst({
-      where: eq(schema.events.id, registration.eventId),
-    })
-    if (!dbEvent) {
-      throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-    }
-
-    const validNext = getValidNextStatuses(registration.status, dbEvent.type)
-    if (!validNext.includes(status)) {
-      throw createError({ statusCode: 422, statusMessage: `Statusübergang von '${registration.status}' zu '${status}' nicht erlaubt` })
-    }
-
-    const isCancelAction = status === 'canceled' || status === 'no'
-
-    // Deadline-Check — außer bei cancel/no und außer für Admins
-    if (!isAdmin && !isCancelAction && (dbEvent.type === 'ladv' || dbEvent.type === 'competition')) {
-      if (isDeadlineExpired(dbEvent.registrationDeadline)) {
-        throw createError({ statusCode: 422, statusMessage: 'Meldefrist abgelaufen' })
-      }
-    }
-
-    // Stornierung durch Athlet nach bereits erfolgter LADV-Meldung → Admins informieren
-    if (registration.userId === session.user.id && isCancelAction) {
-      const ladvDisciplines = registration.ladvDisciplines as RegistrationDisciplinePair[] | null
-      shouldNotifyAdmins = ladvDisciplines !== null
-    }
-  }
-
-  // Admin ändert fremde Anmeldung → Mitglied informieren
-  // (außer der Aufrufer signalisiert, dass eine spezifischere Notification bereits gesendet wurde)
-  if (isAdmin && registration.userId !== session.user.id && !silent) {
-    shouldNotifyMember = true
-  }
-
-  await db
-    .update(schema.registrations)
-    .set({
-      ...(status !== undefined ? { status } : {}),
-      ...(notes !== undefined ? { notes } : {}),
-      updatedAt: new Date(),
-    })
-    .where(eq(schema.registrations.id, id))
-
-  if (shouldNotifyAdmins || shouldNotifyMember) {
-    const dbEvent = await db.query.events.findFirst({
-      where: eq(schema.events.id, registration.eventId),
-    })
-
-    if (dbEvent) {
-      const siteUrl = useRuntimeConfig().public.siteUrl
-      const basePayload = buildEventPayload(dbEvent, siteUrl)
-
-      if (shouldNotifyAdmins) {
-        try {
-          await notify({
-            type: 'athlete_canceled_after_ladv',
-            recipients: await recipients.allAdmins(),
-            actorUserId: registration.userId,
-            payload: basePayload,
-            eventId: registration.eventId,
-          })
-        }
-        catch (err) {
-          console.error('[Notification] athlete_canceled_after_ladv:', err)
-        }
-      }
-
-      if (shouldNotifyMember) {
-        try {
-          const memberRecipients = await recipients.user(registration.userId)
-          if (memberRecipients.length > 0) {
-            await notify({
-              type: 'admin_changed_member_registration',
-              recipients: memberRecipients,
-              actorUserId: session.user.id,
-              payload: basePayload,
-              eventId: registration.eventId,
-            })
-          }
-        }
-        catch (err) {
-          console.error('[Notification] admin_changed_member_registration:', err)
-        }
-      }
-    }
-  }
-
-  return { id }
 })

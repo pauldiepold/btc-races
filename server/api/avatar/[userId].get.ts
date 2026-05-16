@@ -1,15 +1,11 @@
 import { eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { requireNumericIdParam } from '~~/server/utils/route-params'
 
 export default defineEventHandler(async (event) => {
-  const rawUserId = getRouterParam(event, 'userId')
+  const userId = requireNumericIdParam(event, 'User-ID', 'userId')
   const query = getQuery(event)
   const size = query.size === 'large' ? 'large' : 'small'
-
-  const userId = Number(rawUserId)
-  if (!Number.isInteger(userId) || userId <= 0) {
-    throw createError({ statusCode: 400, statusMessage: 'Ungültige User-ID' })
-  }
 
   const user = await db
     .select({ avatarSmall: schema.users.avatarSmall, avatarLarge: schema.users.avatarLarge, avatarUpdatedAt: schema.users.avatarUpdatedAt })

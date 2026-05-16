@@ -1,37 +1,23 @@
 import { db, schema } from 'hub:db'
 import { asc, eq, sql } from 'drizzle-orm'
+import { loadEventOrThrow } from '~~/server/utils/load-entity'
+import { requireEventIdParam } from '~~/server/utils/route-params'
 import type { LadvAusschreibung } from '~~/shared/types/ladv'
 import { isRunningDiscipline } from '~~/shared/utils/ladv-labels'
 import type { EventDetail, EventPublicDetail, RegistrationDetail } from '~~/shared/types/events'
 import type { RegistrationStatus } from '~~/shared/utils/registration'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
-
-const PUBLIC_EVENT_TYPES = ['ladv', 'competition'] as const
+import { getPublicEventTypes } from '~~/shared/utils/event-types/capabilities'
 
 export default defineEventHandler(async (event): Promise<EventDetail | EventPublicDetail> => {
   const session = await getUserSession(event)
   const isAuthenticated = !!session.user
-  const sqid = getRouterParam(event, 'id')
-
-  if (!sqid) {
-    throw createError({ statusCode: 400, statusMessage: 'Fehlende Event-ID' })
-  }
-
-  const id = decodeEventId(sqid)
-  if (id === null) {
-    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-  }
-
-  const dbEvent = await db.query.events.findFirst({
-    where: eq(schema.events.id, id),
-  })
-
-  if (!dbEvent) {
-    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-  }
+  const id = requireEventIdParam(event)
+  const dbEvent = await loadEventOrThrow(id)
+  const sqid = encodeEventId(id)
 
   if (!isAuthenticated) {
-    if (!PUBLIC_EVENT_TYPES.includes(dbEvent.type as typeof PUBLIC_EVENT_TYPES[number])) {
+    if (!getPublicEventTypes().includes(dbEvent.type)) {
       throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
     }
 

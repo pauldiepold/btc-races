@@ -39,6 +39,7 @@ Hochrangige Übersicht aller implementierten Features. Details und Hintergrund i
 
 ## Anmeldungen
 
+- Zentrales Anmelde-Modul `server/registration/` — Aktor-Modell (`self` / `admin`), Wunschstand vs. LADV-Stand, Status-Lifecycle und Notification-Decisions als pure Bausteine; alle API-Handler und Tasks gehen ausschließlich über dieses Modul. Domain-Begriffe in [CONTEXT.md](./CONTEXT.md#anmeldung)
 - Anmeldung zu einem Event erstellen (Member meldet sich selbst an)
 - Disziplinen zu einer Anmeldung hinzufügen und entfernen
 - Anmeldung bearbeiten (Startnummer, Notiz, Altersklasse)

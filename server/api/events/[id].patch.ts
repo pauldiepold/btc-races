@@ -1,8 +1,10 @@
-import { db, schema } from 'hub:db'
-import { eq } from 'drizzle-orm'
+import { db } from 'hub:db'
 import { z } from 'zod'
-import { notifyEventChanged } from '~~/server/notifications/event-changed'
-import { toEventCoreSnapshot } from '~~/shared/utils/diff-event-core-fields'
+import { requireOwnerOrAdmin } from '~~/server/utils/auth'
+import { loadEventOrThrow } from '~~/server/utils/load-entity'
+import { parseBody } from '~~/server/utils/parse-body'
+import { requireEventIdParam } from '~~/server/utils/route-params'
+import { actorFromSession, applyEventPatch, withEventErrorMapping } from '~~/server/events'
 
 const patchEventSchema = z.object({
   name: z.string().min(1, 'Name ist erforderlich').optional(),
@@ -20,74 +22,17 @@ const patchEventSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-  const sqid = getRouterParam(event, 'id')
-  if (!sqid) {
-    throw createError({ statusCode: 400, statusMessage: 'Fehlende Event-ID' })
-  }
+  const id = requireEventIdParam(event)
+  const dbEvent = await loadEventOrThrow(id)
+  const session = await requireOwnerOrAdmin(event, dbEvent.createdBy ?? 0)
 
-  const id = decodeEventId(sqid)
-  if (id === null) {
-    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-  }
+  const data = await parseBody(event, patchEventSchema)
+  const { suppressNotification, ...patch } = data
 
-  const dbEvent = await db.query.events.findFirst({
-    where: eq(schema.events.id, id),
-  })
-  if (!dbEvent) {
-    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-  }
+  const actor = actorFromSession(session)
+  const silent = session.user.role === 'superuser' && suppressNotification === true
 
-  const session = await requireUserSession(event)
-  await requireOwnerOrAdmin(event, dbEvent.createdBy ?? 0)
+  await withEventErrorMapping(() => applyEventPatch(id, patch, actor, { db }, { silent }))
 
-  const body = await readBody(event)
-  const result = patchEventSchema.safeParse(body)
-  if (!result.success) {
-    throw createError({ statusCode: 400, statusMessage: result.error.issues[0]?.message ?? 'Validierungsfehler' })
-  }
-
-  const data = result.data
-  const updates: Partial<typeof schema.events.$inferInsert> = {
-    updatedAt: new Date(),
-  }
-
-  if (data.name !== undefined) updates.name = data.name
-  if ('date' in data) updates.date = data.date ?? null
-  if ('startTime' in data) updates.startTime = data.startTime ?? null
-  if ('duration' in data) updates.duration = data.duration ?? null
-  if ('location' in data) updates.location = data.location ?? null
-  if ('description' in data) updates.description = data.description ?? null
-  if ('registrationDeadline' in data) updates.registrationDeadline = data.registrationDeadline ?? null
-  if ('announcementLink' in data) updates.announcementLink = data.announcementLink ?? null
-  if ('raceType' in data) updates.raceType = data.raceType ?? null
-  if ('championshipType' in data) updates.championshipType = data.championshipType ?? null
-
-  const isAdmin = session.user.role === 'admin' || session.user.role === 'superuser'
-  const isCompetitionOrLadv = dbEvent.type === 'competition' || dbEvent.type === 'ladv'
-  if ('priority' in data && isAdmin && isCompetitionOrLadv) updates.priority = data.priority ?? null
-
-  await db.update(schema.events).set(updates).where(eq(schema.events.id, id))
-
-  const isSuperuser = session.user.role === 'superuser'
-  const coreBodyKeys = 'date' in data || 'startTime' in data || 'location' in data
-  if (coreBodyKeys && !(isSuperuser && data.suppressNotification)) {
-    const updated = await db.query.events.findFirst({
-      where: eq(schema.events.id, id),
-    })
-    if (updated) {
-      try {
-        await notifyEventChanged(
-          toEventCoreSnapshot(dbEvent),
-          toEventCoreSnapshot(updated),
-          updated,
-          session.user.id,
-        )
-      }
-      catch (err) {
-        console.error('[Notification] event_changed:', err)
-      }
-    }
-  }
-
-  return { id: sqid }
+  return { id: encodeEventId(id) }
 })

@@ -4,14 +4,28 @@ definePageMeta({ title: 'LADV importieren' })
 const toast = useToast()
 const loading = ref(false)
 const url = ref('')
+const eventType = ref<'ladv' | 'ladv_external'>()
+
+const eventTypeItems = [
+  {
+    value: 'ladv',
+    label: 'Meldung über LADV',
+    description: 'Die Anmeldung läuft über LADV — Coaches pflegen den Meldestand.',
+  },
+  {
+    value: 'ladv_external',
+    label: 'Externe Meldung',
+    description: 'Die Anmeldung läuft direkt über den Veranstalter (E-Mail, eigenes Formular). Hier nur internes Tracking.',
+  },
+]
 
 async function onSubmit() {
-  if (!url.value.trim()) return
+  if (!url.value.trim() || !eventType.value) return
   loading.value = true
   try {
     const { id } = await $fetch<{ id: string }>('/api/events/ladv-import', {
       method: 'POST',
-      body: { url: url.value.trim() },
+      body: { url: url.value.trim(), eventType: eventType.value },
     })
     await navigateTo(`/${id}`)
   }
@@ -71,6 +85,18 @@ async function onSubmit() {
         />
       </UFormField>
 
+      <UFormField
+        label="Wie wird gemeldet?"
+        required
+      >
+        <URadioGroup
+          v-model="eventType"
+          :items="eventTypeItems"
+          value-key="value"
+          :disabled="loading"
+        />
+      </UFormField>
+
       <div class="flex justify-end gap-3">
         <UButton
           to="/"
@@ -83,7 +109,7 @@ async function onSubmit() {
           icon="i-ph-download-simple"
           label="Importieren"
           :loading="loading"
-          :disabled="!url.trim()"
+          :disabled="!url.trim() || !eventType"
         />
       </div>
     </form>

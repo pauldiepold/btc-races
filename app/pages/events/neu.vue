@@ -2,6 +2,8 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { Time } from '@internationalized/date'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
+import { MANUAL_EVENT_TYPES } from '~~/shared/utils/registration'
 
 definePageMeta({ title: 'Event erstellen' })
 
@@ -9,13 +11,12 @@ const route = useRoute()
 const toast = useToast()
 const loading = ref(false)
 
-const validTypes = ['competition', 'training', 'social'] as const
-type EventType = typeof validTypes[number]
+type EventType = typeof MANUAL_EVENT_TYPES[number]
 const queryType = route.query.type as string
-const initialType: EventType = (validTypes as readonly string[]).includes(queryType) ? queryType as EventType : 'competition'
+const initialType: EventType = (MANUAL_EVENT_TYPES as readonly string[]).includes(queryType) ? queryType as EventType : 'competition'
 
 const schema = z.object({
-  type: z.enum(['competition', 'training', 'social']),
+  type: z.enum(MANUAL_EVENT_TYPES),
   name: z.string().min(1, 'Name ist erforderlich'),
   date: z.string().min(1, 'Datum ist erforderlich'),
   startTime: z.union([z.literal(''), z.string().regex(/^\d{2}:\d{2}$/, 'Format: HH:MM')]).optional(),
@@ -48,7 +49,7 @@ const state = reactive<Schema>({
   priority: undefined,
 })
 
-const isCompetition = computed(() => state.type === 'competition')
+const hasCompetitionMetadata = computed(() => eventTypeCapabilities[state.type].hasCompetitionMetadata)
 
 const startTimeModel = computed({
   get: (): Time | null => {
@@ -106,11 +107,11 @@ async function onSubmit(_event: FormSubmitEvent<Schema>) {
         duration: ((state.durationHours ?? 0) * 60 + (state.durationMinutes ?? 0)) || undefined,
         location: state.location || undefined,
         description: state.description || undefined,
-        registrationDeadline: isCompetition.value ? (state.registrationDeadline || undefined) : undefined,
+        registrationDeadline: hasCompetitionMetadata.value ? (state.registrationDeadline || undefined) : undefined,
         announcementLink: state.announcementLink || undefined,
-        raceType: isCompetition.value ? (state.raceType || undefined) : undefined,
-        championshipType: isCompetition.value ? (state.championshipType || undefined) : undefined,
-        priority: isCompetition.value ? (state.priority || undefined) : undefined,
+        raceType: hasCompetitionMetadata.value ? (state.raceType || undefined) : undefined,
+        championshipType: hasCompetitionMetadata.value ? (state.championshipType || undefined) : undefined,
+        priority: hasCompetitionMetadata.value ? (state.priority || undefined) : undefined,
       },
     })
     await navigateTo(`/${id}`)
@@ -261,7 +262,7 @@ async function onSubmit(_event: FormSubmitEvent<Schema>) {
         />
       </UFormField>
 
-      <template v-if="isCompetition">
+      <template v-if="hasCompetitionMetadata">
         <UFormField
           name="registrationDeadline"
           label="Meldeschluss"

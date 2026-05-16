@@ -7,6 +7,8 @@ import { LadvService } from '../external-apis/ladv/ladv.service'
 import { normalizeLadvData } from './ladv'
 import type { LadvAusschreibung, LadvWettbewerb } from '~~/shared/types/ladv'
 import { isRunningDiscipline } from '~~/shared/utils/ladv-labels'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
+import type { EventType } from '~~/shared/utils/registration'
 
 // LADV-Ausschreibungs-IDs — jeden 3. auskommentiert
 const LADV_IDS: Array<{ id: number, label: string }> = [
@@ -319,7 +321,7 @@ export async function runSeed(): Promise<{ result: string }> {
 
   async function seedRandomRegistrations(
     eventId: number,
-    eventType: 'ladv' | 'competition' | 'training' | 'social',
+    eventType: EventType,
     ladvWettbewerbe: LadvWettbewerb[] = [],
     excludeUserIds: number[] = [],
   ) {
@@ -329,12 +331,14 @@ export async function runSeed(): Promise<{ result: string }> {
     const count = faker.number.int({ min: 3, max: 15 })
     const selected = faker.helpers.arrayElements(pool, Math.min(count, pool.length))
 
+    const caps = eventTypeCapabilities[eventType]
+
     for (const userId of selected) {
-      const status = eventType === 'ladv' || eventType === 'competition'
+      const status = caps.status.initial === 'registered'
         ? faker.helpers.arrayElement(['registered', 'registered', 'registered', 'canceled'] as const)
         : faker.helpers.arrayElement(['yes', 'yes', 'maybe', 'no'] as const)
 
-      const wishDisciplines = (eventType === 'ladv' && ladvWettbewerbe.length > 0)
+      const wishDisciplines = (caps.hasWishDisciplines && ladvWettbewerbe.length > 0)
         ? [faker.helpers.arrayElement(ladvWettbewerbe)].map(d => ({ discipline: d.disziplinNew, ageClass: d.klasseNew }))
         : []
 

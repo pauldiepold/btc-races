@@ -3,6 +3,7 @@ import { sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { buildPreferencesResponse } from '~~/server/notifications/preferences'
 import { NOTIFICATION_TYPES, getNotificationDefinition } from '~~/server/notifications/registry'
+import { parseBody } from '~~/server/utils/parse-body'
 
 const bodySchema = z.object({
   preferences: z.array(z.object({
@@ -18,7 +19,7 @@ export default defineEventHandler(async (event) => {
   const role = session.user.role
   const isAdmin = role === 'admin' || role === 'superuser'
 
-  const body = await readValidatedBody(event, bodySchema.parse)
+  const body = await parseBody(event, bodySchema)
 
   const toUpsert = body.preferences.filter((pref) => {
     const def = getNotificationDefinition(pref.type)

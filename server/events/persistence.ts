@@ -1,0 +1,33 @@
+import { eq } from 'drizzle-orm'
+import type { db as hubDb } from 'hub:db'
+import * as schema from '~~/server/db/schema'
+
+export type AppDb = typeof hubDb
+
+export type EventRow = typeof schema.events.$inferSelect
+export type EventInsert = typeof schema.events.$inferInsert
+
+export function loadEventById(db: AppDb, id: number): Promise<EventRow | undefined> {
+  return db.query.events.findFirst({ where: eq(schema.events.id, id) })
+}
+
+export function findByLadvId(db: AppDb, ladvId: number): Promise<EventRow | undefined> {
+  return db.query.events.findFirst({ where: eq(schema.events.ladvId, ladvId) })
+}
+
+export async function insertEvent(db: AppDb, values: EventInsert): Promise<EventRow> {
+  const [row] = await db.insert(schema.events).values(values).returning()
+  return row!
+}
+
+export async function updateEvent(
+  db: AppDb,
+  id: number,
+  patch: Partial<EventInsert>,
+): Promise<void> {
+  await db.update(schema.events).set(patch).where(eq(schema.events.id, id))
+}
+
+export async function deleteEventById(db: AppDb, id: number): Promise<void> {
+  await db.delete(schema.events).where(eq(schema.events.id, id))
+}

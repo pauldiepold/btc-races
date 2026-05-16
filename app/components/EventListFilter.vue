@@ -1,9 +1,12 @@
 <script setup lang="ts">
-type CreateEventType = 'ladv' | 'competition' | 'training' | 'social'
+import type { EventType } from '~~/shared/utils/registration'
+import { EVENT_CATEGORIES } from '~~/shared/utils/registration'
+
+type CreateEventType = EventType
 
 const searchQuery = defineModel<string>('searchQuery', { required: true })
 const timeRange = defineModel<string>('timeRange', { required: true })
-const typeFilter = defineModel<string | undefined>('typeFilter')
+const categoryFilter = defineModel<string | undefined>('categoryFilter')
 const raceTypeFilter = defineModel<'track' | 'road' | 'trail' | undefined>('raceTypeFilter')
 const championshipFilter = defineModel<'bbm' | 'ndm' | 'dm' | undefined>('championshipFilter')
 const priorityFilter = defineModel<'A' | 'B' | 'C' | undefined>('priorityFilter')
@@ -33,7 +36,7 @@ const createOptions: { type: CreateEventType, label: string, description: string
 
 const activeFilterCount = computed(() => {
   let count = 0
-  if (typeFilter.value) count++
+  if (categoryFilter.value) count++
   if (raceTypeFilter.value) count++
   if (championshipFilter.value) count++
   if (priorityFilter.value) count++
@@ -59,7 +62,7 @@ const ageClassItems = computed(() => [
 ])
 
 function resetFilters() {
-  typeFilter.value = undefined
+  categoryFilter.value = undefined
   raceTypeFilter.value = undefined
   championshipFilter.value = undefined
   priorityFilter.value = undefined
@@ -127,34 +130,20 @@ async function handleCreate(type: CreateEventType) {
     </div>
 
     <div class="flex flex-wrap items-center gap-y-2 gap-x-4">
-      <!-- Typ: auf Mobile zuerst und immer sichtbar -->
+      <!-- Kategorie: auf Mobile zuerst und immer sichtbar -->
       <div
         v-if="!publicMode"
         class="flex gap-1"
       >
         <UButton
+          v-for="category in EVENT_CATEGORIES"
+          :key="category"
           size="sm"
-          :icon="eventTypeIcons['ladv']"
+          :icon="eventCategoryIcons[category]"
           variant="outline"
-          :color="typeFilter === 'competition' ? 'primary' : 'neutral'"
-          label="Wettkampf"
-          @click="typeFilter = typeFilter === 'competition' ? undefined : 'competition'"
-        />
-        <UButton
-          size="sm"
-          :icon="eventTypeIcons['training']"
-          variant="outline"
-          :color="typeFilter === 'training' ? 'primary' : 'neutral'"
-          label="Training"
-          @click="typeFilter = typeFilter === 'training' ? undefined : 'training'"
-        />
-        <UButton
-          size="sm"
-          :icon="eventTypeIcons['social']"
-          variant="outline"
-          :color="typeFilter === 'social' ? 'primary' : 'neutral'"
-          label="Social"
-          @click="typeFilter = typeFilter === 'social' ? undefined : 'social'"
+          :color="categoryFilter === category ? 'primary' : 'neutral'"
+          :label="eventCategoryLabels[category]"
+          @click="categoryFilter = categoryFilter === category ? undefined : category"
         />
       </div>
 

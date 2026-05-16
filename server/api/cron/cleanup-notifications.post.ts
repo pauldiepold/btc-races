@@ -1,5 +1,6 @@
 import { db, schema } from 'hub:db'
 import { and, eq, lt } from 'drizzle-orm'
+import { requireCronAuth } from '~~/server/utils/cron-auth'
 
 const RETENTION_DAYS = 90
 
@@ -8,12 +9,7 @@ const RETENTION_DAYS = 90
  * Fehlgeschlagene Jobs bleiben für Debugging erhalten.
  */
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig(event)
-  const authHeader = getHeader(event, 'Authorization')
-
-  if (authHeader !== `Bearer ${config.cronToken}`) {
-    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-  }
+  requireCronAuth(event)
 
   const cutoff = new Date(Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000)
 

@@ -1,30 +1,17 @@
-import { db, schema } from 'hub:db'
-import { eq } from 'drizzle-orm'
+import { db } from 'hub:db'
+import { requireOwnerOrAdmin } from '~~/server/utils/auth'
+import { loadEventOrThrow } from '~~/server/utils/load-entity'
+import { requireEventIdParam } from '~~/server/utils/route-params'
+import { actorFromSession, uncancelEvent, withEventErrorMapping } from '~~/server/events'
 
 export default defineEventHandler(async (event) => {
-  const sqid = getRouterParam(event, 'id')
-  if (!sqid) {
-    throw createError({ statusCode: 400, statusMessage: 'Fehlende Event-ID' })
-  }
+  const id = requireEventIdParam(event)
+  const dbEvent = await loadEventOrThrow(id)
+  const session = await requireOwnerOrAdmin(event, dbEvent.createdBy ?? 0)
 
-  const id = decodeEventId(sqid)
-  if (id === null) {
-    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-  }
+  const actor = actorFromSession(session)
 
-  await requireAdmin(event)
+  await withEventErrorMapping(() => uncancelEvent(id, actor, { db }))
 
-  const dbEvent = await db.query.events.findFirst({
-    where: eq(schema.events.id, id),
-  })
-  if (!dbEvent) {
-    throw createError({ statusCode: 404, statusMessage: 'Event nicht gefunden' })
-  }
-
-  await db
-    .update(schema.events)
-    .set({ cancelledAt: null, updatedAt: new Date() })
-    .where(eq(schema.events.id, id))
-
-  return { id: sqid }
+  return { id: encodeEventId(id) }
 })

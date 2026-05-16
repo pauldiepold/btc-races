@@ -1,95 +1,56 @@
-import { db, schema } from 'hub:db'
-import { eq } from 'drizzle-orm'
+import { db } from 'hub:db'
 import { z } from 'zod'
 import { LadvService } from '~~/server/external-apis/ladv/ladv.service'
 import { parseLadvIdFromUrl } from '~~/server/utils/ladv'
-import { notify } from '~~/server/notifications/service'
-import { recipients } from '~~/server/notifications/recipients'
-import { buildEventPayload } from '~~/server/notifications/payload-helpers'
+import { parseBody } from '~~/server/utils/parse-body'
+import { actorFromSession, importEventFromLadv, EventError, errorToHttpStatus } from '~~/server/events'
 
 const importSchema = z.object({
-  url: z.string().url('Ungültige URL'),
+  url: z.url('Ungültige URL'),
+  eventType: z.enum(['ladv', 'ladv_external']),
 })
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
 
-  const body = await readBody(event)
-  const result = importSchema.safeParse(body)
-  if (!result.success) {
-    throw createError({ statusCode: 400, statusMessage: result.error.issues[0]?.message ?? 'Validierungsfehler' })
-  }
+  const { url, eventType } = await parseBody(event, importSchema)
 
-  const ladvId = parseLadvIdFromUrl(result.data.url)
+  const ladvId = parseLadvIdFromUrl(url)
   if (!ladvId) {
     throw createError({ statusCode: 400, statusMessage: 'Keine LADV-ID in der URL gefunden. Erwartet: https://ladv.de/ausschreibung/detail/[ID]/...' })
   }
 
-  const existing = await db.query.events.findFirst({
-    where: eq(schema.events.ladvId, ladvId),
-    columns: { id: true },
-  })
-
-  if (existing) {
-    throw createError({
-      statusCode: 409,
-      statusMessage: 'Ein Event mit dieser LADV-ID existiert bereits.',
-      data: { existingEventId: encodeEventId(existing.id) },
-    })
-  }
-
   const service = new LadvService()
-  let normalized: Awaited<ReturnType<LadvService['fetchAusschreibung']>>
+  let ladvData: Awaited<ReturnType<LadvService['fetchAusschreibung']>>
   try {
-    normalized = await service.fetchAusschreibung(ladvId)
+    ladvData = await service.fetchAusschreibung(ladvId)
   }
   catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unbekannter Fehler'
     throw createError({ statusCode: 502, statusMessage: `LADV-API nicht erreichbar: ${message}` })
   }
 
-  const now = new Date()
+  const actor = actorFromSession(session)
 
-  const inserted = await db.insert(schema.events).values({
-    type: 'ladv' as const,
-    name: normalized.name,
-    date: normalized.date,
-    startTime: normalized.start_time,
-    location: normalized.location,
-    registrationDeadline: normalized.registration_deadline,
-    raceType: normalized.race_type,
-    isWrc: normalized.is_wrc,
-    ladvId,
-    ladvData: normalized.ladv_data,
-    ladvLastSync: now,
-    createdBy: session.user.id,
-    createdAt: now,
-    updatedAt: now,
-  }).returning({ id: schema.events.id })
-
-  const newId = inserted[0]!.id
-
+  // Eigenes try/catch (statt withEventErrorMapping), weil existingEventId aus
+  // EventError.data per encodeEventId in HTTP-safe Form gebracht werden muss.
+  // Siehe docs/adr/0001-domain-error-mapping.md.
   try {
-    const siteUrl = useRuntimeConfig().public.siteUrl
-    await notify({
-      type: 'new_event',
-      recipients: await recipients.allMembers(),
-      actorUserId: session.user.id,
-      payload: buildEventPayload({
-        id: newId,
-        type: 'ladv',
-        name: normalized.name,
-        date: normalized.date,
-        location: normalized.location,
-        registrationDeadline: normalized.registration_deadline,
-      }, siteUrl),
-      eventId: newId,
-    })
+    const { id } = await importEventFromLadv({ eventType, ladvId, ladvData }, actor, { db })
+    setResponseStatus(event, 201)
+    return { id: encodeEventId(id) }
   }
   catch (err) {
-    console.error('[Notification] new_event:', err)
+    if (err instanceof EventError) {
+      if (err.code === 'ladv_id_already_imported' && err.data?.existingEventId != null) {
+        throw createError({
+          statusCode: 409,
+          statusMessage: 'Ein Event mit dieser LADV-ID existiert bereits.',
+          data: { existingEventId: encodeEventId(err.data.existingEventId) },
+        })
+      }
+      throw createError({ statusCode: errorToHttpStatus(err.code), statusMessage: err.message })
+    }
+    throw err
   }
-
-  setResponseStatus(event, 201)
-  return { id: encodeEventId(newId) }
 })

@@ -1,6 +1,7 @@
 import { db, schema } from 'hub:db'
 import { eq } from 'drizzle-orm'
 import { requireSuperuser } from '~~/server/utils/auth'
+import { requireNumericIdParam } from '~~/server/utils/route-params'
 
 /**
  * Setzt einen Notification-Job zurück, sodass er beim nächsten Queue-Lauf
@@ -8,16 +9,7 @@ import { requireSuperuser } from '~~/server/utils/auth'
  */
 export default defineEventHandler(async (event) => {
   await requireSuperuser(event)
-
-  const rawId = getRouterParam(event, 'id')
-  if (!rawId) {
-    throw createError({ statusCode: 400, statusMessage: 'Fehlende Job-ID' })
-  }
-
-  const id = Number(rawId)
-  if (!Number.isInteger(id) || id <= 0) {
-    throw createError({ statusCode: 400, statusMessage: 'Ungültige Job-ID' })
-  }
+  const id = requireNumericIdParam(event, 'Job-ID')
 
   const job = await db.query.notificationJobs.findFirst({
     where: eq(schema.notificationJobs.id, id),

@@ -2,6 +2,7 @@ import type { NotificationType } from '~~/shared/types/notifications'
 import type { AnyNotificationDefinition } from './_define'
 
 import { adminChangedMemberRegistration } from './admin-changed-member-registration'
+import { adminLateRegistration } from './admin-late-registration'
 import { adminRegisteredMember } from './admin-registered-member'
 import { athleteCanceledAfterLadv } from './athlete-canceled-after-ladv'
 import { athleteChangedAfterLadv } from './athlete-changed-after-ladv'
@@ -36,6 +37,7 @@ export const notificationRegistry = {
   reminder_deadline_athlete: reminderDeadlineAthlete,
   reminder_deadline_admin: reminderDeadlineAdmin,
   reminder_event: reminderEvent,
+  admin_late_registration: adminLateRegistration,
 } as const satisfies Record<NotificationType, AnyNotificationDefinition>
 
 export type NotificationRegistry = typeof notificationRegistry

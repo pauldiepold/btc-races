@@ -45,9 +45,13 @@ const styles = {
   },
   disciplineList: {
     margin: '0',
+    paddingLeft: '20px',
     fontSize: '14px',
     color: '#3f3f46',
     lineHeight: '1.6',
+  },
+  disciplineItem: {
+    margin: '2px 0',
   },
 }
 </script>
@@ -72,9 +76,15 @@ const styles = {
       <EText :style="styles.disciplineLabel">
         Deine angemeldeten Disziplinen
       </EText>
-      <EText :style="styles.disciplineList">
-        {{ disciplines.join(', ') }}
-      </EText>
+      <ul :style="styles.disciplineList">
+        <li
+          v-for="(d, idx) in disciplines"
+          :key="idx"
+          :style="styles.disciplineItem"
+        >
+          {{ d }}
+        </li>
+      </ul>
     </ESection>
 
     <EventDetails

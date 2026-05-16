@@ -1,5 +1,6 @@
 import { and, eq, inArray } from 'drizzle-orm'
 import type { z } from 'zod'
+import * as schema from '~~/server/db/schema'
 import { emailService } from '~~/server/email/service'
 import { formatActorName } from '~~/shared/utils/format-actor-name'
 import type { NotificationType } from '~~/shared/types/notifications'
@@ -10,6 +11,16 @@ import { buildDeliveryTasks } from './delivery-builder'
 import type { NotificationRecipient } from './recipients'
 
 export type { NotificationRecipient } from './recipients'
+
+/**
+ * DB-Handle: per Default das Hub-Binding, in Tests übergibt der Caller die libsql-In-Memory-DB.
+ */
+export type NotifyDb = typeof import('hub:db')['db']
+
+async function getDefaultDb(): Promise<NotifyDb> {
+  const mod = await import('hub:db')
+  return mod.db
+}
 
 type PayloadOf<T extends NotificationType>
   = (typeof notificationRegistry)[T]['payload'] extends z.ZodType<infer P> ? P : never
@@ -49,8 +60,11 @@ interface ResolvedActor extends NotificationActor {
  * Validiert Payload gegen Registry-Schema und legt einen Notification-Job in die Queue.
  * Wirft bei Schema-Verletzung — Aufrufer (API-Route) sollte try/catch verwenden.
  */
-export async function notify<T extends NotificationType>(options: NotifyOptions<T>): Promise<NotifyResult> {
-  const { db, schema } = await import('hub:db')
+export async function notify<T extends NotificationType>(
+  options: NotifyOptions<T>,
+  dbOverride?: NotifyDb,
+): Promise<NotifyResult> {
+  const db = dbOverride ?? await getDefaultDb()
   const { type, recipients, payload, eventId } = options
   const actorUserId = (options as { actorUserId?: number }).actorUserId
 

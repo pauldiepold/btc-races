@@ -12,6 +12,7 @@ export type NotificationType
     | 'reminder_deadline_athlete'
     | 'reminder_deadline_admin'
     | 'reminder_event'
+    | 'admin_late_registration'
 
 export type NotificationChannel = 'email' | 'push'
 

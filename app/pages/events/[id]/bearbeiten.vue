@@ -4,6 +4,7 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 import type { EventDetail } from '~~/shared/types/events'
 import { detectLadvDiff, type LadvDiff } from '~~/shared/utils/ladv'
 import { diffEventCoreFields, type EventCoreSnapshot } from '~~/shared/utils/diff-event-core-fields'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 import { Time } from '@internationalized/date'
 
 definePageMeta({ title: 'Event bearbeiten' })
@@ -47,8 +48,9 @@ const startTimeModel = computed({
   },
 })
 
-const isLadv = computed(() => event.value?.type === 'ladv')
-const isCompetitionOrLadv = computed(() => event.value?.type === 'competition' || event.value?.type === 'ladv')
+const caps = computed(() => event.value ? eventTypeCapabilities[event.value.type] : null)
+const isLadvSource = computed(() => caps.value?.source === 'ladv')
+const hasCompetitionMetadata = computed(() => caps.value?.hasCompetitionMetadata ?? false)
 const isAdmin = computed(() => session.value?.user?.role === 'admin' || session.value?.user?.role === 'superuser')
 const isSuperuser = computed(() => session.value?.user?.role === 'superuser')
 
@@ -195,11 +197,11 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
         duration: ((state.durationHours ?? 0) * 60 + (state.durationMinutes ?? 0)) || null,
         location: state.location || null,
         description: state.description || null,
-        registrationDeadline: isCompetitionOrLadv.value ? (state.registrationDeadline || null) : null,
-        announcementLink: isLadv.value ? undefined : (state.announcementLink || null),
-        raceType: isCompetitionOrLadv.value ? (state.raceType || null) : null,
-        championshipType: isLadv.value ? (state.championshipType || null) : null,
-        priority: isCompetitionOrLadv.value ? (state.priority || null) : null,
+        registrationDeadline: hasCompetitionMetadata.value ? (state.registrationDeadline || null) : null,
+        announcementLink: isLadvSource.value ? undefined : (state.announcementLink || null),
+        raceType: hasCompetitionMetadata.value ? (state.raceType || null) : null,
+        championshipType: isLadvSource.value ? (state.championshipType || null) : null,
+        priority: hasCompetitionMetadata.value ? (state.priority || null) : null,
       },
     })
     toast.add({ title: 'Event gespeichert', color: 'success' })
@@ -360,7 +362,7 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
 
       <!-- Ausschreibungslink (nicht bei LADV — dort kommt er automatisch aus ladvData.url) -->
       <UFormField
-        v-if="!isLadv"
+        v-if="!isLadvSource"
         name="announcementLink"
         label="Ausschreibungslink"
       >
@@ -374,7 +376,7 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
 
       <!-- Meldeschluss (Competition + LADV) -->
       <UFormField
-        v-if="isCompetitionOrLadv"
+        v-if="hasCompetitionMetadata"
         name="registrationDeadline"
         label="Meldeschluss"
       >
@@ -392,7 +394,7 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
 
       <!-- Rennart (Competition + LADV) -->
       <UFormField
-        v-if="isCompetitionOrLadv"
+        v-if="hasCompetitionMetadata"
         name="raceType"
         label="Rennart"
       >
@@ -413,7 +415,7 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
 
       <!-- Meisterschaft (nur LADV) -->
       <UFormField
-        v-if="isLadv"
+        v-if="isLadvSource"
         name="championshipType"
         label="Meisterschaft"
       >
@@ -429,7 +431,7 @@ async function onSubmit(_formEvent: FormSubmitEvent<FormSchema>) {
 
       <!-- Priorität (Competition + LADV, nur Admins) -->
       <UFormField
-        v-if="isCompetitionOrLadv && isAdmin"
+        v-if="hasCompetitionMetadata && isAdmin"
         name="priority"
         label="Priorität"
       >

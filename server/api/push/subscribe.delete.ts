@@ -1,6 +1,7 @@
 import { db, schema } from 'hub:db'
 import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
+import { parseBody } from '~~/server/utils/parse-body'
 
 const unsubscribeSchema = z.object({
   endpoint: z.string().url(),
@@ -8,7 +9,7 @@ const unsubscribeSchema = z.object({
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
-  const body = await readValidatedBody(event, unsubscribeSchema.parse)
+  const body = await parseBody(event, unsubscribeSchema)
 
   await db.delete(schema.pushSubscriptions)
     .where(

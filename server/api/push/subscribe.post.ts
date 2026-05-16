@@ -1,6 +1,7 @@
 import { db, schema } from 'hub:db'
 import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
+import { parseBody } from '~~/server/utils/parse-body'
 
 const subscribeSchema = z.object({
   endpoint: z.string().url(),
@@ -12,7 +13,7 @@ const subscribeSchema = z.object({
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
-  const body = await readValidatedBody(event, subscribeSchema.parse)
+  const body = await parseBody(event, subscribeSchema)
   const userId = session.user.id
 
   const userExists = await db.select({ id: schema.users.id })

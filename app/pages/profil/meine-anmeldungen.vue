@@ -4,6 +4,7 @@ import {
   REGISTRATION_STATUS_LABELS,
   REGISTRATION_STATUS_BADGE_COLORS,
 } from '~~/shared/utils/registration-ui'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 
 definePageMeta({ layout: 'profil', title: 'Meine Anmeldungen' })
 
@@ -110,7 +111,7 @@ const { data: registrations, status } = await useFetch<MyRegistration[]>('/api/m
             {{ REGISTRATION_STATUS_LABELS[reg.status] }}
           </UBadge>
           <UBadge
-            v-if="reg.event.type === 'ladv' && reg.ladvDisciplines?.length"
+            v-if="eventTypeCapabilities[reg.event.type].hasLadvStandManagement && reg.ladvDisciplines?.length"
             color="success"
             variant="outline"
             size="xs"

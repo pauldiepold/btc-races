@@ -1,52 +1,34 @@
-export type EventType = 'ladv' | 'competition' | 'training' | 'social'
+import { eventTypeCapabilities } from './event-types/capabilities'
+
+export type EventType = 'ladv' | 'ladv_external' | 'competition' | 'training' | 'social'
+export type EventCategory = 'competition' | 'training' | 'social'
+export type RegistrationStatus = 'registered' | 'canceled' | 'maybe' | 'yes' | 'no'
+
+/** Runtime-Liste aller Event-Typen — abgeleitet aus eventTypeCapabilities, damit z.enum & Co. nicht manuell synchronisiert werden müssen. */
+export const EVENT_TYPES = Object.keys(eventTypeCapabilities) as [EventType, ...EventType[]]
+
+/** Geordnete Liste der Event-Kategorien — dient z.enum-Validierung und der UI-Filter-Reihenfolge. */
+export const EVENT_CATEGORIES = ['competition', 'training', 'social'] as const satisfies readonly EventCategory[]
+
+/** Event-Typen, die manuell angelegt werden (kein LADV-Sync) — für Create-Form & POST-Validierung. */
+export const MANUAL_EVENT_TYPES = (Object.keys(eventTypeCapabilities) as EventType[])
+  .filter(t => eventTypeCapabilities[t].source === 'manual') as [EventType, ...EventType[]]
 
 export function getEventTypeLabel(type: EventType): string {
-  if (type === 'training') return 'Training'
-  if (type === 'social') return 'Event'
-  return 'Wettkampf'
+  return eventTypeCapabilities[type].label
 }
 
 export function getNewEventLabel(type: EventType): string {
-  if (type === 'training') return 'Neues Training'
-  if (type === 'social') return 'Neues Event'
-  return 'Neuer Wettkampf'
+  return eventTypeCapabilities[type].newLabel
 }
-export type RegistrationStatus = 'registered' | 'canceled' | 'maybe' | 'yes' | 'no'
 
-// State Machine gemäß Feature-Spec:
-// ladv:        registered ↔ canceled
-// competition: registered ↔ maybe ↔ no
-// training:    yes ↔ maybe ↔ no
-// social:      yes ↔ maybe ↔ no
-//
-// Fristprüfung ist NICHT Teil dieser Funktion — die macht isDeadlineExpired.
-// Diese Funktion gibt nur die laut State Machine erlaubten Übergänge zurück.
+export function getInitialStatus(eventType: EventType): RegistrationStatus {
+  return eventTypeCapabilities[eventType].status.initial
+}
+
 export function getValidNextStatuses(
   current: RegistrationStatus,
   eventType: EventType,
 ): RegistrationStatus[] {
-  if (eventType === 'ladv') {
-    if (current === 'registered') return ['canceled']
-    if (current === 'canceled') return ['registered']
-    return []
-  }
-
-  if (eventType === 'competition') {
-    if (current === 'registered') return ['maybe', 'no']
-    if (current === 'maybe') return ['registered', 'no']
-    if (current === 'no') return ['registered', 'maybe']
-    return []
-  }
-
-  // training + social
-  if (current === 'yes') return ['maybe', 'no']
-  if (current === 'maybe') return ['yes', 'no']
-  if (current === 'no') return ['yes', 'maybe']
-  return []
-}
-
-// Initialer Status beim Anmelden je nach Event-Typ
-export function getInitialStatus(eventType: EventType): RegistrationStatus {
-  if (eventType === 'ladv' || eventType === 'competition') return 'registered'
-  return 'yes'
+  return eventTypeCapabilities[eventType].status.validNext[current] ?? []
 }

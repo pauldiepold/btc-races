@@ -1,10 +1,10 @@
 import { z } from 'zod'
 import { defineNotificationType } from './_define'
-import { getEventTypeLabel } from '~~/shared/utils/registration'
+import { EVENT_TYPES, getEventTypeLabel } from '~~/shared/utils/registration'
 
 export const eventCanceled = defineNotificationType({
   type: 'event_canceled',
-  actor: 'required',
+  actor: 'optional',
   meta: {
     label: 'Event abgesagt',
     description: 'Wenn ein Event abgesagt wird, für das du angemeldet bist.',
@@ -16,7 +16,7 @@ export const eventCanceled = defineNotificationType({
   },
   payload: z.object({
     eventName: z.string(),
-    eventType: z.enum(['ladv', 'competition', 'training', 'social']),
+    eventType: z.enum(EVENT_TYPES),
     eventDate: z.string().optional(),
     eventLocation: z.string().optional(),
     registrationDeadline: z.string().optional(),

@@ -1,15 +1,7 @@
 import { processQueue } from '~~/server/notifications/process'
+import { requireCronAuth } from '~~/server/utils/cron-auth'
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig(event)
-  const authHeader = getHeader(event, 'Authorization')
-
-  if (authHeader !== `Bearer ${config.cronToken}`) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-    })
-  }
-
+  requireCronAuth(event)
   return await processQueue()
 })

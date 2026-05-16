@@ -18,8 +18,8 @@ export interface LadvAusschreibung {
   id: number
   name: string
   sportstaette: string
-  meldAdresse: string
-  meldEmail: string
+  meldAdresse: string | null
+  meldEmail: string | null
   veranstalter: string
   ausrichter: string
   beschreibung: string

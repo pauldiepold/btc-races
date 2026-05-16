@@ -67,6 +67,7 @@ const typeLabels: Record<NotificationType, string> = {
   reminder_deadline_athlete: 'Meldefrist (Athlet)',
   reminder_deadline_admin: 'Meldefrist (Admin)',
   reminder_event: 'Event in 2 Tagen',
+  admin_late_registration: 'Späte LADV-Anmeldung',
 }
 
 const typeOptions = [
@@ -187,16 +188,16 @@ function toggleExpand(id: number) {
     <!-- Sub-Navigation -->
     <div class="flex gap-2 mb-8 border-b border-default">
       <NuxtLink
-        to="/superuser"
-        class="px-4 py-2 text-sm font-medium text-muted hover:text-highlighted transition-colors border-b-2 border-transparent"
-      >
-        System
-      </NuxtLink>
-      <NuxtLink
         to="/superuser/notifications"
         class="px-4 py-2 text-sm font-medium text-highlighted border-b-2 border-primary"
       >
         Notifications
+      </NuxtLink>
+      <NuxtLink
+        to="/superuser"
+        class="px-4 py-2 text-sm font-medium text-muted hover:text-highlighted transition-colors border-b-2 border-transparent"
+      >
+        System
       </NuxtLink>
     </div>
 

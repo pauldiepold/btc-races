@@ -4,7 +4,7 @@ import { requireOwnerOrAdmin } from '~~/server/utils/auth'
 import { loadEventOrThrow } from '~~/server/utils/load-entity'
 import { parseBody } from '~~/server/utils/parse-body'
 import { requireEventIdParam } from '~~/server/utils/route-params'
-import { applyEventPatch, EventError, errorToHttpStatus, type EventActor } from '~~/server/events'
+import { actorFromSession, applyEventPatch, EventError, errorToHttpStatus } from '~~/server/events'
 
 const patchEventSchema = z.object({
   name: z.string().min(1, 'Name ist erforderlich').optional(),
@@ -29,14 +29,8 @@ export default defineEventHandler(async (event) => {
   const data = await parseBody(event, patchEventSchema)
   const { suppressNotification, ...patch } = data
 
-  const isAdminRole = session.user.role === 'admin' || session.user.role === 'superuser'
-  const isSuperuser = session.user.role === 'superuser'
-
-  const actor: EventActor = isAdminRole
-    ? { kind: 'admin', userId: session.user.id, isSuperuser }
-    : { kind: 'owner', userId: session.user.id }
-
-  const silent = isSuperuser && suppressNotification === true
+  const actor = actorFromSession(session)
+  const silent = session.user.role === 'superuser' && suppressNotification === true
 
   try {
     await applyEventPatch(id, patch, actor, { db }, { silent })

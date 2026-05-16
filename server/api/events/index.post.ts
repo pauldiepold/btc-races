@@ -2,7 +2,7 @@ import { db } from 'hub:db'
 import { z } from 'zod'
 import { parseBody } from '~~/server/utils/parse-body'
 import { MANUAL_EVENT_TYPES } from '~~/shared/utils/registration'
-import { createManualEvent, EventError, errorToHttpStatus, type EventActor } from '~~/server/events'
+import { actorFromSession, createManualEvent, EventError, errorToHttpStatus } from '~~/server/events'
 
 const createEventSchema = z.object({
   type: z.enum(MANUAL_EVENT_TYPES),
@@ -23,12 +23,7 @@ export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
   const data = await parseBody(event, createEventSchema)
 
-  const isAdminRole = session.user.role === 'admin' || session.user.role === 'superuser'
-  const isSuperuser = session.user.role === 'superuser'
-
-  const actor: EventActor = isAdminRole
-    ? { kind: 'admin', userId: session.user.id, isSuperuser }
-    : { kind: 'owner', userId: session.user.id }
+  const actor = actorFromSession(session)
 
   try {
     const { id } = await createManualEvent(data, actor, { db })

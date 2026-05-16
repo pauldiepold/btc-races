@@ -2,8 +2,8 @@ import { db } from 'hub:db'
 import { z } from 'zod'
 import { requireAdmin } from '~~/server/utils/auth'
 import {
+  adminActor,
   registerMember,
-  type Actor,
 } from '~~/server/registration'
 import { parseBody } from '~~/server/utils/parse-body'
 import { withRegistrationErrorMapping } from '~~/server/utils/registration-error'
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
 
   const { userId, status, notes, disciplines, setLadvStandImmediately } = await parseBody(event, bodySchema)
 
-  const actor: Actor = { kind: 'admin', userId: adminSession.user.id }
+  const actor = adminActor(adminSession)
 
   return withRegistrationErrorMapping(async () => {
     const { id } = await registerMember(

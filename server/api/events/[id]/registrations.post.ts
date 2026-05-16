@@ -2,7 +2,7 @@ import { db } from 'hub:db'
 import { z } from 'zod'
 import {
   registerMember,
-  type Actor,
+  selfActor,
 } from '~~/server/registration'
 import { parseBody } from '~~/server/utils/parse-body'
 import { withRegistrationErrorMapping } from '~~/server/utils/registration-error'
@@ -23,11 +23,7 @@ export default defineEventHandler(async (event) => {
 
   const { notes, disciplines, status } = await parseBody(event, bodySchema)
 
-  const actor: Actor = {
-    kind: 'self',
-    userId: session.user.id,
-    hasLadvStartpass: !!session.user.hasLadvStartpass,
-  }
+  const actor = selfActor(session)
 
   return withRegistrationErrorMapping(async () => {
     const { id } = await registerMember(

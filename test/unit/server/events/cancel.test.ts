@@ -66,12 +66,12 @@ async function loadEvent(id: number) {
   return testDb.db.query.events.findFirst({ where: eq(schema.events.id, id) })
 }
 
-function ownerActor(userId: number): EventActor {
-  return { kind: 'owner', userId }
+function selfActor(userId: number): EventActor {
+  return { kind: 'self', userId }
 }
 
-function adminActor(userId: number, isSuperuser = false): EventActor {
-  return { kind: 'admin', userId, isSuperuser }
+function adminActor(userId: number): EventActor {
+  return { kind: 'admin', userId }
 }
 
 describe('cancelEvent', () => {
@@ -84,7 +84,7 @@ describe('cancelEvent', () => {
     await seedAttendee(eventId, 'no')
     await seedAttendee(eventId, 'canceled')
 
-    const result = await cancelEvent(eventId, ownerActor(ownerId), { db })
+    const result = await cancelEvent(eventId, selfActor(ownerId), { db })
 
     expect(result.cancelled).toBe(true)
     expect((await loadEvent(eventId))?.cancelledAt).toBeTruthy()
@@ -101,10 +101,10 @@ describe('cancelEvent', () => {
     const eventId = await seedEvent({ createdBy: ownerId })
     await seedAttendee(eventId, 'registered')
 
-    await cancelEvent(eventId, ownerActor(ownerId), { db })
+    await cancelEvent(eventId, selfActor(ownerId), { db })
     const firstCancelledAt = (await loadEvent(eventId))?.cancelledAt
 
-    const result = await cancelEvent(eventId, ownerActor(ownerId), { db })
+    const result = await cancelEvent(eventId, selfActor(ownerId), { db })
 
     expect(result.cancelled).toBe(false)
     expect((await loadEvent(eventId))?.cancelledAt).toEqual(firstCancelledAt)
@@ -119,7 +119,7 @@ describe('cancelEvent', () => {
     const eventId = await seedEvent({ createdBy: ownerId })
 
     await expect(
-      cancelEvent(eventId, ownerActor(strangerId), { db }),
+      cancelEvent(eventId, selfActor(strangerId), { db }),
     ).rejects.toMatchObject({ code: 'forbidden' })
 
     expect((await loadEvent(eventId))?.cancelledAt).toBeNull()

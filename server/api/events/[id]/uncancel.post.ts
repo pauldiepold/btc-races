@@ -2,19 +2,14 @@ import { db } from 'hub:db'
 import { requireOwnerOrAdmin } from '~~/server/utils/auth'
 import { loadEventOrThrow } from '~~/server/utils/load-entity'
 import { requireEventIdParam } from '~~/server/utils/route-params'
-import { EventError, errorToHttpStatus, uncancelEvent, type EventActor } from '~~/server/events'
+import { actorFromSession, EventError, errorToHttpStatus, uncancelEvent } from '~~/server/events'
 
 export default defineEventHandler(async (event) => {
   const id = requireEventIdParam(event)
   const dbEvent = await loadEventOrThrow(id)
   const session = await requireOwnerOrAdmin(event, dbEvent.createdBy ?? 0)
 
-  const isAdminRole = session.user.role === 'admin' || session.user.role === 'superuser'
-  const isSuperuser = session.user.role === 'superuser'
-
-  const actor: EventActor = isAdminRole
-    ? { kind: 'admin', userId: session.user.id, isSuperuser }
-    : { kind: 'owner', userId: session.user.id }
+  const actor = actorFromSession(session)
 
   try {
     await uncancelEvent(id, actor, { db })

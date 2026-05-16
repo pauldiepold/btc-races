@@ -68,54 +68,43 @@ async function loadRegistration(id: number) {
   return testDb.db.query.registrations.findFirst({ where: eq(schema.registrations.id, id) })
 }
 
-function ownerActor(userId: number): EventActor {
-  return { kind: 'owner', userId }
+function selfActor(userId: number): EventActor {
+  return { kind: 'self', userId }
 }
 
-function adminActor(userId: number, isSuperuser = false): EventActor {
-  return { kind: 'admin', userId, isSuperuser }
+function adminActor(userId: number): EventActor {
+  return { kind: 'admin', userId }
 }
 
 describe('deleteEvent', () => {
-  it('Superuser löscht Event inkl. kaskadierender Anmeldungen', async () => {
-    const suId = await seedUser({ role: 'superuser' })
+  it('Admin löscht Event inkl. kaskadierender Anmeldungen', async () => {
+    const adminId = await seedUser({ role: 'admin' })
     const memberId = await seedUser({ suffix: 'member' })
-    const eventId = await seedEvent({ createdBy: suId })
+    const eventId = await seedEvent({ createdBy: adminId })
     const regId = await seedRegistration(eventId, memberId)
 
-    await deleteEvent(eventId, adminActor(suId, true), { db })
+    await deleteEvent(eventId, adminActor(adminId), { db })
 
     expect(await loadEvent(eventId)).toBeUndefined()
     expect(await loadRegistration(regId)).toBeUndefined()
   })
 
-  it('Admin ohne Superuser → forbidden', async () => {
-    const adminId = await seedUser({ role: 'admin' })
-    const eventId = await seedEvent({ createdBy: adminId })
+  it('Self → forbidden', async () => {
+    const userId = await seedUser()
+    const eventId = await seedEvent({ createdBy: userId })
 
     await expect(
-      deleteEvent(eventId, adminActor(adminId, false), { db }),
-    ).rejects.toMatchObject({ code: 'forbidden' })
-
-    expect(await loadEvent(eventId)).toBeDefined()
-  })
-
-  it('Owner → forbidden', async () => {
-    const ownerId = await seedUser()
-    const eventId = await seedEvent({ createdBy: ownerId })
-
-    await expect(
-      deleteEvent(eventId, ownerActor(ownerId), { db }),
+      deleteEvent(eventId, selfActor(userId), { db }),
     ).rejects.toMatchObject({ code: 'forbidden' })
 
     expect(await loadEvent(eventId)).toBeDefined()
   })
 
   it('Unbekanntes Event → event_not_found (nicht idempotent)', async () => {
-    const suId = await seedUser({ role: 'superuser' })
+    const adminId = await seedUser({ role: 'admin' })
 
     await expect(
-      deleteEvent(99999, adminActor(suId, true), { db }),
+      deleteEvent(99999, adminActor(adminId), { db }),
     ).rejects.toMatchObject({ code: 'event_not_found' })
   })
 })

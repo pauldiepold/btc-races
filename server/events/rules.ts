@@ -14,5 +14,5 @@ export function canModifyEvent(actor: EventActor, dbEvent: EventRow): boolean {
 }
 
 export function canDeleteEvent(actor: EventActor): boolean {
-  return actor.kind === 'admin' && actor.isSuperuser
+  return actor.kind === 'admin'
 }

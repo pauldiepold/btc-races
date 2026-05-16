@@ -80,12 +80,12 @@ async function loadEvent(id: number) {
   return testDb.db.query.events.findFirst({ where: eq(schema.events.id, id) })
 }
 
-function ownerActor(userId: number): EventActor {
-  return { kind: 'owner', userId }
+function selfActor(userId: number): EventActor {
+  return { kind: 'self', userId }
 }
 
-function adminActor(userId: number, isSuperuser = false): EventActor {
-  return { kind: 'admin', userId, isSuperuser }
+function adminActor(userId: number): EventActor {
+  return { kind: 'admin', userId }
 }
 
 describe('applyEventPatch — Core-Field-Notifications', () => {
@@ -94,7 +94,7 @@ describe('applyEventPatch — Core-Field-Notifications', () => {
     const eventId = await seedEvent({ createdBy: ownerId, date: FUTURE_DATE, location: 'Berlin' })
     await seedRegisteredAttendee(eventId)
 
-    await applyEventPatch(eventId, { date: '2099-07-01' }, ownerActor(ownerId), { db })
+    await applyEventPatch(eventId, { date: '2099-07-01' }, selfActor(ownerId), { db })
 
     expect((await loadEvent(eventId))?.date).toBe('2099-07-01')
     const jobs = await loadNotificationJobs(testDb)
@@ -107,7 +107,7 @@ describe('applyEventPatch — Core-Field-Notifications', () => {
     const eventId = await seedEvent({ createdBy: ownerId, location: 'Berlin' })
     await seedRegisteredAttendee(eventId)
 
-    await applyEventPatch(eventId, { location: 'Potsdam' }, ownerActor(ownerId), { db })
+    await applyEventPatch(eventId, { location: 'Potsdam' }, selfActor(ownerId), { db })
 
     const jobs = await loadNotificationJobs(testDb)
     expect(jobs).toHaveLength(1)
@@ -119,7 +119,7 @@ describe('applyEventPatch — Core-Field-Notifications', () => {
     const eventId = await seedEvent({ createdBy: ownerId, description: 'alt' })
     await seedRegisteredAttendee(eventId)
 
-    await applyEventPatch(eventId, { description: 'neu' }, ownerActor(ownerId), { db })
+    await applyEventPatch(eventId, { description: 'neu' }, selfActor(ownerId), { db })
 
     expect((await loadEvent(eventId))?.description).toBe('neu')
     expect(await loadNotificationJobs(testDb)).toHaveLength(0)
@@ -134,7 +134,7 @@ describe('applyEventPatch — Core-Field-Notifications', () => {
     await applyEventPatch(
       eventId,
       { date: '2099-07-01' },
-      adminActor(adminId, true),
+      adminActor(adminId),
       { db },
       { silent: true },
     )
@@ -147,7 +147,7 @@ describe('applyEventPatch — Core-Field-Notifications', () => {
     const ownerId = await seedUser()
     const eventId = await seedEvent({ createdBy: ownerId, date: FUTURE_DATE })
 
-    await applyEventPatch(eventId, { date: '2099-07-01' }, ownerActor(ownerId), { db })
+    await applyEventPatch(eventId, { date: '2099-07-01' }, selfActor(ownerId), { db })
 
     expect((await loadEvent(eventId))?.date).toBe('2099-07-01')
     expect(await loadNotificationJobs(testDb)).toHaveLength(0)
@@ -168,7 +168,7 @@ describe('applyEventPatch — Priority-Gating', () => {
     const suId = await seedUser({ role: 'superuser' })
     const eventId = await seedEvent({ createdBy: suId, type: 'competition' })
 
-    await applyEventPatch(eventId, { priority: 'B' }, adminActor(suId, true), { db })
+    await applyEventPatch(eventId, { priority: 'B' }, adminActor(suId), { db })
 
     expect((await loadEvent(eventId))?.priority).toBe('B')
   })
@@ -178,7 +178,7 @@ describe('applyEventPatch — Priority-Gating', () => {
     const eventId = await seedEvent({ createdBy: ownerId, type: 'competition' })
 
     await expect(
-      applyEventPatch(eventId, { priority: 'A' }, ownerActor(ownerId), { db }),
+      applyEventPatch(eventId, { priority: 'A' }, selfActor(ownerId), { db }),
     ).rejects.toMatchObject({ code: 'priority_not_allowed' })
 
     expect((await loadEvent(eventId))?.priority).toBeNull()
@@ -210,7 +210,7 @@ describe('applyEventPatch — Authorization', () => {
     const eventId = await seedEvent({ createdBy: ownerId })
 
     await expect(
-      applyEventPatch(eventId, { name: 'Hijack' }, ownerActor(strangerId), { db }),
+      applyEventPatch(eventId, { name: 'Hijack' }, selfActor(strangerId), { db }),
     ).rejects.toMatchObject({ code: 'forbidden' })
 
     expect((await loadEvent(eventId))?.name).toBe('Test-Event')
@@ -230,7 +230,7 @@ describe('applyEventPatch — Authorization', () => {
     const ownerId = await seedUser()
 
     await expect(
-      applyEventPatch(99999, { name: 'foo' }, ownerActor(ownerId), { db }),
+      applyEventPatch(99999, { name: 'foo' }, selfActor(ownerId), { db }),
     ).rejects.toMatchObject({ code: 'event_not_found' })
   })
 })

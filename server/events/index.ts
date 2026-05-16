@@ -4,7 +4,7 @@ export type { EventErrorCode } from './errors'
 export { errorToHttpStatus } from './http-error'
 
 export type { EventActor } from './actor'
-export { isAdminActor } from './actor'
+export { selfActor, adminActor, actorFromSession } from './actor'
 
 export type { AppDb, EventRow, EventInsert } from './persistence'
 

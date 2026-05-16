@@ -50,21 +50,21 @@ Initialer Status pro Typ (`getInitialStatus`): `ladv`/`competition` → `registe
 
 **Event-Reaktivierung** *(`uncancel`)* — Aufhebung des Cancel-Status (`cancelledAt := null`). Idempotent: ein nicht-gecanceltes Event reaktivieren ist ein No-Op. Heute keine Notification — Folge-Issue für `event_uncanceled` ("Event findet doch statt") existiert.
 
-**Event-Löschung** *(`delete`)* — Hard-Delete aus der Datenbank, inklusive aller Anmeldungen via FK-Cascade. Nur für Superuser. Nicht idempotent: bereits gelöschtes Event → `event_not_found`.
+**Event-Löschung** *(`delete`)* — Hard-Delete aus der Datenbank, inklusive aller Anmeldungen via FK-Cascade. Im HTTP-Layer auf Superuser beschränkt (`requireSuperuser`). Nicht idempotent: bereits gelöschtes Event → `event_not_found`.
 
 ## Aktor (Event)
 
 **Event-Aktor** *(`EventActor`)* — wer eine Event-Operation auslöst. Zwei Arten:
 
 - **Self** — ein authentifiziertes Mitglied, das nur eigene Events (`createdBy === userId`) modifizieren darf.
-- **Admin** — Coach/Admin/Superuser, der jedes Event modifizieren darf. Trägt zusätzlich `isSuperuser`-Flag, weil einzelne Operationen (heute: `delete`, `priority` setzen) nur Superuser/Admin erlauben.
+- **Admin** — Coach/Admin/Superuser, der jedes Event modifizieren darf.
 
-> Hinweis: Im Code heißt `Self` heute noch `kind: 'owner'` — irreführend, weil "owner" nach "Ersteller dieses Events" klingt, tatsächlich aber "nicht-Admin" meint. Rename-Issue separat.
+Die Unterscheidung admin vs. superuser ist eine HTTP-Auth-Entscheidung (`requireAdmin`/`requireSuperuser`) und gehört nicht in die Domäne.
 
 **Aktor-spezifische Regeln im Event-Modul:**
 - **Erstellen** — jeder authentifizierte Aktor.
 - **Patch / Cancel / Uncancel** — Self nur eigene (`createdBy === userId`), Admin alle. Zentrale Regel: `canModifyEvent(actor, dbEvent)`.
-- **Delete** — nur Superuser. Zentrale Regel: `canDeleteEvent(actor)`.
+- **Delete** — Domain-seitig nur Admin (`canDeleteEvent`); die Superuser-Pflicht enforced der HTTP-Layer (`requireSuperuser`).
 - **Priority setzen** — nur Admin, und nur bei Event-Typen mit `hasCompetitionMetadata`. Regel: `canSetPriority(actor, eventType)`.
 
 LADV-Sync-Operationen (`applyLadvSync`) laufen ohne Aktor — System-Operation aus dem Cron.

@@ -1,9 +1,21 @@
-export type EventActor
-  = | { kind: 'owner', userId: number }
-    | { kind: 'admin', userId: number, isSuperuser: boolean }
+import type { UserSessionRequired } from '#auth-utils'
 
-export function isAdminActor(
-  actor: EventActor,
-): actor is { kind: 'admin', userId: number, isSuperuser: boolean } {
-  return actor.kind === 'admin'
+export type EventActor
+  = | { kind: 'self', userId: number }
+    | { kind: 'admin', userId: number }
+
+export function selfActor(session: UserSessionRequired): EventActor {
+  return { kind: 'self', userId: session.user.id }
+}
+
+export function adminActor(session: UserSessionRequired): EventActor {
+  return { kind: 'admin', userId: session.user.id }
+}
+
+export function actorFromSession(session: UserSessionRequired): EventActor {
+  const role = session.user.role
+  if (role === 'admin' || role === 'superuser') {
+    return { kind: 'admin', userId: session.user.id }
+  }
+  return { kind: 'self', userId: session.user.id }
 }

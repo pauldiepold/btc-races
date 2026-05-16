@@ -1,9 +1,9 @@
 import { db } from 'hub:db'
 import { z } from 'zod'
 import {
+  actorFromSession,
   changeRegistrationStatus,
   updateRegistrationNotes,
-  type Actor,
 } from '~~/server/registration'
 import { parseBody } from '~~/server/utils/parse-body'
 import { withRegistrationErrorMapping } from '~~/server/utils/registration-error'
@@ -21,10 +21,7 @@ export default defineEventHandler(async (event) => {
 
   const { status, notes, silent } = await parseBody(event, bodySchema)
 
-  const isAdmin = session.user.role === 'admin' || session.user.role === 'superuser'
-  const actor: Actor = isAdmin
-    ? { kind: 'admin', userId: session.user.id }
-    : { kind: 'self', userId: session.user.id, hasLadvStartpass: !!session.user.hasLadvStartpass }
+  const actor = actorFromSession(session)
 
   const deps = { db }
 

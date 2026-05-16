@@ -39,8 +39,8 @@ async function loadEvent(id: number) {
   return testDb.db.query.events.findFirst({ where: eq(schema.events.id, id) })
 }
 
-function adminActor(userId: number, isSuperuser = false): EventActor {
-  return { kind: 'admin', userId, isSuperuser }
+function adminActor(userId: number): EventActor {
+  return { kind: 'admin', userId }
 }
 
 function makeLadvData(overrides: Partial<NormalizedLadvData> = {}): NormalizedLadvData {

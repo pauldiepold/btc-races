@@ -40,12 +40,12 @@ async function loadEvent(id: number) {
   return testDb.db.query.events.findFirst({ where: eq(schema.events.id, id) })
 }
 
-function ownerActor(userId: number): EventActor {
-  return { kind: 'owner', userId }
+function selfActor(userId: number): EventActor {
+  return { kind: 'self', userId }
 }
 
-function adminActor(userId: number, isSuperuser = false): EventActor {
-  return { kind: 'admin', userId, isSuperuser }
+function adminActor(userId: number): EventActor {
+  return { kind: 'admin', userId }
 }
 
 describe('createManualEvent — Insert + Notification', () => {
@@ -56,7 +56,7 @@ describe('createManualEvent — Insert + Notification', () => {
 
     const { id } = await createManualEvent(
       { type: 'competition', name: 'Mein Wettkampf', date: FUTURE_DATE, location: 'Berlin' },
-      ownerActor(ownerId),
+      selfActor(ownerId),
       { db },
     )
 
@@ -120,7 +120,7 @@ describe('createManualEvent — Priority-Gating', () => {
 
     const { id } = await createManualEvent(
       { type: 'competition', name: 'B-Lauf', date: FUTURE_DATE, priority: 'B' },
-      adminActor(suId, true),
+      adminActor(suId),
       { db },
     )
 
@@ -133,7 +133,7 @@ describe('createManualEvent — Priority-Gating', () => {
     await expect(
       createManualEvent(
         { type: 'competition', name: 'X', date: FUTURE_DATE, priority: 'A' },
-        ownerActor(ownerId),
+        selfActor(ownerId),
         { db },
       ),
     ).rejects.toMatchObject({ code: 'priority_not_allowed' })
@@ -159,7 +159,7 @@ describe('createManualEvent — Priority-Gating', () => {
 
     const { id } = await createManualEvent(
       { type: 'competition', name: 'OK', date: FUTURE_DATE },
-      ownerActor(ownerId),
+      selfActor(ownerId),
       { db },
     )
 

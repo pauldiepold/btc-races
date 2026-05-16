@@ -2,7 +2,13 @@ export { RegistrationError } from './errors'
 export type { RegistrationErrorCode } from './errors'
 
 export type { Actor } from './actor'
-export { assertSelfOwnsRegistration, assertAdmin } from './actor'
+export {
+  assertSelfOwnsRegistration,
+  assertAdmin,
+  selfActor,
+  adminActor,
+  actorFromSession,
+} from './actor'
 
 export { VALID_INITIAL, getInitialStatus, getValidNextStatuses } from './state'
 

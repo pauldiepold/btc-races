@@ -40,6 +40,7 @@ export async function createManualEvent(
     throw new EventError('priority_not_allowed')
   }
 
+  const now = new Date()
   const values: EventInsert = {
     type: input.type,
     name: input.name,
@@ -54,6 +55,8 @@ export async function createManualEvent(
     championshipType: input.championshipType ?? null,
     priority: input.priority ?? null,
     createdBy: actor.userId,
+    createdAt: now,
+    updatedAt: now,
   }
 
   const dbEvent = await insertEvent(db, values)

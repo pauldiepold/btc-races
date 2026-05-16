@@ -48,7 +48,7 @@ export async function applyEventPatch(
     throw new EventError('forbidden')
   }
 
-  const updates: Partial<EventInsert> = {}
+  const updates: Partial<EventInsert> = { updatedAt: new Date() }
 
   if (patch.name !== undefined) updates.name = patch.name
   if ('date' in patch) updates.date = patch.date ?? null

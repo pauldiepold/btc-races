@@ -40,7 +40,8 @@ export async function updateRegistrationNotes(
 
   assertSelfOwnsRegistration(actor, registration)
 
-  await updateRegistrationNotesField(db, registration.id, input.notes)
+  const now = new Date()
+  await updateRegistrationNotesField(db, registration.id, input.notes, now)
 
   const decisions = decideAdminEditNotifications(actor, registration, { silent: opts.silent })
 

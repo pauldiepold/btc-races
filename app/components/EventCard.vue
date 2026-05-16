@@ -117,7 +117,7 @@ const ownRegistration = computed(() => {
       </div>
       <!-- Zeile 3: Typ-Badges + Anmeldestatus -->
       <div
-        v-if="event.priority || event.raceType || (event.championshipType && event.championshipType !== 'none') || ownRegistration || (hasDeadline && !deadlineExpired)"
+        v-if="event.priority || event.raceType || (event.championshipType && event.championshipType !== 'none') || ownRegistration || (hasDeadline && !deadlineExpired) || ('adminTodoCount' in event && event.adminTodoCount)"
         class="flex items-center gap-2 mt-1.5 flex-wrap"
       >
         <EventPriorityBadge :priority="event.priority" />
@@ -147,6 +147,14 @@ const ownRegistration = computed(() => {
           v-else-if="hasDeadline && !deadlineExpired"
           label="Offen"
           color="success"
+          variant="subtle"
+          size="xs"
+        />
+        <UBadge
+          v-if="'adminTodoCount' in event && event.adminTodoCount"
+          :label="`${event.adminTodoCount} LADV-Todos`"
+          icon="i-ph-clipboard-text"
+          color="warning"
           variant="subtle"
           size="xs"
         />

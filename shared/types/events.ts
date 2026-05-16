@@ -11,6 +11,7 @@ export type EventListItem = Omit<Event, 'ladvData' | 'id'> & {
   ownRegistrationId: number | null
   disciplines: string[]
   ageClasses: string[]
+  adminTodoCount?: number
 }
 
 export type RegistrationDetail = {

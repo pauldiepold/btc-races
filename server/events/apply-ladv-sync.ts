@@ -29,7 +29,6 @@ export async function applyLadvSync(
     ...mergeUpdates,
     ladvData: ladvData.ladv_data,
     ladvLastSync: now,
-    updatedAt: now,
   }
 
   const cancelled = Boolean(ladvData.ladv_data.abgesagt) && !dbEvent.cancelledAt

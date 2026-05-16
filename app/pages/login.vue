@@ -8,6 +8,7 @@ const route = useRoute()
 const loading = ref(false)
 const turnstileToken = ref('')
 const turnstile = ref()
+const turnstileState = ref<'pending' | 'challenge' | 'ready' | 'error'>('pending')
 
 definePageMeta({
   title: 'Login',
@@ -20,6 +21,18 @@ watch(loggedIn, (isLoggedIn) => {
     navigateTo('/')
   }
 }, { immediate: true })
+
+watch(turnstileToken, (token) => {
+  if (token) turnstileState.value = 'ready'
+})
+
+const turnstileOptions = {
+  'appearance': 'interaction-only' as const,
+  'error-callback': () => { turnstileState.value = 'error' },
+  'expired-callback': () => { turnstileState.value = 'pending' },
+  'before-interactive-callback': () => { turnstileState.value = 'challenge' },
+  'after-interactive-callback': () => { turnstileState.value = 'pending' },
+}
 
 const fields: AuthFormField[] = [{
   name: 'email',
@@ -62,10 +75,29 @@ watch(loading, (isLoading) => {
   }
 })
 
+const submitLabel = computed(() => {
+  if (loading.value) return 'Anmelde-Link senden'
+  switch (turnstileState.value) {
+    case 'pending': return 'Bots werden disqualifiziert…'
+    case 'challenge': return '👇 Bestätige unten, dass du Mensch bist'
+    case 'error': return 'Bot-Check fehlgeschlagen. Neu laden.'
+    case 'ready': return 'Anmelde-Link senden'
+  }
+  return 'Anmelde-Link senden'
+})
+
+const submitConfig = computed(() => ({
+  label: submitLabel.value,
+  block: true,
+  disabled: turnstileState.value === 'challenge' || turnstileState.value === 'error',
+}))
+
+const formLoading = computed(() => loading.value || turnstileState.value === 'pending')
+
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
   formError.value = null
 
-  if (!turnstileToken.value) {
+  if (turnstileState.value !== 'ready' || !turnstileToken.value) {
     formError.value = 'Die Sicherheitsprüfung ist noch nicht abgeschlossen. Bitte warte einen Moment.'
     return
   }
@@ -89,6 +121,8 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
   }
   catch (e: unknown) {
     turnstile.value?.reset()
+    turnstileToken.value = ''
+    turnstileState.value = 'pending'
     formError.value = (e as { data?: { message?: string } })?.data?.message
       ?? (e instanceof Error ? e.message : 'Ein unbekannter Fehler ist aufgetreten.')
   }
@@ -107,11 +141,8 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
         description="Gib deine beim BTC hinterlegte E-Mail-Adresse an."
         icon="i-btc-logo"
         :fields="fields"
-        :submit="{
-          label: 'Anmelde-Link senden',
-          block: true,
-        }"
-        :loading="loading"
+        :submit="submitConfig"
+        :loading="formLoading"
         @submit="onSubmit"
       >
         <template #validation>
@@ -125,10 +156,18 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
           />
         </template>
         <template #footer>
+          <Transition name="loading-msg">
+            <p
+              v-if="turnstileState === 'pending' && !loading"
+              class="text-xs text-zinc-500 text-center"
+            >
+              🛡️ Cloudflare prüft kurz
+            </p>
+          </Transition>
           <NuxtTurnstile
             ref="turnstile"
             v-model="turnstileToken"
-            :options="{ appearance: 'interaction-only' }"
+            :options="turnstileOptions"
           />
         </template>
       </UAuthForm>

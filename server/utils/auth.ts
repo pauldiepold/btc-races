@@ -1,4 +1,4 @@
-function isAdminOrSuperuser(role: 'member' | 'admin' | 'superuser'): boolean {
+export function isAdminOrSuperuser(role: 'member' | 'admin' | 'superuser'): boolean {
   return role === 'admin' || role === 'superuser'
 }
 

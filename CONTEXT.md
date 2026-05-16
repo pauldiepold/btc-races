@@ -42,7 +42,7 @@ Initialer Status pro Typ (`getInitialStatus`): `ladv`/`competition` → `registe
 
 **Stand-Harmonisierung** — wenn der Coach einen `ladvDisciplines`-Stand mit Disziplinen setzt, wird gleichzeitig `wishDisciplines := ladvDisciplines`. Damit endet jede Coach-Aktion in einem konsistenten Zustand (Wunsch = Stand). Wird der Stand auf `null` gesetzt (LADV-Abmeldung), bleibt `wishDisciplines` unverändert.
 
-**Wunsch-Stand-Diff** — die Differenz zwischen `wishDisciplines` und `ladvDisciplines` ist die Coach-Todo-Liste. Sichtbar im Coach-Modal (`shared/utils/ladv-diff.ts:diffLadvRegistration`).
+**Wunsch-Stand-Diff** — die Differenz zwischen `wishDisciplines` und `ladvDisciplines` (`shared/utils/ladv-diff.ts:diffLadvRegistration`). Ein Diff-Eintrag plus der Cancel-Fall (storniert, aber `ladvDisciplines` nicht leer) ist ein **LADV-Todo** (`LadvTodo`) — die Arbeits-Einheit für den Coach. Umgangssprachlich auch „Admin-Todo". Surfaces an mehreren Stellen (Coach-Modal, Event-Detailseite, Event-Card).
 
 ## Event-Lifecycle
 

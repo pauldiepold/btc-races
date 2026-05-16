@@ -3,7 +3,9 @@ import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt, or, sql } from
 import { z } from 'zod'
 import type { EventListItem, EventListPublicItem } from '~~/shared/types/events'
 import type { LadvAusschreibung } from '~~/shared/types/ladv'
-import { getEventTypesByCategory, getPublicEventTypes } from '~~/shared/utils/event-types/capabilities'
+import { isAdminOrSuperuser } from '~~/server/utils/auth'
+import { getEventTypesByCategory, getEventTypesWith, getPublicEventTypes } from '~~/shared/utils/event-types/capabilities'
+import { diffLadvRegistration } from '~~/shared/utils/ladv-diff'
 import { EVENT_CATEGORIES } from '~~/shared/utils/registration'
 
 function extractLadvFields(rawLadvData: unknown) {
@@ -129,5 +131,43 @@ export default defineEventHandler(async (event): Promise<EventListItem[] | Event
       timeRange === 'past' ? desc(schema.events.date) : asc(schema.events.date),
     )
 
-  return events.map(({ ladvData, ...e }) => ({ ...e, id: encodeEventId(e.id), ...extractLadvFields(ladvData) }))
+  const adminTodoCounts = new Map<number, number>()
+  if (isAdminOrSuperuser(session.user!.role)) {
+    const ladvTypes = getEventTypesWith('hasLadvStandManagement')
+    const ladvEventIds = events.filter(e => ladvTypes.includes(e.type)).map(e => e.id)
+
+    if (ladvEventIds.length > 0) {
+      const regs = await db
+        .select({
+          eventId: schema.registrations.eventId,
+          status: schema.registrations.status,
+          wishDisciplines: schema.registrations.wishDisciplines,
+          ladvDisciplines: schema.registrations.ladvDisciplines,
+        })
+        .from(schema.registrations)
+        .where(and(
+          inArray(schema.registrations.eventId, ladvEventIds),
+          inArray(schema.registrations.status, ['registered', 'canceled']),
+        ))
+
+      for (const r of regs) {
+        const isTodo
+          = (r.status === 'registered' && diffLadvRegistration(r.wishDisciplines, r.ladvDisciplines).length > 0)
+            || (r.status === 'canceled' && r.ladvDisciplines !== null && r.ladvDisciplines.length > 0)
+        if (isTodo) {
+          adminTodoCounts.set(r.eventId, (adminTodoCounts.get(r.eventId) ?? 0) + 1)
+        }
+      }
+    }
+  }
+
+  return events.map(({ ladvData, ...e }) => {
+    const count = adminTodoCounts.get(e.id) ?? 0
+    return {
+      ...e,
+      id: encodeEventId(e.id),
+      ...extractLadvFields(ladvData),
+      ...(count > 0 ? { adminTodoCount: count } : {}),
+    }
+  })
 })

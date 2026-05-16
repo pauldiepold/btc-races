@@ -3,9 +3,9 @@ import { z } from 'zod'
 import {
   changeWishDisciplines,
   selfActor,
+  withRegistrationErrorMapping,
 } from '~~/server/registration'
 import { parseBody } from '~~/server/utils/parse-body'
-import { withRegistrationErrorMapping } from '~~/server/utils/registration-error'
 import { requireNumericIdParam } from '~~/server/utils/route-params'
 
 const bodySchema = z.object({

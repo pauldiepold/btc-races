@@ -1,7 +1,16 @@
+import { makeDomainErrorMapping } from '~~/server/utils/domain-error'
+import { EventError } from './errors'
+import { errorToHttpStatus } from './http-error'
+
 export { EventError } from './errors'
 export type { EventErrorCode } from './errors'
 
 export { errorToHttpStatus } from './http-error'
+
+export const withEventErrorMapping = makeDomainErrorMapping(
+  EventError,
+  errorToHttpStatus,
+)
 
 export type { EventActor } from './actor'
 export { selfActor, adminActor, actorFromSession } from './actor'

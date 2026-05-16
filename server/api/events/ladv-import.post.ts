@@ -32,6 +32,9 @@ export default defineEventHandler(async (event) => {
 
   const actor = actorFromSession(session)
 
+  // Eigenes try/catch (statt withEventErrorMapping), weil existingEventId aus
+  // EventError.data per encodeEventId in HTTP-safe Form gebracht werden muss.
+  // Siehe docs/adr/0001-domain-error-mapping.md.
   try {
     const { id } = await importEventFromLadv({ eventType, ladvId, ladvData }, actor, { db })
     setResponseStatus(event, 201)

@@ -1,7 +1,7 @@
 import { db } from 'hub:db'
 import { requireSuperuser } from '~~/server/utils/auth'
 import { requireEventIdParam } from '~~/server/utils/route-params'
-import { adminActor, deleteEvent, EventError, errorToHttpStatus } from '~~/server/events'
+import { adminActor, deleteEvent, withEventErrorMapping } from '~~/server/events'
 
 export default defineEventHandler(async (event) => {
   const session = await requireSuperuser(event)
@@ -9,15 +9,7 @@ export default defineEventHandler(async (event) => {
 
   const actor = adminActor(session)
 
-  try {
-    await deleteEvent(id, actor, { db })
-  }
-  catch (err) {
-    if (err instanceof EventError) {
-      throw createError({ statusCode: errorToHttpStatus(err.code), statusMessage: err.message })
-    }
-    throw err
-  }
+  await withEventErrorMapping(() => deleteEvent(id, actor, { db }))
 
   return { id: encodeEventId(id) }
 })

@@ -2,7 +2,7 @@ import { db } from 'hub:db'
 import { requireOwnerOrAdmin } from '~~/server/utils/auth'
 import { loadEventOrThrow } from '~~/server/utils/load-entity'
 import { requireEventIdParam } from '~~/server/utils/route-params'
-import { actorFromSession, cancelEvent, EventError, errorToHttpStatus } from '~~/server/events'
+import { actorFromSession, cancelEvent, withEventErrorMapping } from '~~/server/events'
 
 export default defineEventHandler(async (event) => {
   const id = requireEventIdParam(event)
@@ -11,15 +11,7 @@ export default defineEventHandler(async (event) => {
 
   const actor = actorFromSession(session)
 
-  try {
-    await cancelEvent(id, actor, { db })
-  }
-  catch (err) {
-    if (err instanceof EventError) {
-      throw createError({ statusCode: errorToHttpStatus(err.code), statusMessage: err.message })
-    }
-    throw err
-  }
+  await withEventErrorMapping(() => cancelEvent(id, actor, { db }))
 
   return { id: encodeEventId(id) }
 })

@@ -2,7 +2,7 @@ import { db } from 'hub:db'
 import { z } from 'zod'
 import { parseBody } from '~~/server/utils/parse-body'
 import { MANUAL_EVENT_TYPES } from '~~/shared/utils/registration'
-import { actorFromSession, createManualEvent, EventError, errorToHttpStatus } from '~~/server/events'
+import { actorFromSession, createManualEvent, withEventErrorMapping } from '~~/server/events'
 
 const createEventSchema = z.object({
   type: z.enum(MANUAL_EVENT_TYPES),
@@ -25,15 +25,9 @@ export default defineEventHandler(async (event) => {
 
   const actor = actorFromSession(session)
 
-  try {
+  return withEventErrorMapping(async () => {
     const { id } = await createManualEvent(data, actor, { db })
     setResponseStatus(event, 201)
     return { id: encodeEventId(id) }
-  }
-  catch (err) {
-    if (err instanceof EventError) {
-      throw createError({ statusCode: errorToHttpStatus(err.code), statusMessage: err.message })
-    }
-    throw err
-  }
+  })
 })

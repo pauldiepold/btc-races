@@ -1,5 +1,14 @@
+import { makeDomainErrorMapping } from '~~/server/utils/domain-error'
+import { RegistrationError } from './errors'
+import { errorToHttpStatus } from './http-error'
+
 export { RegistrationError } from './errors'
 export type { RegistrationErrorCode } from './errors'
+
+export const withRegistrationErrorMapping = makeDomainErrorMapping(
+  RegistrationError,
+  errorToHttpStatus,
+)
 
 export type { Actor } from './actor'
 export {

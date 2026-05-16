@@ -127,13 +127,13 @@ async function syncLadv() {
   if (!event.value) return
   syncLoading.value = true
   try {
-    const updated = await $fetch<EventDetail>(`/api/events/${id}/sync`, { method: 'POST' })
-    toast.add({ title: 'LADV-Daten aktualisiert', color: 'success' })
+    await $fetch<{ id: string, ladvDataChanged: boolean, cancelled: boolean }>(`/api/events/${id}/sync`, { method: 'POST' })
     await refresh()
+    toast.add({ title: 'LADV-Daten aktualisiert', color: 'success' })
 
-    if (updated.ladvData) {
+    if (event.value?.ladvData) {
       const { detectLadvDiff } = await import('~~/shared/utils/ladv')
-      const diff = detectLadvDiff(updated, updated.ladvData)
+      const diff = detectLadvDiff(event.value, event.value.ladvData)
       const diffCount = Object.keys(diff).length
       if (diffCount > 0) {
         toast.add({

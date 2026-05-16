@@ -1,125 +1,33 @@
-import { db, schema } from 'hub:db'
-import { asc, eq } from 'drizzle-orm'
+import { db } from 'hub:db'
 import { requireAdmin } from '~~/server/utils/auth'
 import { loadEventOrThrow } from '~~/server/utils/load-entity'
 import { requireEventIdParam } from '~~/server/utils/route-params'
-import { notifyEventChanged } from '~~/server/notifications/event-changed'
 import { LadvService } from '~~/server/external-apis/ladv/ladv.service'
-import { isRunningDiscipline } from '~~/shared/utils/ladv-labels'
-import type { EventDetail, RegistrationDetail } from '~~/shared/types/events'
-import type { LadvAusschreibung } from '~~/shared/types/ladv'
-import type { RegistrationDisciplinePair } from '~~/shared/types/db'
+import { applyLadvSync } from '~~/server/events'
+import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 
 export default defineEventHandler(async (event) => {
-  const session = await requireAdmin(event)
+  await requireAdmin(event)
   const id = requireEventIdParam(event)
   const dbEvent = await loadEventOrThrow(id)
 
-  if (!dbEvent.ladvId) {
-    throw createError({ statusCode: 400, statusMessage: 'Kein LADV-Event' })
+  if (eventTypeCapabilities[dbEvent.type].source !== 'ladv') {
+    throw createError({ statusCode: 400, statusMessage: 'Dieser Event-Typ wird nicht über LADV gepflegt' })
   }
 
   let normalized
   try {
-    const service = new LadvService()
-    normalized = await service.fetchAusschreibung(dbEvent.ladvId)
+    normalized = await new LadvService().fetchAusschreibung(dbEvent.ladvId!)
   }
   catch {
     throw createError({ statusCode: 502, statusMessage: 'LADV nicht erreichbar' })
   }
 
-  const now = new Date()
-  const updates: Partial<typeof schema.events.$inferInsert> = {
-    name: normalized.name,
-    date: normalized.date,
-    startTime: normalized.start_time,
-    location: normalized.location,
-    registrationDeadline: normalized.registration_deadline,
-    raceType: normalized.race_type,
-    isWrc: normalized.is_wrc,
-    ladvData: normalized.ladv_data,
-    ladvLastSync: now,
-    updatedAt: now,
+  const result = await applyLadvSync(dbEvent, normalized, { db })
+
+  return {
+    id: encodeEventId(result.id),
+    ladvDataChanged: result.ladvDataChanged,
+    cancelled: result.cancelled,
   }
-
-  if (normalized.ladv_data.abgesagt && !dbEvent.cancelledAt) {
-    updates.cancelledAt = now
-  }
-
-  await db.update(schema.events).set(updates).where(eq(schema.events.id, id))
-
-  const updatedEvent = await db.query.events.findFirst({
-    where: eq(schema.events.id, id),
-  })
-
-  if (updatedEvent) {
-    try {
-      await notifyEventChanged(dbEvent, updatedEvent, session.user.id)
-    }
-    catch (err) {
-      console.error('[Notification] event_changed:', err)
-    }
-  }
-
-  const isAdmin = session.user.role === 'admin' || session.user.role === 'superuser'
-  const userId = session.user.id
-
-  const regs = await db
-    .select({
-      id: schema.registrations.id,
-      userId: schema.registrations.userId,
-      firstName: schema.users.firstName,
-      lastName: schema.users.lastName,
-      avatarSmall: schema.users.avatarSmall,
-      status: schema.registrations.status,
-      notes: schema.registrations.notes,
-      createdAt: schema.registrations.createdAt,
-      wishDisciplines: schema.registrations.wishDisciplines,
-      ladvDisciplines: schema.registrations.ladvDisciplines,
-    })
-    .from(schema.registrations)
-    .leftJoin(schema.users, eq(schema.registrations.userId, schema.users.id))
-    .where(eq(schema.registrations.eventId, id))
-    .orderBy(asc(schema.registrations.createdAt))
-
-  const registrations: RegistrationDetail[] = regs.map((r) => {
-    const showLadv = isAdmin || r.userId === userId
-    return {
-      id: r.id,
-      userId: r.userId!,
-      firstName: r.firstName,
-      lastName: r.lastName,
-      avatarUrl: r.avatarSmall ? `/api/avatar/${r.userId}` : null,
-      status: r.status,
-      notes: r.notes,
-      createdAt: r.createdAt,
-      wishDisciplines: (r.wishDisciplines as RegistrationDisciplinePair[] | null) ?? [],
-      ladvDisciplines: showLadv ? (r.ladvDisciplines as RegistrationDisciplinePair[] | null) : null,
-    }
-  })
-
-  const rawLadvData = updatedEvent!.ladvData as LadvAusschreibung | null
-  const ladvData = rawLadvData
-    ? { ...rawLadvData, wettbewerbe: (rawLadvData.wettbewerbe ?? []).filter(w => isRunningDiscipline(w.disziplinNew)) }
-    : null
-
-  const creator = updatedEvent!.createdBy
-    ? await db.query.users.findFirst({
-        where: eq(schema.users.id, updatedEvent!.createdBy),
-        columns: { firstName: true, lastName: true },
-      })
-    : null
-  const createdByName = creator
-    ? [creator.firstName, creator.lastName ? `${creator.lastName[0]}.` : null].filter(Boolean).join(' ') || null
-    : null
-
-  const result: EventDetail = {
-    ...updatedEvent!,
-    id: encodeEventId(id),
-    ladvData,
-    registrations,
-    createdByName,
-  }
-
-  return result
 })

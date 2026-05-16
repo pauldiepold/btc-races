@@ -67,7 +67,7 @@ Die Unterscheidung admin vs. superuser ist eine HTTP-Auth-Entscheidung (`require
 - **Delete** — Domain-seitig nur Admin (`canDeleteEvent`); die Superuser-Pflicht enforced der HTTP-Layer (`requireSuperuser`).
 - **Priority setzen** — nur Admin, und nur bei Event-Typen mit `hasCompetitionMetadata`. Regel: `canSetPriority(actor, eventType)`.
 
-LADV-Sync-Operationen (`applyLadvSync`) laufen ohne Aktor — System-Operation aus dem Cron.
+LADV-Sync-Operationen (`applyLadvSync`) laufen ohne Aktor — LADV ist die Wahrheitsquelle, der Trigger ist irrelevant. Aufrufer sind heute der Cron-Loop *und* der manuelle Admin-Re-Sync (`/api/events/:id/sync`); beide treten gleichwertig als System auf, ohne Einfluss auf Merge-Regeln oder Notification-Adressaten.
 
 ## Aktor (Anmeldung)
 

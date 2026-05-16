@@ -45,9 +45,6 @@ export async function dispatchEventNotifications(
         }
 
         case 'event_canceled': {
-          if (ctx.actorUserId == null) {
-            throw new Error('event_canceled notification requires actorUserId')
-          }
           const eventRecipients = await recipients.registeredFor(
             ctx.dbEvent.id,
             { statuses: ['registered', 'yes', 'maybe'] },

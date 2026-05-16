@@ -1,5 +1,5 @@
 import { mergeLadvSync } from './merge-ladv-sync'
-import { decideChangeNotifications } from './notifications'
+import { decideCancelNotifications, decideChangeNotifications } from './notifications'
 import { dispatchEventNotifications } from './notifier'
 import { updateEvent, type AppDb, type EventInsert, type EventRow } from './persistence'
 import { toEventCoreSnapshot } from '~~/shared/utils/diff-event-core-fields'
@@ -38,10 +38,13 @@ export async function applyLadvSync(
 
   const eventAfter: EventRow = { ...dbEvent, ...updates }
 
-  const decisions = decideChangeNotifications(
-    toEventCoreSnapshot(dbEvent),
-    toEventCoreSnapshot(eventAfter),
-  )
+  const decisions = [
+    ...decideChangeNotifications(
+      toEventCoreSnapshot(dbEvent),
+      toEventCoreSnapshot(eventAfter),
+    ),
+    ...(cancelled ? decideCancelNotifications() : []),
+  ]
 
   await dispatchEventNotifications(decisions, {
     dbEvent: eventAfter,

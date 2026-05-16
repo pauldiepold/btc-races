@@ -58,7 +58,12 @@ const styles = {
     </EmailText>
 
     <EmailText>
-      {{ adminName ?? 'Ein Admin' }} hat <strong>{{ eventName }}</strong> abgesagt. Deine Anmeldung ist damit hinfällig — du musst nichts weiter tun.
+      <template v-if="adminName">
+        {{ adminName }} hat <strong>{{ eventName }}</strong> abgesagt. Deine Anmeldung ist damit hinfällig — du musst nichts weiter tun.
+      </template>
+      <template v-else>
+        Laut LADV wurde <strong>{{ eventName }}</strong> abgesagt. Deine Anmeldung ist damit hinfällig — du musst nichts weiter tun.
+      </template>
     </EmailText>
 
     <EventDetails

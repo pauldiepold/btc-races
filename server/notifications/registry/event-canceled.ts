@@ -4,7 +4,7 @@ import { EVENT_TYPES, getEventTypeLabel } from '~~/shared/utils/registration'
 
 export const eventCanceled = defineNotificationType({
   type: 'event_canceled',
-  actor: 'required',
+  actor: 'optional',
   meta: {
     label: 'Event abgesagt',
     description: 'Wenn ein Event abgesagt wird, für das du angemeldet bist.',

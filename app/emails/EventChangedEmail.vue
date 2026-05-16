@@ -108,7 +108,7 @@ const styles = {
         {{ adminName }} hat Details bei <strong>{{ eventName }}</strong> geändert. Bitte prüfe, ob du noch dabei sein kannst.
       </template>
       <template v-else>
-        Bei <strong>{{ eventName }}</strong> haben sich Details geändert. Bitte prüfe, ob du noch dabei sein kannst.
+        Laut LADV haben sich Details bei <strong>{{ eventName }}</strong> geändert. Bitte prüfe, ob du noch dabei sein kannst.
       </template>
     </EmailText>
 

@@ -54,20 +54,22 @@ Initialer Status pro Typ (`getInitialStatus`): `ladv`/`competition` → `registe
 
 ## Aktor (Event)
 
-**Event-Aktor** *(`EventActor`)* — wer eine Event-Operation auslöst. Zwei Arten:
+
+**Event-Aktor** *(`EventActor`)* — wer eine Event-Operation auslöst. Drei Arten:
 
 - **Self** — ein authentifiziertes Mitglied, das nur eigene Events (`createdBy === userId`) modifizieren darf.
 - **Admin** — Coach/Admin/Superuser, der jedes Event modifizieren darf.
+- **System** — kein Mensch hat ausgelöst; der Auslöser ist ein automatischer Prozess (heute: LADV-Sync, sowohl Cron-Loop als auch manueller Admin-Re-Sync `/api/events/:id/sync`). LADV ist in diesem Fall die Wahrheitsquelle; der konkrete Trigger ist irrelevant für Merge-Regeln und Notification-Adressaten.
 
 Die Unterscheidung admin vs. superuser ist eine HTTP-Auth-Entscheidung (`requireAdmin`/`requireSuperuser`) und gehört nicht in die Domäne.
 
 **Aktor-spezifische Regeln im Event-Modul:**
-- **Erstellen** — jeder authentifizierte Aktor.
-- **Patch / Cancel / Uncancel** — Self nur eigene (`createdBy === userId`), Admin alle. Zentrale Regel: `canModifyEvent(actor, dbEvent)`.
+- **Erstellen** — jeder authentifizierte Aktor (nur Self/Admin; System legt keine Events an).
+- **Patch / Cancel / Uncancel** — Self nur eigene (`createdBy === userId`), Admin alle. Zentrale Regel: `canModifyEvent(actor, dbEvent)`. System wirkt nur via `applyLadvSync` — separater Pfad ohne Permission-Check.
 - **Delete** — Domain-seitig nur Admin (`canDeleteEvent`); die Superuser-Pflicht enforced der HTTP-Layer (`requireSuperuser`).
 - **Priority setzen** — nur Admin, und nur bei Event-Typen mit `hasCompetitionMetadata`. Regel: `canSetPriority(actor, eventType)`.
 
-LADV-Sync-Operationen (`applyLadvSync`) laufen ohne Aktor — LADV ist die Wahrheitsquelle, der Trigger ist irrelevant. Aufrufer sind heute der Cron-Loop *und* der manuelle Admin-Re-Sync (`/api/events/:id/sync`); beide treten gleichwertig als System auf, ohne Einfluss auf Merge-Regeln oder Notification-Adressaten.
+**System-Aktor in Notifications:** Wird die Notification durch einen System-Pfad ausgelöst, ist `actorUserId === null` im Notification-Job. Die Konvention gilt für Notification-Typen mit `actor: 'optional'` (heute: `event_changed`, `event_canceled`). Email-Templates müssen den null-Fall explizit behandeln (z. B. *„Laut LADV wurde X abgesagt."*) — kein generischer Admin-Fallback. Reminder-Notifications (`actor: 'none'`) sind eine andere Kategorie: für sie existiert das Aktor-Konzept überhaupt nicht.
 
 ## Aktor (Anmeldung)
 
@@ -76,7 +78,7 @@ LADV-Sync-Operationen (`applyLadvSync`) laufen ohne Aktor — LADV ist die Wahrh
 - **Self** — das Mitglied selbst handelt an seiner eigenen Anmeldung.
 - **Admin** — Coach/Admin/Superuser handelt im Auftrag eines anderen Mitglieds (Admin-Anmeldung, Coach-Modal, Status-Korrektur).
 
-Das Anmelde-Modul kennt nur diese zwei Arten. Die Unterscheidung admin vs. superuser ist eine HTTP-Auth-Entscheidung (`requireAdmin` akzeptiert beide) und gehört nicht in die Domäne.
+Das Anmelde-Modul kennt nur diese zwei Arten — kein **System**-Aktor: Anmeldungen werden immer von Menschen ausgelöst, LADV-Sync rührt das Anmeldungs-Aggregat nicht an. Die Unterscheidung admin vs. superuser ist eine HTTP-Auth-Entscheidung (`requireAdmin` akzeptiert beide) und gehört nicht in die Domäne.
 
 **Aktor-spezifische Regeln im Anmelde-Modul:**
 - **Deadline-Bypass** — Admin darf nach abgelaufener Meldefrist anmelden/ändern. Self nicht.

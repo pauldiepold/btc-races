@@ -212,6 +212,54 @@ describe('applyLadvSync — Notifications', () => {
     expect(jobs[0].type).toBe('event_changed')
   })
 
+  it('LADV abgesagt = true → event_canceled-Notification an angemeldete Mitglieder', async () => {
+    const ownerId = await seedUser()
+    const dbEvent = await seedLadvEvent({ createdBy: ownerId })
+    const attendeeId = await seedRegisteredAttendee(dbEvent.id)
+
+    const ladv = makeLadvData({}, { abgesagt: true })
+    await applyLadvSync(dbEvent, ladv, { db })
+
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0].type).toBe('event_canceled')
+    expect(jobs[0].actorUserId).toBeNull()
+    expect(jobs[0].payload._recipients.map(r => r.userId)).toContain(attendeeId)
+  })
+
+  it('LADV abgesagt = true bei bereits gecanceltem Event → keine erneute Notification', async () => {
+    const ownerId = await seedUser()
+    const earlier = new Date('2099-05-10T12:00:00Z')
+    const dbEvent = await seedLadvEvent({ createdBy: ownerId, cancelledAt: earlier })
+    await seedRegisteredAttendee(dbEvent.id)
+
+    const ladv = makeLadvData({}, { abgesagt: true })
+    await applyLadvSync(dbEvent, ladv, { db })
+
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(0)
+  })
+
+  it('LADV gleichzeitig abgesagt + Datum-Change → nur event_canceled, kein event_changed', async () => {
+    const ownerId = await seedUser()
+    const dbEvent = await seedLadvEvent({
+      createdBy: ownerId,
+      date: '2099-06-03',
+      ladvData: makeRaw(),
+    })
+    await seedRegisteredAttendee(dbEvent.id)
+
+    const ladv = makeLadvData(
+      { date: '2099-07-01' },
+      { datum: new Date('2099-07-01T18:00:00+02:00').getTime(), abgesagt: true },
+    )
+    await applyLadvSync(dbEvent, ladv, { db })
+
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0].type).toBe('event_canceled')
+  })
+
   it('Reine ladvData-Aktualisierung ohne Core-Change → keine Notification', async () => {
     const ownerId = await seedUser()
     const baseRaw = makeRaw({ beschreibung: 'alt' })

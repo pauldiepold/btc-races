@@ -47,13 +47,23 @@ export type InsertRegistrationValues = {
   notes: string | null
   wishDisciplines: RegistrationDisciplinePair[]
   ladvDisciplines: RegistrationDisciplinePair[] | null
+  now: Date
 }
 
 export async function insertRegistration(
   db: AppDb,
   values: InsertRegistrationValues,
 ): Promise<number> {
-  const inserted = await db.insert(schema.registrations).values(values).returning({ id: schema.registrations.id })
+  const inserted = await db.insert(schema.registrations).values({
+    eventId: values.eventId,
+    userId: values.userId,
+    status: values.status,
+    notes: values.notes,
+    wishDisciplines: values.wishDisciplines,
+    ladvDisciplines: values.ladvDisciplines,
+    createdAt: values.now,
+    updatedAt: values.now,
+  }).returning({ id: schema.registrations.id })
   return inserted[0]!.id
 }
 
@@ -62,6 +72,7 @@ export type ReactivateRegistrationPatch = {
   notes: string | null
   wishDisciplines: RegistrationDisciplinePair[]
   ladvDisciplines?: RegistrationDisciplinePair[]
+  now: Date
 }
 
 export async function reactivateRegistration(
@@ -75,6 +86,7 @@ export async function reactivateRegistration(
       notes: patch.notes,
       wishDisciplines: patch.wishDisciplines,
       ...(patch.ladvDisciplines !== undefined ? { ladvDisciplines: patch.ladvDisciplines } : {}),
+      updatedAt: patch.now,
     })
     .where(eq(schema.registrations.id, id))
 }
@@ -83,9 +95,10 @@ export async function updateRegistrationStatusField(
   db: AppDb,
   id: number,
   status: RegistrationStatus,
+  now: Date,
 ): Promise<void> {
   await db.update(schema.registrations)
-    .set({ status })
+    .set({ status, updatedAt: now })
     .where(eq(schema.registrations.id, id))
 }
 
@@ -93,9 +106,10 @@ export async function updateRegistrationNotesField(
   db: AppDb,
   id: number,
   notes: string | null,
+  now: Date,
 ): Promise<void> {
   await db.update(schema.registrations)
-    .set({ notes })
+    .set({ notes, updatedAt: now })
     .where(eq(schema.registrations.id, id))
 }
 
@@ -108,11 +122,13 @@ export async function updateRegistrationDisciplines(
   db: AppDb,
   id: number,
   patch: RegistrationDisciplinesPatch,
+  now: Date,
 ): Promise<void> {
   await db.update(schema.registrations)
     .set({
       ...(patch.wishDisciplines !== undefined ? { wishDisciplines: patch.wishDisciplines } : {}),
       ...(patch.ladvDisciplines !== undefined ? { ladvDisciplines: patch.ladvDisciplines } : {}),
+      updatedAt: now,
     })
     .where(eq(schema.registrations.id, id))
 }

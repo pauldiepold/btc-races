@@ -65,8 +65,8 @@ export async function changeRegistrationStatus(
     throw new RegistrationError('deadline_expired')
   }
 
-  await updateRegistrationStatusField(db, registration.id, input.newStatus)
   const now = new Date()
+  await updateRegistrationStatusField(db, registration.id, input.newStatus, now)
 
   const decisions = decideStatusChangeNotifications(
     actor,

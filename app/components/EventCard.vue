@@ -152,7 +152,7 @@ const ownRegistration = computed(() => {
         />
         <UBadge
           v-if="'adminTodoCount' in event && event.adminTodoCount"
-          :label="`${event.adminTodoCount} LADV-Todos`"
+          :label="`${event.adminTodoCount} LADV-Todo${event.adminTodoCount === 1 ? '' : 's'}`"
           icon="i-ph-clipboard-text"
           color="warning"
           variant="subtle"

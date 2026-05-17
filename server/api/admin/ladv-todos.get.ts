@@ -6,7 +6,7 @@ import { getEventTypesWith } from '~~/shared/utils/event-types/capabilities'
 import type { LadvTodo } from '~~/shared/types/events'
 
 const typeOrder = sql<number>`CASE WHEN ${schema.registrations.status} = 'registered' THEN 0 ELSE 1 END`
-const dateNullsLast = sql`CASE WHEN ${schema.events.date} IS NULL THEN 1 ELSE 0 END`
+const deadlineNullsLast = sql`CASE WHEN ${schema.events.registrationDeadline} IS NULL THEN 1 ELSE 0 END`
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
       eventId: schema.events.id,
       eventName: schema.events.name,
       eventDate: schema.events.date,
+      registrationDeadline: schema.events.registrationDeadline,
       ladvId: schema.events.ladvId,
       userId: schema.users.id,
       firstName: schema.users.firstName,
@@ -45,7 +46,13 @@ export default defineEventHandler(async (event) => {
         ),
       ),
     )
-    .orderBy(dateNullsLast, asc(schema.events.date), asc(typeOrder), asc(schema.users.lastName))
+    .orderBy(
+      deadlineNullsLast,
+      asc(schema.events.registrationDeadline),
+      asc(schema.events.date),
+      asc(typeOrder),
+      asc(schema.users.lastName),
+    )
 
   const todos: LadvTodo[] = []
 
@@ -69,6 +76,7 @@ export default defineEventHandler(async (event) => {
       eventId: encodeEventId(row.eventId),
       eventName: row.eventName,
       eventDate: row.eventDate,
+      registrationDeadline: row.registrationDeadline,
       ladvId: row.ladvId,
       registrationId: row.registrationId,
       diff,

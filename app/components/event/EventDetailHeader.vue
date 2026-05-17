@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { EventResponse } from '~~/shared/types/events'
-import { isDeadlineExpired } from '~~/shared/utils/deadlines'
+import { deadlineUrgency, isDeadlineExpired } from '~~/shared/utils/deadlines'
 import { ageClassSortIndex, disciplineSortIndex, ladvDisciplineLabel } from '~~/shared/utils/ladv-labels'
 import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 
@@ -40,6 +40,7 @@ const durationDisplay = computed(() => {
 
 const deadlineDate = computed(() => toDate(props.event.registrationDeadline))
 const deadlineExpired = computed(() => isDeadlineExpired(props.event.registrationDeadline))
+const deadlineSoon = computed(() => deadlineUrgency(props.event.registrationDeadline ?? null) === 'soon')
 const showDeadline = computed(() =>
   eventTypeCapabilities[props.event.type].showsRegistrationDeadline && !!deadlineDate.value,
 )
@@ -221,12 +222,12 @@ function toggle(code: string) {
             <span
               v-if="showDeadline"
               class="flex items-center gap-1.5"
-              :class="deadlineExpired ? 'text-error' : ''"
+              :class="deadlineExpired ? 'text-error' : deadlineSoon ? 'text-warning' : ''"
             >
               <UIcon
                 name="i-ph-clock"
                 class="size-4 shrink-0"
-                :class="deadlineExpired ? '' : 'text-muted'"
+                :class="deadlineExpired || deadlineSoon ? '' : 'text-muted'"
               />
               Meldeschluss {{ formatDate(deadlineDate) }}
               <span v-if="deadlineExpired">(abgelaufen)</span>

@@ -52,6 +52,7 @@ export type LadvTodo = {
   eventId: string // Sqid — wird für URL-Navigation genutzt
   eventName: string
   eventDate: string | null
+  registrationDeadline: string | null
   ladvId: number | null
   registrationId: number
   diff: LadvRegistrationDiffEntry[]

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { LadvTodo } from '~~/shared/types/events'
+import { daysUntilDeadline, deadlineUrgency, type DeadlineUrgency } from '~~/shared/utils/deadlines'
 
 definePageMeta({ layout: 'admin', title: 'Admin — LADV-Todos' })
 
@@ -9,6 +10,7 @@ const openRegistrationId = ref<number | null>(null)
 
 const columns = [
   { key: 'action', label: '' },
+  { key: 'deadline', label: 'Meldefrist' },
   { key: 'person', label: 'Person' },
   { key: 'event', label: 'Event' },
   { key: 'date', label: 'Datum' },
@@ -16,11 +18,28 @@ const columns = [
   { key: 'diff', label: 'Änderungen' },
 ]
 
+const urgencyTextClass: Record<DeadlineUrgency, string> = {
+  expired: 'text-error',
+  soon: 'text-warning',
+  normal: 'text-highlighted',
+  none: 'text-muted',
+}
+
 function shortName(todo: LadvTodo): string {
   const first = todo.firstName?.trim() || ''
   const lastInitial = todo.lastName?.trim()?.[0] || ''
   if (!first && !lastInitial) return 'Unbekannt'
   return lastInitial ? `${first} ${lastInitial}.` : first
+}
+
+function deadlineRelative(deadline: string | null): string | null {
+  const diff = daysUntilDeadline(deadline)
+  if (diff === null) return null
+  if (diff === 0) return 'heute'
+  if (diff === 1) return 'morgen'
+  if (diff > 1) return `in ${diff} Tagen`
+  if (diff === -1) return 'gestern abgelaufen'
+  return `abgelaufen seit ${-diff} T`
 }
 </script>
 
@@ -103,6 +122,26 @@ function shortName(todo: LadvTodo): string {
                 trailing-icon="i-ph-arrow-right"
                 @click="openRegistrationId = todo.registrationId"
               />
+            </td>
+
+            <!-- Meldefrist -->
+            <td class="px-2 py-3 whitespace-nowrap">
+              <div
+                v-if="todo.registrationDeadline"
+                class="leading-tight"
+                :class="urgencyTextClass[deadlineUrgency(todo.registrationDeadline)]"
+              >
+                <div class="text-sm font-medium">
+                  {{ formatDate(todo.registrationDeadline) }}
+                </div>
+                <div class="text-xs opacity-80">
+                  {{ deadlineRelative(todo.registrationDeadline) }}
+                </div>
+              </div>
+              <span
+                v-else
+                class="text-muted"
+              >–</span>
             </td>
 
             <!-- Person -->

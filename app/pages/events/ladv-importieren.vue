@@ -30,16 +30,16 @@ async function onSubmit() {
     await navigateTo(`/${id}`)
   }
   catch (e: unknown) {
-    const err = e as { status?: number, statusMessage?: string, data?: { existingEventId?: string }, message?: string }
-    if (err.status === 409 && err.data?.existingEventId) {
+    const err = e as { status?: number, data?: { statusMessage?: string, message?: string, data?: { existingEventId?: string } } }
+    if (err.status === 409 && err.data?.data?.existingEventId) {
       toast.add({ title: 'Event bereits vorhanden', description: 'Du wirst zur bestehenden Veranstaltung weitergeleitet.', color: 'warning' })
-      await navigateTo(`/${err.data.existingEventId}`)
+      await navigateTo(`/${err.data.data.existingEventId}`)
     }
     else if (err.status === 502) {
-      toast.add({ title: 'LADV nicht erreichbar', description: err.statusMessage ?? 'Bitte später erneut versuchen.', color: 'error' })
+      toast.add({ title: 'LADV nicht erreichbar', description: err.data?.statusMessage ?? 'Bitte später erneut versuchen.', color: 'error' })
     }
     else {
-      toast.add({ title: 'Fehler', description: err.message ?? 'Ein Fehler ist aufgetreten.', color: 'error' })
+      toast.add({ title: 'Fehler', description: err.data?.message ?? 'Ein Fehler ist aufgetreten.', color: 'error' })
     }
   }
   finally {

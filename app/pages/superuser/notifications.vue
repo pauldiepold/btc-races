@@ -314,7 +314,7 @@ function toggleExpand(id: number) {
     <!-- Liste -->
     <div
       v-else
-      class="rounded-[--ui-radius] border border-default overflow-hidden"
+      class="rounded-[--ui-radius] border border-default overflow-hidden overflow-x-auto"
     >
       <table class="w-full text-sm">
         <thead>

@@ -66,6 +66,7 @@ export default defineNuxtConfig({
       siteUrl: process.env.CF_PAGES_URL || 'http://localhost:3000',
       vapidPublicKey: '',
       turnstileSiteKey: '',
+      isLive: process.env.CF_PAGES_BRANCH === 'main',
     },
   },
 

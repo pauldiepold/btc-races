@@ -6,7 +6,7 @@ if (session.value?.user?.role !== 'superuser') {
   await navigateTo('/')
 }
 
-const isDev = import.meta.dev
+const { isLive } = useRuntimeConfig().public
 
 type SeedResult = { result: string }
 
@@ -115,7 +115,7 @@ async function runPushTest() {
 
     <!-- DB-Seed -->
     <div
-      v-if="isDev"
+      v-if="!isLive"
       class="rounded-[--ui-radius] border border-error/40 p-6 space-y-5"
     >
       <div>
@@ -163,7 +163,7 @@ async function runPushTest() {
 
     <!-- Go-Live-Seed -->
     <div
-      v-if="isDev"
+      v-if="!isLive"
       class="rounded-[--ui-radius] border border-warning/40 p-6 space-y-5 mt-6"
     >
       <div>

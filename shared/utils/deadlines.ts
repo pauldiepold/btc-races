@@ -27,3 +27,33 @@ export function isWithinDeadlineWindow(
   )
   return diffDays <= days
 }
+
+export type DeadlineUrgency = 'expired' | 'soon' | 'normal' | 'none'
+
+// Dringlichkeitsstufe einer Meldefrist — einheitlicher SSOT für Farb-Mappings in der UI.
+// 'soon' = ≤ 3 Kalendertage bis zum Stichtag.
+export function deadlineUrgency(
+  deadline: Date | string | null,
+  now: Date = new Date(),
+): DeadlineUrgency {
+  if (deadline === null) return 'none'
+  if (isDeadlineExpired(deadline, now)) return 'expired'
+  const deadlineStr = typeof deadline === 'string' ? deadline.slice(0, 10) : berlinDateFormatter.format(deadline)
+  if (isWithinDeadlineWindow(deadlineStr, 3, now)) return 'soon'
+  return 'normal'
+}
+
+// Vorzeichenbehaftete Differenz in Kalendertagen (Berliner Zeit): Stichtag − heute.
+// > 0 = noch X Tage bis zur Frist, 0 = heute, < 0 = X Tage abgelaufen.
+// null, wenn keine Frist gesetzt ist.
+export function daysUntilDeadline(
+  deadline: Date | string | null,
+  now: Date = new Date(),
+): number | null {
+  if (deadline === null) return null
+  const deadlineStr = typeof deadline === 'string' ? deadline.slice(0, 10) : berlinDateFormatter.format(deadline)
+  const todayStr = berlinDateFormatter.format(now)
+  return Math.round(
+    (Date.parse(`${deadlineStr}T00:00:00Z`) - Date.parse(`${todayStr}T00:00:00Z`)) / 86_400_000,
+  )
+}

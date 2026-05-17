@@ -33,9 +33,9 @@ export async function cancelEvent(
   }
 
   const now = new Date()
-  await updateEvent(db, eventId, { cancelledAt: now, updatedAt: now })
+  await updateEvent(db, eventId, { cancelledAt: now })
 
-  const eventAfter: EventRow = { ...dbEvent, cancelledAt: now, updatedAt: now }
+  const eventAfter: EventRow = { ...dbEvent, cancelledAt: now }
 
   const decisions = decideCancelNotifications()
   await dispatchEventNotifications(decisions, {

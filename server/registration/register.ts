@@ -96,7 +96,6 @@ export async function registerMember(
   // 10. Persistieren — bei Reaktivierung bleibt ladvDisciplines bewusst stehen,
   // sofern setLadv nicht gesetzt ist: der LADV-Stand wird ausschließlich vom Coach
   // gepflegt, nicht durch Self-Cancel/Reaktivierung.
-  const now = new Date()
   let registrationId: number
   let reactivated: boolean
 
@@ -106,7 +105,6 @@ export async function registerMember(
       notes: input.notes ?? null,
       wishDisciplines,
       ...(setLadv ? { ladvDisciplines: wishDisciplines } : {}),
-      now,
     })
     registrationId = existing.id
     reactivated = true
@@ -119,10 +117,11 @@ export async function registerMember(
       notes: input.notes ?? null,
       wishDisciplines,
       ladvDisciplines: setLadv ? wishDisciplines : null,
-      now,
     })
     reactivated = false
   }
+
+  const now = new Date()
 
   // 11. Notifications
   const decisions = decideRegisterNotifications(

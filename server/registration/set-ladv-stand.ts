@@ -49,8 +49,7 @@ export async function setLadvStand(
     ? { ladvDisciplines: input.disciplines, wishDisciplines: input.disciplines }
     : { ladvDisciplines: null }
 
-  const now = new Date()
-  await updateRegistrationDisciplines(db, registration.id, patch, now)
+  await updateRegistrationDisciplines(db, registration.id, patch)
 
   const decisions = decideLadvStandNotifications(registration.userId, input.disciplines)
 

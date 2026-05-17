@@ -46,8 +46,6 @@ export async function importEventFromLadv(
     ladvData: ladvData.ladv_data,
     ladvLastSync: now,
     createdBy: actor.userId,
-    createdAt: now,
-    updatedAt: now,
   }
 
   const dbEvent = await insertEvent(db, values)

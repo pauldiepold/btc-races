@@ -2,6 +2,19 @@ import { sqliteTable, text, integer, unique } from 'drizzle-orm/sqlite-core'
 import { sql } from 'drizzle-orm'
 import type { EventType } from '~~/shared/utils/registration'
 
+// Bookkeeping-Timestamps für mutable Rows. DB-DEFAULT bleibt erhalten (kein
+// Schema-Recreate auf D1 nötig), Drizzle pflegt updatedAt zusätzlich via
+// $onUpdateFn — Operations setzen es NICHT mehr explizit.
+const timestamps = () => ({
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`)
+    .$onUpdateFn(() => new Date()),
+})
+
 // Zentrales User-Modell
 export const users = sqliteTable('users', {
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
@@ -66,12 +79,7 @@ export const events = sqliteTable('events', {
   ladvLastSync: integer({ mode: 'timestamp' }),
 
   createdBy: integer({ mode: 'number' }).references(() => users.id, { onDelete: 'set null' }),
-  createdAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
-  updatedAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
+  ...timestamps(),
 })
 
 // Anmeldungen zu Events
@@ -84,12 +92,7 @@ export const registrations = sqliteTable('registrations', {
   wishDisciplines: text({ mode: 'json' }).$type<import('~~/shared/types/db').RegistrationDisciplinePair[]>().notNull().default(sql`'[]'`),
   ladvDisciplines: text({ mode: 'json' }).$type<import('~~/shared/types/db').RegistrationDisciplinePair[] | null>(),
 
-  createdAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
-  updatedAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
+  ...timestamps(),
 }, t => [
   unique().on(t.eventId, t.userId),
 ])

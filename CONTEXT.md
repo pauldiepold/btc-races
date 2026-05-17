@@ -2,6 +2,12 @@
 
 Geteilte Sprache für Architektur-Entscheidungen und Code-Reviews. Wenn ein Term hier nicht steht, gehört er entweder noch nicht zur Domäne — oder wir müssen ihn schärfen und ergänzen.
 
+## Deployment-Environment
+
+**Live-Deployment** *(`isLive`)* — das Cloudflare-Pages-Deployment der `main`-Branch, also die produktive Live-URL. Diskriminiert Verhalten, das gegen echte Nutzerdaten wirkt (z. B. destruktive Superuser-Aktionen wie DB-Seed). Erkannt anhand von `CF_PAGES_BRANCH === 'main'`. Alles andere (lokal, Preview-Branches) ist **nicht live** — dort sind solche Aktionen erlaubt.
+
+Bewusst nicht „Production": `process.env.NODE_ENV === 'production'` gilt auch für Preview-Builds und meint den Build-Modus, nicht das Deployment-Target.
+
 ## Event-Typ
 
 **Event-Typ** *(`EventType`)* — diskriminiert Domain-Verhalten und UI-Form eines Events. Heute vier Werte: `ladv`, `competition`, `training`, `social`.

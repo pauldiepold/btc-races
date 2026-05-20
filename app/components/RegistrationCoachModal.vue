@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { RegistrationCoachView } from '~~/shared/types/events'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
-import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
+import { ladvDisciplineLabel, ladvAgeClassLabel, sortDisciplineItems, sortAgeClassItems } from '~~/shared/utils/ladv-labels'
 import { getCoachModalLineState, getCoachModalRemovals } from '~~/shared/utils/ladv-diff'
 
 const props = defineProps<{
@@ -62,15 +62,19 @@ const uniqueDisciplines = computed(() => {
 const usedCodes = computed(() => new Set(editorDisciplines.value.map(d => d.discipline)))
 
 const availableDisciplineItems = computed(() =>
-  uniqueDisciplines.value
-    .filter(w => !usedCodes.value.has(w.disziplinNew))
-    .map(w => ({ label: ladvDisciplineLabel(w.disziplinNew), value: w.disziplinNew })),
+  sortDisciplineItems(
+    uniqueDisciplines.value
+      .filter(w => !usedCodes.value.has(w.disziplinNew))
+      .map(w => ({ label: ladvDisciplineLabel(w.disziplinNew), value: w.disziplinNew })),
+  ),
 )
 
 function ageClassItemsFor(disciplineCode: string) {
-  return wettbewerbe.value
-    .filter(w => w.disziplinNew === disciplineCode)
-    .map(w => ({ label: ladvAgeClassLabel(w.klasseNew), value: w.klasseNew }))
+  return sortAgeClassItems(
+    wettbewerbe.value
+      .filter(w => w.disziplinNew === disciplineCode)
+      .map(w => ({ label: ladvAgeClassLabel(w.klasseNew), value: w.klasseNew })),
+  )
 }
 
 // Add-row state

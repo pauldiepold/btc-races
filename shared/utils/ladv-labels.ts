@@ -457,6 +457,16 @@ export function compareDisciplines(
   return ageClassSortIndex(a.ageClass ?? '') - ageClassSortIndex(b.ageClass ?? '')
 }
 
+/** Sortiert Select-Items ({ value: Disziplin-Code }) in die kanonische Disziplin-Reihenfolge. */
+export function sortDisciplineItems<T extends { value: string }>(items: T[]): T[] {
+  return [...items].sort((a, b) => disciplineSortIndex(a.value) - disciplineSortIndex(b.value))
+}
+
+/** Sortiert Select-Items ({ value: Altersklassen-Code }) in die kanonische Altersklassen-Reihenfolge. */
+export function sortAgeClassItems<T extends { value: string }>(items: T[]): T[] {
+  return [...items].sort((a, b) => ageClassSortIndex(a.value) - ageClassSortIndex(b.value))
+}
+
 // Walking, Inline-Skating, Rollstuhl und "Sonstiges" sind keine Lauf-Disziplinen
 const NON_RUNNING_S_CODES = new Set([
   'SWALKING', 'SNWALKING', 'SWANDERN', 'SINLINE', 'SROLLSTUHL', 'SWANDERNWALKING', 'SSONSTIGES',

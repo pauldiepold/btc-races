@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { EventDetail } from '~~/shared/types/events'
 import type { AdminMemberListItem } from '~~/server/api/admin/members.get'
-import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
+import { ladvDisciplineLabel, ladvAgeClassLabel, sortDisciplineItems, sortAgeClassItems } from '~~/shared/utils/ladv-labels'
 import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 import { getInitialStatus } from '~~/shared/utils/registration'
 
@@ -153,15 +153,19 @@ const uniqueDisciplines = computed(() => {
 const pendingCodes = computed(() => new Set(pendingDisciplines.value.map(d => d.discipline)))
 
 const addNewDisciplineItems = computed(() =>
-  uniqueDisciplines.value
-    .filter(w => !pendingCodes.value.has(w.disziplinNew))
-    .map(w => ({ label: ladvDisciplineLabel(w.disziplinNew), value: w.disziplinNew })),
+  sortDisciplineItems(
+    uniqueDisciplines.value
+      .filter(w => !pendingCodes.value.has(w.disziplinNew))
+      .map(w => ({ label: ladvDisciplineLabel(w.disziplinNew), value: w.disziplinNew })),
+  ),
 )
 
 const addNewAgeClassItems = computed(() =>
-  wettbewerbe.value
-    .filter(w => w.disziplinNew === addNewCode.value)
-    .map(w => ({ label: ladvAgeClassLabel(w.klasseNew), value: w.klasseNew })),
+  sortAgeClassItems(
+    wettbewerbe.value
+      .filter(w => w.disziplinNew === addNewCode.value)
+      .map(w => ({ label: ladvAgeClassLabel(w.klasseNew), value: w.klasseNew })),
+  ),
 )
 
 watch(addNewCode, (code) => {

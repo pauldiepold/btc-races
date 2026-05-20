@@ -2,7 +2,7 @@
 import type { EventDetail } from '~~/shared/types/events'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
 import { getLadvAgeClass } from '~~/shared/utils/ladv-age-class'
-import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
+import { ladvDisciplineLabel, ladvAgeClassLabel, sortDisciplineItems, sortAgeClassItems } from '~~/shared/utils/ladv-labels'
 import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 import {
   REGISTRATION_STATUS_LABELS,
@@ -52,15 +52,19 @@ const uniqueDisciplines = computed(() => {
 })
 
 function buildDisciplineItems(excludeCodes: Set<string>) {
-  return uniqueDisciplines.value
-    .filter(w => !excludeCodes.has(w.disziplinNew))
-    .map(w => ({ label: ladvDisciplineLabel(w.disziplinNew), value: w.disziplinNew }))
+  return sortDisciplineItems(
+    uniqueDisciplines.value
+      .filter(w => !excludeCodes.has(w.disziplinNew))
+      .map(w => ({ label: ladvDisciplineLabel(w.disziplinNew), value: w.disziplinNew })),
+  )
 }
 
 function buildAgeClassItems(disciplineCode: string) {
-  return wettbewerbe.value
-    .filter(w => w.disziplinNew === disciplineCode)
-    .map(w => ({ label: ladvAgeClassLabel(w.klasseNew), value: w.klasseNew }))
+  return sortAgeClassItems(
+    wettbewerbe.value
+      .filter(w => w.disziplinNew === disciplineCode)
+      .map(w => ({ label: ladvAgeClassLabel(w.klasseNew), value: w.klasseNew })),
+  )
 }
 
 function autoAgeClass(disciplineCode: string): string {

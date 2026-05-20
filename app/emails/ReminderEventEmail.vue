@@ -2,7 +2,9 @@
 import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EventDetails from './components/EventDetails.vue'
+import DisciplineList from './components/DisciplineList.vue'
 import type { EventType } from '~~/shared/utils/registration'
+import type { DisciplineStatusItem } from '~~/shared/utils/ladv-diff'
 
 interface Props {
   firstName?: string
@@ -13,9 +15,10 @@ interface Props {
   eventVenue?: string
   eventLink?: string
   eventType?: EventType
+  disciplines?: DisciplineStatusItem[]
 }
 
-const { eventType } = defineProps<Props>()
+const { eventType, disciplines } = defineProps<Props>()
 </script>
 
 <template>
@@ -30,6 +33,12 @@ const { eventType } = defineProps<Props>()
     <EmailText>
       <strong>{{ eventName }}</strong> findet in zwei Tagen statt. Schau vorher nochmal rein, prüfe deine Anmeldung und halt die Daten zum Veranstaltungsort bereit.
     </EmailText>
+
+    <DisciplineList
+      heading="Deine Disziplinen"
+      :items="disciplines"
+      show-status
+    />
 
     <EventDetails
       :event-name="eventName"

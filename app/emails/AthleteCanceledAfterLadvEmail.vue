@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EventDetails from './components/EventDetails.vue'
+import DisciplineList from './components/DisciplineList.vue'
 
 import type { EventType } from '~~/shared/utils/registration'
 
@@ -15,13 +17,17 @@ interface Props {
   eventVenue?: string
   eventLink?: string
   eventType?: EventType
+  disciplines?: string[]
 }
 
 const {
   memberFirstName,
   memberLastName,
   eventType,
+  disciplines,
 } = defineProps<Props>()
+
+const disciplineItems = computed(() => (disciplines ?? []).map(label => ({ label })))
 
 const styles = {
   alertBox: {
@@ -61,6 +67,11 @@ const memberFullName = `${memberFirstName} ${memberLastName}`
         Die LADV-Meldung muss manuell zurückgezogen werden.
       </EText>
     </ESection>
+
+    <DisciplineList
+      heading="Bei LADV gemeldet"
+      :items="disciplineItems"
+    />
 
     <EventDetails
       :event-name="eventName"

@@ -21,6 +21,8 @@ export const athleteChangedAfterLadv = defineNotificationType({
     eventLocation: z.string().optional(),
     registrationDeadline: z.string().optional(),
     eventLink: z.string(),
+    wishDisciplines: z.array(z.string()),
+    ladvDisciplines: z.array(z.string()),
   }),
   email: {
     component: 'AthleteChangedAfterLadvEmail',

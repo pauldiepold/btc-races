@@ -1,5 +1,5 @@
 import type { RegistrationDisciplinePair } from '../types/db'
-import { compareDisciplines } from './ladv-labels'
+import { compareDisciplines, ladvAgeClassLabel, ladvDisciplineLabel } from './ladv-labels'
 
 export type LadvRegistrationDiffEntry
   = | { type: 'add', discipline: string, ageClass: string }
@@ -107,6 +107,33 @@ export function getCoachModalRemovals(
   if (!ladv || ladv.length === 0) return []
   const editorCodes = new Set(editor.map(d => d.discipline))
   return ladv.filter(d => !editorCodes.has(d.discipline))
+}
+
+/** Eine Disziplinen-Zeile fürs E-Mail-Rendering inkl. LADV-Meldestatus. */
+export interface DisciplineStatusItem {
+  label: string
+  /** true, solange die Zeile nicht 1:1 bei LADV gemeldet ist (add/initial/update). */
+  ladvPending: boolean
+}
+
+/** Formatiert ein Disziplinen-Paar als Anzeige-Label, z. B. `100 m (U18)`. */
+export function formatDisciplinePair(pair: RegistrationDisciplinePair): string {
+  return `${ladvDisciplineLabel(pair.discipline)} (${ladvAgeClassLabel(pair.ageClass)})`
+}
+
+/**
+ * Annotiert den Wunschstand mit dem LADV-Meldestatus pro Disziplin.
+ * Basis ist der Wunschstand; `ladvPending` ist true, solange die Zeile
+ * (noch) nicht deckungsgleich bei LADV gemeldet ist.
+ */
+export function buildDisciplineStatusList(
+  wish: RegistrationDisciplinePair[],
+  ladv: RegistrationDisciplinePair[] | null,
+): DisciplineStatusItem[] {
+  return wish.map(line => ({
+    label: formatDisciplinePair(line),
+    ladvPending: getCoachModalLineState(line, ladv).type !== 'ok',
+  }))
 }
 
 export function shouldNotifyAdminsOnWishChange(

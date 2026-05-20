@@ -156,7 +156,7 @@ export default defineEventHandler(async (event) => {
           continue
         }
 
-        const registered = await recipients.registeredFor(dbEvent.id)
+        const registered = await recipients.registeredFor(dbEvent.id, { withDisciplines: true })
         if (registered.length === 0) {
           results.push({ type, eventId: dbEvent.id, eventName: dbEvent.name, status: 'skipped' })
           continue

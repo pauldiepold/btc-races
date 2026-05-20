@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { diffLadvRegistration, getCoachModalLineState, getCoachModalRemovals, getRegistrationLadvIndicator, shouldNotifyAdminsOnWishChange } from '../../../../shared/utils/ladv-diff'
+import { buildDisciplineStatusList, diffLadvRegistration, formatDisciplinePair, getCoachModalLineState, getCoachModalRemovals, getRegistrationLadvIndicator, shouldNotifyAdminsOnWishChange } from '../../../../shared/utils/ladv-diff'
 
 describe('diffLadvRegistration', () => {
   it('returns empty diff for identical sets', () => {
@@ -231,5 +231,65 @@ describe('getRegistrationLadvIndicator', () => {
       wishDisciplines: [],
       ladvDisciplines: [],
     })).toBe('ok')
+  })
+})
+
+describe('formatDisciplinePair', () => {
+  it('formats a pair as "discipline label (age class label)"', () => {
+    expect(formatDisciplinePair({ discipline: 'S5K', ageClass: 'M35' })).toBe('5 km Straße (M35)')
+  })
+})
+
+describe('buildDisciplineStatusList', () => {
+  it('returns an empty list for an empty wish', () => {
+    expect(buildDisciplineStatusList([], [{ discipline: 'S5K', ageClass: 'M35' }])).toEqual([])
+  })
+
+  it('marks every line pending when nothing is reported to LADV yet', () => {
+    expect(buildDisciplineStatusList([{ discipline: 'S5K', ageClass: 'M35' }], null)).toEqual([
+      { label: '5 km Straße (M35)', ladvPending: true },
+    ])
+  })
+
+  it('marks a line as not pending when it is reported to LADV unchanged', () => {
+    const wish = [{ discipline: 'S5K', ageClass: 'M35' }]
+
+    expect(buildDisciplineStatusList(wish, wish)).toEqual([
+      { label: '5 km Straße (M35)', ladvPending: false },
+    ])
+  })
+
+  it('marks only the lines missing from the LADV stand as pending', () => {
+    const wish = [
+      { discipline: 'S5K', ageClass: 'M35' },
+      { discipline: 'S10K', ageClass: 'M35' },
+    ]
+    const ladv = [{ discipline: 'S5K', ageClass: 'M35' }]
+
+    expect(buildDisciplineStatusList(wish, ladv)).toEqual([
+      { label: '5 km Straße (M35)', ladvPending: false },
+      { label: '10 km Straße (M35)', ladvPending: true },
+    ])
+  })
+
+  it('marks a line pending when the age class differs from the LADV stand', () => {
+    const wish = [{ discipline: 'S5K', ageClass: 'M35' }]
+    const ladv = [{ discipline: 'S5K', ageClass: 'M30' }]
+
+    expect(buildDisciplineStatusList(wish, ladv)).toEqual([
+      { label: '5 km Straße (M35)', ladvPending: true },
+    ])
+  })
+
+  it('ignores LADV disciplines that are not part of the wish', () => {
+    const wish = [{ discipline: 'S5K', ageClass: 'M35' }]
+    const ladv = [
+      { discipline: 'S5K', ageClass: 'M35' },
+      { discipline: 'S10K', ageClass: 'M35' },
+    ]
+
+    expect(buildDisciplineStatusList(wish, ladv)).toEqual([
+      { label: '5 km Straße (M35)', ladvPending: false },
+    ])
   })
 })

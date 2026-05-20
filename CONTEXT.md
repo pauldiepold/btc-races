@@ -115,3 +115,39 @@ Operationen am Anmeldungs-Aggregat lösen Notifications aus:
 - **`admin_changed_member_registration`** — Admin ändert Status/Notes eines fremden Mitglieds (außer eine spezifischere Notification wurde schon ausgelöst → `silent`-Flag).
 
 Liegt im Anmelde-Modul, nicht in den Handlern. Aufrufer kontrollieren über `ChangeOpts.silent`, ob die generische `admin_changed_member_registration` unterdrückt werden soll, falls der Caller bereits eine spezifischere Notification gesendet hat.
+
+## Beiträge & Kommentare
+
+> Vereinsinterner Diskussionsbereich, im UI **„Beiträge"**, löst die Campai-„Räume" ab. Komplett login-pflichtig — nicht an `Event.isPubliclyVisible` gekoppelt. (Planung in Arbeit, Stand 2026-05-20.)
+
+**Thread** — technischer Oberbegriff für die Einheit, an der ein **Kommentar**-Stream hängt; liegt in genau einem **Raum**. Zwei Arten, diskriminiert über `eventId`: **Event-Thread** und **Beitrag**.
+_Avoid_: „Thread" user-facing — dort heißt es **Beitrag** bzw. **Kommentare**.
+
+**Beitrag** — ein Thread ohne Event-Bezug (`eventId` null). Von einem Mitglied manuell angelegt, mit frei gewähltem Titel und Markdown-Body. Der Body ist Teil des Beitrags, *kein* **Kommentar** — ihn zu löschen heißt, den ganzen Beitrag (soft) zu löschen. Hat eine eigene Detailseite.
+_Avoid_: „Diskussion", „Diskussions-Thread", „Posting".
+
+**Event-Thread** — ein Thread mit Event-Bezug (`eventId` gesetzt). Entsteht automatisch bei Event-Anlage, hat keinen eigenen Body, der Titel ist der Event-Name. Wird inline auf der Event-Detailseite gerendert, hat keine eigene URL.
+
+**Kommentar** — eine Antwort innerhalb eines Threads (Markdown). Soft-Delete mit Tombstone (Body bleibt, UI zeigt „Kommentar gelöscht"). Nur neue Kommentare heben die Sortier-Aktivität (`lastActivityAt`) des Threads — Edits und Löschungen nicht.
+
+**Angehefteter Kommentar** — ein im Thread hervorgehobener Kommentar (max. 3 pro Thread), gesetzt durch einen Admin oder den Autor des Threads. Erscheint zusätzlich oben in einem „Wichtig"-Block.
+
+**Raum** — eine statisch im Code definierte Gruppierung von Threads (kein Admin-UI). Fünf in v1: **Ankündigungen**, Training, Team, Races, Social. Event-Threads landen anhand des unveränderlichen **Event-Typs** im passenden Raum (`training`→Training, `competition`/`ladv`→Races, `social`→Social).
+
+**Mandatory-Raum** — der Raum **Ankündigungen**: Beiträge dürfen dort nur Admins anlegen, und die Anlage benachrichtigt *alle* aktiven Mitglieder ohne Opt-out (`thread_announcement`).
+
+**Automatische Empfänger** — wer eine `thread_new_comment`-Notification bekommt, ohne etwas tun zu müssen: Thread-Autor, bisherige Kommentatoren, und bei Event-Threads die Event-Teilnehmer (Anmeldung mit Status ≠ `no`/`canceled`). Wird zum Sendezeitpunkt aus dem aktuellen Zustand berechnet — es gibt keine materialisierten Abo-Zeilen.
+_Avoid_: „Abonnent", „Subscriber" — siehe Flagged ambiguities.
+
+**Folgen** / **Stummschalten** — die zwei expliziten Overrides eines Mitglieds gegenüber den automatischen Empfängern eines Threads: **Folgen** trägt jemanden zusätzlich ein, **Stummschalten** nimmt jemanden heraus. Automatische Empfänger-Hooks heben ein Stummschalten nie auf. Im Mandatory-Raum greift Stummschalten nicht.
+
+## Relationships
+
+- Ein **Event** hat genau einen **Event-Thread** (1:1, automatisch bei Event-Anlage).
+- Ein **Thread** liegt in genau einem **Raum** und hat 0..n **Kommentare**.
+- Ein **Beitrag** ist ein **Thread** ohne **Event** — der einzige Unterschied im Modell ist `eventId`.
+
+## Flagged ambiguities
+
+- „Subscription" meinte bisher ausschließlich das Browser-Web-Push-Abo (`pushSubscriptions`). Das Thread-seitige Abo-Konzept heißt bewusst **Folgen** / **Stummschalten** (Override gegenüber **automatischen Empfängern**), um die Begriffe nicht zu vermischen.
+- „Pin": Es gibt nur den **angehefteten Kommentar** (innerhalb eines Threads). Ein Thread-Pin (Thread oben im Raum festnageln) wurde aus v1 herausgenommen.

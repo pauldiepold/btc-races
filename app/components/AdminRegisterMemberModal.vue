@@ -2,6 +2,7 @@
 import type { EventDetail } from '~~/shared/types/events'
 import type { AdminMemberListItem } from '~~/server/api/admin/members.get'
 import { ladvDisciplineLabel, ladvAgeClassLabel, sortDisciplineItems, sortAgeClassItems } from '~~/shared/utils/ladv-labels'
+import { pickAgeClass } from '~~/shared/utils/ladv-age-class'
 import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 import { getInitialStatus } from '~~/shared/utils/registration'
 
@@ -173,8 +174,12 @@ watch(addNewCode, (code) => {
     addNewAgeClass.value = ''
     return
   }
-  const items = addNewAgeClassItems.value
-  addNewAgeClass.value = items[0]?.value ?? ''
+  const year = toDate(props.event.date)?.getFullYear() ?? new Date().getFullYear()
+  addNewAgeClass.value = pickAgeClass(
+    addNewAgeClassItems.value.map(i => i.value),
+    { birthYear: selectedMember.value?.birthYear ?? null, gender: selectedMember.value?.gender ?? null },
+    year,
+  )
 })
 
 function confirmAddNew() {

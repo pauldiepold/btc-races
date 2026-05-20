@@ -71,6 +71,8 @@ export type RegistrationCoachView = {
   firstName: string | null
   lastName: string | null
   avatarUrl: string | null
+  birthYear: number | null
+  gender: 'm' | 'w' | null
   wishDisciplines: RegistrationDisciplinePair[]
   ladvDisciplines: RegistrationDisciplinePair[] | null
   event: {

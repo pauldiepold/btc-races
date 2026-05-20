@@ -31,6 +31,14 @@ Regeln, die *nicht* in den Caps liegen (universell, im Helper):
 
 Neuer Event-Typ = **ein Eintrag** in der Tabelle. UI- und Server-Branches lesen aus den Caps (Migration läuft schrittweise via Issues #188, #189, #190, #191, #192).
 
+## Disziplin & Altersklasse
+
+**Disziplin** *(`discipline`, LADV: `disziplinNew`)* — eine leichtathletische Wettkampf-Disziplin (z. B. 100m, Weitsprung), identifiziert über einen LADV-Disziplin-Code.
+
+**LADV-Altersklasse** *(`ageClass`, LADV: `klasseNew`)* — die Wettkampf-Altersklasse eines Athleten (z. B. `M40`, `WJU20`), bestimmt aus Geburtsjahr, Geschlecht und Wettkampfjahr. Stichtag ist der 31.12. des Wettkampfjahres — *nicht* das aktuelle Alter. Berechnung: `shared/utils/ladv-age-class.ts:getLadvAgeClass`.
+
+Ein **Wunschstand**- bzw. **LADV-Stand**-Eintrag ist genau ein Paar `(Disziplin, Altersklasse)`. Eine LADV-Ausschreibung bietet pro Disziplin nur eine Teilmenge aller Altersklassen an — die berechnete AK ist daher nicht immer wählbar. Masters-Athleten (35+) dürfen ersatzweise in der offenen Hauptklasse (`M`/`W`) starten, wenn ihre Masters-Klasse nicht angeboten wird (`shared/utils/ladv-age-class.ts:pickAgeClass`).
+
 ## Anmeldung
 
 **Anmeldung** *(`registration`)* — die Bindung eines Mitglieds an ein Event. Genau eine Anmeldung pro `(eventId, userId)`. Eine stornierte Anmeldung wird bei Wieder-Anmeldung **reaktiviert**, nicht neu angelegt.

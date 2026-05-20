@@ -22,6 +22,8 @@ export default defineEventHandler(async (event) => {
       firstName: schema.users.firstName,
       lastName: schema.users.lastName,
       avatarSmall: schema.users.avatarSmall,
+      birthday: schema.users.birthday,
+      gender: schema.users.gender,
       eventId: schema.events.id,
       eventName: schema.events.name,
       eventDate: schema.events.date,
@@ -50,6 +52,8 @@ export default defineEventHandler(async (event) => {
     firstName: row.firstName,
     lastName: row.lastName,
     avatarUrl: row.avatarSmall ? `/api/avatar/${row.userId}` : null,
+    birthYear: row.birthday ? new Date(row.birthday).getFullYear() : null,
+    gender: row.gender,
     wishDisciplines: (row.wishDisciplines as RegistrationDisciplinePair[] | null) ?? [],
     ladvDisciplines: row.ladvDisciplines as RegistrationDisciplinePair[] | null,
     event: {

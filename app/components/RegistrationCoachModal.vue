@@ -2,6 +2,7 @@
 import type { RegistrationCoachView } from '~~/shared/types/events'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 import { ladvDisciplineLabel, ladvAgeClassLabel, sortDisciplineItems, sortAgeClassItems } from '~~/shared/utils/ladv-labels'
+import { pickAgeClass } from '~~/shared/utils/ladv-age-class'
 import { getCoachModalLineState, getCoachModalRemovals } from '~~/shared/utils/ladv-diff'
 
 const props = defineProps<{
@@ -86,7 +87,12 @@ const addAgeClassItems = computed(() => ageClassItemsFor(addCode.value))
 
 watch(addCode, (code) => {
   const items = ageClassItemsFor(code)
-  addAgeClass.value = items[0]?.value ?? ''
+  const year = toDate(reg.value?.event.date)?.getFullYear() ?? new Date().getFullYear()
+  addAgeClass.value = pickAgeClass(
+    items.map(i => i.value),
+    { birthYear: reg.value?.birthYear ?? null, gender: reg.value?.gender ?? null },
+    year,
+  )
 })
 
 function confirmAddRow() {

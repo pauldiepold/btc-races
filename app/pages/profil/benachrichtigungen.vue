@@ -313,6 +313,24 @@ async function toggle(entry: DisplayEntry, channel: NotificationChannel, next: b
     </div>
 
     <div
+      v-else
+      class="mb-5 rounded-[--ui-radius] border border-success/30 bg-success/10 p-4 flex items-start gap-3"
+    >
+      <UIcon
+        name="i-ph-bell-ringing"
+        class="size-5 text-success shrink-0 mt-0.5"
+      />
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-highlighted">
+          Push-Benachrichtigungen sind aktiv
+        </p>
+        <p class="text-xs text-muted mt-0.5">
+          Dieses Gerät empfängt Push-Benachrichtigungen.
+        </p>
+      </div>
+    </div>
+
+    <div
       v-if="status === 'pending' && !preferences.length"
       class="space-y-2"
     >

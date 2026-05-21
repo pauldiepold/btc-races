@@ -259,6 +259,34 @@ async function toggle(entry: DisplayEntry, channel: NotificationChannel, next: b
     </div>
 
     <div
+      v-else-if="!pushAvailable && push.needsInstallFirst.value"
+      class="mb-5 rounded-[--ui-radius] border border-default bg-muted/50 p-4 flex items-start gap-3"
+    >
+      <UIcon
+        name="i-ph-device-mobile"
+        class="size-5 text-muted shrink-0 mt-0.5"
+      />
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-highlighted">
+          Auf dem iPhone: App zuerst installieren
+        </p>
+        <p class="text-xs text-muted mt-0.5">
+          Push-Benachrichtigungen gibt es auf iOS nur in der installierten App. Die Anleitung zeigt dir Schritt für Schritt, wie das geht.
+        </p>
+      </div>
+      <UButton
+        to="/installieren"
+        label="Anleitung"
+        color="primary"
+        variant="soft"
+        size="xs"
+        icon="i-ph-arrow-right"
+        trailing
+        class="shrink-0"
+      />
+    </div>
+
+    <div
       v-else-if="!pushAvailable"
       class="mb-5 rounded-[--ui-radius] border border-default bg-muted/50 p-4 flex items-start gap-3"
     >

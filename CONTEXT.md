@@ -116,6 +116,13 @@ Operationen am Anmeldungs-Aggregat lösen Notifications aus:
 
 Liegt im Anmelde-Modul, nicht in den Handlern. Aufrufer kontrollieren über `ChangeOpts.silent`, ob die generische `admin_changed_member_registration` unterdrückt werden soll, falls der Caller bereits eine spezifischere Notification gesendet hat.
 
+## Installierte App
+
+**Installierte App** — die zum Home-Bildschirm hinzugefügte, im Standalone-Modus laufende Variante von Berlin Track Club (technisch eine PWA). Nutzerseitig heißt sie immer „App" bzw. „installierte App" — der Begriff „PWA" erscheint nie in der UI.
+_Avoid_: „PWA" user-facing.
+
+Auf iOS sind Web-Push-Benachrichtigungen nur in der installierten App möglich, nicht im Safari-Tab. Daher gilt für iOS-Geräte ohne installierte App: erst installieren, dann Push (`needsInstallFirst`). Auf Android und Desktop funktioniert Push auch im Browser-Tab.
+
 ## Beiträge & Kommentare
 
 > Vereinsinterner Diskussionsbereich, im UI **„Beiträge"**, löst die Campai-„Räume" ab. Komplett login-pflichtig — nicht an `Event.isPubliclyVisible` gekoppelt. (Planung in Arbeit, Stand 2026-05-20.)

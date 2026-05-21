@@ -63,14 +63,19 @@ const canEdit = computed(() => isAdmin.value || isOwner.value)
 // Cancel / Uncancel
 const cancelModal = ref(false)
 const cancelLoading = ref(false)
+const cancelReason = ref('')
 
 async function confirmCancel() {
   if (!event.value) return
   cancelLoading.value = true
   try {
-    await $fetch(`/api/events/${id}/cancel`, { method: 'POST' })
+    await $fetch(`/api/events/${id}/cancel`, {
+      method: 'POST',
+      body: { reason: cancelReason.value },
+    })
     toast.add({ title: 'Event abgesagt', color: 'success' })
     cancelModal.value = false
+    cancelReason.value = ''
     await refresh()
   }
   catch {
@@ -111,6 +116,14 @@ async function confirmDelete() {
   finally {
     deleteLoading.value = false
   }
+}
+
+// Link teilen
+const { share } = useShare()
+
+function shareEvent() {
+  if (!event.value) return
+  share({ title: event.value.name, url: window.location.href })
 }
 
 // Admin Proxy-Anmeldung
@@ -162,15 +175,25 @@ async function syncLadv() {
 
 <template>
   <UContainer class="py-10 lg:py-14">
-    <UButton
-      to="/"
-      icon="i-ph-arrow-left"
-      label="Alle Events"
-      color="neutral"
-      variant="ghost"
-      size="sm"
-      class="mb-6"
-    />
+    <div class="flex items-center justify-between gap-2 mb-6">
+      <UButton
+        to="/"
+        icon="i-ph-arrow-left"
+        label="Alle Events"
+        color="neutral"
+        variant="ghost"
+        size="sm"
+      />
+      <UButton
+        v-if="event"
+        icon="i-ph-share-fat"
+        label="Teilen"
+        color="neutral"
+        variant="ghost"
+        size="sm"
+        @click="shareEvent"
+      />
+    </div>
 
     <!-- Lade-Zustand -->
     <div
@@ -205,9 +228,18 @@ async function syncLadv() {
         color="error"
         variant="subtle"
         title="Dieses Event wurde abgesagt"
-        :description="`Abgesagt am ${formatDate(event.cancelledAt)}`"
         class="mb-8"
-      />
+      >
+        <template #description>
+          <p>Abgesagt am {{ formatDate(event.cancelledAt) }}</p>
+          <p
+            v-if="event.cancelReason"
+            class="mt-1"
+          >
+            <span class="font-medium">Grund:</span> {{ event.cancelReason }}
+          </p>
+        </template>
+      </UAlert>
 
       <!-- Two-Column Layout -->
       <div class="flex flex-col gap-8 lg:flex-row lg:gap-12 lg:items-start">
@@ -250,6 +282,10 @@ async function syncLadv() {
               />
             </div>
             <div class="flex flex-col gap-2">
+              <LadvMeldelisteButtons
+                v-if="isAdmin && hasLadvAdminFeatures && event.ladvId"
+                :ladv-id="event.ladvId"
+              />
               <UButton
                 v-if="isAdmin && !isCancelled"
                 icon="i-ph-user-plus"
@@ -270,17 +306,17 @@ async function syncLadv() {
                 block
               />
               <UButton
-                v-if="isAdmin && !isCancelled"
+                v-if="canEdit && !isCancelled"
                 icon="i-ph-x-circle"
                 label="Event absagen"
                 color="error"
                 variant="outline"
                 size="sm"
                 block
-                @click="cancelModal = true"
+                @click="cancelReason = ''; cancelModal = true"
               />
               <UButton
-                v-if="isAdmin && isCancelled"
+                v-if="canEdit && isCancelled"
                 icon="i-ph-arrow-u-up-left"
                 label="Reaktivieren"
                 color="neutral"
@@ -356,20 +392,34 @@ async function syncLadv() {
 
     <!-- Absagen-Bestätigungsdialog -->
     <UModal v-model:open="cancelModal">
-      <template #body>
-        <div class="flex items-start gap-3">
+      <template #header>
+        <div class="flex items-center gap-3">
           <UIcon
             name="i-ph-warning-circle"
-            class="size-5 text-error shrink-0 mt-0.5"
+            class="size-5 text-error shrink-0"
           />
-          <div>
-            <p class="font-semibold text-highlighted">
-              Event absagen?
-            </p>
-            <p class="text-sm text-muted mt-1">
-              Das Event wird als abgesagt markiert. Bestehende Anmeldungen bleiben erhalten. Die Absage kann rückgängig gemacht werden.
-            </p>
-          </div>
+          <p class="text-base font-semibold text-highlighted">
+            Event absagen
+          </p>
+        </div>
+      </template>
+
+      <template #body>
+        <p class="text-sm text-muted">
+          Das Event wird als abgesagt markiert. Bestehende Anmeldungen bleiben erhalten. Die Absage kann rückgängig gemacht werden.
+        </p>
+        <div class="mt-4">
+          <p class="text-xs font-medium text-highlighted uppercase tracking-wide mb-1.5">
+            Grund <span class="normal-case font-normal text-muted">(optional)</span>
+          </p>
+          <UTextarea
+            v-model="cancelReason"
+            placeholder="Wird den Angemeldeten in der Absage-Mail und öffentlich auf der Event-Seite angezeigt…"
+            class="w-full"
+            :rows="2"
+            :maxlength="500"
+            autoresize
+          />
         </div>
       </template>
       <template #footer>

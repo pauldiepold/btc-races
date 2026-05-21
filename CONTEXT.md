@@ -8,6 +8,16 @@ Geteilte Sprache für Architektur-Entscheidungen und Code-Reviews. Wenn ein Term
 
 Bewusst nicht „Production": `process.env.NODE_ENV === 'production'` gilt auch für Preview-Builds und meint den Build-Modus, nicht das Deployment-Target.
 
+## Mitgliedschaft
+
+**Mitglied** *(`User`)* — eine Person, deren Stammdaten per Campai-Sync (`runSyncMembers`) in die `users`-Tabelle gespiegelt werden. Campai ist die Wahrheitsquelle; die App legt selbst keine Mitglieder an.
+
+**Mitgliedsstatus** *(`membershipStatus`)* — diskriminiert, ob ein Mitglied aktuell zum Verein gehört. Zwei Werte: `active`, `inactive`. Wird ausschließlich vom Campai-Sync gesetzt; neu angelegte Rows starten auf `inactive`.
+
+**Aktives Mitglied** — ein Mitglied, das beim letzten Campai-Sync in der Aktiv-Liste von Campai stand.
+
+**Inaktives Mitglied** — ein Mitglied, das beim letzten Campai-Sync *nicht* mehr in der Aktiv-Liste stand (Vereinsaustritt o. ä.). Zwei harte Domain-Konsequenzen: kein App-Zugang (der Login wird abgewiesen) und keinerlei Notifications — weder E-Mail noch Push. Das „keine Notifications"-Versprechen gilt ausnahmslos für jeden Notification-Typ, auch admin-gerichtete. Wird ein Mitglied später wieder aktiv, laufen Zugang und Notifications automatisch erneut an — es gibt keinen separaten Reaktivierungs-Schritt.
+
 ## Event-Typ
 
 **Event-Typ** *(`EventType`)* — diskriminiert Domain-Verhalten und UI-Form eines Events. Heute vier Werte: `ladv`, `competition`, `training`, `social`.
@@ -58,9 +68,12 @@ Initialer Status pro Typ (`getInitialStatus`): `ladv`/`competition` → `registe
 
 **Wunsch-Stand-Diff** — die Differenz zwischen `wishDisciplines` und `ladvDisciplines` (`shared/utils/ladv-diff.ts:diffLadvRegistration`). Ein Diff-Eintrag plus der Cancel-Fall (storniert, aber `ladvDisciplines` nicht leer) ist ein **LADV-Todo** (`LadvTodo`) — die Arbeits-Einheit für den Coach. Umgangssprachlich auch „Admin-Todo". Surfaces an mehreren Stellen (Coach-Modal, Event-Detailseite, Event-Card).
 
+**Meldeliste** — die LADV-seitige Übersicht aller Meldungen für einen Wettkampf (`ladv.de/meldung/anmeldungen/{ladvId}`). Externe Seite, öffnet im neuen Tab. Nur relevant für Events mit `ladvId`.
+_Avoid_: „Anmeldeliste" — das ist die BTC-app-interne Teilnehmerliste (`EventRegistrationList`), ein anderes Konzept.
+
 ## Event-Lifecycle
 
-**Event-Cancel** *(`cancelledAt`)* — Soft-Cancel: das Event bleibt in der Datenbank, aber ist als "abgesagt" markiert. Bestehende Anmeldungen bleiben erhalten (für Audit/Historie). Idempotent: ein bereits gecanceltes Event nochmal canceln ist ein No-Op (kein DB-Write, keine erneute Notification).
+**Event-Cancel** *(`cancelledAt`)* — Soft-Cancel: das Event bleibt in der Datenbank, aber ist als "abgesagt" markiert. Bestehende Anmeldungen bleiben erhalten (für Audit/Historie). Idempotent: ein bereits gecanceltes Event nochmal canceln ist ein No-Op (kein DB-Write, keine erneute Notification). Beim Cancel kann ein Admin/Self-Aktor optional einen frei formulierten **Absage-Grund** (`cancelReason`) mitgeben; LADV-Sync-Absagen haben nie einen Grund.
 
 **Event-Reaktivierung** *(`uncancel`)* — Aufhebung des Cancel-Status (`cancelledAt := null`). Idempotent: ein nicht-gecanceltes Event reaktivieren ist ein No-Op. Heute keine Notification — Folge-Issue für `event_uncanceled` ("Event findet doch statt") existiert.
 
@@ -158,3 +171,4 @@ _Avoid_: „Abonnent", „Subscriber" — siehe Flagged ambiguities.
 
 - „Subscription" meinte bisher ausschließlich das Browser-Web-Push-Abo (`pushSubscriptions`). Das Thread-seitige Abo-Konzept heißt bewusst **Folgen** / **Stummschalten** (Override gegenüber **automatischen Empfängern**), um die Begriffe nicht zu vermischen.
 - „Pin": Es gibt nur den **angehefteten Kommentar** (innerhalb eines Threads). Ein Thread-Pin (Thread oben im Raum festnageln) wurde aus v1 herausgenommen.
+- „Anmelden": umgangssprachlich sowohl „sich einloggen" als auch „sich für ein Event anmelden". **Anmeldung** ist reserviert für die Event-Registrierung (siehe Abschnitt *Anmeldung*). Für die Authentifizierung **Login** / **Einloggen** verwenden.

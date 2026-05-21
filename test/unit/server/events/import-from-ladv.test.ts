@@ -21,14 +21,14 @@ afterEach(async () => {
   await testDb.cleanup()
 })
 
-async function seedUser(opts: { role?: 'member' | 'admin' | 'superuser', suffix?: string, status?: 'active' | 'inactive' } = {}): Promise<number> {
+async function seedUser(opts: { role?: 'member' | 'admin' | 'superuser', suffix?: string } = {}): Promise<number> {
   const { schema } = testDb
   const [user] = await testDb.db.insert(schema.users).values({
     email: `user${opts.suffix ?? Date.now()}-${Math.random()}@example.com`,
     firstName: 'Test',
     lastName: 'User',
     role: opts.role ?? 'member',
-    membershipStatus: opts.status ?? 'active',
+    membershipStatus: 'active',
     hasLadvStartpass: 0,
   }).returning()
   return user.id
@@ -115,22 +115,6 @@ describe('importEventFromLadv — Insert + Notification', () => {
     expect(jobs[0].payload.eventName).toBe('Abendsportfest Berlin-Zehlendorf')
     const recipientIds = jobs[0].payload._recipients.map(r => r.userId).sort()
     expect(recipientIds).toEqual([adminId, adminId + 1, adminId + 2].sort())
-  })
-
-  it('Inaktive Mitglieder bekommen keine new_event-Notification', async () => {
-    const adminId = await seedUser({ role: 'admin' })
-    const inactiveId = await seedUser({ suffix: 'inactive', status: 'inactive' })
-
-    await importEventFromLadv(
-      { eventType: 'ladv', ladvId: 12345, ladvData: makeLadvData() },
-      adminActor(adminId),
-      { db },
-    )
-
-    const jobs = await loadNotificationJobs(testDb)
-    expect(jobs).toHaveLength(1)
-    const recipientIds = jobs[0].payload._recipients.map(r => r.userId)
-    expect(recipientIds).not.toContain(inactiveId)
   })
 })
 

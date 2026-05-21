@@ -97,6 +97,23 @@ class EmailService {
     }
     catch (error) {
       console.error('[EmailService] Fehler beim Senden der E-Mail:', error)
+
+      const originalRecipients = message.to.map(r => r.address).join(', ')
+      const errorMessage = error instanceof Error ? error.message : String(error)
+
+      try {
+        await this.provider.sendEmail({
+          from: { address: this.senderAddress, displayName: 'Berlin Track Club' },
+          to: [{ address: 'paul.diepold@outlook.de', displayName: 'Paul' }],
+          subject: `[BTC Races] E-Mail-Versand fehlgeschlagen`,
+          html: `<p>Eine E-Mail konnte nicht zugestellt werden.</p><p><strong>Empfänger:</strong> ${originalRecipients}<br><strong>Betreff:</strong> ${message.subject}<br><strong>Fehler:</strong> ${errorMessage}</p>`,
+          text: `Eine E-Mail konnte nicht zugestellt werden.\n\nEmpfänger: ${originalRecipients}\nBetreff: ${message.subject}\nFehler: ${errorMessage}`,
+        })
+      }
+      catch (notifyError) {
+        console.error('[EmailService] Admin-Benachrichtigung fehlgeschlagen:', notifyError)
+      }
+
       throw error
     }
   }

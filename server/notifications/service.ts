@@ -204,7 +204,7 @@ export async function executeDeliveries(
 
   const userIds = recipients.map(r => r.userId)
 
-  const [preferences, subscriptionRows, actor] = await Promise.all([
+  const [preferences, subscriptionRows, activeUserRows, actor] = await Promise.all([
     userIds.length > 0
       ? db.select()
           .from(schema.notificationPreferences)
@@ -220,6 +220,18 @@ export async function executeDeliveries(
           .from(schema.pushSubscriptions)
           .where(inArray(schema.pushSubscriptions.userId, userIds))
       : Promise.resolve([] as Array<{ userId: number }>),
+    // Inaktive Mitglieder erhalten keinerlei Notifications — zentrale
+    // Durchsetzung zum Versandzeitpunkt mit frischem membershipStatus (ADR-0003).
+    userIds.length > 0
+      ? db.select({ userId: schema.users.id })
+          .from(schema.users)
+          .where(
+            and(
+              inArray(schema.users.id, userIds),
+              eq(schema.users.membershipStatus, 'active'),
+            ),
+          )
+      : Promise.resolve([] as Array<{ userId: number }>),
     resolveActor(actorUserId),
   ])
 
@@ -231,8 +243,9 @@ export async function executeDeliveries(
   }
 
   const subscribedUserIds = new Set(subscriptionRows.map(r => r.userId))
+  const activeUserIds = new Set(activeUserRows.map(r => r.userId))
 
-  const tasks = buildDeliveryTasks(type, recipients, prefsByUser, subscribedUserIds)
+  const tasks = buildDeliveryTasks(type, recipients, prefsByUser, subscribedUserIds, activeUserIds)
   if (tasks.length === 0) return true
 
   const results = await Promise.allSettled(tasks.map(async (task) => {

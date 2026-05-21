@@ -14,6 +14,7 @@ describe('buildDeliveryTasks', () => {
       [recipient(1)],
       noPrefs,
       new Set([1]),
+      new Set([1]),
     )
     expect(tasks).toEqual([{ recipient: recipient(1), channel: 'push' }])
   })
@@ -24,6 +25,7 @@ describe('buildDeliveryTasks', () => {
       [recipient(1)],
       noPrefs,
       new Set(),
+      new Set([1]),
     )
     expect(tasks).toHaveLength(0)
   })
@@ -35,6 +37,7 @@ describe('buildDeliveryTasks', () => {
       [recipient(1)],
       prefs,
       new Set([1]),
+      new Set([1]),
     )
     expect(tasks).toHaveLength(0)
   })
@@ -45,6 +48,7 @@ describe('buildDeliveryTasks', () => {
       'reminder_deadline_athlete',
       [recipient(1)],
       noPrefs,
+      new Set([1]),
       new Set([1]),
     )
     const channels = tasks.map(t => t.channel)
@@ -59,9 +63,34 @@ describe('buildDeliveryTasks', () => {
       [recipient(1)],
       noPrefs,
       new Set(), // keine Push-Subscription
+      new Set([1]),
     )
     const channels = tasks.map(t => t.channel)
     expect(channels).toContain('email')
     expect(channels).not.toContain('push')
+  })
+})
+
+describe('buildDeliveryTasks – inaktive Mitglieder', () => {
+  it('erstellt keine Tasks für einen inaktiven Recipient', () => {
+    const tasks = buildDeliveryTasks(
+      'new_event',
+      [recipient(1)],
+      noPrefs,
+      new Set([1]), // Push-Subscription vorhanden
+      new Set<number>(), // activeUserIds leer → Recipient 1 ist inaktiv
+    )
+    expect(tasks).toHaveLength(0)
+  })
+
+  it('filtert nur inaktive Recipients heraus, aktive bleiben', () => {
+    const tasks = buildDeliveryTasks(
+      'new_event',
+      [recipient(1), recipient(2)],
+      noPrefs,
+      new Set([1, 2]),
+      new Set([2]), // nur Recipient 2 ist aktiv
+    )
+    expect(tasks).toEqual([{ recipient: recipient(2), channel: 'push' }])
   })
 })

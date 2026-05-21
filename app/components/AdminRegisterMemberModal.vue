@@ -560,6 +560,13 @@ async function submit() {
             label="Ich habe in LADV bereits gemeldet"
             description="Setzt den LADV-Stand direkt identisch zum Wunschstand."
           />
+          <p class="text-xs text-muted mt-3 mb-1.5">
+            Noch nicht gemeldet? Direkt in LADV:
+          </p>
+          <LadvMeldelisteButtons
+            v-if="props.event.ladvId"
+            :ladv-id="props.event.ladvId"
+          />
         </div>
       </div>
     </template>

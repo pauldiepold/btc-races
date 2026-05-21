@@ -66,6 +66,7 @@ export const events = sqliteTable('events', {
   registrationDeadline: text(), // YYYY-MM-DD
   announcementLink: text(),
   cancelledAt: integer({ mode: 'timestamp' }),
+  cancelReason: text(), // optionaler Absage-Grund, nur bei Admin/Self-Cancel
 
   // Wettkampf-Metadaten (competition + ladv)
   raceType: text('race_type').$type<'track' | 'road' | 'trail'>(),

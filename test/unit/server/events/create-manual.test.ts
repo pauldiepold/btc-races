@@ -76,30 +76,6 @@ describe('createManualEvent — Insert + Notification', () => {
     const recipientIds = jobs[0].payload._recipients.map(r => r.userId).sort()
     expect(recipientIds).toEqual([ownerId, ownerId + 1, ownerId + 2].sort())
   })
-
-  it('Inaktive Mitglieder bekommen keine new_event-Notification', async () => {
-    const { schema } = testDb
-    const adminId = await seedUser({ role: 'admin' })
-    const [inactive] = await testDb.db.insert(schema.users).values({
-      email: `inactive-${Math.random()}@example.com`,
-      firstName: 'Old',
-      lastName: 'User',
-      role: 'member',
-      membershipStatus: 'inactive',
-      hasLadvStartpass: 0,
-    }).returning()
-
-    await createManualEvent(
-      { type: 'training', name: 'Bahntraining', date: FUTURE_DATE },
-      adminActor(adminId),
-      { db },
-    )
-
-    const jobs = await loadNotificationJobs(testDb)
-    expect(jobs).toHaveLength(1)
-    const recipientIds = jobs[0].payload._recipients.map(r => r.userId)
-    expect(recipientIds).not.toContain(inactive.id)
-  })
 })
 
 describe('createManualEvent — Priority-Gating', () => {

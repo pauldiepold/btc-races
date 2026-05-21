@@ -18,6 +18,7 @@ export async function cancelEvent(
   eventId: number,
   actor: EventActor,
   deps: CancelEventDeps,
+  reason?: string,
 ): Promise<CancelEventResult> {
   const { db } = deps
 
@@ -32,10 +33,12 @@ export async function cancelEvent(
     return { id: eventId, cancelled: false }
   }
 
-  const now = new Date()
-  await updateEvent(db, eventId, { cancelledAt: now, updatedAt: now })
+  const cancelReason = reason?.trim() || null
 
-  const eventAfter: EventRow = { ...dbEvent, cancelledAt: now, updatedAt: now }
+  const now = new Date()
+  await updateEvent(db, eventId, { cancelledAt: now, cancelReason, updatedAt: now })
+
+  const eventAfter: EventRow = { ...dbEvent, cancelledAt: now, cancelReason, updatedAt: now }
 
   const decisions = decideCancelNotifications()
   await dispatchEventNotifications(decisions, {

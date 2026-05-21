@@ -21,6 +21,7 @@ export const eventCanceled = defineNotificationType({
     eventLocation: z.string().optional(),
     registrationDeadline: z.string().optional(),
     eventLink: z.string(),
+    reason: z.string().optional(),
   }),
   email: {
     component: 'EventCanceledEmail',

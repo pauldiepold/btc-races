@@ -170,4 +170,30 @@ describe('cancelEvent', () => {
       cancelEvent(99999, adminActor(adminId), { db }),
     ).rejects.toMatchObject({ code: 'event_not_found' })
   })
+
+  it('Cancel mit Grund → cancelReason getrimmt persistiert + reason im Payload', async () => {
+    const ownerId = await seedUser()
+    const eventId = await seedEvent({ createdBy: ownerId })
+    await seedAttendee(eventId, 'registered')
+
+    await cancelEvent(eventId, selfActor(ownerId), { db }, '  Wegen Unwetter abgesagt  ')
+
+    expect((await loadEvent(eventId))?.cancelReason).toBe('Wegen Unwetter abgesagt')
+
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs[0].payload.reason).toBe('Wegen Unwetter abgesagt')
+  })
+
+  it('Cancel mit Whitespace-Grund → cancelReason bleibt null, kein reason im Payload', async () => {
+    const ownerId = await seedUser()
+    const eventId = await seedEvent({ createdBy: ownerId })
+    await seedAttendee(eventId, 'registered')
+
+    await cancelEvent(eventId, selfActor(ownerId), { db }, '   ')
+
+    expect((await loadEvent(eventId))?.cancelReason).toBeNull()
+
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs[0].payload).not.toHaveProperty('reason')
+  })
 })

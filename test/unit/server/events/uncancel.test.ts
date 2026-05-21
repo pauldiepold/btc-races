@@ -35,13 +35,14 @@ async function seedUser(opts: { role?: 'member' | 'admin' | 'superuser', suffix?
   return user.id
 }
 
-async function seedEvent(opts: { createdBy: number, cancelledAt?: Date | null }): Promise<number> {
+async function seedEvent(opts: { createdBy: number, cancelledAt?: Date | null, cancelReason?: string | null }): Promise<number> {
   const { schema } = testDb
   const [event] = await testDb.db.insert(schema.events).values({
     type: 'competition',
     name: 'Test-Event',
     date: FUTURE_DATE,
     cancelledAt: opts.cancelledAt ?? null,
+    cancelReason: opts.cancelReason ?? null,
     createdBy: opts.createdBy,
   }).returning()
   return event.id
@@ -112,5 +113,18 @@ describe('uncancelEvent', () => {
     await expect(
       uncancelEvent(99999, adminActor(adminId), { db }),
     ).rejects.toMatchObject({ code: 'event_not_found' })
+  })
+
+  it('Uncancel löscht den Absage-Grund → cancelReason := null', async () => {
+    const ownerId = await seedUser()
+    const eventId = await seedEvent({
+      createdBy: ownerId,
+      cancelledAt: new Date(),
+      cancelReason: 'Wegen Unwetter abgesagt',
+    })
+
+    await uncancelEvent(eventId, selfActor(ownerId), { db })
+
+    expect((await loadEvent(eventId))?.cancelReason).toBeNull()
   })
 })

@@ -31,7 +31,7 @@ const { eventType, disciplines } = defineProps<Props>()
     </EmailText>
 
     <EmailText>
-      <strong>{{ eventName }}</strong> findet in zwei Tagen statt. Schau vorher nochmal rein, prüfe deine Anmeldung und halt die Daten zum Veranstaltungsort bereit.
+      <strong>{{ eventName }}</strong> findet in zwei Tagen statt.
     </EmailText>
 
     <DisciplineList

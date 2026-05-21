@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EventDetails from './components/EventDetails.vue'
+import DisciplineList from './components/DisciplineList.vue'
 
 import type { EventType } from '~~/shared/utils/registration'
 
@@ -15,13 +17,20 @@ interface Props {
   eventVenue?: string
   eventLink?: string
   eventType?: EventType
+  wishDisciplines?: string[]
+  ladvDisciplines?: string[]
 }
 
 const {
   memberFirstName,
   memberLastName,
   eventType,
+  wishDisciplines,
+  ladvDisciplines,
 } = defineProps<Props>()
+
+const wishItems = computed(() => (wishDisciplines ?? []).map(label => ({ label })))
+const ladvItems = computed(() => (ladvDisciplines ?? []).map(label => ({ label })))
 
 const styles = {
   alertBox: {
@@ -61,6 +70,16 @@ const memberFullName = `${memberFirstName} ${memberLastName}`
         Mögliche LADV-Anpassung erforderlich.
       </EText>
     </ESection>
+
+    <DisciplineList
+      heading="Wunschstand (neu)"
+      :items="wishItems"
+    />
+
+    <DisciplineList
+      heading="LADV-Stand (aktuell gemeldet)"
+      :items="ladvItems"
+    />
 
     <EventDetails
       :event-name="eventName"

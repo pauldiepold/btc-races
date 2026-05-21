@@ -3,8 +3,10 @@ import { computed } from 'vue'
 import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EventDetails from './components/EventDetails.vue'
+import DisciplineList from './components/DisciplineList.vue'
 import type { EventType } from '~~/shared/utils/registration'
 import { getEventTypeLabel } from '~~/shared/utils/registration'
+import type { DisciplineStatusItem } from '~~/shared/utils/ladv-diff'
 
 interface Props {
   firstName?: string
@@ -15,9 +17,10 @@ interface Props {
   eventVenue?: string
   eventLink?: string
   eventType?: EventType
+  disciplines?: DisciplineStatusItem[]
 }
 
-const { eventType } = defineProps<Props>()
+const { eventType, disciplines } = defineProps<Props>()
 
 const eventLabel = computed(() => getEventTypeLabel(eventType ?? 'competition'))
 </script>
@@ -34,6 +37,12 @@ const eventLabel = computed(() => getEventTypeLabel(eventType ?? 'competition'))
     <EmailText>
       Du bist jetzt zum folgenden {{ eventLabel }} angemeldet:
     </EmailText>
+
+    <DisciplineList
+      heading="Deine Disziplinen"
+      :items="disciplines"
+      show-status
+    />
 
     <EventDetails
       :event-name="eventName"

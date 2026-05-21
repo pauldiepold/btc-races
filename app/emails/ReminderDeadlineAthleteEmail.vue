@@ -2,8 +2,10 @@
 import EmailLayout from './components/EmailLayout.vue'
 import EmailText from './components/EmailText.vue'
 import EventDetails from './components/EventDetails.vue'
+import DisciplineList from './components/DisciplineList.vue'
 
 import type { EventType } from '~~/shared/utils/registration'
+import type { DisciplineStatusItem } from '~~/shared/utils/ladv-diff'
 
 interface Props {
   firstName?: string
@@ -13,7 +15,7 @@ interface Props {
   registrationDeadline?: string
   eventVenue?: string
   eventLink?: string
-  disciplines?: string[]
+  disciplines?: DisciplineStatusItem[]
   eventType?: EventType
 }
 
@@ -25,35 +27,9 @@ const {
   registrationDeadline,
   eventVenue,
   eventLink,
-  disciplines = [],
+  disciplines,
   eventType,
 } = defineProps<Props>()
-
-const styles = {
-  disciplineBox: {
-    backgroundColor: '#fafafa',
-    border: '1px solid #e4e4e7',
-    borderRadius: '3px',
-    padding: '12px 16px',
-    margin: '8px 0 16px 0',
-  },
-  disciplineLabel: {
-    margin: '0 0 6px 0',
-    fontSize: '13px',
-    fontWeight: '600' as const,
-    color: '#09090b',
-  },
-  disciplineList: {
-    margin: '0',
-    paddingLeft: '20px',
-    fontSize: '14px',
-    color: '#3f3f46',
-    lineHeight: '1.6',
-  },
-  disciplineItem: {
-    margin: '2px 0',
-  },
-}
 </script>
 
 <template>
@@ -69,23 +45,11 @@ const styles = {
       die Meldefrist für <strong>{{ eventName }}</strong> endet am <strong>{{ registrationDeadline }}</strong>. Falls du deine Meldung noch anpassen willst, tu das jetzt.
     </EmailText>
 
-    <ESection
-      v-if="disciplines && disciplines.length > 0"
-      :style="styles.disciplineBox"
-    >
-      <EText :style="styles.disciplineLabel">
-        Deine angemeldeten Disziplinen
-      </EText>
-      <ul :style="styles.disciplineList">
-        <li
-          v-for="(d, idx) in disciplines"
-          :key="idx"
-          :style="styles.disciplineItem"
-        >
-          {{ d }}
-        </li>
-      </ul>
-    </ESection>
+    <DisciplineList
+      heading="Deine Disziplinen"
+      :items="disciplines"
+      show-status
+    />
 
     <EventDetails
       :event-name="eventName"

@@ -20,3 +20,23 @@ export function getLadvAgeClass(
   const mastersAge = Math.floor(age / 5) * 5
   return `${prefix}${mastersAge}`
 }
+
+// Wählt die passende Altersklasse für einen Athleten aus dem Angebot einer
+// Disziplin (`availableClasses` = die LADV-`klasseNew`-Werte dieser Disziplin).
+// Masters-Athleten (35+) dürfen ersatzweise in der offenen Hauptklasse (M/W)
+// starten, wenn ihre Masters-Klasse nicht angeboten wird.
+// Gibt '' zurück, wenn keine passende Klasse angeboten wird oder Geburtsjahr/
+// Geschlecht fehlen — der Aufrufer entscheidet dann, ob er einen Fallback setzt.
+export function pickAgeClass(
+  availableClasses: string[],
+  user: { birthYear: number | null, gender: 'm' | 'w' | null },
+  competitionYear: number,
+): string {
+  if (!user.birthYear || !user.gender) return ''
+  const auto = getLadvAgeClass(user.birthYear, user.gender, competitionYear)
+  const openClass = user.gender === 'm' ? 'M' : 'W'
+  // Masters-Klassen sehen aus wie M35/W40 (Präfix + Zahl); JU-Klassen und die
+  // Hauptklasse M/W sind keine Masters und bekommen keinen Hauptklassen-Fallback.
+  const candidates = /^[MW]\d+$/.test(auto) ? [auto, openClass] : [auto]
+  return candidates.find(c => availableClasses.includes(c)) ?? ''
+}

@@ -21,6 +21,7 @@ export const registrationConfirmation = defineNotificationType({
     eventLocation: z.string().optional(),
     registrationDeadline: z.string().optional(),
     eventLink: z.string(),
+    disciplines: z.array(z.object({ label: z.string(), ladvPending: z.boolean() })),
   }),
   email: {
     component: 'RegistrationConfirmationEmail',

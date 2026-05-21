@@ -8,12 +8,12 @@ import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 export const LATE_REGISTRATION_THRESHOLD_DAYS = 3
 
 export type NotificationDecision
-  = | { type: 'registration_confirmation', userId: number }
+  = | { type: 'registration_confirmation', userId: number, wishDisciplines: RegistrationDisciplinePair[], ladvDisciplines: RegistrationDisciplinePair[] | null }
     | { type: 'admin_registered_member', userId: number, disciplines: RegistrationDisciplinePair[] }
     | { type: 'ladv_registered', userId: number, disciplines: RegistrationDisciplinePair[] }
-    | { type: 'ladv_canceled', userId: number }
-    | { type: 'athlete_canceled_after_ladv' }
-    | { type: 'athlete_changed_after_ladv' }
+    | { type: 'ladv_canceled', userId: number, disciplines: RegistrationDisciplinePair[] }
+    | { type: 'athlete_canceled_after_ladv', disciplines: RegistrationDisciplinePair[] }
+    | { type: 'athlete_changed_after_ladv', wishDisciplines: RegistrationDisciplinePair[], ladvDisciplines: RegistrationDisciplinePair[] }
     | { type: 'admin_changed_member_registration', userId: number }
     | { type: 'admin_late_registration', athleteName: string, action: 'registered' | 'reactivated', disciplines: RegistrationDisciplinePair[] }
 
@@ -23,10 +23,11 @@ export function decideRegisterNotifications(
   targetUserId: number,
   setLadvStand: boolean,
   wishDisciplines: RegistrationDisciplinePair[],
+  ladvDisciplines: RegistrationDisciplinePair[] | null,
 ): NotificationDecision[] {
   if (actor.kind === 'self') {
     if (eventTypeCapabilities[eventType].hasLadvStandManagement) {
-      return [{ type: 'registration_confirmation', userId: targetUserId }]
+      return [{ type: 'registration_confirmation', userId: targetUserId, wishDisciplines, ladvDisciplines }]
     }
     return []
   }
@@ -53,7 +54,7 @@ export function decideStatusChangeNotifications(
     && isCancelAction
     && registration.ladvDisciplines !== null
   ) {
-    decisions.push({ type: 'athlete_canceled_after_ladv' })
+    decisions.push({ type: 'athlete_canceled_after_ladv', disciplines: registration.ladvDisciplines })
   }
 
   if (
@@ -88,7 +89,7 @@ export function decideWishChangeNotifications(
   ladvDisciplines: RegistrationDisciplinePair[] | null,
 ): NotificationDecision[] {
   if (shouldNotifyAdminsOnWishChange(prevWish, newWish, ladvDisciplines)) {
-    return [{ type: 'athlete_changed_after_ladv' }]
+    return [{ type: 'athlete_changed_after_ladv', wishDisciplines: newWish, ladvDisciplines: ladvDisciplines ?? [] }]
   }
   return []
 }
@@ -96,11 +97,12 @@ export function decideWishChangeNotifications(
 export function decideLadvStandNotifications(
   targetUserId: number,
   newStand: RegistrationDisciplinePair[] | null,
+  previousStand: RegistrationDisciplinePair[] | null,
 ): NotificationDecision[] {
   if (newStand !== null && newStand.length > 0) {
     return [{ type: 'ladv_registered', userId: targetUserId, disciplines: newStand }]
   }
-  return [{ type: 'ladv_canceled', userId: targetUserId }]
+  return [{ type: 'ladv_canceled', userId: targetUserId, disciplines: previousStand ?? [] }]
 }
 
 /**

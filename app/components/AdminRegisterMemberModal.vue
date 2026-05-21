@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { EventDetail } from '~~/shared/types/events'
 import type { AdminMemberListItem } from '~~/server/api/admin/members.get'
-import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
+import { ladvDisciplineLabel, ladvAgeClassLabel, sortDisciplineItems, sortAgeClassItems } from '~~/shared/utils/ladv-labels'
+import { pickAgeClass } from '~~/shared/utils/ladv-age-class'
 import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 import { getInitialStatus } from '~~/shared/utils/registration'
 
@@ -98,14 +99,8 @@ const filteredMembers = computed<MemberWithRegistration[]>(() => {
         const hay = `${m.firstName ?? ''} ${m.lastName ?? ''} ${m.email}`.toLowerCase()
         return hay.includes(q)
       })
-  // Sortierung: ohne Anmeldung zuerst, dann canceled, dann aktive
-  return matched.sort((a, b) => {
-    const rank = (s: MemberWithRegistration['registrationStatus']) =>
-      s === null ? 0 : s === 'canceled' ? 1 : 2
-    const diff = rank(a.registrationStatus) - rank(b.registrationStatus)
-    if (diff !== 0) return diff
-    return 0
-  })
+  // Sortierung: alphabetisch nach angezeigtem Namen (Vorname zuerst)
+  return matched.sort((a, b) => memberFullName(a).localeCompare(memberFullName(b), 'de'))
 })
 
 const visibleMembers = computed(() => filteredMembers.value.slice(0, 50))
@@ -114,7 +109,11 @@ function memberFullName(m: AdminMemberListItem) {
   return `${m.firstName ?? ''} ${m.lastName ?? ''}`.trim() || m.email
 }
 
-function statusInfo(s: MemberWithRegistration['registrationStatus']) {
+function memberStatusInfo(m: MemberWithRegistration) {
+  if (caps.value.hasLadvStandManagement && !m.hasLadvStartpass) {
+    return { label: 'Kein Startpass', hint: 'Wende dich an den Vorstand', color: 'error' as const, blocked: true }
+  }
+  const s = m.registrationStatus
   if (s === null) return null
   if (s === 'canceled') {
     return { label: 'Storniert', hint: 'Wird reaktiviert', color: 'warning' as const, blocked: false }
@@ -123,7 +122,7 @@ function statusInfo(s: MemberWithRegistration['registrationStatus']) {
 }
 
 function selectMember(m: MemberWithRegistration) {
-  if (statusInfo(m.registrationStatus)?.blocked) return
+  if (memberStatusInfo(m)?.blocked) return
   selectedMember.value = m
   status.value = getInitialStatus(props.event.type)
 }
@@ -153,15 +152,19 @@ const uniqueDisciplines = computed(() => {
 const pendingCodes = computed(() => new Set(pendingDisciplines.value.map(d => d.discipline)))
 
 const addNewDisciplineItems = computed(() =>
-  uniqueDisciplines.value
-    .filter(w => !pendingCodes.value.has(w.disziplinNew))
-    .map(w => ({ label: ladvDisciplineLabel(w.disziplinNew), value: w.disziplinNew })),
+  sortDisciplineItems(
+    uniqueDisciplines.value
+      .filter(w => !pendingCodes.value.has(w.disziplinNew))
+      .map(w => ({ label: ladvDisciplineLabel(w.disziplinNew), value: w.disziplinNew })),
+  ),
 )
 
 const addNewAgeClassItems = computed(() =>
-  wettbewerbe.value
-    .filter(w => w.disziplinNew === addNewCode.value)
-    .map(w => ({ label: ladvAgeClassLabel(w.klasseNew), value: w.klasseNew })),
+  sortAgeClassItems(
+    wettbewerbe.value
+      .filter(w => w.disziplinNew === addNewCode.value)
+      .map(w => ({ label: ladvAgeClassLabel(w.klasseNew), value: w.klasseNew })),
+  ),
 )
 
 watch(addNewCode, (code) => {
@@ -169,8 +172,12 @@ watch(addNewCode, (code) => {
     addNewAgeClass.value = ''
     return
   }
-  const items = addNewAgeClassItems.value
-  addNewAgeClass.value = items[0]?.value ?? ''
+  const year = toDate(props.event.date)?.getFullYear() ?? new Date().getFullYear()
+  addNewAgeClass.value = pickAgeClass(
+    addNewAgeClassItems.value.map(i => i.value),
+    { birthYear: selectedMember.value?.birthYear ?? null, gender: selectedMember.value?.gender ?? null },
+    year,
+  )
 })
 
 function confirmAddNew() {
@@ -225,6 +232,9 @@ async function submit() {
     const errStatus = (err as { status?: number }).status
     if (errStatus === 409) {
       toast.add({ title: `${fullName} ist bereits angemeldet`, color: 'warning' })
+    }
+    else if (errStatus === 403) {
+      toast.add({ title: 'Kein LADV-Startpass', description: 'Wende dich an den Vorstand.', color: 'error' })
     }
     else if (errStatus === 422) {
       const msg = (err as { data?: { message?: string } }).data?.message
@@ -296,10 +306,10 @@ async function submit() {
             :key="m.id"
             type="button"
             class="w-full flex items-center gap-3 rounded-[--ui-radius] px-3 py-2 text-left transition-colors"
-            :class="statusInfo(m.registrationStatus)?.blocked
+            :class="memberStatusInfo(m)?.blocked
               ? 'opacity-50 cursor-not-allowed'
               : 'hover:bg-elevated'"
-            :disabled="statusInfo(m.registrationStatus)?.blocked"
+            :disabled="memberStatusInfo(m)?.blocked"
             @click="selectMember(m)"
           >
             <UAvatar
@@ -316,17 +326,17 @@ async function submit() {
               </p>
             </div>
             <div
-              v-if="statusInfo(m.registrationStatus)"
+              v-if="memberStatusInfo(m)"
               class="shrink-0 text-right"
             >
               <UBadge
-                :label="statusInfo(m.registrationStatus)!.label"
-                :color="statusInfo(m.registrationStatus)!.color"
+                :label="memberStatusInfo(m)!.label"
+                :color="memberStatusInfo(m)!.color"
                 variant="subtle"
                 size="sm"
               />
               <p class="text-[10px] text-muted mt-0.5">
-                {{ statusInfo(m.registrationStatus)!.hint }}
+                {{ memberStatusInfo(m)!.hint }}
               </p>
             </div>
           </button>

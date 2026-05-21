@@ -52,7 +52,11 @@ export async function setLadvStand(
   const now = new Date()
   await updateRegistrationDisciplines(db, registration.id, patch, now)
 
-  const decisions = decideLadvStandNotifications(registration.userId, input.disciplines)
+  const decisions = decideLadvStandNotifications(
+    registration.userId,
+    input.disciplines,
+    registration.ladvDisciplines,
+  )
 
   if (decisions.length > 0) {
     const targetUser = await loadUserById(db, registration.userId)

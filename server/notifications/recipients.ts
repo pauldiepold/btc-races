@@ -1,6 +1,7 @@
 import { and, eq, inArray } from 'drizzle-orm'
 import * as schema from '~~/server/db/schema'
-import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
+import { buildDisciplineStatusList } from '~~/shared/utils/ladv-diff'
+import type { DisciplineStatusItem } from '~~/shared/utils/ladv-diff'
 import type { RegistrationDisciplinePair } from '~~/shared/types/db'
 import type { NotifyDb } from './service'
 
@@ -14,8 +15,11 @@ export interface NotificationRecipient {
   userId: number
   email?: string
   firstName?: string
-  /** Recipient-spezifische Disziplinen-Liste (z.B. für reminder_deadline_athlete). */
-  disciplines?: string[]
+  /**
+   * Recipient-spezifische Disziplinen-Liste inkl. LADV-Meldestatus
+   * (z. B. für reminder_deadline_athlete, reminder_event).
+   */
+  disciplines?: DisciplineStatusItem[]
 }
 
 export type RegistrationStatus = 'registered' | 'canceled' | 'maybe' | 'yes' | 'no'
@@ -98,6 +102,7 @@ export const recipients = {
       email: schema.users.email,
       firstName: schema.users.firstName,
       wishDisciplines: schema.registrations.wishDisciplines,
+      ladvDisciplines: schema.registrations.ladvDisciplines,
     })
       .from(schema.registrations)
       .innerJoin(schema.users, eq(schema.registrations.userId, schema.users.id))
@@ -111,7 +116,8 @@ export const recipients = {
       }
       if (options.withDisciplines) {
         const wish = (row.wishDisciplines as RegistrationDisciplinePair[] | null) ?? []
-        const disciplines = wish.map(d => `${ladvDisciplineLabel(d.discipline)} (${ladvAgeClassLabel(d.ageClass)})`)
+        const ladv = row.ladvDisciplines as RegistrationDisciplinePair[] | null
+        const disciplines = buildDisciplineStatusList(wish, ladv)
         if (disciplines.length > 0) recipient.disciplines = disciplines
       }
       return recipient

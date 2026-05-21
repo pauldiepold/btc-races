@@ -58,24 +58,11 @@ export type User = typeof schema.users.$inferSelect
 
 ## Testing
 
-Setup: `vitest`.
+Setup: `vitest`. `pnpm test` (einmalig) / `pnpm test:watch`. Tests in `test/unit/`.
 
-```bash
-pnpm test        # einmalig ausführen
-pnpm test:watch  # watch mode
-```
+**TDD ist der Standard.** Für neue Features und Bugfixes `/tdd` nutzen — test-first, red-green-refactor. `/test` zieht nach der Umsetzung fehlende Tests nach (Backfill).
 
-Tests liegen in `test/unit/`. Nach einer Feature-Session: `/test` aufrufen.
-
-### Was getestet wird
-- Pure Funktionen (kein DB-Zugriff, kein HTTP)
-- Daten-Mapping und Transformations-Logik
-- Zod-Schema-Validierungen und Business-Rules
-- **Module mit Persistenz** über `createTestDb()` aus `test/helpers/test-db.ts` — startet eine libsql-In-Memory-DB pro Test, wendet alle Drizzle-Migrationen an, isoliert. Beispiel: `test/unit/test-db.smoke.test.ts`. Nutzen für Module, die das Domain-Verhalten an Drizzle-Operationen festmachen (z. B. `server/registration/`).
-
-### Was NICHT getestet wird
-- Nitro Event Handler / API-Routen
-- Vue-Komponenten
+Was getestet wird, was nicht, und alle Konventionen: **`docs/agents/testing.md`** — verbindlich für beide Skills und für Ad-hoc-Arbeit.
 
 ## Commit & GitHub
 

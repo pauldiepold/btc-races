@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getLadvAgeClass } from '../../../../shared/utils/ladv-age-class'
+import { getLadvAgeClass, pickAgeClass } from '../../../../shared/utils/ladv-age-class'
 
 describe('getLadvAgeClass', () => {
   describe('youth classes', () => {
@@ -73,5 +73,37 @@ describe('getLadvAgeClass', () => {
       expect(getLadvAgeClass(1991, 'm', 2026)).not.toBe('M')
       expect(getLadvAgeClass(1991, 'm', 2026)).toBe('M35')
     })
+  })
+})
+
+describe('pickAgeClass', () => {
+  it('falls back to the open class W for a masters athlete when only W is offered', () => {
+    // Laurin: born 1990 → W35 in 2026; event offers only the open class W
+    expect(pickAgeClass(['W'], { birthYear: 1990, gender: 'w' }, 2026)).toBe('W')
+  })
+
+  it('prefers the exact masters class when the event offers it', () => {
+    expect(pickAgeClass(['W', 'W35'], { birthYear: 1990, gender: 'w' }, 2026)).toBe('W35')
+  })
+
+  it('returns the open class for a senior athlete (no masters involved)', () => {
+    expect(pickAgeClass(['M', 'W'], { birthYear: 1996, gender: 'm' }, 2026)).toBe('M')
+  })
+
+  it('returns empty when a masters athlete finds neither masters nor open class', () => {
+    expect(pickAgeClass(['MJU18', 'WJU18'], { birthYear: 1990, gender: 'w' }, 2026)).toBe('')
+  })
+
+  it('does not fall back to the open class for youth athletes', () => {
+    // WJU18 athlete (born 2009), event offers only the open class W
+    expect(pickAgeClass(['W'], { birthYear: 2009, gender: 'w' }, 2026)).toBe('')
+  })
+
+  it('returns empty when birth year is missing', () => {
+    expect(pickAgeClass(['W'], { birthYear: null, gender: 'w' }, 2026)).toBe('')
+  })
+
+  it('returns empty when gender is missing', () => {
+    expect(pickAgeClass(['M', 'W'], { birthYear: 1990, gender: null }, 2026)).toBe('')
   })
 })

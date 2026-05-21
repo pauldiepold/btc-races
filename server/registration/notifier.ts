@@ -2,6 +2,7 @@ import type { Actor } from './actor'
 import type { NotificationDecision } from './notifications'
 import type { AppDb, EventRow, UserRow } from './persistence'
 import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
+import { buildDisciplineStatusList } from '~~/shared/utils/ladv-diff'
 
 export type DispatchContext = {
   dbEvent: EventRow
@@ -42,7 +43,10 @@ export async function dispatchNotifications(
           await notify({
             type: 'registration_confirmation',
             recipients: [targetRecipient],
-            payload: basePayload,
+            payload: {
+              ...basePayload,
+              disciplines: buildDisciplineStatusList(decision.wishDisciplines, decision.ladvDisciplines),
+            },
             eventId: ctx.dbEvent.id,
           }, ctx.db)
           break
@@ -77,7 +81,12 @@ export async function dispatchNotifications(
             type: 'athlete_canceled_after_ladv',
             recipients: await recipients.allAdmins(ctx.db),
             actorUserId: ctx.actor.userId,
-            payload: basePayload,
+            payload: {
+              ...basePayload,
+              ...(decision.disciplines.length > 0
+                ? { disciplines: formatDisciplineLabels(decision.disciplines) }
+                : {}),
+            },
             eventId: ctx.dbEvent.id,
           }, ctx.db)
           break
@@ -100,7 +109,12 @@ export async function dispatchNotifications(
             type: 'ladv_canceled',
             recipients: [targetRecipient],
             actorUserId: ctx.actor.userId,
-            payload: basePayload,
+            payload: {
+              ...basePayload,
+              ...(decision.disciplines.length > 0
+                ? { disciplines: formatDisciplineLabels(decision.disciplines) }
+                : {}),
+            },
             eventId: ctx.dbEvent.id,
           }, ctx.db)
           break
@@ -110,7 +124,11 @@ export async function dispatchNotifications(
             type: 'athlete_changed_after_ladv',
             recipients: await recipients.allAdmins(ctx.db),
             actorUserId: ctx.actor.userId,
-            payload: basePayload,
+            payload: {
+              ...basePayload,
+              wishDisciplines: formatDisciplineLabels(decision.wishDisciplines),
+              ladvDisciplines: formatDisciplineLabels(decision.ladvDisciplines),
+            },
             eventId: ctx.dbEvent.id,
           }, ctx.db)
           break

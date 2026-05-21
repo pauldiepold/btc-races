@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { EventDetail } from '~~/shared/types/events'
 import { isDeadlineExpired } from '~~/shared/utils/deadlines'
-import { getLadvAgeClass } from '~~/shared/utils/ladv-age-class'
-import { ladvDisciplineLabel, ladvAgeClassLabel } from '~~/shared/utils/ladv-labels'
+import { pickAgeClass } from '~~/shared/utils/ladv-age-class'
+import { ladvDisciplineLabel, ladvAgeClassLabel, sortDisciplineItems, sortAgeClassItems } from '~~/shared/utils/ladv-labels'
 import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
 import {
   REGISTRATION_STATUS_LABELS,
@@ -52,29 +52,32 @@ const uniqueDisciplines = computed(() => {
 })
 
 function buildDisciplineItems(excludeCodes: Set<string>) {
-  return uniqueDisciplines.value
-    .filter(w => !excludeCodes.has(w.disziplinNew))
-    .map(w => ({ label: ladvDisciplineLabel(w.disziplinNew), value: w.disziplinNew }))
+  return sortDisciplineItems(
+    uniqueDisciplines.value
+      .filter(w => !excludeCodes.has(w.disziplinNew))
+      .map(w => ({ label: ladvDisciplineLabel(w.disziplinNew), value: w.disziplinNew })),
+  )
 }
 
 function buildAgeClassItems(disciplineCode: string) {
-  return wettbewerbe.value
-    .filter(w => w.disziplinNew === disciplineCode)
-    .map(w => ({ label: ladvAgeClassLabel(w.klasseNew), value: w.klasseNew }))
+  return sortAgeClassItems(
+    wettbewerbe.value
+      .filter(w => w.disziplinNew === disciplineCode)
+      .map(w => ({ label: ladvAgeClassLabel(w.klasseNew), value: w.klasseNew })),
+  )
 }
 
 function autoAgeClass(disciplineCode: string): string {
   const classes = wettbewerbe.value
     .filter(w => w.disziplinNew === disciplineCode)
     .map(w => w.klasseNew)
-  if (!classes.length) return ''
   const user = session.value?.user
-  if (user?.birthYear && user?.gender) {
-    const year = toDate(props.event.date)?.getFullYear() ?? new Date().getFullYear()
-    const auto = getLadvAgeClass(user.birthYear, user.gender as 'm' | 'w', year)
-    if (classes.includes(auto)) return auto
-  }
-  return classes[0] ?? ''
+  const year = toDate(props.event.date)?.getFullYear() ?? new Date().getFullYear()
+  return pickAgeClass(
+    classes,
+    { birthYear: user?.birthYear ?? null, gender: user?.gender ?? null },
+    year,
+  )
 }
 
 // ─── Neue Anmeldung ───────────────────────────────────────────────────────────

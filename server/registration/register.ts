@@ -131,6 +131,7 @@ export async function registerMember(
     targetUser.id,
     setLadv,
     wishDisciplines,
+    existing ? existing.ladvDisciplines : null,
   )
 
   const athleteName = `${targetUser.firstName ?? ''} ${targetUser.lastName ?? ''}`.trim() || targetUser.email

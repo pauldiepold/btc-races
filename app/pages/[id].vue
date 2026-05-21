@@ -113,6 +113,14 @@ async function confirmDelete() {
   }
 }
 
+// Link teilen
+const { share } = useShare()
+
+function shareEvent() {
+  if (!event.value) return
+  share({ title: event.value.name, url: window.location.href })
+}
+
 // Admin Proxy-Anmeldung
 const adminRegisterModal = ref(false)
 
@@ -162,15 +170,25 @@ async function syncLadv() {
 
 <template>
   <UContainer class="py-10 lg:py-14">
-    <UButton
-      to="/"
-      icon="i-ph-arrow-left"
-      label="Alle Events"
-      color="neutral"
-      variant="ghost"
-      size="sm"
-      class="mb-6"
-    />
+    <div class="flex items-center justify-between gap-2 mb-6">
+      <UButton
+        to="/"
+        icon="i-ph-arrow-left"
+        label="Alle Events"
+        color="neutral"
+        variant="ghost"
+        size="sm"
+      />
+      <UButton
+        v-if="event"
+        icon="i-ph-share-fat"
+        label="Teilen"
+        color="neutral"
+        variant="ghost"
+        size="sm"
+        @click="shareEvent"
+      />
+    </div>
 
     <!-- Lade-Zustand -->
     <div
@@ -251,8 +269,8 @@ async function syncLadv() {
             </div>
             <div class="flex flex-col gap-2">
               <LadvMeldelisteButtons
-                  v-if="isAdmin && hasLadvAdminFeatures && event.ladvId"
-                  :ladv-id="event.ladvId"
+                v-if="isAdmin && hasLadvAdminFeatures && event.ladvId"
+                :ladv-id="event.ladvId"
               />
               <UButton
                 v-if="isAdmin && !isCancelled"

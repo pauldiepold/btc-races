@@ -109,8 +109,6 @@ function removeRow(index: number) {
 
 // LADV links
 const ladvId = computed(() => reg.value?.event.ladvId)
-const ladvRegisterUrl = computed(() => ladvId.value ? `https://ladv.de/meldung/addathlet/${ladvId.value}` : undefined)
-const ladvListUrl = computed(() => ladvId.value ? `https://ladv.de/meldung/anmeldungen/${ladvId.value}` : undefined)
 
 // Status options
 const statusOptions = [
@@ -195,32 +193,11 @@ async function save() {
     >
       <div class="space-y-5">
         <!-- LADV-Direktlinks (oben, prominent) -->
-        <div
+        <LadvMeldelisteButtons
           v-if="ladvId"
-          class="flex gap-2"
-        >
-          <UButton
-            :to="ladvRegisterUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            icon="i-ph-arrow-up-right-bold"
-            :label="isCanceled ? 'In LADV abmelden' : 'Zur LADV-Meldung'"
-            color="neutral"
-            variant="soft"
-            size="sm"
-            class="flex-1"
-          />
-          <UButton
-            :to="ladvListUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            icon="i-ph-list"
-            label="Zur Meldeliste"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-          />
-        </div>
+          :ladv-id="ladvId"
+          :register-label="isCanceled ? 'In LADV abmelden' : 'Zur LADV-Meldung'"
+        />
 
         <!-- Erstmelde-Hinweis -->
         <p

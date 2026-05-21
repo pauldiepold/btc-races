@@ -250,6 +250,10 @@ async function syncLadv() {
               />
             </div>
             <div class="flex flex-col gap-2">
+              <LadvMeldelisteButtons
+                  v-if="isAdmin && hasLadvAdminFeatures && event.ladvId"
+                  :ladv-id="event.ladvId"
+              />
               <UButton
                 v-if="isAdmin && !isCancelled"
                 icon="i-ph-user-plus"

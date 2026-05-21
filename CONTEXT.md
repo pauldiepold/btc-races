@@ -58,6 +58,9 @@ Initialer Status pro Typ (`getInitialStatus`): `ladv`/`competition` → `registe
 
 **Wunsch-Stand-Diff** — die Differenz zwischen `wishDisciplines` und `ladvDisciplines` (`shared/utils/ladv-diff.ts:diffLadvRegistration`). Ein Diff-Eintrag plus der Cancel-Fall (storniert, aber `ladvDisciplines` nicht leer) ist ein **LADV-Todo** (`LadvTodo`) — die Arbeits-Einheit für den Coach. Umgangssprachlich auch „Admin-Todo". Surfaces an mehreren Stellen (Coach-Modal, Event-Detailseite, Event-Card).
 
+**Meldeliste** — die LADV-seitige Übersicht aller Meldungen für einen Wettkampf (`ladv.de/meldung/anmeldungen/{ladvId}`). Externe Seite, öffnet im neuen Tab. Nur relevant für Events mit `ladvId`.
+_Avoid_: „Anmeldeliste" — das ist die BTC-app-interne Teilnehmerliste (`EventRegistrationList`), ein anderes Konzept.
+
 ## Event-Lifecycle
 
 **Event-Cancel** *(`cancelledAt`)* — Soft-Cancel: das Event bleibt in der Datenbank, aber ist als "abgesagt" markiert. Bestehende Anmeldungen bleiben erhalten (für Audit/Historie). Idempotent: ein bereits gecanceltes Event nochmal canceln ist ein No-Op (kein DB-Write, keine erneute Notification).

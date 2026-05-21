@@ -47,6 +47,9 @@ async function getAdminParticipantList(eventId: number): Promise<Array<{ name: s
       and(
         eq(schema.registrations.eventId, eventId),
         inArray(schema.registrations.status, ['registered', 'yes']),
+        // Inaktive Mitglieder gehören nicht in die Teilnehmerliste — der
+        // Coach soll sie nicht mehr bei LADV melden.
+        eq(schema.users.membershipStatus, 'active'),
       ),
     )
 

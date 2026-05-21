@@ -15,7 +15,8 @@ type EventAfter = Pick<typeof schema.events.$inferSelect, 'id' | 'name' | 'type'
 
 /**
  * Vergleicht Event-Kernfelder, prüft Guards (cancelled, past) und feuert
- * `event_changed`-Notifications an alle aktiven, angemeldeten Mitglieder.
+ * `event_changed`-Notifications an die angemeldeten Mitglieder. Inaktive
+ * Mitglieder werden zentral im Worker ausgeschlossen (ADR-0003).
  *
  * Wird vom `server/events/`-Modul (Patch, Sync) gerufen.
  */
@@ -36,7 +37,7 @@ export async function notifyEventChanged(
 
   const eventRecipients = await recipients.registeredFor(
     eventAfter.id,
-    { statuses: ['registered', 'yes', 'maybe'], activeMembersOnly: true },
+    { statuses: ['registered', 'yes', 'maybe'] },
     db,
   )
   if (eventRecipients.length === 0) return

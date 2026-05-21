@@ -27,8 +27,6 @@ export type RegistrationStatus = 'registered' | 'canceled' | 'maybe' | 'yes' | '
 export interface RegisteredForOptions {
   /** Welche Registration-Status zählen. Default: ['registered','yes']. */
   statuses?: readonly RegistrationStatus[]
-  /** Nur User mit membershipStatus='active' einbeziehen. Default: false. */
-  activeMembersOnly?: boolean
   /** Disziplinen-Liste pro Recipient anhängen (für reminder_deadline_athlete). Default: false. */
   withDisciplines?: boolean
 }
@@ -40,10 +38,13 @@ const DEFAULT_REGISTERED_STATUSES: readonly RegistrationStatus[] = ['registered'
  *
  * Bündelt die wiederkehrenden DB-Queries für Notification-Empfänger,
  * sodass Schema- oder Filter-Änderungen nur an einer Stelle gepflegt werden.
+ *
+ * Die Resolver filtern bewusst NICHT nach Mitgliedsstatus — inaktive Mitglieder
+ * werden zentral im Worker beim Versand ausgeschlossen (ADR-0003).
  */
 export const recipients = {
   /**
-   * Alle aktiven Admins/Superuser.
+   * Alle Admins/Superuser.
    */
   async allAdmins(dbOverride?: NotifyDb): Promise<NotificationRecipient[]> {
     const db = await resolveDb(dbOverride)
@@ -59,7 +60,7 @@ export const recipients = {
   },
 
   /**
-   * Alle aktiven Mitglieder.
+   * Alle Mitglieder.
    */
   async allMembers(dbOverride?: NotifyDb): Promise<NotificationRecipient[]> {
     const db = await resolveDb(dbOverride)
@@ -69,7 +70,6 @@ export const recipients = {
       firstName: schema.users.firstName,
     })
       .from(schema.users)
-      .where(eq(schema.users.membershipStatus, 'active'))
 
     return rows.map(r => ({ userId: r.userId, email: r.email, firstName: r.firstName ?? undefined }))
   },
@@ -78,8 +78,8 @@ export const recipients = {
    * Alle für ein Event angemeldeten User.
    *
    * Default-Filter: Status `registered` oder `yes`. Über `options` lässt sich
-   * der Status-Filter erweitern, ein Membership-Filter ergänzen oder die
-   * Wunsch-Disziplinen pro Recipient anhängen.
+   * der Status-Filter erweitern oder die Wunsch-Disziplinen pro Recipient
+   * anhängen.
    */
   async registeredFor(
     eventId: number,
@@ -93,9 +93,6 @@ export const recipients = {
       eq(schema.registrations.eventId, eventId),
       inArray(schema.registrations.status, [...statuses]),
     ]
-    if (options.activeMembersOnly) {
-      conditions.push(eq(schema.users.membershipStatus, 'active'))
-    }
 
     const rows = await db.select({
       userId: schema.users.id,

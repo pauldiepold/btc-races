@@ -31,7 +31,7 @@ export async function uncancelEvent(
   }
 
   const now = new Date()
-  await updateEvent(db, eventId, { cancelledAt: null, updatedAt: now })
+  await updateEvent(db, eventId, { cancelledAt: null, cancelReason: null, updatedAt: now })
 
   return { id: eventId, uncancelled: true }
 }

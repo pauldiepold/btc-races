@@ -4,7 +4,8 @@ import type { EventType, RegistrationStatus } from '../utils/registration'
 import type { LadvRegistrationDiffEntry } from '../utils/ladv-diff'
 
 // Event-IDs werden in der API als Sqid-Strings zurückgegeben (enkodierter Integer)
-export type EventListItem = Omit<Event, 'ladvData' | 'id'> & {
+// cancelReason wird nur in der Detail-Ansicht angezeigt, nicht in der Liste.
+export type EventListItem = Omit<Event, 'ladvData' | 'id' | 'cancelReason'> & {
   id: string
   participantCount: number
   ownRegistrationStatus: 'registered' | 'canceled' | 'maybe' | 'yes' | 'no' | null

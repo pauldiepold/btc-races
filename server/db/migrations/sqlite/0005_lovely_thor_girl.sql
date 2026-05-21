@@ -1,0 +1,1 @@
+ALTER TABLE `events` ADD `cancel_reason` text;

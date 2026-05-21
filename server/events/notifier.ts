@@ -55,7 +55,10 @@ export async function dispatchEventNotifications(
             type: 'event_canceled',
             recipients: eventRecipients,
             actorUserId: ctx.actorUserId,
-            payload: buildEventPayload(ctx.dbEvent, siteUrl),
+            payload: {
+              ...buildEventPayload(ctx.dbEvent, siteUrl),
+              reason: ctx.dbEvent.cancelReason ?? undefined,
+            },
             eventId: ctx.dbEvent.id,
           }, ctx.db)
           break

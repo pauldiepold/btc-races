@@ -11,11 +11,21 @@ useSeoMeta({
 
 const push = usePushNotifications()
 const activeTab = ref<Platform>('ios')
+const platformReady = ref(false)
+const pushReady = ref(false)
 
-onMounted(() => {
-  push.init()
+onMounted(async () => {
   activeTab.value = detectPlatform(navigator.userAgent, navigator.maxTouchPoints)
+  platformReady.value = true
+  try {
+    await push.init({ reconcile: true })
+  }
+  finally {
+    pushReady.value = true
+  }
 })
+
+const pushActive = computed(() => push.isPushChannelAvailable.value)
 
 const tabs = [
   { label: 'iPhone / iPad', value: 'ios', icon: 'i-ph-apple-logo' },
@@ -74,68 +84,97 @@ const steps = computed(() => {
       description="Du nutzt Berlin Track Club gerade als installierte App — hier ist nichts weiter zu tun."
     />
 
-    <UTabs
-      v-model="activeTab"
-      :items="tabs"
-      :content="false"
-      size="sm"
-      color="neutral"
-      class="w-full"
-    />
-
-    <div class="mt-6 space-y-5">
-      <!-- iOS: Hinweis auf In-App-Browser -->
-      <UAlert
-        v-if="activeTab === 'ios'"
-        color="warning"
-        variant="subtle"
-        icon="i-ph-warning-bold"
-        title="Wichtig: in Safari öffnen"
-        description="Öffne die Seite direkt in Safari — nicht im eingebauten Browser von WhatsApp, Instagram & Co. Tippe dort auf „•••“ oder das Teilen-Menü und wähle „In Safari öffnen“. Aus einem In-App-Browser entsteht sonst nur ein Lesezeichen statt der App."
-      />
-
-      <!-- Schritte (plattformabhängig) -->
-      <ol class="space-y-3">
-        <li
-          v-for="(step, i) in steps"
+    <!-- Skeleton, bis die Plattform client-seitig erkannt ist (verhindert iOS-Flackern) -->
+    <div
+      v-if="!platformReady"
+      aria-hidden="true"
+    >
+      <USkeleton class="h-9 w-full" />
+      <div class="mt-6 space-y-3">
+        <div
+          v-for="i in 4"
           :key="i"
           class="flex items-start gap-3"
         >
-          <span class="shrink-0 size-7 rounded-full bg-primary/15 text-primary text-sm font-semibold flex items-center justify-center">
-            {{ i + 1 }}
-          </span>
-          <div class="flex items-center gap-2 pt-0.5">
-            <UIcon
-              :name="step.icon"
-              class="size-5 text-muted shrink-0"
-            />
-            <span class="text-sm text-highlighted">{{ step.text }}</span>
-          </div>
-        </li>
-      </ol>
-
-      <!-- iOS: Erfolgskontrolle + Fehler melden -->
-      <div
-        v-if="activeTab === 'ios'"
-        class="rounded-[--ui-radius] border border-default bg-muted p-4 space-y-2"
-      >
-        <p class="text-sm text-highlighted font-medium">
-          Hat es geklappt?
-        </p>
-        <p class="text-sm text-muted">
-          Wenn die App vom Home-Bildschirm im Vollbild <strong>ohne Safari-Adressleiste</strong>
-          startet, ist sie richtig installiert. Öffnet sich stattdessen nur ein Lesezeichen
-          <em>mit</em> Adressleiste, hat die Installation nicht funktioniert.
-        </p>
-        <p class="text-sm text-muted">
-          Klappt es auch nach dem Weg über Safari nicht — meld dich kurz bei Paul,
-          am besten mit iOS-Version und iPhone-Modell. Dann kann er dem Fehler nachgehen.
-        </p>
+          <USkeleton class="size-7 rounded-full shrink-0" />
+          <USkeleton class="h-5 flex-1 mt-1" />
+        </div>
       </div>
     </div>
 
-    <!-- Abschluss: Push aktivieren -->
-    <div class="mt-8 rounded-[--ui-radius] border border-yellow-500/30 bg-yellow-500/10 p-4">
+    <template v-else>
+      <UTabs
+        v-model="activeTab"
+        :items="tabs"
+        :content="false"
+        size="sm"
+        color="neutral"
+        class="w-full"
+      />
+
+      <div class="mt-6 space-y-5">
+        <!-- iOS: Hinweis auf In-App-Browser -->
+        <UAlert
+          v-if="activeTab === 'ios'"
+          color="warning"
+          variant="subtle"
+          icon="i-ph-warning-bold"
+          title="Wichtig: in Safari öffnen"
+          description="Öffne die Seite direkt in Safari — nicht im eingebauten Browser von WhatsApp, Instagram & Co. Tippe dort auf „•••“ oder das Teilen-Menü und wähle „In Safari öffnen“. Aus einem In-App-Browser entsteht sonst nur ein Lesezeichen statt der App."
+        />
+
+        <!-- Schritte (plattformabhängig) -->
+        <ol class="space-y-3">
+          <li
+            v-for="(step, i) in steps"
+            :key="i"
+            class="flex items-start gap-3"
+          >
+            <span class="shrink-0 size-7 rounded-full bg-primary/15 text-primary text-sm font-semibold flex items-center justify-center">
+              {{ i + 1 }}
+            </span>
+            <div class="flex items-center gap-2 pt-0.5">
+              <UIcon
+                :name="step.icon"
+                class="size-5 text-muted shrink-0"
+              />
+              <span class="text-sm text-highlighted">{{ step.text }}</span>
+            </div>
+          </li>
+        </ol>
+
+        <!-- iOS: Erfolgskontrolle + Fehler melden -->
+        <div
+          v-if="activeTab === 'ios'"
+          class="rounded-[--ui-radius] border border-default bg-muted p-4 space-y-2"
+        >
+          <p class="text-sm text-highlighted font-medium">
+            Hat es geklappt?
+          </p>
+          <p class="text-sm text-muted">
+            Wenn die App vom Home-Bildschirm im Vollbild <strong>ohne Safari-Adressleiste</strong>
+            startet, ist sie richtig installiert. Öffnet sich stattdessen nur ein Lesezeichen
+            <em>mit</em> Adressleiste, hat die Installation nicht funktioniert.
+          </p>
+          <p class="text-sm text-muted">
+            Klappt es auch nach dem Weg über Safari nicht — meld dich kurz bei Paul,
+            am besten mit iOS-Version und iPhone-Modell. Dann kann er dem Fehler nachgehen.
+          </p>
+        </div>
+      </div>
+    </template>
+
+    <!-- Abschluss: Push — Skeleton, bis der Push-Status (inkl. Server-Reconcile) feststeht -->
+    <USkeleton
+      v-if="!pushReady"
+      class="mt-8 h-32 w-full"
+    />
+
+    <!-- Push noch nicht aktiv -->
+    <div
+      v-else-if="!pushActive"
+      class="mt-8 rounded-[--ui-radius] border border-yellow-500/30 bg-yellow-500/10 p-4"
+    >
       <div class="flex items-start gap-3">
         <UIcon
           name="i-ph-bell-ringing-bold"
@@ -148,6 +187,36 @@ const steps = computed(() => {
           <p class="text-sm text-muted mt-0.5">
             Öffne die installierte App und aktiviere unter Profil → Benachrichtigungen
             die Erinnerungen vor Meldefristen.
+          </p>
+        </div>
+      </div>
+      <UButton
+        to="/profil/benachrichtigungen"
+        label="Benachrichtigungen"
+        color="primary"
+        variant="soft"
+        size="sm"
+        class="mt-3 ml-8"
+      />
+    </div>
+
+    <!-- Push bereits aktiv -->
+    <div
+      v-else
+      class="mt-8 rounded-[--ui-radius] border border-success/30 bg-success/10 p-4"
+    >
+      <div class="flex items-start gap-3">
+        <UIcon
+          name="i-ph-check-circle-bold"
+          class="size-5 text-success shrink-0 mt-0.5"
+        />
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-highlighted">
+            Push ist aktiviert
+          </p>
+          <p class="text-sm text-muted mt-0.5">
+            Du erhältst Push-Benachrichtigungen auf diesem Gerät — welche das sind,
+            kannst du jederzeit anpassen.
           </p>
         </div>
       </div>

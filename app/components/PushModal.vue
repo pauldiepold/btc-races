@@ -23,12 +23,10 @@ const categories = [
   { icon: 'i-ph-bell', label: 'Meldefrist- und Event-Erinnerungen' },
 ]
 
-const iosSteps = [
-  { icon: 'i-ph-share-fat', text: 'Tippe unten in Safari auf das Teilen-Symbol.' },
-  { icon: 'i-ph-plus-square', text: 'Wähle „Zum Home-Bildschirm" aus der Liste.' },
-  { icon: 'i-ph-house', text: 'Öffne die App vom Home-Bildschirm.' },
-  { icon: 'i-ph-bell-ringing', text: 'Komm hierher zurück und aktiviere Push.' },
-]
+async function openGuide() {
+  emit('update:open', false)
+  await navigateTo('/installieren')
+}
 
 async function onActivate() {
   loading.value = true
@@ -81,28 +79,13 @@ function close() {
             Auf dem iPhone nur als installierte App möglich
           </p>
           <p class="text-sm text-muted">
-            Apple erlaubt Web-Push auf iOS nur, wenn du Berlin Track Club zuerst zum Home-Bildschirm hinzufügst.
+            Apple erlaubt Web-Push auf iOS nur für die installierte App. Füge Berlin Track Club
+            zum Home-Bildschirm hinzu, öffne sie von dort und komm dann hierher zurück, um Push zu aktivieren.
           </p>
         </div>
-
-        <ol class="space-y-3">
-          <li
-            v-for="(step, i) in iosSteps"
-            :key="i"
-            class="flex items-start gap-3"
-          >
-            <span class="shrink-0 size-7 rounded-full bg-primary/15 text-primary text-sm font-semibold flex items-center justify-center">
-              {{ i + 1 }}
-            </span>
-            <div class="flex items-center gap-2 pt-0.5">
-              <UIcon
-                :name="step.icon"
-                class="size-5 text-muted shrink-0"
-              />
-              <span class="text-sm text-highlighted">{{ step.text }}</span>
-            </div>
-          </li>
-        </ol>
+        <p class="text-sm text-muted">
+          Die Anleitung zeigt dir Schritt für Schritt, wie du die App installierst.
+        </p>
       </div>
 
       <!-- Browser hat Permission blockiert -->
@@ -157,6 +140,14 @@ function close() {
           color="neutral"
           variant="ghost"
           @click="close"
+        />
+        <UButton
+          v-if="mode === 'ios-install'"
+          label="Anleitung öffnen"
+          color="primary"
+          icon="i-ph-arrow-right"
+          trailing
+          @click="openGuide"
         />
         <UButton
           v-if="mode === 'ready'"

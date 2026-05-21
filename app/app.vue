@@ -5,6 +5,10 @@ const { user } = useUserSession()
 const avatarUrlSmall = computed(() => user.value?.avatarUrl ?? undefined)
 const avatarAlt = computed(() => `${user.value?.firstName ?? ''} ${user.value?.lastName ?? ''}`)
 
+// Footer-Link „App installieren" entfällt, wenn die App bereits installiert ist.
+const { isInstalledPwa, init: initPush } = usePushNotifications()
+onMounted(() => initPush())
+
 useSeoMeta({
   description: 'Wettkampf & Trainingsverwaltung des Berlin Track Clubs',
   ogTitle: 'Berlin Track Club',
@@ -89,15 +93,26 @@ useHead({
 
     <UFooter class="mb-4 border-t border-yellow-500/30">
       <template #left>
-        <UButton
-          v-if="user?.role === 'admin'"
-          to="/admin"
-          icon="i-ph-shield-check-bold"
-          label="Admin"
-          color="primary"
-          variant="soft"
-          size="sm"
-        />
+        <div class="flex items-center gap-2">
+          <UButton
+            v-if="user?.role === 'admin'"
+            to="/admin"
+            icon="i-ph-shield-check-bold"
+            label="Admin"
+            color="primary"
+            variant="soft"
+            size="sm"
+          />
+          <UButton
+            v-if="!isInstalledPwa"
+            to="/installieren"
+            icon="i-ph-device-mobile-bold"
+            label="App installieren"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+          />
+        </div>
       </template>
 
       <template #default>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { RoomSlug, Thread } from '~~/shared/types/threads'
+import type { RoomSlug, ThreadListItem } from '~~/shared/types/threads'
 
 definePageMeta({ title: 'Beiträge' })
 
@@ -40,7 +40,7 @@ const canCreate = computed(() => creatableRooms.value.length > 0)
 // ─── Liste ──────────────────────────────────────────────────────────────────
 const activeRoom = ref<string>('all')
 
-const { data: threads, status, refresh } = await useFetch<Thread[]>('/api/threads', {
+const { data: threads, status, refresh } = await useFetch<ThreadListItem[]>('/api/threads', {
   query: computed(() => ({
     room: activeRoom.value === 'all' ? undefined : activeRoom.value,
   })),
@@ -173,28 +173,39 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       <li
         v-for="thread in threads"
         :key="thread.id"
-        class="rounded-[--ui-radius] border border-default bg-elevated/40 p-4"
       >
-        <div class="flex items-center gap-2 mb-1">
-          <UBadge
-            :label="roomLabel(thread.roomSlug)"
-            color="neutral"
-            variant="subtle"
-            size="sm"
-          />
-          <span class="text-xs text-muted">
-            {{ relativeTime(thread.lastActivityAt) }}
-          </span>
-        </div>
-        <p class="font-semibold text-highlighted">
-          {{ thread.title }}
-        </p>
-        <p
-          v-if="excerpt(thread.body)"
-          class="text-sm text-muted mt-1 line-clamp-2"
+        <NuxtLink
+          :to="`/beitraege/${thread.id}`"
+          class="block rounded-[--ui-radius] border border-default bg-elevated/40 p-4 transition hover:bg-elevated/70"
         >
-          {{ excerpt(thread.body) }}
-        </p>
+          <div class="flex items-center gap-2 mb-1">
+            <UBadge
+              :label="roomLabel(thread.roomSlug)"
+              color="neutral"
+              variant="subtle"
+              size="sm"
+            />
+            <span class="text-xs text-muted">
+              {{ relativeTime(thread.lastActivityAt) }}
+            </span>
+            <span class="text-xs text-muted inline-flex items-center gap-1 ml-auto">
+              <UIcon
+                name="i-ph-chat-circle"
+                class="size-3.5"
+              />
+              {{ thread.commentCount }}
+            </span>
+          </div>
+          <p class="font-semibold text-highlighted">
+            {{ thread.title }}
+          </p>
+          <p
+            v-if="excerpt(thread.body)"
+            class="text-sm text-muted mt-1 line-clamp-2"
+          >
+            {{ excerpt(thread.body) }}
+          </p>
+        </NuxtLink>
       </li>
     </ul>
 

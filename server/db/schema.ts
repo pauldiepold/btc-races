@@ -111,6 +111,18 @@ export const threads = sqliteTable('threads', {
   ...timestamps(),
 })
 
+// Kommentare unter einem Thread (chronologisch, Chat-Style)
+export const comments = sqliteTable('comments', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  threadId: integer({ mode: 'number' }).notNull().references(() => threads.id, { onDelete: 'cascade' }),
+  userId: integer({ mode: 'number' }).references(() => users.id, { onDelete: 'set null' }), // Autor; bleibt als „unbekannt" erhalten
+  body: text().notNull(), // rohes Markdown
+  pinnedAt: integer({ mode: 'timestamp' }), // angeheftet (Folge-Slice)
+  pinnedBy: integer({ mode: 'number' }).references(() => users.id, { onDelete: 'set null' }),
+  deletedAt: integer({ mode: 'timestamp' }), // Soft-Delete / Tombstone (Folge-Slice)
+  ...timestamps(),
+})
+
 // Notification-Jobs (Queue + Log)
 export const notificationJobs = sqliteTable('notification_jobs', {
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),

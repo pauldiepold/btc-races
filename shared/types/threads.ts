@@ -11,3 +11,12 @@ export type RoomSlug = typeof ROOM_SLUGS[number]
 
 /** Eine Thread-Row aus der DB — Beitrag (`eventId` null) oder Event-Thread. */
 export type Thread = typeof schema.threads.$inferSelect
+
+/** Eine Kommentar-Row aus der DB. */
+export type Comment = typeof schema.comments.$inferSelect
+
+/** Kommentar mit aufgelöstem Autor-Anzeigenamen — für die Chat-Darstellung. */
+export type CommentWithAuthor = Comment & { authorName: string | null }
+
+/** Thread mit Kommentaranzahl — Listendarstellung in den Räumen. */
+export type ThreadListItem = Thread & { commentCount: number }

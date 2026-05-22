@@ -20,14 +20,19 @@ async function seedThread(opts: {
   title?: string
   lastActivityAt: Date
   deletedAt?: Date | null
-}): Promise<void> {
-  await testDb.db.insert(testDb.schema.threads).values({
+}): Promise<number> {
+  const [row] = await testDb.db.insert(testDb.schema.threads).values({
     roomSlug: opts.roomSlug ?? 'training',
     title: opts.title ?? 'Titel',
     body: 'Body',
     lastActivityAt: opts.lastActivityAt,
     deletedAt: opts.deletedAt ?? null,
-  })
+  }).returning()
+  return row.id
+}
+
+async function seedComment(threadId: number): Promise<void> {
+  await testDb.db.insert(testDb.schema.comments).values({ threadId, body: 'Kommentar' })
 }
 
 describe('listThreads', () => {
@@ -57,6 +62,18 @@ describe('listThreads', () => {
     const threads = await listThreads({}, { db })
 
     expect(threads).toHaveLength(2)
+  })
+
+  it('includes the comment count per thread', async () => {
+    const rege = await seedThread({ title: 'rege', lastActivityAt: new Date('2026-02-01') })
+    await seedThread({ title: 'still', lastActivityAt: new Date('2026-01-01') })
+    await seedComment(rege)
+    await seedComment(rege)
+
+    const threads = await listThreads({}, { db })
+
+    const counts = Object.fromEntries(threads.map(t => [t.title, t.commentCount]))
+    expect(counts).toEqual({ rege: 2, still: 0 })
   })
 
   it('excludes soft-deleted threads', async () => {

@@ -31,3 +31,16 @@ export type {
 
 export { listThreads } from './list-threads'
 export type { ListThreadsFilter, ListThreadsDeps } from './list-threads'
+
+export { getThread } from './get-thread'
+export type { GetThreadInput, GetThreadDeps } from './get-thread'
+
+export { createComment } from './create-comment'
+export type {
+  CreateCommentInput,
+  CreateCommentDeps,
+  CreateCommentResult,
+} from './create-comment'
+
+export { listComments } from './list-comments'
+export type { ListCommentsInput, ListCommentsDeps } from './list-comments'

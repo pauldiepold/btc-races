@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull } from 'drizzle-orm'
+import { and, asc, desc, eq, gt, inArray, isNull, sql } from 'drizzle-orm'
 import type { db as hubDb } from 'hub:db'
 import * as schema from '~~/server/db/schema'
 import type { RoomSlug } from '~~/shared/types/threads'
@@ -8,9 +8,60 @@ export type AppDb = typeof hubDb
 export type ThreadRow = typeof schema.threads.$inferSelect
 export type ThreadInsert = typeof schema.threads.$inferInsert
 
+export type CommentRow = typeof schema.comments.$inferSelect
+export type CommentInsert = typeof schema.comments.$inferInsert
+
 export async function insertThread(db: AppDb, values: ThreadInsert): Promise<ThreadRow> {
   const [row] = await db.insert(schema.threads).values(values).returning()
   return row!
+}
+
+/** Eine einzelne Thread-Row per ID, oder `undefined`. */
+export function findThreadById(db: AppDb, id: number): Promise<ThreadRow | undefined> {
+  return db.query.threads.findFirst({ where: eq(schema.threads.id, id) })
+}
+
+export async function insertComment(db: AppDb, values: CommentInsert): Promise<CommentRow> {
+  const [row] = await db.insert(schema.comments).values(values).returning()
+  return row!
+}
+
+/**
+ * Kommentare eines Threads, älteste zuerst (Chat-Reihenfolge). `since` grenzt
+ * auf Kommentare ein, die nach dem Zeitpunkt erstellt wurden (Delta-Polling).
+ */
+export function listCommentRows(db: AppDb, threadId: number, since?: Date): Promise<CommentRow[]> {
+  return db.query.comments.findMany({
+    where: since
+      ? and(eq(schema.comments.threadId, threadId), gt(schema.comments.createdAt, since))
+      : eq(schema.comments.threadId, threadId),
+    orderBy: asc(schema.comments.createdAt),
+  })
+}
+
+/** Kommentaranzahl je Thread für die gegebenen IDs (Threads ohne Kommentare fehlen in der Map). */
+export async function countCommentsByThread(
+  db: AppDb,
+  threadIds: number[],
+): Promise<Map<number, number>> {
+  if (threadIds.length === 0) return new Map()
+  const rows = await db
+    .select({
+      threadId: schema.comments.threadId,
+      count: sql<number>`cast(count(*) as int)`,
+    })
+    .from(schema.comments)
+    .where(inArray(schema.comments.threadId, threadIds))
+    .groupBy(schema.comments.threadId)
+  return new Map(rows.map(r => [r.threadId, r.count]))
+}
+
+/** Setzt den denormalisierten Sort-Key `lastActivityAt` eines Threads. */
+export async function touchThreadActivity(db: AppDb, threadId: number, at: Date): Promise<void> {
+  await db
+    .update(schema.threads)
+    .set({ lastActivityAt: at })
+    .where(eq(schema.threads.id, threadId))
 }
 
 /**

@@ -75,7 +75,7 @@ _Avoid_: „Anmeldeliste" — das ist die BTC-app-interne Teilnehmerliste (`Even
 
 **Event-Cancel** *(`cancelledAt`)* — Soft-Cancel: das Event bleibt in der Datenbank, aber ist als "abgesagt" markiert. Bestehende Anmeldungen bleiben erhalten (für Audit/Historie). Idempotent: ein bereits gecanceltes Event nochmal canceln ist ein No-Op (kein DB-Write, keine erneute Notification). Beim Cancel kann ein Admin/Self-Aktor optional einen frei formulierten **Absage-Grund** (`cancelReason`) mitgeben; LADV-Sync-Absagen haben nie einen Grund.
 
-**Event-Reaktivierung** *(`uncancel`)* — Aufhebung des Cancel-Status (`cancelledAt := null`). Idempotent: ein nicht-gecanceltes Event reaktivieren ist ein No-Op. Heute keine Notification — Folge-Issue für `event_uncanceled` ("Event findet doch statt") existiert.
+**Event-Reaktivierung** *(`uncancel`)* — Aufhebung des Cancel-Status (`cancelledAt := null`). Idempotent: ein nicht-gecanceltes Event reaktivieren ist ein No-Op. Löst `event_uncanceled`-Notification an alle aktuell `registered`/`yes`/`maybe`-Angemeldeten aus. Immer menschlich ausgelöst (Self oder Admin) — kein System-Pfad.
 
 **Event-Löschung** *(`delete`)* — Hard-Delete aus der Datenbank, inklusive aller Anmeldungen via FK-Cascade. Im HTTP-Layer auf Superuser beschränkt (`requireSuperuser`). Nicht idempotent: bereits gelöschtes Event → `event_not_found`.
 
@@ -96,7 +96,7 @@ Die Unterscheidung admin vs. superuser ist eine HTTP-Auth-Entscheidung (`require
 - **Delete** — Domain-seitig nur Admin (`canDeleteEvent`); die Superuser-Pflicht enforced der HTTP-Layer (`requireSuperuser`).
 - **Priority setzen** — nur Admin, und nur bei Event-Typen mit `hasCompetitionMetadata`. Regel: `canSetPriority(actor, eventType)`.
 
-**System-Aktor in Notifications:** Wird die Notification durch einen System-Pfad ausgelöst, ist `actorUserId === null` im Notification-Job. Die Konvention gilt für Notification-Typen mit `actor: 'optional'` (heute: `event_changed`, `event_canceled`). Email-Templates müssen den null-Fall explizit behandeln (z. B. *„Laut LADV wurde X abgesagt."*) — kein generischer Admin-Fallback. Reminder-Notifications (`actor: 'none'`) sind eine andere Kategorie: für sie existiert das Aktor-Konzept überhaupt nicht.
+**System-Aktor in Notifications:** Wird die Notification durch einen System-Pfad ausgelöst, ist `actorUserId === null` im Notification-Job. Die Konvention gilt für Notification-Typen mit `actor: 'optional'` (heute: `event_changed`, `event_canceled`). Email-Templates müssen den null-Fall explizit behandeln (z. B. *„Laut LADV wurde X abgesagt."*) — kein generischer Admin-Fallback. `event_uncanceled` ist hingegen `actor: 'required'` — kein System-Pfad kann uncancel auslösen. Reminder-Notifications (`actor: 'none'`) sind eine andere Kategorie: für sie existiert das Aktor-Konzept überhaupt nicht.
 
 ## Aktor (Anmeldung)
 

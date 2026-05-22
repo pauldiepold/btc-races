@@ -57,7 +57,12 @@ const PREFERENCE_GROUPS: PreferenceGroupDef[] = [
   // Persönlich
   { key: 'new_event', types: ['new_event'] },
   { key: 'event_changed', types: ['event_changed'] },
-  { key: 'event_canceled', types: ['event_canceled'] },
+  {
+    key: 'event_canceled',
+    label: 'Event abgesagt oder reaktiviert',
+    description: 'Wenn ein Event abgesagt oder wieder reaktiviert wird, für das du angemeldet bist.',
+    types: ['event_canceled', 'event_uncanceled'],
+  },
   { key: 'registration_confirmation', types: ['registration_confirmation'] },
   {
     key: 'admin_registration',

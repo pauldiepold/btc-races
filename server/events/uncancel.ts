@@ -1,5 +1,7 @@
 import type { EventActor } from './actor'
 import { EventError } from './errors'
+import { decideUncancelNotifications } from './notifications'
+import { dispatchEventNotifications } from './notifier'
 import { loadEventById, updateEvent, type AppDb } from './persistence'
 import { canModifyEvent } from './rules'
 
@@ -32,6 +34,15 @@ export async function uncancelEvent(
 
   const now = new Date()
   await updateEvent(db, eventId, { cancelledAt: null, cancelReason: null, updatedAt: now })
+
+  const eventAfter = { ...dbEvent, cancelledAt: null, cancelReason: null, updatedAt: now }
+
+  const decisions = decideUncancelNotifications()
+  await dispatchEventNotifications(decisions, {
+    dbEvent: eventAfter,
+    actorUserId: actor.userId,
+    db,
+  })
 
   return { id: eventId, uncancelled: true }
 }

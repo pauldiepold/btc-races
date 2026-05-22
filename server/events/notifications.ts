@@ -5,6 +5,7 @@ export type EventNotificationDecision
   = | { type: 'event_changed' }
     | { type: 'new_event' }
     | { type: 'event_canceled' }
+    | { type: 'event_uncanceled' }
 
 /**
  * Liefert eine `event_changed`-Decision, wenn sich mindestens ein Core-Field
@@ -38,4 +39,11 @@ export function decideCancelNotifications(
 ): EventNotificationDecision[] {
   if (opts.silent) return []
   return [{ type: 'event_canceled' }]
+}
+
+/**
+ * Liefert eine `event_uncanceled`-Decision für einen reaktivierten Event.
+ */
+export function decideUncancelNotifications(): EventNotificationDecision[] {
+  return [{ type: 'event_uncanceled' }]
 }

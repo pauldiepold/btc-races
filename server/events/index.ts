@@ -22,6 +22,7 @@ export { canDeleteEvent, canModifyEvent, canSetPriority } from './rules'
 export type { EventNotificationDecision } from './notifications'
 export {
   decideCancelNotifications,
+  decideUncancelNotifications,
   decideChangeNotifications,
   decideCreateNotifications,
 } from './notifications'

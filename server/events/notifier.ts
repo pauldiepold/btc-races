@@ -63,6 +63,26 @@ export async function dispatchEventNotifications(
           }, ctx.db)
           break
         }
+
+        case 'event_uncanceled': {
+          if (ctx.actorUserId == null) {
+            throw new Error('event_uncanceled notification requires actorUserId')
+          }
+          const eventRecipients = await recipients.registeredFor(
+            ctx.dbEvent.id,
+            { statuses: ['registered', 'yes', 'maybe'] },
+            ctx.db,
+          )
+          if (eventRecipients.length === 0) break
+          await notify({
+            type: 'event_uncanceled',
+            recipients: eventRecipients,
+            actorUserId: ctx.actorUserId,
+            payload: buildEventPayload(ctx.dbEvent, siteUrl),
+            eventId: ctx.dbEvent.id,
+          }, ctx.db)
+          break
+        }
       }
     }
     catch (err) {

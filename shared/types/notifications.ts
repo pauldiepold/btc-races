@@ -7,6 +7,7 @@ export type NotificationType
     | 'athlete_changed_after_ladv'
     | 'athlete_canceled_after_ladv'
     | 'event_canceled'
+    | 'event_uncanceled'
     | 'event_changed'
     | 'new_event'
     | 'reminder_deadline_athlete'

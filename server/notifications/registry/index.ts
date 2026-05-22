@@ -7,6 +7,7 @@ import { adminRegisteredMember } from './admin-registered-member'
 import { athleteCanceledAfterLadv } from './athlete-canceled-after-ladv'
 import { athleteChangedAfterLadv } from './athlete-changed-after-ladv'
 import { eventCanceled } from './event-canceled'
+import { eventUncanceled } from './event-uncanceled'
 import { eventChanged } from './event-changed'
 import { ladvCanceled } from './ladv-canceled'
 import { ladvRegistered } from './ladv-registered'
@@ -32,6 +33,7 @@ export const notificationRegistry = {
   athlete_changed_after_ladv: athleteChangedAfterLadv,
   athlete_canceled_after_ladv: athleteCanceledAfterLadv,
   event_canceled: eventCanceled,
+  event_uncanceled: eventUncanceled,
   event_changed: eventChanged,
   new_event: newEvent,
   reminder_deadline_athlete: reminderDeadlineAthlete,

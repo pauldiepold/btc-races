@@ -54,8 +54,8 @@ async function seedEvent(opts: SeedEventOpts): Promise<number> {
   const [event] = await testDb.db.insert(schema.events).values({
     type: opts.type ?? 'ladv',
     name: 'Test-Event',
-    date: '2026-06-01',
-    registrationDeadline: opts.registrationDeadline ?? '2026-05-25',
+    date: todayPlus(40),
+    registrationDeadline: opts.registrationDeadline ?? todayPlus(20),
     cancelledAt: opts.cancelled ? new Date() : null,
     createdBy: opts.createdBy,
   }).returning()
@@ -78,6 +78,11 @@ function adminActor(userId: number): Actor {
 }
 
 const LADV_DISCIPLINES = [{ discipline: '100m', ageClass: 'M30' }]
+
+const berlinDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' })
+function todayPlus(days: number): string {
+  return berlinDate.format(new Date(Date.now() + days * 86_400_000))
+}
 
 function input(partial: Partial<RegisterMemberInput> & { eventId: number, userId: number }): RegisterMemberInput {
   return partial

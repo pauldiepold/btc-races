@@ -18,6 +18,21 @@ export { actorFromSession } from './actor'
 export type { Room } from './rooms'
 export { ROOMS, getRoom } from './rooms'
 
+export { eventTypeToRoom } from './event-mapping'
+
+export { ensureEventThread } from './ensure-event-thread'
+export type {
+  EnsureEventThreadInput,
+  EnsureEventThreadDeps,
+  EnsureEventThreadResult,
+} from './ensure-event-thread'
+
+export { backfillEventThreads } from './backfill-event-threads'
+export type {
+  BackfillEventThreadsDeps,
+  BackfillEventThreadsResult,
+} from './backfill-event-threads'
+
 export {
   canCreateInAnyRoom,
   canCreateThread,

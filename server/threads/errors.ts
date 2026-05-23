@@ -5,6 +5,7 @@ export type ThreadErrorCode
     | 'comment_not_found'
     | 'comment_too_long'
     | 'thread_too_long'
+    | 'event_not_found'
 
 export class ThreadError extends Error {
   readonly code: ThreadErrorCode

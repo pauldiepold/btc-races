@@ -7,6 +7,7 @@ const STATUS_BY_CODE: Record<ThreadErrorCode, number> = {
   comment_not_found: 404,
   comment_too_long: 422,
   thread_too_long: 422,
+  event_not_found: 404,
 }
 
 export function errorToHttpStatus(code: ThreadErrorCode): number {

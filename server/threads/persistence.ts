@@ -8,6 +8,8 @@ export type AppDb = typeof hubDb
 export type ThreadRow = typeof schema.threads.$inferSelect
 export type ThreadInsert = typeof schema.threads.$inferInsert
 
+export type EventRow = typeof schema.events.$inferSelect
+
 export type CommentRow = typeof schema.comments.$inferSelect
 export type CommentInsert = typeof schema.comments.$inferInsert
 
@@ -19,6 +21,26 @@ export async function insertThread(db: AppDb, values: ThreadInsert): Promise<Thr
 /** Eine einzelne Thread-Row per ID, oder `undefined`. */
 export function findThreadById(db: AppDb, id: number): Promise<ThreadRow | undefined> {
   return db.query.threads.findFirst({ where: eq(schema.threads.id, id) })
+}
+
+/** Den Event-Thread eines Events finden, oder `undefined`. */
+export function findThreadByEventId(db: AppDb, eventId: number): Promise<ThreadRow | undefined> {
+  return db.query.threads.findFirst({ where: eq(schema.threads.eventId, eventId) })
+}
+
+/** Eine einzelne Event-Row per ID, oder `undefined`. */
+export function findEventById(db: AppDb, id: number): Promise<EventRow | undefined> {
+  return db.query.events.findFirst({ where: eq(schema.events.id, id) })
+}
+
+/** IDs aller Events, die noch keinen Event-Thread besitzen. */
+export async function findEventIdsWithoutThread(db: AppDb): Promise<number[]> {
+  const rows = await db
+    .select({ id: schema.events.id })
+    .from(schema.events)
+    .leftJoin(schema.threads, eq(schema.threads.eventId, schema.events.id))
+    .where(isNull(schema.threads.eventId))
+  return rows.map(r => r.id)
 }
 
 export async function insertComment(db: AppDb, values: CommentInsert): Promise<CommentRow> {
@@ -106,14 +128,16 @@ export async function softDeleteComment(db: AppDb, commentId: number, at: Date):
 }
 
 /**
- * Nicht gelöschte Threads, neueste Aktivität zuerst. Optional auf einen Raum
- * gefiltert.
+ * Nicht gelöschte Beiträge, neueste Aktivität zuerst. Optional auf einen Raum
+ * gefiltert. Event-Threads (eventId gesetzt) werden ausgenommen — ihre
+ * Listendarstellung kommt in #242.
  */
 export function listThreadRows(db: AppDb, roomSlug?: RoomSlug): Promise<ThreadRow[]> {
+  const base = and(isNull(schema.threads.deletedAt), isNull(schema.threads.eventId))
   return db.query.threads.findMany({
     where: roomSlug
-      ? and(isNull(schema.threads.deletedAt), eq(schema.threads.roomSlug, roomSlug))
-      : isNull(schema.threads.deletedAt),
+      ? and(base, eq(schema.threads.roomSlug, roomSlug))
+      : base,
     orderBy: desc(schema.threads.lastActivityAt),
   })
 }

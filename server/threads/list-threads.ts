@@ -19,5 +19,9 @@ export async function listThreads(
 ): Promise<ThreadListItem[]> {
   const rows = await listThreadRows(deps.db, filter.roomSlug)
   const counts = await countCommentsByThread(deps.db, rows.map(row => row.id))
-  return rows.map(row => ({ ...row, commentCount: counts.get(row.id) ?? 0 }))
+  return rows.map(({ event, ...thread }) => ({
+    ...thread,
+    event,
+    commentCount: counts.get(thread.id) ?? 0,
+  }))
 }

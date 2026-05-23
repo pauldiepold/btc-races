@@ -175,7 +175,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         :key="thread.id"
       >
         <NuxtLink
-          :to="`/beitraege/${thread.id}`"
+          :to="thread.event ? `/${thread.event.id}` : `/beitraege/${thread.id}`"
           class="block rounded-[--ui-radius] border border-default bg-elevated/40 p-4 transition hover:bg-elevated/70"
         >
           <div class="flex items-center gap-2 mb-1">
@@ -184,6 +184,14 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               color="neutral"
               variant="subtle"
               size="sm"
+            />
+            <UBadge
+              v-if="thread.event"
+              label="Event"
+              color="primary"
+              variant="subtle"
+              size="sm"
+              icon="i-ph-calendar-blank"
             />
             <span class="text-xs text-muted">
               {{ relativeTime(thread.lastActivityAt) }}
@@ -197,10 +205,35 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             </span>
           </div>
           <p class="font-semibold text-highlighted">
-            {{ thread.title }}
+            {{ thread.event ? thread.event.name : thread.title }}
           </p>
           <p
-            v-if="excerpt(thread.body)"
+            v-if="thread.event"
+            class="text-sm text-muted mt-1 inline-flex items-center gap-3 flex-wrap"
+          >
+            <span
+              v-if="thread.event.date"
+              class="inline-flex items-center gap-1"
+            >
+              <UIcon
+                name="i-ph-calendar-blank"
+                class="size-3.5"
+              />
+              {{ formatDate(thread.event.date) }}
+            </span>
+            <span
+              v-if="thread.event.location"
+              class="inline-flex items-center gap-1"
+            >
+              <UIcon
+                name="i-ph-map-pin"
+                class="size-3.5"
+              />
+              {{ thread.event.location }}
+            </span>
+          </p>
+          <p
+            v-else-if="excerpt(thread.body)"
             class="text-sm text-muted mt-1 line-clamp-2"
           >
             {{ excerpt(thread.body) }}

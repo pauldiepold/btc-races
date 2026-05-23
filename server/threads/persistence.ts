@@ -127,17 +127,35 @@ export async function softDeleteComment(db: AppDb, commentId: number, at: Date):
     .where(eq(schema.comments.id, commentId))
 }
 
+/** Eine Listen-Row inkl. optionaler Event-Metadaten für Event-Threads. */
+export type ThreadListRow = ThreadRow & {
+  event: { id: number, name: string, date: string | null, location: string | null } | null
+}
+
 /**
- * Nicht gelöschte Beiträge, neueste Aktivität zuerst. Optional auf einen Raum
- * gefiltert. Event-Threads (eventId gesetzt) werden ausgenommen — ihre
- * Listendarstellung kommt in #242.
+ * Nicht gelöschte Threads, neueste Aktivität zuerst. Optional auf einen Raum
+ * gefiltert. Liefert sowohl Beiträge als auch Event-Threads — bei Event-Threads
+ * werden Name/Datum/Ort des Events mit zurückgegeben.
  */
-export function listThreadRows(db: AppDb, roomSlug?: RoomSlug): Promise<ThreadRow[]> {
-  const base = and(isNull(schema.threads.deletedAt), isNull(schema.threads.eventId))
-  return db.query.threads.findMany({
-    where: roomSlug
-      ? and(base, eq(schema.threads.roomSlug, roomSlug))
-      : base,
-    orderBy: desc(schema.threads.lastActivityAt),
-  })
+export async function listThreadRows(db: AppDb, roomSlug?: RoomSlug): Promise<ThreadListRow[]> {
+  const base = isNull(schema.threads.deletedAt)
+  const rows = await db
+    .select({
+      thread: schema.threads,
+      event: {
+        id: schema.events.id,
+        name: schema.events.name,
+        date: schema.events.date,
+        location: schema.events.location,
+      },
+    })
+    .from(schema.threads)
+    .leftJoin(schema.events, eq(schema.events.id, schema.threads.eventId))
+    .where(roomSlug ? and(base, eq(schema.threads.roomSlug, roomSlug)) : base)
+    .orderBy(desc(schema.threads.lastActivityAt))
+
+  return rows.map(r => ({
+    ...r.thread,
+    event: r.event && r.event.id !== null ? r.event : null,
+  }))
 }

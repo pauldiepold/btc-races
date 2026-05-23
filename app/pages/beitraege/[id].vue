@@ -19,7 +19,7 @@ const ROOM_LABELS: Record<string, string> = {
 
 // ─── Daten ────────────────────────────────────────────────────────────────────
 // Bewusst nur beim Mount und nach eigenem Senden geladen — kein Polling.
-const { data: thread, error: threadError } = await useFetch<Thread>(
+const { data: thread, error: threadError, refresh: refreshThread } = await useFetch<Thread>(
   () => `/api/threads/${threadId.value}`,
 )
 
@@ -57,6 +57,37 @@ onMounted(async () => {
   scrollToEnd()
 })
 
+// ─── Berechtigungen (Client-Mirror zu server/threads/rules.ts) ────────────────
+// Server bleibt SSOT; das hier blendet nur Aktionen aus, die der Server eh
+// ablehnen würde. Inhaltlich identisch zu canEdit*/canDelete*.
+const isAdmin = computed(() =>
+  user.value?.role === 'admin' || user.value?.role === 'superuser',
+)
+
+const canEditThread = computed(() => {
+  const t = thread.value
+  if (!t || t.eventId !== null || t.deletedAt) return false
+  return t.createdBy === user.value?.id || isAdmin.value
+})
+
+const canDeleteThread = computed(() => canEditThread.value)
+
+function canEditComment(c: CommentWithAuthor): boolean {
+  if (c.deletedAt) return false
+  return c.userId === user.value?.id
+}
+
+function canDeleteComment(c: CommentWithAuthor): boolean {
+  if (c.deletedAt) return false
+  return c.userId === user.value?.id || isAdmin.value
+}
+
+/** „(bearbeitet)"-Label: updatedAt > createdAt und nicht gelöscht. */
+function isEdited(c: CommentWithAuthor): boolean {
+  if (c.deletedAt) return false
+  return new Date(c.updatedAt).getTime() > new Date(c.createdAt).getTime()
+}
+
 // ─── Kommentar schreiben ──────────────────────────────────────────────────────
 const draft = ref('')
 const inputMode = ref<'write' | 'preview'>('write')
@@ -91,6 +122,116 @@ async function onSend() {
     sending.value = false
   }
 }
+
+// ─── Beitrag editieren / löschen ──────────────────────────────────────────────
+const editingThread = ref(false)
+const threadEditTitle = ref('')
+const threadEditBody = ref('')
+const savingThread = ref(false)
+
+function startEditThread() {
+  if (!thread.value) return
+  threadEditTitle.value = thread.value.title ?? ''
+  threadEditBody.value = thread.value.body ?? ''
+  editingThread.value = true
+}
+
+function cancelEditThread() {
+  editingThread.value = false
+}
+
+async function saveThreadEdit() {
+  if (!thread.value) return
+  const title = threadEditTitle.value.trim()
+  const body = threadEditBody.value.trim()
+  if (!title || !body) {
+    toast.add({ title: 'Fehler', description: 'Titel und Text dürfen nicht leer sein.', color: 'error' })
+    return
+  }
+  savingThread.value = true
+  try {
+    await $fetch(`/api/threads/${threadId.value}`, {
+      method: 'PATCH',
+      body: { title, body },
+    })
+    await refreshThread()
+    editingThread.value = false
+  }
+  catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Ein Fehler ist aufgetreten.'
+    toast.add({ title: 'Fehler', description: msg, color: 'error' })
+  }
+  finally {
+    savingThread.value = false
+  }
+}
+
+async function deleteThreadAction() {
+  if (!thread.value) return
+  if (!confirm('Diesen Beitrag wirklich löschen? Die Kommentare bleiben erhalten.')) return
+  try {
+    await $fetch(`/api/threads/${threadId.value}`, { method: 'DELETE' })
+    await navigateTo('/beitraege')
+  }
+  catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Ein Fehler ist aufgetreten.'
+    toast.add({ title: 'Fehler', description: msg, color: 'error' })
+  }
+}
+
+// ─── Kommentar editieren / löschen ────────────────────────────────────────────
+const editingCommentId = ref<number | null>(null)
+const commentEditDraft = ref('')
+const savingComment = ref(false)
+
+function startEditComment(c: CommentWithAuthor) {
+  editingCommentId.value = c.id
+  commentEditDraft.value = c.body
+}
+
+function cancelEditComment() {
+  editingCommentId.value = null
+  commentEditDraft.value = ''
+}
+
+async function saveCommentEdit(commentId: number) {
+  const body = commentEditDraft.value.trim()
+  if (!body) {
+    toast.add({ title: 'Fehler', description: 'Kommentar darf nicht leer sein.', color: 'error' })
+    return
+  }
+  savingComment.value = true
+  try {
+    await $fetch(`/api/threads/${threadId.value}/comments/${commentId}`, {
+      method: 'PATCH',
+      body: { body },
+    })
+    await refreshComments()
+    editingCommentId.value = null
+    commentEditDraft.value = ''
+  }
+  catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Ein Fehler ist aufgetreten.'
+    toast.add({ title: 'Fehler', description: msg, color: 'error' })
+  }
+  finally {
+    savingComment.value = false
+  }
+}
+
+async function deleteCommentAction(commentId: number) {
+  if (!confirm('Diesen Kommentar wirklich löschen?')) return
+  try {
+    await $fetch(`/api/threads/${threadId.value}/comments/${commentId}`, {
+      method: 'DELETE',
+    })
+    await refreshComments()
+  }
+  catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Ein Fehler ist aufgetreten.'
+    toast.add({ title: 'Fehler', description: msg, color: 'error' })
+  }
+}
 </script>
 
 <template>
@@ -120,6 +261,20 @@ async function onSend() {
       </p>
     </div>
 
+    <!-- Gelöschter Beitrag: Tombstone statt 404, Kommentare bleiben in der DB -->
+    <div
+      v-else-if="thread.deletedAt"
+      class="text-center py-16 text-muted"
+    >
+      <UIcon
+        name="i-ph-trash"
+        class="size-10 mb-3 text-dimmed"
+      />
+      <p class="text-sm">
+        Diese Diskussion wurde gelöscht.
+      </p>
+    </div>
+
     <template v-else>
       <!-- Eröffnung -->
       <article class="rounded-[--ui-radius] border border-default bg-elevated/40 p-5 mb-8">
@@ -133,14 +288,74 @@ async function onSend() {
           <span class="text-xs text-muted">
             {{ relativeTime(thread.createdAt) }}
           </span>
+          <div
+            v-if="canEditThread && !editingThread"
+            class="ml-auto flex items-center gap-1"
+          >
+            <UButton
+              icon="i-ph-pencil-simple"
+              size="xs"
+              variant="ghost"
+              color="neutral"
+              aria-label="Beitrag editieren"
+              @click="startEditThread"
+            />
+            <UButton
+              v-if="canDeleteThread"
+              icon="i-ph-trash"
+              size="xs"
+              variant="ghost"
+              color="neutral"
+              aria-label="Beitrag löschen"
+              @click="deleteThreadAction"
+            />
+          </div>
         </div>
-        <h1 class="text-xl font-bold tracking-tight text-highlighted mb-3">
-          {{ thread.title }}
-        </h1>
+
+        <template v-if="!editingThread">
+          <h1 class="text-xl font-bold tracking-tight text-highlighted mb-3">
+            {{ thread.title }}
+          </h1>
+          <div
+            class="md-body text-sm text-default"
+            v-html="renderMarkdown(thread.body ?? '')"
+          />
+        </template>
+
         <div
-          class="md-body text-sm text-default"
-          v-html="renderMarkdown(thread.body ?? '')"
-        />
+          v-else
+          class="space-y-3"
+        >
+          <UInput
+            v-model="threadEditTitle"
+            placeholder="Titel"
+            size="md"
+            class="w-full"
+          />
+          <UTextarea
+            v-model="threadEditBody"
+            :rows="4"
+            autoresize
+            :maxrows="14"
+            placeholder="Markdown-Text …"
+            class="w-full"
+          />
+          <div class="flex justify-end gap-2">
+            <UButton
+              label="Abbrechen"
+              color="neutral"
+              variant="ghost"
+              :disabled="savingThread"
+              @click="cancelEditThread"
+            />
+            <UButton
+              label="Speichern"
+              color="primary"
+              :loading="savingThread"
+              @click="saveThreadEdit"
+            />
+          </div>
+        </div>
       </article>
 
       <!-- Kommentare -->
@@ -160,7 +375,7 @@ async function onSend() {
         <li
           v-for="comment in comments"
           :key="comment.id"
-          class="flex flex-col"
+          class="group flex flex-col"
           :class="comment.userId === user?.id ? 'items-end' : 'items-start'"
         >
           <div class="flex items-baseline gap-2 mb-1 px-1">
@@ -170,14 +385,89 @@ async function onSend() {
             <span class="text-xs text-muted">
               {{ relativeTime(comment.createdAt) }}
             </span>
+            <span
+              v-if="isEdited(comment)"
+              class="text-xs text-dimmed italic"
+            >
+              (bearbeitet)
+            </span>
           </div>
+
+          <!-- Tombstone: gelöschter Kommentar -->
           <div
-            class="md-body text-sm rounded-[--ui-radius] px-3.5 py-2.5 max-w-[85%]"
-            :class="comment.userId === user?.id
-              ? 'bg-primary/15 text-default'
-              : 'bg-elevated text-default'"
-            v-html="renderMarkdown(comment.body)"
-          />
+            v-if="comment.deletedAt"
+            class="text-xs italic text-dimmed rounded-[--ui-radius] px-3.5 py-2.5 bg-elevated/50 border border-dashed border-default max-w-[85%]"
+          >
+            Kommentar gelöscht
+          </div>
+
+          <!-- Inline-Edit -->
+          <div
+            v-else-if="editingCommentId === comment.id"
+            class="w-full max-w-[85%] space-y-2"
+          >
+            <UTextarea
+              v-model="commentEditDraft"
+              :rows="3"
+              autoresize
+              :maxrows="10"
+              class="w-full"
+            />
+            <div class="flex justify-end gap-2">
+              <UButton
+                label="Abbrechen"
+                size="xs"
+                color="neutral"
+                variant="ghost"
+                :disabled="savingComment"
+                @click="cancelEditComment"
+              />
+              <UButton
+                label="Speichern"
+                size="xs"
+                color="primary"
+                :loading="savingComment"
+                @click="saveCommentEdit(comment.id)"
+              />
+            </div>
+          </div>
+
+          <!-- Normaler Kommentar mit Aktionen -->
+          <div
+            v-else
+            class="relative max-w-[85%]"
+          >
+            <div
+              class="md-body text-sm rounded-[--ui-radius] px-3.5 py-2.5"
+              :class="comment.userId === user?.id
+                ? 'bg-primary/15 text-default'
+                : 'bg-elevated text-default'"
+              v-html="renderMarkdown(comment.body)"
+            />
+            <div
+              v-if="canEditComment(comment) || canDeleteComment(comment)"
+              class="absolute -top-3 right-2 hidden gap-0.5 rounded-[--ui-radius] border border-default bg-elevated shadow-sm group-hover:flex"
+            >
+              <UButton
+                v-if="canEditComment(comment)"
+                icon="i-ph-pencil-simple"
+                size="xs"
+                variant="ghost"
+                color="neutral"
+                aria-label="Kommentar editieren"
+                @click="startEditComment(comment)"
+              />
+              <UButton
+                v-if="canDeleteComment(comment)"
+                icon="i-ph-trash"
+                size="xs"
+                variant="ghost"
+                color="neutral"
+                aria-label="Kommentar löschen"
+                @click="deleteCommentAction(comment.id)"
+              />
+            </div>
+          </div>
         </li>
       </ul>
 

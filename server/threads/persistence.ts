@@ -64,6 +64,47 @@ export async function touchThreadActivity(db: AppDb, threadId: number, at: Date)
     .where(eq(schema.threads.id, threadId))
 }
 
+/** Setzt Titel und Body eines Threads. `lastActivityAt` bleibt unberührt. */
+export async function updateThreadContent(
+  db: AppDb,
+  threadId: number,
+  content: { title: string, body: string },
+): Promise<void> {
+  await db
+    .update(schema.threads)
+    .set({ title: content.title, body: content.body })
+    .where(eq(schema.threads.id, threadId))
+}
+
+/** Setzt `deletedAt` (Soft-Delete) auf einem Thread. */
+export async function softDeleteThread(db: AppDb, threadId: number, at: Date): Promise<void> {
+  await db
+    .update(schema.threads)
+    .set({ deletedAt: at })
+    .where(eq(schema.threads.id, threadId))
+}
+
+/** Eine einzelne Comment-Row per ID, oder `undefined`. */
+export function findCommentById(db: AppDb, id: number): Promise<CommentRow | undefined> {
+  return db.query.comments.findFirst({ where: eq(schema.comments.id, id) })
+}
+
+/** Setzt den Body eines Kommentars; `updatedAt` aktualisiert Drizzle automatisch. */
+export async function updateCommentBody(db: AppDb, commentId: number, body: string): Promise<void> {
+  await db
+    .update(schema.comments)
+    .set({ body })
+    .where(eq(schema.comments.id, commentId))
+}
+
+/** Setzt `deletedAt` (Soft-Delete / Tombstone) auf einem Kommentar. */
+export async function softDeleteComment(db: AppDb, commentId: number, at: Date): Promise<void> {
+  await db
+    .update(schema.comments)
+    .set({ deletedAt: at })
+    .where(eq(schema.comments.id, commentId))
+}
+
 /**
  * Nicht gelöschte Threads, neueste Aktivität zuerst. Optional auf einen Raum
  * gefiltert.

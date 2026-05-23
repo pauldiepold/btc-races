@@ -18,7 +18,14 @@ export { actorFromSession } from './actor'
 export type { Room } from './rooms'
 export { ROOMS, getRoom } from './rooms'
 
-export { canCreateThread, canCreateInAnyRoom } from './rules'
+export {
+  canCreateInAnyRoom,
+  canCreateThread,
+  canDeleteComment,
+  canDeleteThread,
+  canEditComment,
+  canEditThread,
+} from './rules'
 
 export type { AppDb, ThreadRow, ThreadInsert } from './persistence'
 
@@ -44,3 +51,15 @@ export type {
 
 export { listComments } from './list-comments'
 export type { ListCommentsInput, ListCommentsDeps } from './list-comments'
+
+export { editThread } from './edit-thread'
+export type { EditThreadInput, EditThreadDeps } from './edit-thread'
+
+export { deleteThread } from './delete-thread'
+export type { DeleteThreadInput, DeleteThreadDeps } from './delete-thread'
+
+export { editComment } from './edit-comment'
+export type { EditCommentInput, EditCommentDeps } from './edit-comment'
+
+export { deleteComment } from './delete-comment'
+export type { DeleteCommentInput, DeleteCommentDeps } from './delete-comment'

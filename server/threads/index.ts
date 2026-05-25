@@ -40,6 +40,7 @@ export {
   canDeleteThread,
   canEditComment,
   canEditThread,
+  canPinComment,
 } from './rules'
 
 export type { AppDb, ThreadRow, ThreadInsert } from './persistence'
@@ -78,3 +79,6 @@ export type { EditCommentInput, EditCommentDeps } from './edit-comment'
 
 export { deleteComment } from './delete-comment'
 export type { DeleteCommentInput, DeleteCommentDeps } from './delete-comment'
+
+export { pinComment, unpinComment } from './pin-comment'
+export type { PinCommentInput, PinCommentDeps } from './pin-comment'

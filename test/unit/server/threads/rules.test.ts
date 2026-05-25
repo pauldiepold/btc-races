@@ -7,6 +7,7 @@ import {
   canDeleteThread,
   canEditComment,
   canEditThread,
+  canPinComment,
   getRoom,
   type ThreadActor,
 } from '~~/server/threads'
@@ -156,6 +157,40 @@ describe('canEditComment', () => {
     expect(
       canEditComment(selfActor(AUTHOR_ID), comment({ deletedAt: new Date() })),
     ).toBe(false)
+  })
+})
+
+describe('canPinComment', () => {
+  it('lets an admin pin any comment in any thread', () => {
+    expect(canPinComment(adminActor(), thread(), comment({ userId: OTHER_ID }), 0)).toBe(true)
+  })
+
+  it('lets the thread author pin a comment in their thread (covers Event-Threads too — thread.createdBy is the event author)', () => {
+    expect(
+      canPinComment(selfActor(AUTHOR_ID), thread({ createdBy: AUTHOR_ID }), comment({ userId: OTHER_ID }), 0),
+    ).toBe(true)
+  })
+
+  it('forbids a non-author non-admin from pinning', () => {
+    expect(
+      canPinComment(selfActor(OTHER_ID), thread({ createdBy: AUTHOR_ID }), comment(), 0),
+    ).toBe(false)
+  })
+
+  it('forbids pinning a soft-deleted comment', () => {
+    expect(
+      canPinComment(adminActor(), thread(), comment({ deletedAt: new Date() }), 0),
+    ).toBe(false)
+  })
+
+  it('forbids pinning a new comment once the thread already has 3 pinned', () => {
+    expect(canPinComment(adminActor(), thread(), comment(), 3)).toBe(false)
+  })
+
+  it('allows unpinning a pinned comment even when the limit is reached', () => {
+    expect(
+      canPinComment(adminActor(), thread(), comment({ pinnedAt: new Date(), pinnedBy: 99 }), 3),
+    ).toBe(true)
   })
 })
 

@@ -51,6 +51,46 @@ function canDeleteComment(c: CommentWithAuthor): boolean {
   return c.userId === user.value?.id || isAdmin.value
 }
 
+// ─── Pinning ──────────────────────────────────────────────────────────────────
+// Admin oder Event-Autor (entspricht thread.createdBy für Event-Threads) darf
+// pinnen. Max. 3 angeheftet, nicht bei gelöschtem Kommentar.
+const pinnedComments = computed(() =>
+  (commentsAsc.value ?? []).filter(c => c.pinnedAt && !c.deletedAt),
+)
+
+const pinningCommentId = ref<number | null>(null)
+
+function canPinForThread(): boolean {
+  const t = thread.value
+  if (!t) return false
+  return isAdmin.value || t.createdBy === user.value?.id
+}
+
+function canPinComment(c: CommentWithAuthor): boolean {
+  if (c.deletedAt) return false
+  if (!canPinForThread()) return false
+  if (c.pinnedAt) return true
+  return pinnedComments.value.length < 3
+}
+
+async function togglePin(c: CommentWithAuthor) {
+  if (!canPinComment(c) || !threadId.value) return
+  pinningCommentId.value = c.id
+  try {
+    await $fetch(`/api/threads/${threadId.value}/comments/${c.id}/pin`, {
+      method: c.pinnedAt ? 'DELETE' : 'POST',
+    })
+    await refreshComments()
+  }
+  catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Ein Fehler ist aufgetreten.'
+    toast.add({ title: 'Fehler', description: msg, color: 'error' })
+  }
+  finally {
+    pinningCommentId.value = null
+  }
+}
+
 function isEdited(c: CommentWithAuthor): boolean {
   if (c.deletedAt) return false
   return new Date(c.updatedAt).getTime() > new Date(c.createdAt).getTime()
@@ -209,6 +249,40 @@ async function deleteCommentAction(commentId: number) {
       </div>
     </div>
 
+    <!-- Wichtig-Block: angeheftete Kommentare zusätzlich oberhalb des Streams -->
+    <section
+      v-if="pinnedComments.length > 0"
+      class="mt-6 rounded-[--ui-radius] border border-primary/30 bg-primary/5 p-3"
+    >
+      <div class="flex items-center gap-1.5 mb-2 text-xs font-medium text-primary">
+        <UIcon
+          name="i-ph-push-pin-fill"
+          class="size-3.5"
+        />
+        Wichtig
+      </div>
+      <ul class="space-y-3">
+        <li
+          v-for="pinned in pinnedComments"
+          :key="`pinned-${pinned.id}`"
+          class="text-sm"
+        >
+          <div class="flex items-baseline gap-2 mb-1">
+            <span class="text-xs font-medium text-default">
+              {{ pinned.authorName ?? 'Unbekannt' }}
+            </span>
+            <span class="text-xs text-muted">
+              {{ relativeTime(pinned.createdAt) }}
+            </span>
+          </div>
+          <div
+            class="md-body"
+            v-html="renderMarkdown(pinned.body)"
+          />
+        </li>
+      </ul>
+    </section>
+
     <div
       v-if="comments.length === 0"
       class="text-center py-10 text-muted"
@@ -292,9 +366,19 @@ async function deleteCommentAction(commentId: number) {
             v-html="renderMarkdown(comment.body)"
           />
           <div
-            v-if="canEditComment(comment) || canDeleteComment(comment)"
+            v-if="canEditComment(comment) || canDeleteComment(comment) || canPinComment(comment)"
             class="absolute -top-3 right-2 hidden gap-0.5 rounded-[--ui-radius] border border-default bg-elevated shadow-sm group-hover:flex"
           >
+            <UButton
+              v-if="canPinComment(comment)"
+              :icon="comment.pinnedAt ? 'i-ph-push-pin-slash' : 'i-ph-push-pin'"
+              size="xs"
+              variant="ghost"
+              color="neutral"
+              :loading="pinningCommentId === comment.id"
+              :aria-label="comment.pinnedAt ? 'Kommentar abheften' : 'Kommentar anheften'"
+              @click="togglePin(comment)"
+            />
             <UButton
               v-if="canEditComment(comment)"
               icon="i-ph-pencil-simple"
@@ -314,6 +398,12 @@ async function deleteCommentAction(commentId: number) {
               @click="deleteCommentAction(comment.id)"
             />
           </div>
+          <UIcon
+            v-if="comment.pinnedAt"
+            name="i-ph-push-pin-fill"
+            class="absolute -top-1.5 -left-1.5 size-3.5 text-primary"
+            aria-label="Angeheftet"
+          />
         </div>
       </li>
     </ul>

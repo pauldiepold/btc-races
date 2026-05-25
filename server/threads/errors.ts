@@ -6,6 +6,7 @@ export type ThreadErrorCode
     | 'comment_too_long'
     | 'thread_too_long'
     | 'event_not_found'
+    | 'pin_limit_reached'
 
 export class ThreadError extends Error {
   readonly code: ThreadErrorCode

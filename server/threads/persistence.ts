@@ -127,6 +127,36 @@ export async function softDeleteComment(db: AppDb, commentId: number, at: Date):
     .where(eq(schema.comments.id, commentId))
 }
 
+/** Setzt oder entfernt den Pin-Status eines Kommentars. `null` heftet ab. */
+export async function setCommentPin(
+  db: AppDb,
+  commentId: number,
+  pin: { at: Date, by: number } | null,
+): Promise<void> {
+  await db
+    .update(schema.comments)
+    .set({
+      pinnedAt: pin?.at ?? null,
+      pinnedBy: pin?.by ?? null,
+    })
+    .where(eq(schema.comments.id, commentId))
+}
+
+/** Anzahl aktuell angehefteter (nicht gelöschter) Kommentare eines Threads. */
+export async function countPinnedComments(db: AppDb, threadId: number): Promise<number> {
+  const [row] = await db
+    .select({ count: sql<number>`cast(count(*) as int)` })
+    .from(schema.comments)
+    .where(
+      and(
+        eq(schema.comments.threadId, threadId),
+        isNull(schema.comments.deletedAt),
+        sql`${schema.comments.pinnedAt} is not null`,
+      ),
+    )
+  return row?.count ?? 0
+}
+
 /** Eine Listen-Row inkl. optionaler Event-Metadaten für Event-Threads. */
 export type ThreadListRow = ThreadRow & {
   event: { id: number, name: string, date: string | null, location: string | null } | null

@@ -54,3 +54,23 @@ export function canDeleteComment(actor: ThreadActor, comment: Comment): boolean 
   if (comment.deletedAt !== null) return false
   return actor.kind === 'admin' || comment.userId === actor.userId
 }
+
+/**
+ * Darf der Aktor diesen Kommentar an-/abheften? Admin oder Thread-Autor (bei
+ * Event-Threads ist `thread.createdBy` der Event-Autor). Nicht bei
+ * soft-gelöschten Kommentaren. Pin-Limit von 3 gilt nur beim Anheften
+ * (`pinnedCount` zählt aktuell angeheftete Kommentare des Threads); ein bereits
+ * angehefteter Kommentar darf immer abgeheftet werden.
+ */
+export function canPinComment(
+  actor: ThreadActor,
+  thread: Thread,
+  comment: Comment,
+  pinnedCount: number,
+): boolean {
+  if (comment.deletedAt !== null) return false
+  const isAuthor = thread.createdBy !== null && thread.createdBy === actor.userId
+  if (actor.kind !== 'admin' && !isAuthor) return false
+  if (comment.pinnedAt !== null) return true
+  return pinnedCount < 3
+}

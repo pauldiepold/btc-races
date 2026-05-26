@@ -57,6 +57,13 @@
       "when": 1779467771174,
       "tag": "0007_demonic_blockbuster",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1779718775569,
+      "tag": "0008_furry_mantis",
+      "breakpoints": true
     }
   ]
 }

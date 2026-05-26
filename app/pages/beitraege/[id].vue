@@ -329,27 +329,30 @@ async function deleteCommentAction(commentId: number) {
           <span class="text-xs text-muted">
             {{ relativeTime(thread.createdAt) }}
           </span>
-          <div
-            v-if="canEditThread && !editingThread"
-            class="ml-auto flex items-center gap-1"
-          >
-            <UButton
-              icon="i-ph-pencil-simple"
-              size="xs"
-              variant="ghost"
-              color="neutral"
-              aria-label="Beitrag editieren"
-              @click="startEditThread"
+          <div class="ml-auto flex items-center gap-1">
+            <ThreadOverrideMenu
+              v-if="user && !thread.deletedAt"
+              :thread-id="thread.id"
             />
-            <UButton
-              v-if="canDeleteThread"
-              icon="i-ph-trash"
-              size="xs"
-              variant="ghost"
-              color="neutral"
-              aria-label="Beitrag löschen"
-              @click="deleteThreadAction"
-            />
+            <template v-if="canEditThread && !editingThread">
+              <UButton
+                icon="i-ph-pencil-simple"
+                size="xs"
+                variant="ghost"
+                color="neutral"
+                aria-label="Beitrag editieren"
+                @click="startEditThread"
+              />
+              <UButton
+                v-if="canDeleteThread"
+                icon="i-ph-trash"
+                size="xs"
+                variant="ghost"
+                color="neutral"
+                aria-label="Beitrag löschen"
+                @click="deleteThreadAction"
+              />
+            </template>
           </div>
         </div>
 

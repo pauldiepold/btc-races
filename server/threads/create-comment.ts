@@ -1,5 +1,6 @@
 import type { ThreadActor } from './actor'
 import { ThreadError } from './errors'
+import { dispatchNewCommentNotification } from './notifier'
 import { findThreadById, insertComment, touchThreadActivity, type AppDb } from './persistence'
 
 /** Maximale Kommentar-Länge (Zeichen, getrimmt) — serverseitiger Schutz. */
@@ -41,6 +42,8 @@ export async function createComment(
   })
 
   await touchThreadActivity(deps.db, input.threadId, comment.createdAt)
+
+  await dispatchNewCommentNotification(thread, comment, actor.userId, deps.db)
 
   return { id: comment.id }
 }

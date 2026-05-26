@@ -56,6 +56,7 @@ interface PreferenceGroupDef {
 const PREFERENCE_GROUPS: PreferenceGroupDef[] = [
   // Persönlich
   { key: 'new_event', types: ['new_event'] },
+  { key: 'thread_new_comment', types: ['thread_new_comment'] },
   { key: 'event_changed', types: ['event_changed'] },
   {
     key: 'event_canceled',

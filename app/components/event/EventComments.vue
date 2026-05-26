@@ -190,9 +190,15 @@ async function deleteCommentAction(commentId: number) {
     v-if="!threadError"
     class="mt-12"
   >
-    <h2 class="font-display font-semibold text-highlighted text-lg mb-4">
-      Kommentare
-    </h2>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-display font-semibold text-highlighted text-lg">
+        Kommentare
+      </h2>
+      <ThreadOverrideMenu
+        v-if="user"
+        :thread-id="threadId"
+      />
+    </div>
 
     <div class="rounded-[--ui-radius] border border-default bg-elevated">
       <div class="flex items-center justify-between gap-2 border-b border-default px-3 py-1.5">

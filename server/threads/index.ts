@@ -82,3 +82,17 @@ export type { DeleteCommentInput, DeleteCommentDeps } from './delete-comment'
 
 export { pinComment, unpinComment } from './pin-comment'
 export type { PinCommentInput, PinCommentDeps } from './pin-comment'
+
+export { setOverride } from './set-override'
+export type { SetOverrideInput, SetOverrideDeps } from './set-override'
+
+export {
+  resolveRecipients,
+  loadRecipientInputs,
+} from './recipients'
+export type {
+  ResolveRecipientsInput,
+  ThreadOverrideEntry,
+  ThreadOverrideState,
+  LoadRecipientInputsArgs,
+} from './recipients'

@@ -111,6 +111,20 @@ export const threads = sqliteTable('threads', {
   ...timestamps(),
 })
 
+// Explizite Empfänger-Overrides je (User, Thread) — schlanke Override-Tabelle.
+// Keine Row = automatisches Verhalten (resolveRecipients in server/threads/recipients.ts).
+export const threadOverrides = sqliteTable('thread_overrides', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  userId: integer({ mode: 'number' }).notNull().references(() => users.id, { onDelete: 'cascade' }),
+  threadId: integer({ mode: 'number' }).notNull().references(() => threads.id, { onDelete: 'cascade' }),
+  state: text().notNull().$type<'muted' | 'following'>(),
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+}, t => [
+  unique().on(t.userId, t.threadId),
+])
+
 // Kommentare unter einem Thread (chronologisch, Chat-Style)
 export const comments = sqliteTable('comments', {
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),

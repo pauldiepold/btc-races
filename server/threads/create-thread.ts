@@ -1,4 +1,5 @@
 import type { ThreadActor } from './actor'
+import { dispatchAnnouncementNotification } from './announcement-notifier'
 import { ThreadError } from './errors'
 import { insertThread, type AppDb } from './persistence'
 import { getRoom } from './rooms'
@@ -43,6 +44,10 @@ export async function createThread(
     lastActivityAt: now,
     createdBy: actor.userId,
   })
+
+  if (room.mandatory) {
+    await dispatchAnnouncementNotification(row, actor.userId, deps.db)
+  }
 
   return { id: row.id }
 }

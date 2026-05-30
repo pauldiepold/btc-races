@@ -109,6 +109,7 @@ export default defineNuxtConfig({
         'workbox-precaching',
         'workbox-routing',
         '@internationalized/date',
+        'workbox-window',
       ],
     },
   },

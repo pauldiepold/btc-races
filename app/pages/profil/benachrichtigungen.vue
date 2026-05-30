@@ -55,6 +55,7 @@ interface PreferenceGroupDef {
 // label/description sind optional — bei Single-Type-Einträgen wird auf die Server-Meta zurückgefallen.
 const PREFERENCE_GROUPS: PreferenceGroupDef[] = [
   // Persönlich
+  { key: 'thread_announcement', types: ['thread_announcement'] },
   { key: 'new_event', types: ['new_event'] },
   { key: 'thread_new_comment', types: ['thread_new_comment'] },
   { key: 'event_changed', types: ['event_changed'] },

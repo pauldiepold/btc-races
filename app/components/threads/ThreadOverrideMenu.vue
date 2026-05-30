@@ -3,7 +3,14 @@ import type { ThreadOverrideResponse } from '~~/server/api/threads/[id]/override
 
 type OverrideState = 'muted' | 'following' | null
 
-const props = defineProps<{ threadId: number | null }>()
+const props = defineProps<{
+  threadId: number | null
+  /**
+   * Mandatory-Raum (z. B. Ankündigungen): Mute/Follow ist gesperrt — die
+   * Notification ist verpflichtend. UI rendert nur einen Hinweis-Button.
+   */
+  mandatory?: boolean
+}>()
 
 const toast = useToast()
 
@@ -81,8 +88,21 @@ const items = computed(() => [[
 </script>
 
 <template>
+  <UTooltip
+    v-if="threadId != null && mandatory"
+    text="Verpflichtende Vereins-Ankündigung — kann nicht stummgeschaltet werden."
+  >
+    <UButton
+      icon="i-ph-megaphone"
+      label="Pflicht-Benachrichtigung"
+      size="sm"
+      color="neutral"
+      variant="ghost"
+      disabled
+    />
+  </UTooltip>
   <UDropdownMenu
-    v-if="threadId != null"
+    v-else-if="threadId != null"
     :items="items"
   >
     <UButton

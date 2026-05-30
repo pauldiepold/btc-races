@@ -20,6 +20,12 @@ export type ResolveRecipientsInput = {
    * (`registered`/`yes`/`maybe`). Bei Beiträgen leer.
    */
   eventParticipantIds: number[]
+  /**
+   * Mandatory-Bucket — Empfänger, die unabhängig von `muted`-Overrides
+   * zugestellt werden (Mandatory-Räume wie Ankündigungen). Trigger-Autor
+   * bleibt ausgeschlossen. Bei nicht-mandatory Versand leer.
+   */
+  mandatoryRecipientIds: number[]
   /** Explizite Overrides aus `thread_overrides`. */
   overrides: ThreadOverrideEntry[]
   /** User-ID des auslösenden Kommentar-Autors — wird immer ausgeschlossen. */
@@ -27,12 +33,16 @@ export type ResolveRecipientsInput = {
 }
 
 /**
- * Reine Mengen-Auflösung der Empfänger für `thread_new_comment`.
+ * Reine Mengen-Auflösung der Empfänger.
  *
  * Automatische Empfänger = Thread-Autor ∪ bisherige Kommentatoren ∪
  * (bei Event-Threads) Event-Teilnehmer mit aktivem Anmelde-Status.
- * Plus explizit `following`-Overrides, minus `muted`-Overrides, minus Trigger-Autor.
+ * Plus explizit `following`-Overrides, minus `muted`-Overrides.
  * Bei widersprüchlichen Overrides (mute + follow) gewinnt `muted`.
+ *
+ * Zusätzlich `mandatoryRecipientIds` (z. B. alle aktiven Mitglieder bei
+ * Ankündigungen): werden hinzugefügt und sind mute-immun. Trigger-Autor
+ * wird in allen Fällen ausgeschlossen.
  */
 export function resolveRecipients(input: ResolveRecipientsInput): number[] {
   const muted = new Set<number>()
@@ -49,6 +59,10 @@ export function resolveRecipients(input: ResolveRecipientsInput): number[] {
   for (const id of following) recipients.add(id)
 
   for (const id of muted) recipients.delete(id)
+
+  // Mandatory-Bucket wird nach dem Mute-Abzug einsortiert → mute-immun.
+  for (const id of input.mandatoryRecipientIds) recipients.add(id)
+
   recipients.delete(input.triggerAuthorId)
 
   return [...recipients]
@@ -115,6 +129,7 @@ export async function loadRecipientInputs(
     threadAuthorId: threadRow?.createdBy ?? null,
     commenterIds,
     eventParticipantIds,
+    mandatoryRecipientIds: [],
     overrides: overrideRows.map(r => ({ userId: r.userId, state: r.state })),
     triggerAuthorId: args.triggerAuthorId,
   }

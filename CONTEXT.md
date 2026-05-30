@@ -20,7 +20,7 @@ Bewusst nicht „Production": `process.env.NODE_ENV === 'production'` gilt auch 
 
 ## Event-Typ
 
-**Event-Typ** *(`EventType`)* — diskriminiert Domain-Verhalten und UI-Form eines Events. Heute vier Werte: `ladv`, `competition`, `training`, `social`.
+**Event-Typ** *(`EventType`)* — diskriminiert Domain-Verhalten und UI-Form eines Events. Heute fünf Werte: `ladv`, `ladv_external`, `competition`, `training`, `social`.
 
 **Event-Typ-Capabilities** — der SSOT für *was ein Event-Typ kann/braucht*. Lebt in `shared/utils/event-types/capabilities.ts` als `Record<EventType, EventTypeCapabilities>`. Felder:
 
@@ -152,7 +152,7 @@ _Avoid_: „Diskussion", „Diskussions-Thread", „Posting".
 
 **Angehefteter Kommentar** — ein im Thread hervorgehobener Kommentar (max. 3 pro Thread), gesetzt durch einen Admin oder den Autor des Threads. Erscheint zusätzlich oben in einem „Wichtig"-Block.
 
-**Raum** — eine statisch im Code definierte Gruppierung von Threads (kein Admin-UI). Fünf in v1: **Ankündigungen**, Training, Team, Races, Social. Event-Threads landen anhand des unveränderlichen **Event-Typs** im passenden Raum (`training`→Training, `competition`/`ladv`→Races, `social`→Social).
+**Raum** — eine statisch im Code definierte Gruppierung von Threads (kein Admin-UI). Fünf in v1: **Ankündigungen**, Training, Team, Races, Social. Event-Threads landen anhand des unveränderlichen **Event-Typs** im passenden Raum (`training`→Training, `competition`/`ladv`/`ladv_external`→Races, `social`→Social).
 
 **Mandatory-Raum** — der Raum **Ankündigungen**: Beiträge dürfen dort nur Admins anlegen, und die Anlage benachrichtigt *alle* aktiven Mitglieder ohne Opt-out (`thread_announcement`).
 

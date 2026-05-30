@@ -159,7 +159,7 @@ _Avoid_: „Diskussion", „Diskussions-Thread", „Posting".
 **Automatische Empfänger** — wer eine `thread_new_comment`-Notification bekommt, ohne etwas tun zu müssen: Thread-Autor, bisherige Kommentatoren, und bei Event-Threads die Event-Teilnehmer (Anmeldung mit Status ≠ `no`/`canceled`). Wird zum Sendezeitpunkt aus dem aktuellen Zustand berechnet — es gibt keine materialisierten Abo-Zeilen.
 _Avoid_: „Abonnent", „Subscriber" — siehe Flagged ambiguities.
 
-**Folgen** / **Stummschalten** — die zwei expliziten Overrides eines Mitglieds gegenüber den automatischen Empfängern eines Threads: **Folgen** trägt jemanden zusätzlich ein, **Stummschalten** nimmt jemanden heraus. Automatische Empfänger-Hooks heben ein Stummschalten nie auf. Im Mandatory-Raum greift Stummschalten nicht.
+**Folgen** / **Stummschalten** — die zwei expliziten Overrides eines Mitglieds gegenüber den automatischen Empfängern eines Threads: **Folgen** trägt jemanden zusätzlich ein, **Stummschalten** nimmt jemanden heraus. Automatische Empfänger-Hooks heben ein Stummschalten nie auf. Beide Overrides wirken **ausschließlich** auf die Kommentar-Benachrichtigung (`thread_new_comment`) — auch im Ankündigungs-Raum: dort darf man die Kommentar-Diskussion unter einer Ankündigung stummschalten. Die Ankündigung selbst (`thread_announcement`) liest gar keine Overrides und erreicht ausnahmslos alle aktiven Mitglieder; sie lässt sich nicht stummschalten.
 
 ## Relationships
 

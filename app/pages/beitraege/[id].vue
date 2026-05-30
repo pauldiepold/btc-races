@@ -337,7 +337,6 @@ async function deleteCommentAction(commentId: number) {
             <ThreadOverrideMenu
               v-if="user && !thread.deletedAt"
               :thread-id="thread.id"
-              :mandatory="thread.roomSlug === 'announcements'"
             />
             <template v-if="canEditThread && !editingThread">
               <UButton

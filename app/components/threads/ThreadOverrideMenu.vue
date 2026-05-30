@@ -5,11 +5,6 @@ type OverrideState = 'muted' | 'following' | null
 
 const props = defineProps<{
   threadId: number | null
-  /**
-   * Mandatory-Raum (z. B. Ankündigungen): Mute/Follow ist gesperrt — die
-   * Notification ist verpflichtend. UI rendert nur einen Hinweis-Button.
-   */
-  mandatory?: boolean
 }>()
 
 const toast = useToast()
@@ -88,21 +83,8 @@ const items = computed(() => [[
 </script>
 
 <template>
-  <UTooltip
-    v-if="threadId != null && mandatory"
-    text="Verpflichtende Vereins-Ankündigung — kann nicht stummgeschaltet werden."
-  >
-    <UButton
-      icon="i-ph-megaphone"
-      label="Pflicht-Benachrichtigung"
-      size="sm"
-      color="neutral"
-      variant="ghost"
-      disabled
-    />
-  </UTooltip>
   <UDropdownMenu
-    v-else-if="threadId != null"
+    v-if="threadId != null"
     :items="items"
   >
     <UButton

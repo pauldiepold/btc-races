@@ -48,6 +48,20 @@ async function seedEvent(opts: { createdBy: number, cancelledAt?: Date | null, c
   return event.id
 }
 
+async function seedAttendee(eventId: number, status: 'registered' | 'yes' | 'maybe' | 'no' | 'canceled' = 'registered'): Promise<number> {
+  const { schema } = testDb
+  const userId = await seedUser({ suffix: `attendee-${Math.random()}` })
+  await testDb.db.insert(schema.registrations).values({
+    eventId,
+    userId,
+    status,
+    notes: null,
+    wishDisciplines: [],
+    ladvDisciplines: null,
+  })
+  return userId
+}
+
 async function loadEvent(id: number) {
   const { schema } = testDb
   return testDb.db.query.events.findFirst({ where: eq(schema.events.id, id) })
@@ -62,15 +76,25 @@ function adminActor(userId: number): EventActor {
 }
 
 describe('uncancelEvent', () => {
-  it('Owner reaktiviert eigenes abgesagtes Event → cancelledAt := null, keine Notification', async () => {
+  it('Owner reaktiviert abgesagtes Event → event_uncanceled-Job an registered/yes/maybe Angemeldete', async () => {
     const ownerId = await seedUser()
     const eventId = await seedEvent({ createdBy: ownerId, cancelledAt: new Date() })
+    const a1 = await seedAttendee(eventId, 'registered')
+    const a2 = await seedAttendee(eventId, 'yes')
+    const a3 = await seedAttendee(eventId, 'maybe')
+    await seedAttendee(eventId, 'no')
+    await seedAttendee(eventId, 'canceled')
 
     const result = await uncancelEvent(eventId, selfActor(ownerId), { db })
 
     expect(result.uncancelled).toBe(true)
     expect((await loadEvent(eventId))?.cancelledAt).toBeNull()
-    expect(await loadNotificationJobs(testDb)).toHaveLength(0)
+
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0]).toMatchObject({ type: 'event_uncanceled', actorUserId: ownerId })
+    const recipientIds = jobs[0].payload._recipients.map((r: { userId: number }) => r.userId).sort()
+    expect(recipientIds).toEqual([a1, a2, a3].sort())
   })
 
   it('Idempotent: Uncancel auf nicht-gecanceltes Event → No-Op', async () => {
@@ -96,15 +120,42 @@ describe('uncancelEvent', () => {
     expect((await loadEvent(eventId))?.cancelledAt).toBeTruthy()
   })
 
-  it('Admin darf fremdes Event uncanceln', async () => {
+  it('Admin darf fremdes Event uncanceln → actorUserId des Admins im Job', async () => {
     const ownerId = await seedUser({ suffix: 'owner' })
     const adminId = await seedUser({ role: 'admin', suffix: 'admin' })
     const eventId = await seedEvent({ createdBy: ownerId, cancelledAt: new Date() })
+    await seedAttendee(eventId, 'registered')
 
     const result = await uncancelEvent(eventId, adminActor(adminId), { db })
 
     expect(result.uncancelled).toBe(true)
     expect((await loadEvent(eventId))?.cancelledAt).toBeNull()
+
+    const jobs = await loadNotificationJobs(testDb)
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0]).toMatchObject({ type: 'event_uncanceled', actorUserId: adminId })
+  })
+
+  it('Recipients mit Status no/canceled werden ausgespart', async () => {
+    const ownerId = await seedUser()
+    const eventId = await seedEvent({ createdBy: ownerId, cancelledAt: new Date() })
+    await seedAttendee(eventId, 'no')
+    await seedAttendee(eventId, 'canceled')
+
+    await uncancelEvent(eventId, selfActor(ownerId), { db })
+
+    expect(await loadNotificationJobs(testDb)).toHaveLength(0)
+  })
+
+  it('Leere Recipient-Liste → kein Job, Uncancel läuft trotzdem', async () => {
+    const ownerId = await seedUser()
+    const eventId = await seedEvent({ createdBy: ownerId, cancelledAt: new Date() })
+
+    const result = await uncancelEvent(eventId, selfActor(ownerId), { db })
+
+    expect(result.uncancelled).toBe(true)
+    expect((await loadEvent(eventId))?.cancelledAt).toBeNull()
+    expect(await loadNotificationJobs(testDb)).toHaveLength(0)
   })
 
   it('Unbekanntes Event → event_not_found', async () => {

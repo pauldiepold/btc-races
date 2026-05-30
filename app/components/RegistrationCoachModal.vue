@@ -24,11 +24,13 @@ const { data: reg, status: fetchStatus } = await useFetch<RegistrationCoachView>
 
 const editorDisciplines = ref<RegistrationDisciplinePair[]>([])
 const selectedStatus = ref<string>('')
+const triedSubmit = ref(false)
 
 watch(reg, (val) => {
   if (!val) return
   editorDisciplines.value = [...val.wishDisciplines]
   selectedStatus.value = val.status
+  triedSubmit.value = false
 }, { immediate: true })
 
 const ladvSnapshot = computed<RegistrationDisciplinePair[] | null>(() => reg.value?.ladvDisciplines ?? null)
@@ -117,6 +119,11 @@ const statusOptions = [
 ]
 
 async function save() {
+  if (!isCanceled.value && editorDisciplines.value.length === 0) {
+    triedSubmit.value = true
+    return
+  }
+
   loading.value = true
   try {
     const disciplines = isCanceled.value ? null : editorDisciplines.value
@@ -316,8 +323,9 @@ async function save() {
             />
 
             <p
-              v-if="editorDisciplines.length === 0 && !showAddRow"
-              class="flex items-center gap-1.5 text-xs text-error mt-1"
+              v-if="editorDisciplines.length === 0"
+              class="flex items-center gap-1.5 text-xs mt-1"
+              :class="triedSubmit ? 'text-error' : 'text-muted'"
             >
               <UIcon
                 name="i-ph-warning"
@@ -414,7 +422,7 @@ async function save() {
         <UButton
           :label="ctaLabel"
           :color="isCanceled ? 'error' : 'primary'"
-          :disabled="!isCanceled && editorDisciplines.length === 0"
+          :disabled="loading"
           :loading="loading"
           class="sm:w-auto justify-center"
           @click="save"

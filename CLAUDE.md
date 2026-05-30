@@ -21,6 +21,10 @@ pnpm db:migrate       # Migrationen lokal anwenden
 pnpm db:remote:migrate # Migrationen auf Cloudflare D1 (Produktion) anwenden
 ```
 
+**Typecheck/Lint immer wörtlich so ausführen** — keine ad-hoc `| tail`/`| head` oder abweichenden `echo`-Texte anhängen (jede Variante triggert eine neue Permission-Nachfrage):
+- `pnpm typecheck 2>&1; echo "Exit: $?"`
+- `pnpm lint:fix`
+
 ## Architecture
 
 ### Stack

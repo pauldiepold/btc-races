@@ -50,6 +50,7 @@ const submitting = ref(false)
 const status = ref<string>('')
 const notes = ref('')
 const pendingDisciplines = ref<{ discipline: string, ageClass: string }[]>([])
+const triedSubmit = ref(false)
 const setLadvStandImmediately = ref(false)
 
 const showAddNew = ref(false)
@@ -63,6 +64,7 @@ watch(() => props.open, (isOpen) => {
     status.value = ''
     notes.value = ''
     pendingDisciplines.value = []
+    triedSubmit.value = false
     setLadvStandImmediately.value = false
     showAddNew.value = false
     addNewCode.value = ''
@@ -129,6 +131,7 @@ function selectMember(m: MemberWithRegistration) {
 
 function backToSearch() {
   selectedMember.value = null
+  triedSubmit.value = false
 }
 
 const selectedReactivation = computed(() => {
@@ -194,16 +197,10 @@ function removePending(index: number) {
 
 // ─── Submit ───────────────────────────────────────────────────────────────────
 
-const canSubmit = computed(() => {
-  if (!selectedMember.value) return false
-  if (caps.value.hasWishDisciplines && pendingDisciplines.value.length === 0) return false
-  return true
-})
-
 async function submit() {
   if (!selectedMember.value) return
   if (caps.value.hasWishDisciplines && pendingDisciplines.value.length === 0) {
-    toast.add({ title: 'Mindestens eine Disziplin erforderlich', color: 'error' })
+    triedSubmit.value = true
     return
   }
 
@@ -474,8 +471,13 @@ async function submit() {
 
           <p
             v-if="pendingDisciplines.length === 0"
-            class="text-xs text-muted"
+            class="flex items-center gap-1.5 text-xs"
+            :class="triedSubmit ? 'text-error' : 'text-muted'"
           >
+            <UIcon
+              name="i-ph-warning"
+              class="size-3.5 shrink-0"
+            />
             Mindestens eine Disziplin erforderlich.
           </p>
         </div>
@@ -596,7 +598,7 @@ async function submit() {
             :label="selectedReactivation ? 'Reaktivieren' : 'Anmelden'"
             color="primary"
             :loading="submitting"
-            :disabled="!canSubmit"
+            :disabled="submitting"
             @click="submit"
           />
         </div>

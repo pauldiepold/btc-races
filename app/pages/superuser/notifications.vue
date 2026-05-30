@@ -197,6 +197,12 @@ function toggleExpand(id: number) {
         Notifications
       </NuxtLink>
       <NuxtLink
+        to="/superuser/members"
+        class="px-4 py-2 text-sm font-medium text-muted hover:text-highlighted transition-colors border-b-2 border-transparent"
+      >
+        Member
+      </NuxtLink>
+      <NuxtLink
         to="/superuser"
         class="px-4 py-2 text-sm font-medium text-muted hover:text-highlighted transition-colors border-b-2 border-transparent"
       >

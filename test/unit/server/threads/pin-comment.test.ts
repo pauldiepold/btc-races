@@ -92,6 +92,44 @@ describe('pinComment', () => {
     expect(comment!.pinnedBy).toBe(admin)
   })
 
+  it('does not bump updatedAt when pinning — pinning is not an edit', async () => {
+    const admin = await seedUser('admin')
+    const author = await seedUser()
+    const threadId = await seedThread()
+    const commentId = await seedComment({ threadId, userId: author })
+
+    // Kommentar in die Vergangenheit setzen, damit ein versehentlicher
+    // updatedAt-Bump (Drizzle $onUpdateFn) zuverlässig sichtbar wäre.
+    const past = new Date('2026-01-01T00:00:00Z')
+    await testDb.db
+      .update(testDb.schema.comments)
+      .set({ createdAt: past, updatedAt: past })
+      .where(eq(testDb.schema.comments.id, commentId))
+
+    await pinComment({ commentId }, adminActor(admin), { db })
+
+    const comment = await loadComment(commentId)
+    expect(comment!.updatedAt.getTime()).toBe(past.getTime())
+  })
+
+  it('does not bump updatedAt when unpinning', async () => {
+    const admin = await seedUser('admin')
+    const author = await seedUser()
+    const threadId = await seedThread()
+    const commentId = await seedComment({ threadId, userId: author, pinnedAt: new Date() })
+
+    const past = new Date('2026-01-01T00:00:00Z')
+    await testDb.db
+      .update(testDb.schema.comments)
+      .set({ createdAt: past, updatedAt: past })
+      .where(eq(testDb.schema.comments.id, commentId))
+
+    await unpinComment({ commentId }, adminActor(admin), { db })
+
+    const comment = await loadComment(commentId)
+    expect(comment!.updatedAt.getTime()).toBe(past.getTime())
+  })
+
   it('lets the thread author pin a foreign comment in their own thread', async () => {
     const author = await seedUser()
     const stranger = await seedUser()

@@ -127,17 +127,24 @@ export async function softDeleteComment(db: AppDb, commentId: number, at: Date):
     .where(eq(schema.comments.id, commentId))
 }
 
-/** Setzt oder entfernt den Pin-Status eines Kommentars. `null` heftet ab. */
+/**
+ * Setzt oder entfernt den Pin-Status eines Kommentars. `null` heftet ab.
+ * `keepUpdatedAt` bewahrt das bestehende `updatedAt` — sonst würde Drizzles
+ * `$onUpdateFn` es anheben und der Kommentar im UI fälschlich „(bearbeitet)"
+ * zeigen (Pinnen ist kein Edit).
+ */
 export async function setCommentPin(
   db: AppDb,
   commentId: number,
   pin: { at: Date, by: number } | null,
+  keepUpdatedAt: Date,
 ): Promise<void> {
   await db
     .update(schema.comments)
     .set({
       pinnedAt: pin?.at ?? null,
       pinnedBy: pin?.by ?? null,
+      updatedAt: keepUpdatedAt,
     })
     .where(eq(schema.comments.id, commentId))
 }

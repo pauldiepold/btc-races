@@ -35,6 +35,11 @@ async function seedUser(opts: { emailSuffix?: string } = {}): Promise<number> {
   return user.id
 }
 
+const berlinDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' })
+function todayPlus(days: number): string {
+  return berlinDate.format(new Date(Date.now() + days * 86_400_000))
+}
+
 type SeedEventOpts = {
   type?: EventType
   registrationDeadline?: string | null
@@ -46,8 +51,8 @@ async function seedEvent(opts: SeedEventOpts): Promise<number> {
   const [event] = await testDb.db.insert(schema.events).values({
     type: opts.type ?? 'ladv',
     name: 'Test-Event',
-    date: '2026-06-01',
-    registrationDeadline: opts.registrationDeadline ?? '2026-05-25',
+    date: todayPlus(40),
+    registrationDeadline: opts.registrationDeadline ?? todayPlus(20),
     createdBy: opts.createdBy,
   }).returning()
   return event.id

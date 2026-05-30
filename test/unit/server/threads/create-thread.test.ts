@@ -98,6 +98,30 @@ describe('createThread', () => {
     expect((await loadThread(id))?.roomSlug).toBe('announcements')
   })
 
+  it('rejects a title over 200 characters', async () => {
+    const userId = await seedUser()
+
+    await expect(
+      createThread(
+        { roomSlug: 'training', title: 'x'.repeat(201), body: 'Body' },
+        selfActor(userId),
+        { db },
+      ),
+    ).rejects.toMatchObject({ code: 'thread_too_long' })
+  })
+
+  it('rejects a body over 5000 characters', async () => {
+    const userId = await seedUser()
+
+    await expect(
+      createThread(
+        { roomSlug: 'training', title: 'Titel', body: 'x'.repeat(5001) },
+        selfActor(userId),
+        { db },
+      ),
+    ).rejects.toMatchObject({ code: 'thread_too_long' })
+  })
+
   it('rejects an unknown room slug', async () => {
     const userId = await seedUser()
 

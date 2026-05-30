@@ -1,6 +1,6 @@
 import type { ThreadActor } from './actor'
 import { ThreadError } from './errors'
-import { findCommentById, updateCommentBody, type AppDb } from './persistence'
+import { findCommentById, findThreadById, updateCommentBody, type AppDb } from './persistence'
 import { canEditComment } from './rules'
 
 /** Maximale Kommentar-Länge (Zeichen, getrimmt) — Spiegel zu `create-comment`. */
@@ -16,7 +16,8 @@ export type EditCommentDeps = {
 }
 
 /**
- * Editiert den Body eines Kommentars. Nur der Autor; nicht bei soft-gelöschten.
+ * Editiert den Body eines Kommentars. Nur der Autor; nicht bei soft-gelöschtem
+ * Kommentar oder soft-gelöschtem Thread.
  * `updatedAt` zieht Drizzle automatisch nach (`(bearbeitet)`-Label im UI).
  * Hebt `lastActivityAt` des Threads NICHT.
  */
@@ -27,6 +28,10 @@ export async function editComment(
 ): Promise<void> {
   const comment = await findCommentById(deps.db, input.commentId)
   if (!comment) throw new ThreadError('comment_not_found')
+
+  const thread = await findThreadById(deps.db, comment.threadId)
+  if (!thread) throw new ThreadError('thread_not_found')
+  if (thread.deletedAt !== null) throw new ThreadError('thread_deleted')
 
   if (!canEditComment(actor, comment)) {
     throw new ThreadError('forbidden')

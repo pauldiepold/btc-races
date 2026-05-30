@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gt, inArray, isNull, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, inArray, isNull, sql } from 'drizzle-orm'
 import type { db as hubDb } from 'hub:db'
 import * as schema from '~~/server/db/schema'
 import type { RoomSlug } from '~~/shared/types/threads'
@@ -50,12 +50,15 @@ export async function insertComment(db: AppDb, values: CommentInsert): Promise<C
 
 /**
  * Kommentare eines Threads, älteste zuerst (Chat-Reihenfolge). `since` grenzt
- * auf Kommentare ein, die nach dem Zeitpunkt erstellt wurden (Delta-Polling).
+ * auf Kommentare ab diesem Zeitpunkt ein (Delta-Polling). Bewusst `gte` statt
+ * `gt`: Timestamps haben Sekunden-Auflösung (`unixepoch`); bei `gt` würde ein
+ * zweiter Kommentar derselben Sekunde dauerhaft durchs Polling-Fenster fallen.
+ * Den Randkommentar gibt es dadurch doppelt — `mergeComments` dedupliziert per `id`.
  */
 export function listCommentRows(db: AppDb, threadId: number, since?: Date): Promise<CommentRow[]> {
   return db.query.comments.findMany({
     where: since
-      ? and(eq(schema.comments.threadId, threadId), gt(schema.comments.createdAt, since))
+      ? and(eq(schema.comments.threadId, threadId), gte(schema.comments.createdAt, since))
       : eq(schema.comments.threadId, threadId),
     orderBy: asc(schema.comments.createdAt),
   })

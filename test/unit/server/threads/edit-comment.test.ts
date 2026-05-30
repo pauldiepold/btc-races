@@ -136,6 +136,22 @@ describe('editComment', () => {
     ).rejects.toMatchObject({ code: 'forbidden' })
   })
 
+  it('throws thread_deleted when the thread is soft-deleted', async () => {
+    const userId = await seedUser()
+    const [thread] = await testDb.db.insert(testDb.schema.threads).values({
+      roomSlug: 'training',
+      title: 'Titel',
+      body: 'Body',
+      lastActivityAt: PAST_ACTIVITY,
+      deletedAt: new Date('2026-01-02'),
+    }).returning()
+    const commentId = await seedComment({ threadId: thread.id, userId })
+
+    await expect(
+      editComment({ commentId, body: 'X' }, selfActor(userId), { db }),
+    ).rejects.toMatchObject({ code: 'thread_deleted' })
+  })
+
   it('throws comment_not_found for an unknown id', async () => {
     const userId = await seedUser()
 

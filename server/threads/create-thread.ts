@@ -5,6 +5,11 @@ import { insertThread, type AppDb } from './persistence'
 import { getRoom } from './rooms'
 import { canCreateThread } from './rules'
 
+/** Maximale Titel-Länge (Zeichen, getrimmt) — Spiegel zu `edit-thread`. */
+const MAX_TITLE_LENGTH = 200
+/** Maximale Body-Länge (Zeichen, getrimmt) — Spiegel zu `edit-thread`. */
+const MAX_BODY_LENGTH = 5000
+
 export type CreateThreadInput = {
   roomSlug: string
   title: string
@@ -33,6 +38,13 @@ export async function createThread(
 
   if (!canCreateThread(actor, room)) {
     throw new ThreadError('forbidden')
+  }
+
+  if (
+    input.title.trim().length > MAX_TITLE_LENGTH
+    || input.body.trim().length > MAX_BODY_LENGTH
+  ) {
+    throw new ThreadError('thread_too_long')
   }
 
   const now = new Date()

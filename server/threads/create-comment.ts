@@ -34,6 +34,7 @@ export async function createComment(
 
   const thread = await findThreadById(deps.db, input.threadId)
   if (!thread) throw new ThreadError('thread_not_found')
+  if (thread.deletedAt !== null) throw new ThreadError('thread_deleted')
 
   const comment = await insertComment(deps.db, {
     threadId: input.threadId,

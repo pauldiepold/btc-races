@@ -28,11 +28,13 @@ async function seedComment(opts: {
   threadId: number
   body: string
   createdAt: Date
+  deletedAt?: Date | null
 }): Promise<void> {
   await testDb.db.insert(testDb.schema.comments).values({
     threadId: opts.threadId,
     body: opts.body,
     createdAt: opts.createdAt,
+    deletedAt: opts.deletedAt ?? null,
   })
 }
 
@@ -59,5 +61,31 @@ describe('listComments', () => {
     )
 
     expect(comments.map(c => c.body)).toEqual(['neu'])
+  })
+
+  it('includes a comment created exactly at the since cutoff (gte boundary)', async () => {
+    const threadId = await seedThread()
+    const boundary = new Date('2026-02-01T10:00:00Z')
+    await seedComment({ threadId, body: 'früher', createdAt: new Date('2026-01-01') })
+    await seedComment({ threadId, body: 'grenze', createdAt: boundary })
+
+    const comments = await listComments({ threadId, since: boundary }, { db })
+
+    expect(comments.map(c => c.body)).toEqual(['grenze'])
+  })
+
+  it('redacts the body of soft-deleted comments to an empty string', async () => {
+    const threadId = await seedThread()
+    await seedComment({
+      threadId,
+      body: 'Geheimer Originaltext',
+      createdAt: new Date('2026-01-01'),
+      deletedAt: new Date('2026-01-02'),
+    })
+
+    const [comment] = await listComments({ threadId }, { db })
+
+    expect(comment.body).toBe('')
+    expect(comment.deletedAt).not.toBeNull()
   })
 })

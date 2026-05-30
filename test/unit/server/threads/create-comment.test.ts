@@ -110,4 +110,23 @@ describe('createComment', () => {
       ),
     ).rejects.toMatchObject({ code: 'thread_not_found' })
   })
+
+  it('throws thread_deleted for a soft-deleted thread', async () => {
+    const userId = await seedUser()
+    const [row] = await testDb.db.insert(testDb.schema.threads).values({
+      roomSlug: 'training',
+      title: 'Titel',
+      body: 'Body',
+      lastActivityAt: new Date('2026-01-01'),
+      deletedAt: new Date('2026-01-02'),
+    }).returning()
+
+    await expect(
+      createComment(
+        { threadId: row.id, body: 'Antwort' },
+        selfActor(userId),
+        { db },
+      ),
+    ).rejects.toMatchObject({ code: 'thread_deleted' })
+  })
 })

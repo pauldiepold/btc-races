@@ -69,6 +69,8 @@ const typeLabels: Record<NotificationType, string> = {
   reminder_deadline_admin: 'Meldefrist (Admin)',
   reminder_event: 'Event in 2 Tagen',
   admin_late_registration: 'Späte LADV-Anmeldung',
+  thread_announcement: 'Ankündigung',
+  thread_new_comment: 'Neuer Thread-Kommentar',
 }
 
 const typeOptions = [

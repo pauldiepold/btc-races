@@ -388,6 +388,12 @@ async function syncLadv() {
           </div>
         </div>
       </div>
+
+      <!-- Kommentare nur für eingeloggte Mitglieder; öffentliche Event-Seite bleibt ohne -->
+      <EventComments
+        v-if="!isPublic"
+        :event-id="id"
+      />
     </div>
 
     <!-- Absagen-Bestätigungsdialog -->

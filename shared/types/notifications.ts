@@ -14,6 +14,8 @@ export type NotificationType
     | 'reminder_deadline_admin'
     | 'reminder_event'
     | 'admin_late_registration'
+    | 'thread_new_comment'
+    | 'thread_announcement'
 
 export type NotificationChannel = 'email' | 'push'
 

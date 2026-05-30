@@ -20,7 +20,7 @@ Bewusst nicht „Production": `process.env.NODE_ENV === 'production'` gilt auch 
 
 ## Event-Typ
 
-**Event-Typ** *(`EventType`)* — diskriminiert Domain-Verhalten und UI-Form eines Events. Heute vier Werte: `ladv`, `competition`, `training`, `social`.
+**Event-Typ** *(`EventType`)* — diskriminiert Domain-Verhalten und UI-Form eines Events. Heute fünf Werte: `ladv`, `ladv_external`, `competition`, `training`, `social`.
 
 **Event-Typ-Capabilities** — der SSOT für *was ein Event-Typ kann/braucht*. Lebt in `shared/utils/event-types/capabilities.ts` als `Record<EventType, EventTypeCapabilities>`. Felder:
 
@@ -150,16 +150,19 @@ _Avoid_: „Diskussion", „Diskussions-Thread", „Posting".
 
 **Kommentar** — eine Antwort innerhalb eines Threads (Markdown). Soft-Delete mit Tombstone (Body bleibt, UI zeigt „Kommentar gelöscht"). Nur neue Kommentare heben die Sortier-Aktivität (`lastActivityAt`) des Threads — Edits und Löschungen nicht.
 
-**Angehefteter Kommentar** — ein im Thread hervorgehobener Kommentar (max. 3 pro Thread), gesetzt durch einen Admin oder den Autor des Threads. Erscheint zusätzlich oben in einem „Wichtig"-Block.
+**Bearbeitet** *(`editedAt`)* — ein Kommentar gilt als bearbeitet, wenn sein **Body** nach dem Anlegen geändert wurde. Rein der Body-Edit zählt, nicht Anheften, Löschen oder sonstige Berührungen der Row. Davon getrennt ist `updatedAt` („Row zuletzt berührt"): das hebt *jede* Mutation an und dient allein dem Live-Abgleich offener Tabs (Polling-Delta), nie der UI-Anzeige.
+_Avoid_: `updatedAt` als „bearbeitet"-Signal lesen — dafür ist `editedAt` da.
 
-**Raum** — eine statisch im Code definierte Gruppierung von Threads (kein Admin-UI). Fünf in v1: **Ankündigungen**, Training, Team, Races, Social. Event-Threads landen anhand des unveränderlichen **Event-Typs** im passenden Raum (`training`→Training, `competition`/`ladv`→Races, `social`→Social).
+**Angehefteter Kommentar** — ein im Thread hervorgehobener Kommentar (max. 3 pro Thread), gesetzt durch einen Admin oder den Autor des Threads. Erscheint zusätzlich oben in einem „Wichtig"-Block. Pin- und Unpin-Wechsel propagieren live in andere offene Tabs (siehe `editedAt`/`updatedAt`).
+
+**Raum** — eine statisch im Code definierte Gruppierung von Threads (kein Admin-UI). Fünf in v1: **Ankündigungen**, Training, Team, Races, Social. Event-Threads landen anhand des unveränderlichen **Event-Typs** im passenden Raum (`training`→Training, `competition`/`ladv`/`ladv_external`→Races, `social`→Social).
 
 **Mandatory-Raum** — der Raum **Ankündigungen**: Beiträge dürfen dort nur Admins anlegen, und die Anlage benachrichtigt *alle* aktiven Mitglieder ohne Opt-out (`thread_announcement`).
 
 **Automatische Empfänger** — wer eine `thread_new_comment`-Notification bekommt, ohne etwas tun zu müssen: Thread-Autor, bisherige Kommentatoren, und bei Event-Threads die Event-Teilnehmer (Anmeldung mit Status ≠ `no`/`canceled`). Wird zum Sendezeitpunkt aus dem aktuellen Zustand berechnet — es gibt keine materialisierten Abo-Zeilen.
 _Avoid_: „Abonnent", „Subscriber" — siehe Flagged ambiguities.
 
-**Folgen** / **Stummschalten** — die zwei expliziten Overrides eines Mitglieds gegenüber den automatischen Empfängern eines Threads: **Folgen** trägt jemanden zusätzlich ein, **Stummschalten** nimmt jemanden heraus. Automatische Empfänger-Hooks heben ein Stummschalten nie auf. Im Mandatory-Raum greift Stummschalten nicht.
+**Folgen** / **Stummschalten** — die zwei expliziten Overrides eines Mitglieds gegenüber den automatischen Empfängern eines Threads: **Folgen** trägt jemanden zusätzlich ein, **Stummschalten** nimmt jemanden heraus. Automatische Empfänger-Hooks heben ein Stummschalten nie auf. Beide Overrides wirken **ausschließlich** auf die Kommentar-Benachrichtigung (`thread_new_comment`) — auch im Ankündigungs-Raum: dort darf man die Kommentar-Diskussion unter einer Ankündigung stummschalten. Die Ankündigung selbst (`thread_announcement`) liest gar keine Overrides und erreicht ausnahmslos alle aktiven Mitglieder; sie lässt sich nicht stummschalten.
 
 ## Relationships
 

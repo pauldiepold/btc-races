@@ -98,6 +98,46 @@ export const registrations = sqliteTable('registrations', {
   unique().on(t.eventId, t.userId),
 ])
 
+// Threads (Beiträge & Event-Threads — vereinheitlichtes Aggregat, siehe ADR-0002)
+export const threads = sqliteTable('threads', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  roomSlug: text().notNull().$type<import('~~/shared/types/threads').RoomSlug>(),
+  title: text(), // nur Beiträge; bei Event-Threads null (Titel = Event-Name, abgeleitet)
+  body: text(), // rohes Markdown; nur Beiträge; bei Event-Threads null
+  eventId: integer({ mode: 'number' }).unique().references(() => events.id, { onDelete: 'cascade' }),
+  lastActivityAt: integer({ mode: 'timestamp' }).notNull(), // denormalisierter Sort-Key
+  deletedAt: integer({ mode: 'timestamp' }), // Soft-Delete (nur Beiträge)
+  createdBy: integer({ mode: 'number' }).references(() => users.id, { onDelete: 'set null' }),
+  ...timestamps(),
+})
+
+// Explizite Empfänger-Overrides je (User, Thread) — schlanke Override-Tabelle.
+// Keine Row = automatisches Verhalten (resolveRecipients in server/threads/recipients.ts).
+export const threadOverrides = sqliteTable('thread_overrides', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  userId: integer({ mode: 'number' }).notNull().references(() => users.id, { onDelete: 'cascade' }),
+  threadId: integer({ mode: 'number' }).notNull().references(() => threads.id, { onDelete: 'cascade' }),
+  state: text().notNull().$type<'muted' | 'following'>(),
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+}, t => [
+  unique().on(t.userId, t.threadId),
+])
+
+// Kommentare unter einem Thread (chronologisch, Chat-Style)
+export const comments = sqliteTable('comments', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  threadId: integer({ mode: 'number' }).notNull().references(() => threads.id, { onDelete: 'cascade' }),
+  userId: integer({ mode: 'number' }).references(() => users.id, { onDelete: 'set null' }), // Autor; bleibt als „unbekannt" erhalten
+  body: text().notNull(), // rohes Markdown
+  editedAt: integer({ mode: 'timestamp' }), // Body-Edit (≠ updatedAt); speist das „(bearbeitet)"-Label
+  pinnedAt: integer({ mode: 'timestamp' }), // angeheftet (Folge-Slice)
+  pinnedBy: integer({ mode: 'number' }).references(() => users.id, { onDelete: 'set null' }),
+  deletedAt: integer({ mode: 'timestamp' }), // Soft-Delete / Tombstone (Folge-Slice)
+  ...timestamps(), // updatedAt = „Row zuletzt berührt" (Sync-Cursor), jede Mutation hebt es
+})
+
 // Notification-Jobs (Queue + Log)
 export const notificationJobs = sqliteTable('notification_jobs', {
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),

@@ -1,4 +1,5 @@
 import type { EventType } from '~~/shared/utils/registration'
+import { ensureEventThread } from '~~/server/threads'
 import type { EventActor } from './actor'
 import { EventError } from './errors'
 import { decideCreateNotifications } from './notifications'
@@ -60,6 +61,8 @@ export async function createManualEvent(
   }
 
   const dbEvent = await insertEvent(db, values)
+
+  await ensureEventThread({ eventId: dbEvent.id }, { db })
 
   const decisions = decideCreateNotifications()
 

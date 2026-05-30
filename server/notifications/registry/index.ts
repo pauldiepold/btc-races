@@ -16,6 +16,8 @@ import { registrationConfirmation } from './registration-confirmation'
 import { reminderDeadlineAdmin } from './reminder-deadline-admin'
 import { reminderDeadlineAthlete } from './reminder-deadline-athlete'
 import { reminderEvent } from './reminder-event'
+import { threadAnnouncement } from './thread-announcement'
+import { threadNewComment } from './thread-new-comment'
 
 export type { ActorRequirement, AnyNotificationDefinition, NotificationActor, NotificationContext, NotificationDefinition, NotificationMeta, PushNotificationPayload } from './_define'
 export { defineNotificationType } from './_define'
@@ -40,6 +42,8 @@ export const notificationRegistry = {
   reminder_deadline_admin: reminderDeadlineAdmin,
   reminder_event: reminderEvent,
   admin_late_registration: adminLateRegistration,
+  thread_announcement: threadAnnouncement,
+  thread_new_comment: threadNewComment,
 } as const satisfies Record<NotificationType, AnyNotificationDefinition>
 
 export type NotificationRegistry = typeof notificationRegistry

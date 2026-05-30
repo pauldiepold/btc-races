@@ -84,6 +84,32 @@ async function runPushTest() {
     pushTestLoading.value = false
   }
 }
+
+type BackfillResult = { ok: boolean, created: number }
+
+const backfillLoading = ref(false)
+const backfillError = ref<string | null>(null)
+
+async function runBackfillEventThreads() {
+  backfillLoading.value = true
+  backfillError.value = null
+  try {
+    const res = await $fetch<BackfillResult>('/api/superuser/backfill-event-threads', { method: 'POST' })
+    toast.add({
+      title: 'Event-Threads angelegt',
+      description: res.created === 0
+        ? 'Alle Events hatten bereits einen Thread.'
+        : `${res.created} neue Event-Thread${res.created === 1 ? '' : 's'} angelegt.`,
+      color: 'success',
+    })
+  }
+  catch (err: unknown) {
+    backfillError.value = err instanceof Error ? err.message : 'Unbekannter Fehler'
+  }
+  finally {
+    backfillLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -242,6 +268,36 @@ async function runPushTest() {
         icon="i-ph-warning-bold"
         title="Push fehlgeschlagen"
         :description="pushTestError"
+      />
+    </div>
+
+    <!-- Event-Threads Backfill -->
+    <div class="rounded-[--ui-radius] border border-default p-6 space-y-5 mt-6">
+      <div>
+        <h2 class="font-display font-semibold text-highlighted text-base">
+          Event-Threads Backfill
+        </h2>
+        <p class="text-sm text-muted mt-1">
+          Legt für alle Bestands-Events einen Event-Thread an, sofern noch keiner existiert. Idempotent — Wiederholung ist ungefährlich.
+        </p>
+      </div>
+
+      <UButton
+        label="Backfill ausführen"
+        icon="i-ph-arrows-clockwise-bold"
+        color="primary"
+        variant="subtle"
+        :loading="backfillLoading"
+        @click="runBackfillEventThreads"
+      />
+
+      <UAlert
+        v-if="backfillError"
+        color="error"
+        variant="subtle"
+        icon="i-ph-warning-bold"
+        title="Backfill fehlgeschlagen"
+        :description="backfillError"
       />
     </div>
 

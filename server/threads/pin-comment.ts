@@ -51,7 +51,7 @@ export async function pinComment(
     throw new ThreadError('forbidden')
   }
 
-  await setCommentPin(deps.db, input.commentId, { at: new Date(), by: actor.userId }, comment.updatedAt)
+  await setCommentPin(deps.db, input.commentId, { at: new Date(), by: actor.userId })
 }
 
 /**
@@ -75,5 +75,5 @@ export async function unpinComment(
     throw new ThreadError('forbidden')
   }
 
-  await setCommentPin(deps.db, input.commentId, null, comment.updatedAt)
+  await setCommentPin(deps.db, input.commentId, null)
 }

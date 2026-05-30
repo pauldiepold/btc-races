@@ -28,12 +28,14 @@ async function seedComment(opts: {
   threadId: number
   body: string
   createdAt: Date
+  updatedAt?: Date
   deletedAt?: Date | null
 }): Promise<void> {
   await testDb.db.insert(testDb.schema.comments).values({
     threadId: opts.threadId,
     body: opts.body,
     createdAt: opts.createdAt,
+    updatedAt: opts.updatedAt ?? opts.createdAt,
     deletedAt: opts.deletedAt ?? null,
   })
 }
@@ -50,7 +52,7 @@ describe('listComments', () => {
     expect(comments.map(c => c.body)).toEqual(['erster', 'zweiter', 'dritter'])
   })
 
-  it('with since returns only comments created after the cutoff', async () => {
+  it('with since returns only comments touched (updatedAt) after the cutoff', async () => {
     const threadId = await seedThread()
     await seedComment({ threadId, body: 'alt', createdAt: new Date('2026-01-01') })
     await seedComment({ threadId, body: 'neu', createdAt: new Date('2026-03-01') })
@@ -63,11 +65,29 @@ describe('listComments', () => {
     expect(comments.map(c => c.body)).toEqual(['neu'])
   })
 
-  it('includes a comment created exactly at the since cutoff (gte boundary)', async () => {
+  it('returns an old comment that was edited after the cutoff (updatedAt delta, not createdAt)', async () => {
+    const threadId = await seedThread()
+    // Lange vor dem Cutoff angelegt, aber nach dem Cutoff bearbeitet/gepinnt.
+    await seedComment({
+      threadId,
+      body: 'alt aber gerade editiert',
+      createdAt: new Date('2026-01-01'),
+      updatedAt: new Date('2026-03-01'),
+    })
+
+    const comments = await listComments(
+      { threadId, since: new Date('2026-02-01') },
+      { db },
+    )
+
+    expect(comments.map(c => c.body)).toEqual(['alt aber gerade editiert'])
+  })
+
+  it('includes a comment touched exactly at the since cutoff (gte boundary)', async () => {
     const threadId = await seedThread()
     const boundary = new Date('2026-02-01T10:00:00Z')
     await seedComment({ threadId, body: 'früher', createdAt: new Date('2026-01-01') })
-    await seedComment({ threadId, body: 'grenze', createdAt: boundary })
+    await seedComment({ threadId, body: 'grenze', createdAt: boundary, updatedAt: boundary })
 
     const comments = await listComments({ threadId, since: boundary }, { db })
 

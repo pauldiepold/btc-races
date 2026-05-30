@@ -127,10 +127,10 @@ async function togglePin(c: CommentWithAuthor) {
   }
 }
 
-/** „(bearbeitet)"-Label: updatedAt > createdAt und nicht gelöscht. */
+/** „(bearbeitet)"-Label: Body-Edit (`editedAt`) und nicht gelöscht. */
 function isEdited(c: CommentWithAuthor): boolean {
   if (c.deletedAt) return false
-  return new Date(c.updatedAt).getTime() > new Date(c.createdAt).getTime()
+  return c.editedAt !== null
 }
 
 // ─── Kommentar schreiben ──────────────────────────────────────────────────────

@@ -49,16 +49,17 @@ export async function insertComment(db: AppDb, values: CommentInsert): Promise<C
 }
 
 /**
- * Kommentare eines Threads, älteste zuerst (Chat-Reihenfolge). `since` grenzt
- * auf Kommentare ab diesem Zeitpunkt ein (Delta-Polling). Bewusst `gte` statt
- * `gt`: Timestamps haben Sekunden-Auflösung (`unixepoch`); bei `gt` würde ein
- * zweiter Kommentar derselben Sekunde dauerhaft durchs Polling-Fenster fallen.
- * Den Randkommentar gibt es dadurch doppelt — `mergeComments` dedupliziert per `id`.
+ * Kommentare eines Threads, älteste zuerst (Chat-Reihenfolge). `since` grenzt per
+ * `updatedAt` ein („Row zuletzt berührt") — fängt damit neue *und* an Bestands-
+ * kommentaren geänderte Rows (Edit/Soft-Delete/Pin/Unpin) in einem Delta ein.
+ * Bewusst `gte` statt `gt`: Timestamps haben Sekunden-Auflösung (`unixepoch`);
+ * bei `gt` würde eine zweite Änderung derselben Sekunde durchs Polling-Fenster
+ * fallen. Den Randkommentar gibt es dadurch doppelt — `mergeComments` ersetzt per `id`.
  */
 export function listCommentRows(db: AppDb, threadId: number, since?: Date): Promise<CommentRow[]> {
   return db.query.comments.findMany({
     where: since
-      ? and(eq(schema.comments.threadId, threadId), gte(schema.comments.createdAt, since))
+      ? and(eq(schema.comments.threadId, threadId), gte(schema.comments.updatedAt, since))
       : eq(schema.comments.threadId, threadId),
     orderBy: asc(schema.comments.createdAt),
   })
@@ -114,11 +115,14 @@ export function findCommentById(db: AppDb, id: number): Promise<CommentRow | und
   return db.query.comments.findFirst({ where: eq(schema.comments.id, id) })
 }
 
-/** Setzt den Body eines Kommentars; `updatedAt` aktualisiert Drizzle automatisch. */
+/**
+ * Setzt den Body eines Kommentars. `editedAt` markiert den Body-Edit (speist das
+ * „(bearbeitet)"-Label); `updatedAt` zieht Drizzle zusätzlich automatisch nach.
+ */
 export async function updateCommentBody(db: AppDb, commentId: number, body: string): Promise<void> {
   await db
     .update(schema.comments)
-    .set({ body })
+    .set({ body, editedAt: new Date() })
     .where(eq(schema.comments.id, commentId))
 }
 
@@ -132,22 +136,20 @@ export async function softDeleteComment(db: AppDb, commentId: number, at: Date):
 
 /**
  * Setzt oder entfernt den Pin-Status eines Kommentars. `null` heftet ab.
- * `keepUpdatedAt` bewahrt das bestehende `updatedAt` — sonst würde Drizzles
- * `$onUpdateFn` es anheben und der Kommentar im UI fälschlich „(bearbeitet)"
- * zeigen (Pinnen ist kein Edit).
+ * Hebt `updatedAt` bewusst mit an (Drizzle `$onUpdateFn`), damit Pin/Unpin per
+ * Polling-Delta in andere Tabs propagieren. Das „(bearbeitet)"-Label hängt an
+ * `editedAt` und bleibt davon unberührt — Pinnen ist kein Edit.
  */
 export async function setCommentPin(
   db: AppDb,
   commentId: number,
   pin: { at: Date, by: number } | null,
-  keepUpdatedAt: Date,
 ): Promise<void> {
   await db
     .update(schema.comments)
     .set({
       pinnedAt: pin?.at ?? null,
       pinnedBy: pin?.by ?? null,
-      updatedAt: keepUpdatedAt,
     })
     .where(eq(schema.comments.id, commentId))
 }

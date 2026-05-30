@@ -97,7 +97,7 @@ async function togglePin(c: CommentWithAuthor) {
 
 function isEdited(c: CommentWithAuthor): boolean {
   if (c.deletedAt) return false
-  return new Date(c.updatedAt).getTime() > new Date(c.createdAt).getTime()
+  return c.editedAt !== null
 }
 
 const draft = ref('')

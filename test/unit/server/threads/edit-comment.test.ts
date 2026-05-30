@@ -86,6 +86,18 @@ describe('editComment', () => {
     expect((await loadComment(commentId))!.body).toBe('Geändert')
   })
 
+  it('sets editedAt on a body edit (drives the „bearbeitet" label)', async () => {
+    const userId = await seedUser()
+    const threadId = await seedThread()
+    const commentId = await seedComment({ threadId, userId })
+
+    expect((await loadComment(commentId))!.editedAt).toBeNull()
+
+    await editComment({ commentId, body: 'Geändert' }, selfActor(userId), { db })
+
+    expect((await loadComment(commentId))!.editedAt).toBeInstanceOf(Date)
+  })
+
   it('does not touch the threads lastActivityAt', async () => {
     const userId = await seedUser()
     const threadId = await seedThread()

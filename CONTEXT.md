@@ -150,7 +150,10 @@ _Avoid_: „Diskussion", „Diskussions-Thread", „Posting".
 
 **Kommentar** — eine Antwort innerhalb eines Threads (Markdown). Soft-Delete mit Tombstone (Body bleibt, UI zeigt „Kommentar gelöscht"). Nur neue Kommentare heben die Sortier-Aktivität (`lastActivityAt`) des Threads — Edits und Löschungen nicht.
 
-**Angehefteter Kommentar** — ein im Thread hervorgehobener Kommentar (max. 3 pro Thread), gesetzt durch einen Admin oder den Autor des Threads. Erscheint zusätzlich oben in einem „Wichtig"-Block.
+**Bearbeitet** *(`editedAt`)* — ein Kommentar gilt als bearbeitet, wenn sein **Body** nach dem Anlegen geändert wurde. Rein der Body-Edit zählt, nicht Anheften, Löschen oder sonstige Berührungen der Row. Davon getrennt ist `updatedAt` („Row zuletzt berührt"): das hebt *jede* Mutation an und dient allein dem Live-Abgleich offener Tabs (Polling-Delta), nie der UI-Anzeige.
+_Avoid_: `updatedAt` als „bearbeitet"-Signal lesen — dafür ist `editedAt` da.
+
+**Angehefteter Kommentar** — ein im Thread hervorgehobener Kommentar (max. 3 pro Thread), gesetzt durch einen Admin oder den Autor des Threads. Erscheint zusätzlich oben in einem „Wichtig"-Block. Pin- und Unpin-Wechsel propagieren live in andere offene Tabs (siehe `editedAt`/`updatedAt`).
 
 **Raum** — eine statisch im Code definierte Gruppierung von Threads (kein Admin-UI). Fünf in v1: **Ankündigungen**, Training, Team, Races, Social. Event-Threads landen anhand des unveränderlichen **Event-Typs** im passenden Raum (`training`→Training, `competition`/`ladv`/`ladv_external`→Races, `social`→Social).
 

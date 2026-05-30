@@ -131,10 +131,11 @@ export const comments = sqliteTable('comments', {
   threadId: integer({ mode: 'number' }).notNull().references(() => threads.id, { onDelete: 'cascade' }),
   userId: integer({ mode: 'number' }).references(() => users.id, { onDelete: 'set null' }), // Autor; bleibt als „unbekannt" erhalten
   body: text().notNull(), // rohes Markdown
+  editedAt: integer({ mode: 'timestamp' }), // Body-Edit (≠ updatedAt); speist das „(bearbeitet)"-Label
   pinnedAt: integer({ mode: 'timestamp' }), // angeheftet (Folge-Slice)
   pinnedBy: integer({ mode: 'number' }).references(() => users.id, { onDelete: 'set null' }),
   deletedAt: integer({ mode: 'timestamp' }), // Soft-Delete / Tombstone (Folge-Slice)
-  ...timestamps(),
+  ...timestamps(), // updatedAt = „Row zuletzt berührt" (Sync-Cursor), jede Mutation hebt es
 })
 
 // Notification-Jobs (Queue + Log)

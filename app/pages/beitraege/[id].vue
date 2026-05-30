@@ -28,6 +28,10 @@ const { data: comments, refresh: refreshComments } = await useFetch<CommentWithA
   { default: () => [] },
 )
 
+// Live-Aktualisierung per Polling — mergt neue Kommentare ein, ohne ans Ende zu
+// scrollen (Auto-Scroll bleibt Mount und eigenem Senden vorbehalten).
+usePolledComments(threadId, comments)
+
 useHead({ title: () => `${thread.value?.title ?? 'Beitrag'} | Berlin Track Club` })
 
 // ─── Zeitformat ───────────────────────────────────────────────────────────────

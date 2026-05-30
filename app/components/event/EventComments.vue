@@ -24,6 +24,10 @@ const { data: commentsAsc, refresh: refreshComments } = await useAsyncData<Comme
   { default: () => [], watch: [threadId] },
 )
 
+// Live-Aktualisierung per Polling — mergt neue Kommentare in den aufsteigenden
+// Stand; das reverse-Computed unten zeigt sie oben. Kein Auto-Scroll.
+usePolledComments(threadId, commentsAsc)
+
 const comments = computed(() => [...(commentsAsc.value ?? [])].reverse())
 
 const rtf = new Intl.RelativeTimeFormat('de', { numeric: 'auto' })

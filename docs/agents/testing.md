@@ -36,6 +36,31 @@ deadline check, diff, non-trivial transform) is an *extraction* signal, not a te
 signal. Move it to `server/utils/`, `shared/utils/` or the owning module, then
 test it there. The handler/composable stays thin.
 
+## How persistence modules get the DB
+
+Persistence modules **never import `hub:db` directly**. They take the Drizzle DB as
+their **first parameter** (`db: AppDb`), where `AppDb = typeof hubDb` (declared in
+`server/registration/persistence.ts`; declare the same `type AppDb = typeof hubDb`
+locally in a new module area). The API handler injects the real DB from `hub:db`;
+the test injects the in-memory `createTestDb()` instance. Same code path, no mock —
+this dependency injection is the whole reason the module is testable.
+
+```ts
+// module — server/<area>/<thing>.ts
+import type { db as hubDb } from 'hub:db'
+import * as schema from '~~/server/db/schema'
+type AppDb = typeof hubDb
+export async function buildOverview(db: AppDb) { /* real Drizzle queries */ }
+
+// handler — thin adapter, no logic
+import { db } from 'hub:db'
+export default defineEventHandler(() => buildOverview(db))
+
+// test — real DB, public API
+const { db } = await createTestDb()
+expect(await buildOverview(db)).toEqual(/* … */)
+```
+
 ## Conventions
 
 - Layout mirrors the source tree: `test/unit/server/registration/…`,

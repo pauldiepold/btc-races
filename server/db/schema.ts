@@ -41,6 +41,8 @@ export const users = sqliteTable('users', {
   age: integer(),
   birthday: integer({ mode: 'timestamp' }),
 
+  lastLoginAt: integer({ mode: 'timestamp' }),
+
   createdAt: integer({ mode: 'timestamp' })
     .notNull()
     .default(sql`(unixepoch())`),

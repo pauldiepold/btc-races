@@ -76,7 +76,11 @@ export default defineEventHandler(async (event) => {
 
   await setUserSession(event, { user: sessionUser, loggedInAt })
 
-  // 4. Token löschen
+  // 4. Login-Zeitpunkt persistieren (nur bei erfolgreichem Login) und Token löschen
+  await db.update(schema.users)
+    .set({ lastLoginAt: new Date() })
+    .where(eq(schema.users.id, user.id))
+
   await db.delete(schema.authTokens).where(eq(schema.authTokens.token, token))
 
   // 5. Claim für PWA-Polling markieren, falls vorhanden

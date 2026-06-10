@@ -43,6 +43,13 @@
       "when": 1779385588391,
       "tag": "0005_lovely_thor_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1781122928175,
+      "tag": "0006_public_golden_guardian",
+      "breakpoints": true
     }
   ]
 }

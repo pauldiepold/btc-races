@@ -4,6 +4,7 @@ import type { EventPublicRegistrationCounts, RegistrationDetail } from '~~/share
 import { getRegistrationLadvIndicator, type LadvIndicator } from '~~/shared/utils/ladv-diff'
 import { REGISTRATION_STATUS_BADGE_COLORS, getRegistrationTabConfig } from '~~/shared/utils/registration-ui'
 import { eventTypeCapabilities } from '~~/shared/utils/event-types/capabilities'
+import { collectWishFilterOptions, filterRegistrationsByWish } from '~~/shared/utils/registration-discipline-filter'
 import type { EventType } from '~~/shared/utils/registration'
 
 const props = defineProps<{
@@ -106,6 +107,25 @@ const activeRegistrations = computed(
   () => byStatus.value[activeTab.value] ?? [],
 )
 
+// Disziplin-/AK-Filter: wirken nur auf den aktiven Tab, Optionen aus dessen
+// (ungefilterten) Anmeldungen. Beim Tab-Wechsel zurücksetzen.
+const disciplineFilter = ref<string | undefined>(undefined)
+const ageClassFilter = ref<string | undefined>(undefined)
+
+watch(activeTab, () => {
+  disciplineFilter.value = undefined
+  ageClassFilter.value = undefined
+})
+
+const filterOptions = computed(() => collectWishFilterOptions(activeRegistrations.value))
+
+const displayedRegistrations = computed(() =>
+  filterRegistrationsByWish(activeRegistrations.value, {
+    discipline: disciplineFilter.value,
+    ageClass: ageClassFilter.value,
+  }),
+)
+
 const totalCount = computed(() => {
   if (props.publicMode) {
     return Object.values(props.registrationCounts ?? {}).reduce((sum, n) => sum + (n ?? 0), 0)
@@ -201,6 +221,41 @@ function ladvIndicatorMeta(reg: RegistrationDetail) {
       </div>
 
       <template v-else>
+        <!-- Disziplin-/AK-Filter (nur bei ≥ 2 verschiedenen Werten im Tab) -->
+        <div
+          v-if="filterOptions.disciplines.length >= 2 || filterOptions.ageClasses.length >= 2"
+          class="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2"
+        >
+          <div
+            v-if="filterOptions.disciplines.length >= 2"
+            class="flex flex-wrap gap-1"
+          >
+            <UButton
+              v-for="d in filterOptions.disciplines"
+              :key="d"
+              size="xs"
+              variant="outline"
+              :color="disciplineFilter === d ? 'primary' : 'neutral'"
+              :label="ladvDisciplineLabel(d)"
+              @click="disciplineFilter = disciplineFilter === d ? undefined : d"
+            />
+          </div>
+          <div
+            v-if="filterOptions.ageClasses.length >= 2"
+            class="flex flex-wrap gap-1"
+          >
+            <UButton
+              v-for="ak in filterOptions.ageClasses"
+              :key="ak"
+              size="xs"
+              variant="outline"
+              :color="ageClassFilter === ak ? 'primary' : 'neutral'"
+              :label="ladvAgeClassLabel(ak)"
+              @click="ageClassFilter = ageClassFilter === ak ? undefined : ak"
+            />
+          </div>
+        </div>
+
         <!-- Tab-Inhalt -->
         <div
           v-if="activeRegistrations.length === 0"
@@ -214,11 +269,22 @@ function ladvIndicatorMeta(reg: RegistrationDetail) {
         </div>
 
         <div
+          v-else-if="displayedRegistrations.length === 0"
+          class="py-8 text-center text-sm text-muted"
+        >
+          <UIcon
+            name="i-ph-funnel"
+            class="size-6 mx-auto mb-2 opacity-40"
+          />
+          <p>Keine Anmeldung passt zum Filter.</p>
+        </div>
+
+        <div
           v-else
           class="divide-y divide-default"
         >
           <div
-            v-for="reg in activeRegistrations"
+            v-for="reg in displayedRegistrations"
             :key="reg.id"
             class="flex items-start gap-3 py-3"
             :class="isAdmin && caps.hasLadvStandManagement ? 'cursor-pointer hover:bg-elevated/50 rounded-lg px-2 -mx-2 transition-colors' : ''"

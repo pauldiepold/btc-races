@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { MemberAdminOverviewItem, MemberRegistrationItem } from '~~/server/members/admin-overview'
+import { sortMembers, type MemberSortField } from '~~/shared/utils/member-sort'
 
 definePageMeta({ title: 'Superuser — Member' })
 
@@ -34,6 +35,33 @@ const syncOptions = [
   { value: 'never', label: 'Nie synchronisiert' },
 ]
 
+// ── Sortierung ───────────────────────────────────────────────────────
+const sortField = ref<MemberSortField>('name')
+const sortDirection = ref<'asc' | 'desc'>('asc')
+
+const sortOptions: { value: MemberSortField, label: string }[] = [
+  { value: 'name', label: 'Name' },
+  { value: 'lastLoginAt', label: 'Letzter Login' },
+  { value: 'lastSyncedAt', label: 'Letzter Sync' },
+  { value: 'registrationCount', label: 'Anmeldungen' },
+  { value: 'pushDeviceCount', label: 'Push-Geräte' },
+]
+
+function toggleSortDirection() {
+  sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
+}
+
+// Feldspezifische Richtungs-Labels — „aufsteigend/absteigend" ist für Datum
+// und Zahlen unintuitiv, daher pro Feldtyp ausformuliert.
+const directionLabels: Record<MemberSortField, { asc: string, desc: string }> = {
+  name: { asc: 'A–Z', desc: 'Z–A' },
+  lastLoginAt: { asc: 'Älteste zuerst', desc: 'Neueste zuerst' },
+  lastSyncedAt: { asc: 'Älteste zuerst', desc: 'Neueste zuerst' },
+  registrationCount: { asc: 'Niedrigste zuerst', desc: 'Höchste zuerst' },
+  pushDeviceCount: { asc: 'Niedrigste zuerst', desc: 'Höchste zuerst' },
+}
+const directionLabel = computed(() => directionLabels[sortField.value][sortDirection.value])
+
 const filteredMembers = computed(() => {
   return (members.value ?? []).filter((m) => {
     if (roleFilter.value !== 'all' && m.role !== roleFilter.value) return false
@@ -48,6 +76,10 @@ const filteredMembers = computed(() => {
     return true
   })
 })
+
+const sortedMembers = computed(() =>
+  sortMembers(filteredMembers.value, sortField.value, sortDirection.value),
+)
 
 // ── Display-Helfer ───────────────────────────────────────────────────
 const roleLabels: Record<MemberAdminOverviewItem['role'], string> = {
@@ -75,6 +107,10 @@ function fullName(m: MemberAdminOverviewItem) {
 function formatDate(iso: string | null): string {
   if (!iso) return '–'
   return new Date(iso).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+function formatLogin(iso: string | null): string {
+  return iso ? formatDate(iso) : 'Noch nie'
 }
 
 // ── Detail-Modal ─────────────────────────────────────────────────────
@@ -180,6 +216,28 @@ async function openDetail(member: MemberAdminOverviewItem) {
           class="w-full"
         />
       </UFormField>
+      <UFormField
+        label="Sortieren nach"
+        size="sm"
+        class="w-full sm:w-auto"
+      >
+        <div class="flex gap-1">
+          <USelect
+            v-model="sortField"
+            :items="sortOptions"
+            value-key="value"
+            class="flex-1 sm:w-40"
+          />
+          <UButton
+            :icon="sortDirection === 'asc' ? 'i-ph-arrow-up' : 'i-ph-arrow-down'"
+            :label="directionLabel"
+            color="neutral"
+            variant="subtle"
+            class="shrink-0"
+            @click="toggleSortDirection"
+          />
+        </div>
+      </UFormField>
     </div>
 
     <p class="text-xs text-muted mb-3">
@@ -245,13 +303,16 @@ async function openDetail(member: MemberAdminOverviewItem) {
               E-Mail
             </th>
             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
+              Letzter Login
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
               Sync
             </th>
           </tr>
         </thead>
         <tbody class="divide-y divide-default">
           <tr
-            v-for="m in filteredMembers"
+            v-for="m in sortedMembers"
             :key="m.id"
             class="hover:bg-elevated/50 transition-colors cursor-pointer"
             @click="openDetail(m)"
@@ -322,6 +383,11 @@ async function openDetail(member: MemberAdminOverviewItem) {
               {{ m.email }}
             </td>
             <td class="px-4 py-3 whitespace-nowrap">
+              <span :class="m.lastLoginAt ? 'text-muted' : 'text-dimmed'">
+                {{ formatLogin(m.lastLoginAt) }}
+              </span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
               <div class="flex items-center gap-2">
                 <UBadge
                   :label="syncLabels[m.syncState]"
@@ -382,6 +448,14 @@ async function openDetail(member: MemberAdminOverviewItem) {
               </p>
               <p class="text-highlighted">
                 {{ selected.membershipNumber ?? '–' }}
+              </p>
+            </div>
+            <div>
+              <p class="text-xs text-muted uppercase tracking-wider mb-1">
+                Letzter Login
+              </p>
+              <p class="text-highlighted">
+                {{ formatLogin(selected.lastLoginAt) }}
               </p>
             </div>
             <div>

@@ -19,6 +19,7 @@ export type MemberAdminOverviewItem = {
   hasLadvStartpass: boolean
   syncState: MemberSyncState
   lastSyncedAt: string | null
+  lastLoginAt: string | null
   pushDeviceCount: number
   registrationCount: number
 }
@@ -57,6 +58,7 @@ export async function getMemberAdminOverview(
     hasLadvStartpass: u.hasLadvStartpass === 1,
     syncState: memberSyncState({ campaiId: u.campaiId, lastSyncedAt: u.lastSyncedAt }, now),
     lastSyncedAt: u.lastSyncedAt ? u.lastSyncedAt.toISOString() : null,
+    lastLoginAt: u.lastLoginAt ? u.lastLoginAt.toISOString() : null,
     pushDeviceCount: pushByUser.get(u.id) ?? 0,
     registrationCount: regByUser.get(u.id) ?? 0,
   }))

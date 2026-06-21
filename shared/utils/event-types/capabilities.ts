@@ -12,7 +12,6 @@ export type EventTypeCapabilities = {
   hasLadvStandManagement: boolean
   status: {
     initial: RegistrationStatus
-    validInitial: RegistrationStatus[]
     validNext: Partial<Record<RegistrationStatus, RegistrationStatus[]>>
   }
   showsRegistrationDeadline: boolean
@@ -35,7 +34,6 @@ export const eventTypeCapabilities: Record<EventType, EventTypeCapabilities> = {
     hasLadvStandManagement: true,
     status: {
       initial: 'registered',
-      validInitial: ['registered'],
       validNext: {
         registered: ['canceled'],
         canceled: ['registered'],
@@ -57,7 +55,6 @@ export const eventTypeCapabilities: Record<EventType, EventTypeCapabilities> = {
     hasLadvStandManagement: false,
     status: {
       initial: 'registered',
-      validInitial: ['registered', 'maybe'],
       validNext: {
         registered: ['maybe', 'no'],
         maybe: ['registered', 'no'],
@@ -80,7 +77,6 @@ export const eventTypeCapabilities: Record<EventType, EventTypeCapabilities> = {
     hasLadvStandManagement: false,
     status: {
       initial: 'registered',
-      validInitial: ['registered', 'maybe'],
       validNext: {
         registered: ['maybe', 'no'],
         maybe: ['registered', 'no'],
@@ -103,7 +99,6 @@ export const eventTypeCapabilities: Record<EventType, EventTypeCapabilities> = {
     hasLadvStandManagement: false,
     status: {
       initial: 'yes',
-      validInitial: ['yes', 'maybe', 'no'],
       validNext: {
         yes: ['maybe', 'no'],
         maybe: ['yes', 'no'],
@@ -126,7 +121,6 @@ export const eventTypeCapabilities: Record<EventType, EventTypeCapabilities> = {
     hasLadvStandManagement: false,
     status: {
       initial: 'yes',
-      validInitial: ['yes', 'maybe', 'no'],
       validNext: {
         yes: ['maybe', 'no'],
         maybe: ['yes', 'no'],
@@ -161,4 +155,15 @@ export function getEventTypesByCategory(category: EventCategory): EventType[] {
 
 export function getPublicEventTypes(): EventType[] {
   return getEventTypesWith('isPubliclyVisible')
+}
+
+/**
+ * Gültige Status-Optionen bei der Erstanmeldung.
+ * hasLadvStandManagement → nur [initial]: Commitment-Anmeldung, Coach meldet bei LADV.
+ * Sonst → [initial, 'maybe', 'no']: reine Tracking-Teilnahme.
+ */
+export function getValidInitialStatuses(eventType: EventType): RegistrationStatus[] {
+  const caps = eventTypeCapabilities[eventType]
+  if (caps.hasLadvStandManagement) return [caps.status.initial]
+  return [caps.status.initial, 'maybe', 'no']
 }

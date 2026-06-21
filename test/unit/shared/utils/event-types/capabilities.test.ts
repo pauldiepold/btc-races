@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { eventTypeCapabilities, getEventTypesByCategory, getEventTypesWith, getPublicEventTypes } from '../../../../../shared/utils/event-types/capabilities'
+import { eventTypeCapabilities, getEventTypesByCategory, getEventTypesWith, getPublicEventTypes, getValidInitialStatuses } from '../../../../../shared/utils/event-types/capabilities'
 import { EVENT_CATEGORIES } from '../../../../../shared/utils/registration'
 import type { EventType } from '../../../../../shared/utils/registration'
 
@@ -23,9 +23,20 @@ describe('eventTypeCapabilities — Invarianten', () => {
 })
 
 describe('eventTypeCapabilities — Status-Konsistenz', () => {
-  it.each(allTypes)('%s: status.initial ∈ status.validInitial', (type) => {
-    const c = eventTypeCapabilities[type]
-    expect(c.status.validInitial).toContain(c.status.initial)
+  it.each(allTypes)('%s: getValidInitialStatuses enthält status.initial', (type) => {
+    expect(getValidInitialStatuses(type)).toContain(eventTypeCapabilities[type].status.initial)
+  })
+
+  it('ladv: nur registered (Coach-Commitment, kein Nein initial)', () => {
+    expect(getValidInitialStatuses('ladv')).toEqual(['registered'])
+  })
+
+  it.each(['competition', 'ladv_external'] as EventType[])('%s: registered, maybe und no initial möglich (Tracking)', (type) => {
+    expect(getValidInitialStatuses(type).sort()).toEqual(['maybe', 'no', 'registered'])
+  })
+
+  it.each(['training', 'social'] as EventType[])('%s: yes, maybe und no initial möglich', (type) => {
+    expect(getValidInitialStatuses(type).sort()).toEqual(['maybe', 'no', 'yes'])
   })
 
   it.each(allTypes)('%s: jeder validNext-Key ist ein gültiger RegistrationStatus-Quellzustand', (type) => {

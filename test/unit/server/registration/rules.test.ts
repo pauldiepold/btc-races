@@ -44,7 +44,6 @@ describe('validateInitialStatus', () => {
       ['ladv', 'no'],
       ['ladv', 'yes'],
       ['ladv', 'canceled'],
-      ['competition', 'no'],
       ['competition', 'yes'],
       ['competition', 'canceled'],
       ['training', 'registered'],
